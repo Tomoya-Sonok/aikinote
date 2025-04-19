@@ -1,9 +1,9 @@
 ---
 name: general
-about: General issue template (for development)
+about: ⚠️ Maintainerが開発時に使用するためのテンプレートです
 title: ''
 labels: ''
-assignees: ''
+assignees: 'Tomoya-Sonok'
 
 ---
 
