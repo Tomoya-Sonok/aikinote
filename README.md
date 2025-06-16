@@ -27,8 +27,7 @@
 
 (*English follows Japanese.)
 
-TODO: Write down the list of features (upcoming ones included)
-
+<!-- TODO: Write down the list of features (upcoming ones included) -->
 
 ## Technology Stack Used
 
@@ -41,7 +40,7 @@ TODO: Write down the list of features (upcoming ones included)
 
 ## Setup
 
-TODO: Write down how to set up the local environment
+<!-- TODO: Write down how to set up the local environment -->
 
 ## Author
 
