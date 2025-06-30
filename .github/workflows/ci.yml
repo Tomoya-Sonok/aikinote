@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    # paths-ignore:
+    #   - 'docs/**'
+    #   - 'README.md'
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install Frontend Dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./frontend
+
+      - name: Build Frontend
+        run: pnpm build
+        working-directory: ./frontend
+
+      # - name: Run Frontend Tests
+      #   run: pnpm test
+      #   working-directory: ./frontend
+
+      - name: Install Backend Dependencies
+        run: pnpm install --frozen-lockfile
+        working-directory: ./backend
+
+      - name: Build Backend
+        run: pnpm build
+        working-directory: ./backend
+
+      # - name: Run Backend Tests
+      #   run: pnpm test
+      #   working-directory: ./backend
