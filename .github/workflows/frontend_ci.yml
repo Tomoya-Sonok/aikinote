@@ -24,6 +24,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Enable Corepack
         run: corepack enable
 
@@ -32,6 +33,8 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+          # pnpmのロックファイルへのパスを指定
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install Frontend Dependencies
         run: pnpm install --frozen-lockfile
