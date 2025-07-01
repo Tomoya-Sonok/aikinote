@@ -27,8 +27,8 @@ jobs:
           cache: 'pnpm'
 
       - name: Install Frontend Dependencies
-        working-directory: ./frontend
-        run: pnpm install --frozen-lockfile
+        # working-directory: ./frontend
+        run: cd frontend && pnpm install --frozen-lockfile
 
       - name: Build Frontend
         working-directory: ./frontend
@@ -39,8 +39,8 @@ jobs:
       #   working-directory: ./frontend
 
       - name: Install Backend Dependencies
-        working-directory: ./backend
-        run: pnpm install --frozen-lockfile
+        # working-directory: ./backend
+        run: cd backend && pnpm install --frozen-lockfile
 
       - name: Build Backend
         working-directory: ./backend
