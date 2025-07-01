@@ -1,4 +1,4 @@
-name: CI
+name: Frontend CI
 
 on:
   push:
@@ -7,36 +7,31 @@ on:
   pull_request:
     branches:
       - main
-    # paths-ignore:
-    #   - 'docs/**'
-    #   - 'README.md'
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/backend_ci.yml'
+      # Uncomment the following lines if you want to ignore certain paths
+      # paths-ignore:
+      #   - 'docs/**'
+      #   - 'README.md'
 
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - run: cd frontend && corepack enable && cd ..
-      - run: cd backend && corepack enable && cd ..
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-
-      - name: Install Frontend Dependencies
-        working-directory: ./frontend
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Frontend
-        working-directory: ./frontend
-        run: pnpm build
-
-      # - name: Run Frontend Tests
-      #   run: pnpm test
-      #   working-directory: ./frontend
 
       - name: Install Backend Dependencies
         working-directory: ./backend
