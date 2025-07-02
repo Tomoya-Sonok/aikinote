@@ -34,7 +34,7 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
           # pnpmのロックファイルへのパスを指定
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          cache-dependency-path: backend/pnpm-lock.yaml
 
       - name: Install Backend Dependencies
         working-directory: ./backend
