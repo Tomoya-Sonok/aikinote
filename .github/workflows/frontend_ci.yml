@@ -35,6 +35,7 @@ jobs:
           cache: 'pnpm'
           # pnpmのロックファイルへのパスを指定
           cache-dependency-path: frontend/pnpm-lock.yaml
+          pnpm-version: 8 
 
       - name: Install Frontend Dependencies
         run: pnpm install --frozen-lockfile
