@@ -25,8 +25,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
+      # package.jsonのpackageManagerフィールドを読むので、このステップは不要
+      # - name: Enable Corepack
+      #   run: corepack enable
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -35,7 +36,8 @@ jobs:
           cache: 'pnpm'
           # pnpmのロックファイルへのパスを指定
           cache-dependency-path: frontend/pnpm-lock.yaml
-          pnpm-version: 8 
+          # package.jsonのpackageManagerフィールドを読むので、この行も不要
+          # pnpm-version: 8 
 
       - name: Install Frontend Dependencies
         run: pnpm install --frozen-lockfile
