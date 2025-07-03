@@ -10,30 +10,25 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/backend_ci.yml'
-      # Uncomment the following lines if you want to ignore certain paths
-      # paths-ignore:
-      #   - 'docs/**'
-      #   - 'README.md'
 
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+          run_install: false
 
       - name: Install Backend Dependencies
         working-directory: ./backend
