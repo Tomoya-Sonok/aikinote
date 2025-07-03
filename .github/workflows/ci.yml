@@ -1,4 +1,4 @@
-name: Backend CI
+name: Frontend CI
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
     paths:
       - 'frontend/**'
-      - '.github/workflows/backend_ci.yml'
+      - '.github/workflows/frontend_ci.yml'
       # Uncomment the following lines if you want to ignore certain paths
       # paths-ignore:
       #   - 'docs/**'
@@ -18,24 +18,29 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Enable Corepack
-        run: corepack enable
+      - run: cd frontend && corepack enable && cd ..
+      - run: cd backend && corepack enable && cd ..
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-          # pnpmのロックファイルへのパスを指定
-          cache-dependency-path: backend/pnpm-lock.yaml
-          pnpm-version: 8 
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: pnpm build
+
+      # - name: Run Frontend Tests
+      #   run: pnpm test
+      #   working-directory: ./frontend
 
       - name: Install Backend Dependencies
         working-directory: ./backend
@@ -43,9 +48,6 @@ jobs:
 
       - name: Build Backend
         working-directory: ./backend
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: pnpm build
 
       # - name: Run Backend Tests
