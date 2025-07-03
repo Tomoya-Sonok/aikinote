@@ -10,35 +10,31 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend_ci.yml'
-      # Uncomment the following lines if you want to ignore certain paths
-      # paths-ignore:
-      #   - 'docs/**'
-      #   - 'README.md'
 
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Install Frontend Dependencies
+        working-directory: frontend
         run: pnpm install --frozen-lockfile
 
       - name: Build Frontend
+        working-directory: frontend
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
