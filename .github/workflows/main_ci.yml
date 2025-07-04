@@ -3,7 +3,17 @@ name: Daily Main CI
 on:
   # 毎日、日本時間の午前8時に実行
   schedule:
-    - cron: '0 23 * * *'
+    - cron: "0 23 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/main_ci.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/main_ci.yml"
 
 jobs:
   call-frontend-ci:
@@ -19,3 +29,4 @@ jobs:
     secrets:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
