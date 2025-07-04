@@ -1,14 +1,22 @@
 name: Backend CI
 
 on:
+  workflow_call:
+    workflow_call:
+    secrets:
+      DATABASE_URL:
+        required: true
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_ci.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'frontend/**'
+      - 'backend/**'
       - '.github/workflows/backend_ci.yml'
 
 jobs:

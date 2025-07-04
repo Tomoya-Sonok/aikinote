@@ -1,0 +1,21 @@
+name: Daily Main CI
+
+on:
+  # 毎日、日本時間の午前8時に実行
+  schedule:
+    - cron: '0 23 * * *'
+
+jobs:
+  call-frontend-ci:
+    name: Call Frontend CI
+    uses: ./.github/workflows/frontend_ci.yml
+    secrets:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+  call-backend-ci:
+    name: Call Backend CI
+    uses: ./.github/workflows/backend_ci.yml
+    secrets:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

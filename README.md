@@ -7,7 +7,7 @@
 
 [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=Open&message=in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/Tomoya-Sonok/aikinote)
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Tomoya-Sonok/aikinote/ci.yml?branch=main)](https://github.com/Tomoya-Sonok/aikinote/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Tomoya-Sonok/aikinote/main_ci.yml?branch=main)](https://github.com/Tomoya-Sonok/aikinote/actions)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/pulse)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/commits/main)
 [![GitHub](https://img.shields.io/github/license/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/blob/main/LICENSE)
