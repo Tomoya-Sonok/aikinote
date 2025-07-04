@@ -3,6 +3,11 @@ name: Backend CI
 on:
   workflow_call:
     workflow_call:
+      secrets:
+        SUPABASE_URL:
+          required: true
+        SUPABASE_SERVICE_ROLE_KEY:
+          required: true
     secrets:
       DATABASE_URL:
         required: true
