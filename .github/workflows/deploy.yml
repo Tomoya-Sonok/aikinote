@@ -1,0 +1,62 @@
+name: Deploy to AWS ECS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_FRONTEND_REPOSITORY: 945098287150.dkr.ecr.ap-northeast-1.amazonaws.com/aikinote-frontend
+  ECR_BACKEND_REPOSITORY: 945098287150.dkr.ecr.ap-northeast-1.amazonaws.com/aikinote-backend
+  ECS_CLUSTER: aikinote-cluster-dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build Frontend Docker image
+      run: |
+        docker build \
+          --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
+          --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+          -t $ECR_FRONTEND_REPOSITORY:${{ github.sha }} \
+          -t $ECR_FRONTEND_REPOSITORY:latest \
+          ./frontend
+
+    - name: Build Backend Docker image
+      run: |
+        docker build \
+          --build-arg SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+          --build-arg SUPABASE_SERVICE_ROLE_KEY="${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          -t $ECR_BACKEND_REPOSITORY:${{ github.sha }} \
+          -t $ECR_BACKEND_REPOSITORY:latest \
+          ./backend
+
+    - name: Push images to Amazon ECR
+      run: |
+        docker push $ECR_FRONTEND_REPOSITORY:${{ github.sha }}
+        docker push $ECR_FRONTEND_REPOSITORY:latest
+        docker push $ECR_BACKEND_REPOSITORY:${{ github.sha }}
+        docker push $ECR_BACKEND_REPOSITORY:latest
+
+    - name: Force update ECS services
+      run: |
+        aws ecs update-service --cluster $ECS_CLUSTER --service aikinote-frontend-dev --force-new-deployment
+        aws ecs update-service --cluster $ECS_CLUSTER --service aikinote-backend-dev --force-new-deployment
