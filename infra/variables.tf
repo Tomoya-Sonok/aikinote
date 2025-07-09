@@ -1,5 +1,5 @@
 variable "aws_region" {
-  description = "AWS region to deploy resources"
+  description = "The AWS region to deploy to."
   type        = string
   default     = "ap-northeast-1"
 }
@@ -23,16 +23,34 @@ variable "ecr_repository_names" {
 }
 
 variable "vpc_id" {
-  description = "VPC ID to deploy resources"
+  description = "The ID of the VPC."
   type        = string
 }
 
 variable "public_subnet_ids" {
-  description = "Public subnet IDs for ALB"
+  description = "A list of public subnet IDs."
   type        = list(string)
 }
 
 variable "private_subnet_ids" {
-  description = "Private subnet IDs for ECS tasks"
+  description = "A list of private subnet IDs."
   type        = list(string)
+}
+
+variable "supabase_url" {
+  description = "Supabase project URL"
+  type        = string
+  sensitive   = true
+}
+
+variable "supabase_anon_key" {
+  description = "Supabase anonymous public key"
+  type        = string
+  sensitive   = true
+}
+
+variable "supabase_service_role_key" {
+  description = "Supabase service role key with admin privileges"
+  type        = string
+  sensitive   = true
 }

@@ -16,8 +16,8 @@ resource "aws_ssm_parameter" "frontend_env" {
   description = "フロントエンド用環境変数"
   type        = "SecureString"
   value       = jsonencode({
-    NEXT_PUBLIC_SUPABASE_URL      = "your-supabase-url"
-    NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key"
+    NEXT_PUBLIC_SUPABASE_URL      = var.supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY = var.supabase_anon_key
   })
 
   tags = local.common_tags
@@ -28,8 +28,8 @@ resource "aws_ssm_parameter" "backend_env" {
   description = "バックエンド用環境変数"
   type        = "SecureString"
   value       = jsonencode({
-    SUPABASE_URL              = "your-supabase-url"
-    SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
+    SUPABASE_URL              = var.supabase_url
+    SUPABASE_SERVICE_ROLE_KEY = var.supabase_service_role_key
   })
 
   tags = local.common_tags
