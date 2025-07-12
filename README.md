@@ -14,19 +14,21 @@
 
 ## About
 
-(*English follows Japanese.)
+(\*English follows Japanese.)
 
 - 日々の合気道の稽古で学んだことや感想を自由に記録・検索〜閲覧ができるデジタル稽古日誌アプリ
   - 個人の稽古記録の用途に特化した世代を問わず使いやすいUIやデザイン
   - 異なる流派や他道場生と合気道の技の考察や意見交換を通して交流できる機能も初期リリース以降で実装予定
+
 ---
+
 - A digital training journal app designed for Aikido practitioners to freely record, search, and review their daily learnings and reflections from practice sessions.
   - User-friendly UI and design tailored for personal training logs, accessible to all generations and experience levels
   - Future updates will include features that enable interaction and exchange of insights with practitioners from different dojos or styles of Aikido
 
 ## Features
 
-(*English follows Japanese.)
+(\*English follows Japanese.)
 
 - 多言語対応（日本語 / 英語）
 - ひとりで
@@ -36,7 +38,9 @@
 - みんなで（初期リリースには含めず、後発で実装・追加予定）
   - 異なる流派や他道場生と合気道の技の考察や意見交換を通して交流できるSNS機能
   - 自分の投稿内容の公開範囲をマイページから変更すると、同じ流派（所属道場）のユーザーのみに向けた発信もできる
+
 ---
+
 - Multilingual support (Japanese / English)
 - Personal Mode
   - Quickly log your training session with just one tap after launching the app.
@@ -48,17 +52,74 @@
 
 ## Technology Stack Used
 
-| Category         | Technology Stack                                                                                                                                                                                                                  |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Category     | Technology Stack                                                                                                                                                                                                                                                                                                                                |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Frontend** | ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![CSS Modules](https://img.shields.io/badge/CSS_Modules-000000?style=for-the-badge&logo=css-modules&logoColor=white) |
-| **Backend**   | ![Hono.js](https://img.shields.io/badge/Hono.js-E36002?style=for-the-badge&logo=hono&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)                                         |
-| **Database**   | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)                                                                                                            |
-| **Infra**       | ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white) |
+| **Backend**  | ![Hono.js](https://img.shields.io/badge/Hono.js-E36002?style=for-the-badge&logo=hono&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)                                                                                                                         |
+| **Database** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)                                                                                                                                                                                                                                     |
+| **Infra**    | ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)                        |
 
 ## Setup
 
-to be written later...
-<!-- TODO: Write down how to set up the local environment -->
+### 0. Prerequisites
+
+- **Node.js** (v18 or later)
+- **pnpm** (v8 or later)
+- **Docker** and **Docker Compose**
+- **Supabase account** (for database and authentication)
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Tomoya-Sonok/aikinote.git
+cd aikinote
+```
+
+### 2. Environment setup
+
+Copy the environment template and configure your Supabase credentials:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` with your Supabase project details:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_URL=your-supabase-project-url
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+```
+
+### 3. Install dependencies
+
+```bash
+# Frontend
+cd frontend
+pnpm install
+
+# Backend
+cd ../backend
+pnpm install
+```
+
+### 4. Run the development servers
+
+Start both frontend and backend services with a single command:
+
+```bash
+docker-compose up
+```
+
+> **Note**: Alternatively, you can run each service individually by executing `pnpm dev` in the `frontend/` and `backend/` directories respectively.
+
+### 5. Access the application
+
+- **Frontend**: <http://localhost:3000>
+- **Backend API**: <http://localhost:8787>
+
+That's it! You're ready to start developing. 🚀
 
 ## Author
 
