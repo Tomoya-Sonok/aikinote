@@ -1,5 +1,5 @@
 resource "aws_lb" "main" {
-  name               = "${var.app_name}-alb-${var.environment}"
+  name               = "aikinote-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
@@ -8,7 +8,7 @@ resource "aws_lb" "main" {
   enable_deletion_protection = false
   
   tags = {
-    Name = "${var.app_name}-alb-${var.environment}"
+    Name = "aikinote-alb"
   }
 }
 
@@ -48,6 +48,7 @@ resource "aws_lb_target_group" "backend" {
   }
 }
 
+# HTTP Listener - Redirect to HTTPS
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
@@ -64,25 +65,15 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-# HTTPSリスナーはACM証明書が必要なので、実際の環境で設定する際には証明書ARNを指定
-# resource "aws_lb_listener" "https" {
-#   load_balancer_arn = aws_lb.main.arn
-#   port              = "443"
-#   protocol          = "HTTPS"
-#   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
-#   certificate_arn   = "certificate-arn"
-#   
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.frontend.arn
-#   }
-# }
 
-# デモ用：HTTPリスナー（本番環境ではHTTPSを使用すること）
-resource "aws_lb_listener" "http_forward" {
+
+# HTTPS Listener
+resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.main.arn
-  port              = "8080"
-  protocol          = "HTTP"
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  certificate_arn   = aws_acm_certificate.main.arn
   
   default_action {
     type             = "forward"
@@ -90,8 +81,9 @@ resource "aws_lb_listener" "http_forward" {
   }
 }
 
+# API用のリスナールール (HTTPS)
 resource "aws_lb_listener_rule" "backend_api" {
-  listener_arn = aws_lb_listener.http_forward.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 100
   
   action {
@@ -101,7 +93,7 @@ resource "aws_lb_listener_rule" "backend_api" {
   
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/api/*", "/health"]
     }
   }
 }
