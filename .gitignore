@@ -41,6 +41,13 @@ crash.*.log
 .DS_Store
 Thumbs.db
 
+# インストーラー・バイナリファイル
+*.pkg
+*.dmg
+*.exe
+*.msi
+AWSCLIV2.pkg
+
 # IDE / エディタ
 .idea/
 .vscode/
