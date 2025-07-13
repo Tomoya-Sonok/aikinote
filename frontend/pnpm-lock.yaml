@@ -34,6 +34,9 @@ devDependencies:
   '@types/react-dom':
     specifier: ^18
     version: 18.3.6(@types/react@18.3.20)
+  dotenv:
+    specifier: ^17.2.0
+    version: 17.2.0
   eslint:
     specifier: ^8
     version: 8.57.1
@@ -992,6 +995,11 @@ packages:
     engines: {node: '>=6.0.0'}
     dependencies:
       esutils: 2.0.3
+    dev: true
+
+  /dotenv@17.2.0:
+    resolution: {integrity: sha512-Q4sgBT60gzd0BB0lSyYD3xM4YxrXA9y4uBDof1JNYGzOXrQdQ6yX+7XIAqoFOGQFOTK1D3Hts5OllpxMDZFONQ==}
+    engines: {node: '>=12'}
     dev: true
 
   /dunder-proto@1.0.1:

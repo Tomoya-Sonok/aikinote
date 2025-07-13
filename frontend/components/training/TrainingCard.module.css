@@ -1,0 +1,48 @@
+.card {
+	background: var(--aikinote-white);
+	border-radius: 24px;
+	padding: 16px;
+	margin-bottom: 16px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	position: relative;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	margin-bottom: 16px;
+}
+
+.title {
+	font-family: var(--font-zen-old-mincho);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.4;
+	color: var(--aikinote-black);
+	margin: 0;
+	flex: 1;
+	margin-right: 16px;
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 16px;
+}
+
+.content {
+	font-family: var(--font-zen-old-mincho);
+	font-size: 10px;
+	font-weight: 400;
+	line-height: 1.4;
+	color: var(--aikinote-black);
+	margin: 0;
+}

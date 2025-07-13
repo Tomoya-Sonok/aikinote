@@ -1,0 +1,64 @@
+.tabContainer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	background: var(--aikinote-white);
+	border-top: 1px solid #e5e7eb;
+	z-index: 1000;
+}
+
+.tab {
+	flex: 1;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	border: none;
+	background: var(--aikinote-white);
+	padding: 0;
+}
+
+.tab:first-child {
+	border-radius: 24px 0 0 0;
+}
+
+.tab:last-child {
+	border-radius: 0 24px 0 0;
+}
+
+.tab.active {
+	background: var(--aikinote-white);
+	box-shadow: inset 0px -105px 4px 0px rgba(0, 0, 0, 0.1);
+	border-bottom: 3px solid var(--aikinote-black);
+}
+
+.tab.active:first-child {
+	border-radius: 24px 0 0 0;
+}
+
+.tab.active:last-child {
+	border-radius: 0 24px 0 0;
+}
+
+.tabContent {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 8px 16px 16px;
+	gap: 8px;
+}
+
+.icon {
+	width: 32px;
+	height: 32px;
+}
+
+.label {
+	font-family: var(--font-zen-old-mincho);
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.4;
+	color: var(--aikinote-black);
+	text-align: center;
+}
