@@ -1,5 +1,18 @@
 import type { Metadata } from "next";
+import { Zen_Old_Mincho, Inter } from "next/font/google";
 import "./globals.css";
+import { MSWComponent } from "@/components/MSWComponent";
+
+const zenOldMincho = Zen_Old_Mincho({
+	weight: "400",
+	subsets: ["latin"],
+	variable: "--font-zen-old-mincho",
+});
+
+const inter = Inter({
+	subsets: ["latin"],
+	variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
 	title: "AikiNote",
@@ -13,7 +26,8 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="ja">
-			<body>
+			<body className={`${zenOldMincho.variable} ${inter.variable}`}>
+				{process.env.NODE_ENV === "development" && <MSWComponent />}
 				<main>{children}</main>
 			</body>
 		</html>
