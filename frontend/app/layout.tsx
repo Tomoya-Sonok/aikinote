@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Zen_Old_Mincho, Inter } from "next/font/google";
 import "./globals.css";
+import { MSWComponent } from "@/components/MSWComponent";
 
 const zenOldMincho = Zen_Old_Mincho({
 	weight: "400",
@@ -26,6 +27,7 @@ export default function RootLayout({
 	return (
 		<html lang="ja">
 			<body className={`${zenOldMincho.variable} ${inter.variable}`}>
+				{process.env.NODE_ENV === "development" && <MSWComponent />}
 				<main>{children}</main>
 			</body>
 		</html>

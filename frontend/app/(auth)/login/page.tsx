@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/lib/server/auth";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
@@ -13,14 +13,6 @@ export default function LoginPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-
-	// 開発環境では自動的にpersonal/pagesにリダイレクト
-	useEffect(() => {
-		if (process.env.NODE_ENV === "development") {
-			console.log("🔧 Development mode: Auto-redirecting to personal/pages");
-			router.push("/personal/pages");
-		}
-	}, [router]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

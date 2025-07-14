@@ -6,7 +6,7 @@ import { TrainingCard } from "@/components/training/TrainingCard";
 import { TabNavigation } from "@/components/navigation/TabNavigation";
 import { FilterSection } from "@/components/filter/FilterSection";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
-import { getCurrentUser, getUserProfile, signOut } from "@/lib/auth";
+import { getCurrentUser, getUserProfile, signOut } from "@/lib/server/auth";
 import styles from "./personal-pages.module.css";
 
 type UserProfile = {
@@ -153,7 +153,7 @@ export default function PersonalPagesPage() {
 		<div className={styles.container}>
 			{/* ロゴエリア */}
 			<div className={styles.logoArea}>
-				<div className={styles.logo}>AikiNote</div>
+				<div className={styles.logo} />
 			</div>
 
 			{/* 統計エリア */}

@@ -6,7 +6,7 @@
 }
 
 .logoArea {
-	padding: 20px;
+	padding: 20px 20px 0 20px;
 	display: flex;
 	align-items: center;
 }
@@ -14,22 +14,12 @@
 .logo {
 	width: 72px;
 	height: 72px;
-	background: url("/images/logo.png") no-repeat center;
+	background: url("/images/aikinote-logo.png") no-repeat center;
 	background-size: contain;
-	/* フォールバック用のテキスト表示 */
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	font-weight: 400;
-	color: var(--aikinote-black);
-	border: 1px solid #ccc;
-	border-radius: 8px;
 }
 
 .statsSection {
-	padding: 0 22px;
+	padding: 24px 22px;
 	margin-bottom: 24px;
 }
 
@@ -55,7 +45,7 @@
 
 .pageInfo {
 	padding: 0 32px;
-	margin-bottom: 16px;
+	margin-bottom: 12px;
 }
 
 .pageTitle {

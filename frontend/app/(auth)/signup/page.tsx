@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import { signUp } from "@/lib/auth";
-import { getDojos } from "@/lib/api";
+import { signUp } from "@/lib/server/auth";
+import { getDojos } from "@/lib/server/api";
 import styles from "./signup.module.css";
 
 // 道場の型定義を追加

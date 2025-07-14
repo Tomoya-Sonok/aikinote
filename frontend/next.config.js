@@ -1,13 +1,13 @@
-const path = require('node:path');
+const path = require("node:path");
 
 // dotenvが利用可能な場合のみ、ルートディレクトリの.env.localを読み込み
 // Docker環境などではenv_fileで環境変数が既に設定されているため、dotenvは不要
 try {
-	const dotenv = require('dotenv');
-	dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+	const dotenv = require("dotenv");
+	dotenv.config({ path: path.resolve(__dirname, "../.env.local") });
 } catch (error) {
 	// dotenvが見つからない場合は無視（Docker環境など）
-	console.log('dotenv not found, using existing environment variables');
+	console.log("dotenv not found, using existing environment variables");
 }
 
 /** @type {import('next').NextConfig} */

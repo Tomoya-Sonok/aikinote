@@ -1,22 +1,5 @@
 import { supabase } from "./supabase";
 
-// 開発環境でのモックユーザー
-const MOCK_USER = {
-	id: "mock-user-123",
-	email: "test@example.com",
-	username: "テストユーザー",
-	profile_image_url: null,
-	dojo_id: "mock-dojo-456",
-	dojo_name: "テスト道場",
-	training_start_date: "2023-01-01",
-	publicity_setting: "private" as const,
-	language: "ja" as const,
-};
-
-function isDevelopment() {
-	return process.env.NODE_ENV === "development";
-}
-
 export type SignUpCredentials = {
 	email: string;
 	password: string;
@@ -75,25 +58,6 @@ export async function signOut() {
 }
 
 export async function getCurrentUser() {
-	// 開発環境ではモックユーザーを返す（MSWなしで直接）
-	if (isDevelopment()) {
-		return {
-			id: MOCK_USER.id,
-			aud: "authenticated",
-			role: "authenticated",
-			email: MOCK_USER.email,
-			email_confirmed_at: new Date().toISOString(),
-			phone: "",
-			confirmed_at: new Date().toISOString(),
-			last_sign_in_at: new Date().toISOString(),
-			app_metadata: {},
-			user_metadata: {},
-			identities: [],
-			created_at: new Date().toISOString(),
-			updated_at: new Date().toISOString(),
-		};
-	}
-
 	const {
 		data: { user },
 	} = await supabase.auth.getUser();
@@ -101,11 +65,6 @@ export async function getCurrentUser() {
 }
 
 export async function getUserProfile(userId: string) {
-	// 開発環境ではモックプロフィールを返す
-	if (isDevelopment()) {
-		return { data: MOCK_USER, error: null };
-	}
-
 	const { data, error } = await supabase
 		.from("user")
 		.select("*")
