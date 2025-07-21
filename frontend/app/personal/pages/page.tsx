@@ -53,7 +53,6 @@ export default function PersonalPagesPage() {
 	const [user, setUser] = useState<UserProfile | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [activeTab, setActiveTab] = useState("personal");
 	const [filteredData, setFilteredData] = useState(mockTrainingData);
 	const router = useRouter();
 
@@ -92,18 +91,6 @@ export default function PersonalPagesPage() {
 
 		fetchUserProfile();
 	}, [router]);
-
-	const handleTabChange = (tabId: string) => {
-		setActiveTab(tabId);
-		// タブに応じて他のページに遷移
-		if (tabId === "social") {
-			router.push("/social/posts");
-		} else if (tabId === "mypage") {
-			router.push("/mypage");
-		} else if (tabId === "personal") {
-			router.push("/personal/pages");
-		}
-	};
 
 	const handleSearchChange = (search: string) => {
 		const filtered = mockTrainingData.filter(
@@ -196,7 +183,7 @@ export default function PersonalPagesPage() {
 			<FloatingActionButton onClick={handleCreatePage} />
 
 			{/* タブナビゲーション */}
-			<TabNavigation activeTab={activeTab} onTabChange={handleTabChange} />
+			<TabNavigation />
 		</div>
 	);
 }

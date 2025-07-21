@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
+import { TabNavigation } from "@/components/navigation/TabNavigation";
 import styles from "./mypage.module.css";
 
 export default function MyPage() {
@@ -46,6 +47,9 @@ export default function MyPage() {
 				<h1>マイページ</h1>
 				<p>こちらのページは後ほど実装予定です。</p>
 			</div>
+			
+			{/* タブナビゲーション */}
+			<TabNavigation />
 		</div>
 	);
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
+import { TabNavigation } from "@/components/navigation/TabNavigation";
 import styles from "./social-posts.module.css";
 
 export default function SocialPostsPage() {
@@ -46,6 +47,9 @@ export default function SocialPostsPage() {
 				<h1>みんなで 投稿一覧</h1>
 				<p>こちらのページは後ほど実装予定です。</p>
 			</div>
+			
+			{/* タブナビゲーション */}
+			<TabNavigation />
 		</div>
 	);
 }
