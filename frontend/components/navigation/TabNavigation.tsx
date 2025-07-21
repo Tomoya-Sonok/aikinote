@@ -21,7 +21,7 @@ const tabs: TabItem[] = [
 		icon: "/icons/edit-icon.svg",
 	},
 	{
-		id: "community",
+		id: "social",
 		label: "みんなで",
 		icon: "/icons/message-chat-icon.svg",
 	},

@@ -96,10 +96,12 @@ export default function PersonalPagesPage() {
 	const handleTabChange = (tabId: string) => {
 		setActiveTab(tabId);
 		// タブに応じて他のページに遷移
-		if (tabId === "community") {
-			router.push("/community");
+		if (tabId === "social") {
+			router.push("/social/posts");
 		} else if (tabId === "mypage") {
 			router.push("/mypage");
+		} else if (tabId === "personal") {
+			router.push("/personal/pages");
 		}
 	};
 

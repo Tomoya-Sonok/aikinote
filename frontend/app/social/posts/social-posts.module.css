@@ -1,0 +1,29 @@
+.container {
+	background: var(--aikinote-bg);
+	min-height: 100vh;
+	font-family: var(--font-zen-old-mincho);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.content {
+	text-align: center;
+	padding: 20px;
+}
+
+.content h1 {
+	font-family: var(--font-zen-old-mincho);
+	font-size: 24px;
+	font-weight: 400;
+	color: var(--aikinote-black);
+	margin-bottom: 16px;
+}
+
+.content p {
+	font-family: var(--font-zen-old-mincho);
+	font-size: 16px;
+	font-weight: 400;
+	color: var(--aikinote-text-light);
+	line-height: 1.6;
+}
