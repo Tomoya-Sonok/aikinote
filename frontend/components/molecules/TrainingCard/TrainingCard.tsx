@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import Image from "next/image";
-import { Tag } from "../ui/Tag";
-import { Button } from "../ui/Button";
+import { Tag } from "../../atoms/Tag/Tag";
+import { Button } from "../../atoms/Button/Button";
 import styles from "./TrainingCard.module.css";
 
 interface TrainingCardProps {

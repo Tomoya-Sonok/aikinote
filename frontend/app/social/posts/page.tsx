@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
-import { TabNavigation } from "@/components/navigation/TabNavigation";
+import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./social-posts.module.css";
 

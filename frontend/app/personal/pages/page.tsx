@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { TrainingCard } from "@/components/training/TrainingCard";
-import { TabNavigation } from "@/components/navigation/TabNavigation";
-import { FilterSection } from "@/components/filter/FilterSection";
-import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
+import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
+import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
+import { FilterSection } from "@/components/molecules/FilterSection/FilterSection";
+import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import { getCurrentUser, getUserProfile, signOut } from "@/lib/server/auth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./personal-pages.module.css";
