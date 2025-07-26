@@ -1,13 +1,17 @@
 .container {
-	background: var(--aikinote-bg);
-	min-height: 100vh;
 	font-family: var(--font-zen-old-mincho);
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	flex-direction: column;
+	min-height: calc(100vh - 164px); /* ロゴエリア(72px + 40px padding) + margin(48px) を除く */
+	padding-bottom: 92px; /* タブナビゲーション分のスペース */
 }
 
 .content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 	text-align: center;
 	padding: 20px;
 }

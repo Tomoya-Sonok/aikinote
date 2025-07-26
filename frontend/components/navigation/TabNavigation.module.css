@@ -19,26 +19,10 @@
 	padding: 0;
 }
 
-.tab:first-child {
-	border-radius: 24px 0 0 0;
-}
-
-.tab:last-child {
-	border-radius: 0 24px 0 0;
-}
-
 .tab.active {
 	background: var(--aikinote-white);
 	box-shadow: inset 0px -105px 4px 0px rgba(0, 0, 0, 0.1);
 	border-bottom: 3px solid var(--aikinote-black);
-}
-
-.tab.active:first-child {
-	border-radius: 24px 0 0 0;
-}
-
-.tab.active:last-child {
-	border-radius: 0 24px 0 0;
 }
 
 .tabContent {

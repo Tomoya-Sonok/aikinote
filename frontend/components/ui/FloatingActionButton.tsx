@@ -13,15 +13,13 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
 }) => {
 	return (
 		<button className={styles.fab} onClick={onClick} type="button">
-			<div className={styles.circle}>
-				<Image
-					src="/icons/file-edit-icon.svg"
-					alt="新規作成"
-					width={26}
-					height={27}
-					className={styles.icon}
-				/>
-			</div>
+			<Image
+				src="/icons/file-edit-icon-new.svg"
+				alt="新規作成"
+				width={32}
+				height={33}
+				className={styles.icon}
+			/>
 			<span className={styles.label}>{label}</span>
 		</button>
 	);

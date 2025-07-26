@@ -63,6 +63,10 @@ main {
 	flex-direction: column;
 }
 
+h2 {
+	margin-bottom: 4px;
+}
+
 /* モバイルファースト対応 */
 @media (max-width: 768px) {
 	.container {

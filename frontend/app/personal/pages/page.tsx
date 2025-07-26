@@ -7,6 +7,7 @@ import { TabNavigation } from "@/components/navigation/TabNavigation";
 import { FilterSection } from "@/components/filter/FilterSection";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { getCurrentUser, getUserProfile, signOut } from "@/lib/server/auth";
+import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./personal-pages.module.css";
 
 type UserProfile = {
@@ -127,63 +128,62 @@ export default function PersonalPagesPage() {
 	};
 
 	if (loading) {
-		return <div className={styles.container}>読み込み中...</div>;
+		return (
+			<AppLayout>
+				<div className={styles.container}>読み込み中...</div>
+			</AppLayout>
+		);
 	}
 
 	if (error || !user) {
 		return (
-			<div className={styles.container}>
-				{error || "ユーザー情報を取得できませんでした"}
-			</div>
+			<AppLayout>
+				<div className={styles.container}>
+					{error || "ユーザー情報を取得できませんでした"}
+				</div>
+			</AppLayout>
 		);
 	}
 
 	return (
-		<div className={styles.container}>
-			{/* ロゴエリア */}
-			<div className={styles.logoArea}>
-				<div className={styles.logo} />
+		<AppLayout>
+			<div className={styles.container}>
+				{/* 統計エリア */}
+				<div className={styles.statsSection}>
+					<p className={styles.statsText}>
+						これまでに作成したページ数は
+						<span className={styles.statsNumber}>18</span>
+						ページです
+					</p>
+				</div>
+
+				<FilterSection
+					onSearchChange={handleSearchChange}
+					onDateFilterChange={handleDateFilterChange}
+					onTagFilterChange={handleTagFilterChange}
+				/>
+
+				<div className={styles.pageListWrapper}>
+					<div className={styles.pageListDescription}>
+						<h2 className={styles.pageTitle}>最近作成したページ</h2>
+						<p className={styles.pageCount}>全18件表示中</p>
+					</div>
+					<div className={styles.trainingList}>
+						{filteredData.map((training) => (
+							<TrainingCard
+								key={training.id}
+								{...training}
+								onEdit={() => handleEditTraining(training.id)}
+								onDelete={() => handleDeleteTraining(training.id)}
+							/>
+						))}
+					</div>
+				</div>
+
+				<FloatingActionButton onClick={handleCreatePage} />
+
+				<TabNavigation />
 			</div>
-
-			{/* 統計エリア */}
-			<div className={styles.statsSection}>
-				<p className={styles.statsText}>
-					これまでに作成したページ数は
-					<span className={styles.statsNumber}>18</span>
-					ページです
-				</p>
-			</div>
-
-			{/* フィルタセクション */}
-			<FilterSection
-				onSearchChange={handleSearchChange}
-				onDateFilterChange={handleDateFilterChange}
-				onTagFilterChange={handleTagFilterChange}
-			/>
-
-			{/* ページ情報表示 */}
-			<div className={styles.pageInfo}>
-				<h2 className={styles.pageTitle}>最近作成したページ</h2>
-				<p className={styles.pageCount}>全18件表示中</p>
-			</div>
-
-			{/* 稽古記録リスト */}
-			<div className={styles.trainingList}>
-				{filteredData.map((training) => (
-					<TrainingCard
-						key={training.id}
-						{...training}
-						onEdit={() => handleEditTraining(training.id)}
-						onDelete={() => handleDeleteTraining(training.id)}
-					/>
-				))}
-			</div>
-
-			{/* フローティングアクションボタン */}
-			<FloatingActionButton onClick={handleCreatePage} />
-
-			{/* タブナビゲーション */}
-			<TabNavigation />
-		</div>
+		</AppLayout>
 	);
 }

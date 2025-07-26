@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
 import { TabNavigation } from "@/components/navigation/TabNavigation";
+import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./social-posts.module.css";
 
 export default function SocialPostsPage() {
@@ -38,18 +39,24 @@ export default function SocialPostsPage() {
 	}, [router]);
 
 	if (loading) {
-		return <div className={styles.container}>読み込み中...</div>;
+		return (
+			<AppLayout>
+				<div className={styles.container}>読み込み中...</div>
+			</AppLayout>
+		);
 	}
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.content}>
-				<h1>みんなで 投稿一覧</h1>
-				<p>こちらのページは後ほど実装予定です。</p>
+		<AppLayout>
+			<div className={styles.container}>
+				<div className={styles.content}>
+					<h1>みんなで 投稿一覧</h1>
+					<p>こちらのページは後ほど実装予定です。</p>
+				</div>
+
+				{/* タブナビゲーション */}
+				<TabNavigation />
 			</div>
-			
-			{/* タブナビゲーション */}
-			<TabNavigation />
-		</div>
+		</AppLayout>
 	);
 }

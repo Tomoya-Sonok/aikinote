@@ -1,51 +1,43 @@
 .container {
-	background: var(--aikinote-bg);
-	min-height: 100vh;
-	padding-bottom: 92px; /* タブナビゲーション分のスペース */
+	padding-bottom: 92px;
 	font-family: var(--font-zen-old-mincho);
-}
-
-.logoArea {
-	padding: 20px 20px 0 20px;
 	display: flex;
-	align-items: center;
-}
-
-.logo {
-	width: 72px;
-	height: 72px;
-	background: url("/images/aikinote-logo.png") no-repeat center;
-	background-size: contain;
+	flex-direction: column;
+	gap: 24px;
 }
 
 .statsSection {
-	padding: 24px 22px;
-	margin-bottom: 24px;
+	margin-bottom: 0;
 }
 
 .statsText {
 	font-family: var(--font-zen-old-mincho);
-	font-size: 16px;
+	font-size: 14px;
 	font-weight: 400;
 	line-height: 1.4;
 	color: var(--aikinote-black);
 	margin: 0;
 	display: flex;
 	align-items: baseline;
-	gap: 8px;
+	gap: 4px;
 }
 
 .statsNumber {
 	font-family: var(--font-zen-old-mincho);
-	font-size: 32px;
+	font-size: 30px;
 	font-weight: 400;
 	line-height: 1.4;
 	color: var(--aikinote-black);
 }
 
-.pageInfo {
-	padding: 0 32px;
-	margin-bottom: 12px;
+.pageListWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.pageListDescription {
+	margin-bottom: 0;
 }
 
 .pageTitle {
@@ -54,7 +46,6 @@
 	font-weight: 400;
 	line-height: 1.4;
 	color: var(--aikinote-black);
-	margin: 0 0 8px 0;
 }
 
 .pageCount {
@@ -67,5 +58,7 @@
 }
 
 .trainingList {
-	padding: 0 33px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }

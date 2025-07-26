@@ -28,7 +28,9 @@ export default function RootLayout({
 		<html lang="ja">
 			<body className={`${zenOldMincho.variable} ${inter.variable}`}>
 				{process.env.NODE_ENV === "development" && <MSWComponent />}
-				<main>{children}</main>
+				<main style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}>
+					{children}
+				</main>
 			</body>
 		</html>
 	);
