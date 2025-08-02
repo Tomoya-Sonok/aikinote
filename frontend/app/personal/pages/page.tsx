@@ -6,99 +6,45 @@ import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { FilterSection } from "@/components/molecules/FilterSection/FilterSection";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
-import { getCurrentUser, getUserProfile, signOut } from "@/lib/server/auth";
+import {
+	mockGetTrainingData,
+	type TrainingData,
+} from "@/lib/server/msw/training";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./personal-pages.module.css";
 
-type UserProfile = {
-	id: string;
-	username: string;
-	email: string;
-	profile_image_url: string | null;
-	dojo_id: string | null;
-	dojo_name?: string;
-	training_start_date: string | null;
-	publicity_setting: "public" | "dojo" | "private";
-	language: "ja" | "en";
-};
-
-// モックデータ
-const mockTrainingData = [
-	{
-		id: "1",
-		title: "2025-09-09 10月の審査に向けて",
-		content:
-			"初級者の審査に向けて、正面打ち〜一教や入身投げが中心の稽古だった。受けも取りも、手刀を維持したまま体捌きを意識し ...",
-		date: "2025-09-09",
-		tags: ["一教", "立技", "正面打ち"],
-	},
-	{
-		id: "2",
-		title: "2025-09-17 剣の理合いを意識する",
-		content:
-			"西尾先生の剣の理合いに基づいた三教が興味深かった。正面打ちや横面打ちに対して、後の先をとる意識で入身と当身を行い ...",
-		date: "2025-09-17",
-		tags: ["三教", "四教", "立技", "正面打ち", "横面打ち", "小手返し"],
-	},
-	{
-		id: "3",
-		title: "2025-09-21",
-		content:
-			"初級者の審査に向けて、正面打ち→一教や入身投げが中心の稽古だった。受けも取りも、手刀を維持したまま体捌きを意識し ...",
-		date: "2025-09-21",
-		tags: ["一教", "立技", "正面打ち", "入身投げ"],
-	},
-];
-
 export default function PersonalPagesPage() {
-	const [user, setUser] = useState<UserProfile | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [filteredData, setFilteredData] = useState(mockTrainingData);
+	const [trainingData, setTrainingData] = useState<TrainingData[]>([]);
+	const [filteredData, setFilteredData] = useState<TrainingData[]>([]);
 	const router = useRouter();
 
 	useEffect(() => {
-		const fetchUserProfile = async () => {
+		const fetchData = async () => {
 			try {
-				// 認証中のユーザーを取得
-				const authUser = await getCurrentUser();
-
-				if (!authUser) {
-					// 開発環境以外ではログインページにリダイレクト
-					if (process.env.NODE_ENV !== "development") {
-						router.push("/login");
-						return;
-					}
-					// 開発環境では処理を続行（authUserがnullでもgetUserProfileでモックデータを返す）
-				}
-
-				// ユーザープロフィールを取得
-				const { data, error } = await getUserProfile(
-					authUser?.id || "mock-user-123",
-				);
-
-				if (error) {
-					throw error;
-				}
-
-				setUser(data as UserProfile);
+				// トレーニングデータを取得
+				const trainingDataResult = await mockGetTrainingData();
+				setTrainingData(trainingDataResult);
+				setFilteredData(trainingDataResult);
 			} catch (err) {
-				console.error("Failed to fetch user profile:", err);
-				setError("ユーザープロフィールの取得に失敗しました");
+				console.error("Failed to fetch training data:", err);
+				// エラー時は空配列を設定
+				setTrainingData([]);
+				setFilteredData([]);
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		fetchUserProfile();
-	}, [router]);
+		fetchData();
+	}, []);
 
 	const handleSearchChange = (search: string) => {
-		const filtered = mockTrainingData.filter(
-			(item) =>
+		const filtered = trainingData.filter(
+			(item: TrainingData) =>
 				item.title.toLowerCase().includes(search.toLowerCase()) ||
 				item.content.toLowerCase().includes(search.toLowerCase()) ||
-				item.tags.some((tag) =>
+				item.tags.some((tag: string) =>
 					tag.toLowerCase().includes(search.toLowerCase()),
 				),
 		);
@@ -131,16 +77,6 @@ export default function PersonalPagesPage() {
 		return (
 			<AppLayout>
 				<div className={styles.container}>読み込み中...</div>
-			</AppLayout>
-		);
-	}
-
-	if (error || !user) {
-		return (
-			<AppLayout>
-				<div className={styles.container}>
-					{error || "ユーザー情報を取得できませんでした"}
-				</div>
 			</AppLayout>
 		);
 	}
