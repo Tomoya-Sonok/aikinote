@@ -88,7 +88,7 @@ export default function PersonalPagesPage() {
 				<div className={styles.statsSection}>
 					<p className={styles.statsText}>
 						これまでに作成したページ数は
-						<span className={styles.statsNumber}>18</span>
+						<span className={styles.statsNumber}>{trainingData.length}</span>
 						ページです
 					</p>
 				</div>
@@ -102,7 +102,7 @@ export default function PersonalPagesPage() {
 				<div className={styles.pageListWrapper}>
 					<div className={styles.pageListDescription}>
 						<h2 className={styles.pageTitle}>最近作成したページ</h2>
-						<p className={styles.pageCount}>全18件表示中</p>
+						<p className={styles.pageCount}>全{filteredData.length}件表示中</p>
 					</div>
 					<div className={styles.trainingList}>
 						{filteredData.map((training) => (
