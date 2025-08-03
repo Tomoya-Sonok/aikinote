@@ -3,6 +3,9 @@ FROM node:20.11.1-alpine AS development
 
 WORKDIR /app
 
+# フォント関連のパッケージをインストール
+RUN apk add --no-cache fontconfig
+
 # 特定バージョンのpnpmをインストール（.mise.tomlと一致させる）
 RUN npm install -g pnpm@8.15.4
 
@@ -20,6 +23,9 @@ CMD ["pnpm", "run", "dev"]
 FROM node:20.11.1-alpine AS production
 
 WORKDIR /app
+
+# フォント関連のパッケージをインストール
+RUN apk add --no-cache fontconfig
 
 # 特定バージョンのpnpmをインストール（.mise.tomlと一致させる）
 RUN npm install -g pnpm@8.15.4

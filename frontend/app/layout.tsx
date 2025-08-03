@@ -7,11 +7,13 @@ const zenOldMincho = Zen_Old_Mincho({
 	weight: "400",
 	subsets: ["latin"],
 	variable: "--font-zen-old-mincho",
+	display: "swap", // フォント読み込みの最適化
 });
 
 const inter = Inter({
 	subsets: ["latin"],
 	variable: "--font-inter",
+	display: "swap", // フォント読み込みの最適化
 });
 
 export const metadata: Metadata = {

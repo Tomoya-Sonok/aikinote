@@ -19,8 +19,10 @@
 	--aikinote-text-light: #877f7f;
 
 	/* フォント変数 */
-	--font-zen-old-mincho: "Zen Old Mincho", serif;
-	--font-inter: "Inter", sans-serif;
+	--font-zen-old-mincho: "Zen Old Mincho", "Times New Roman", "Noto Serif JP",
+		serif;
+	--font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+		"Helvetica Neue", Arial, sans-serif;
 }
 
 * {

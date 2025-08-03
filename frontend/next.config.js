@@ -12,6 +12,14 @@ try {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	// フォント最適化の設定（Docker環境での問題を回避）
+	optimizeFonts: true,
+
+	// 外部ドメインからのフォント読み込みを許可
+	images: {
+		domains: ["fonts.googleapis.com", "fonts.gstatic.com"],
+	},
+
 	// 環境変数を明示的に設定（ビルド時とランタイム両方で利用可能）
 	env: {
 		NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
