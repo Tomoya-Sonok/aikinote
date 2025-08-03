@@ -1,14 +1,42 @@
-// トレーニングデータの型定義
-export type TrainingData = {
+// 稽古ページデータの型定義
+export type TrainingPageData = {
 	id: string;
 	title: string;
 	content: string;
 	date: string;
-	tags: string[];
+	tags: string[]; // 表示用では名前で保持、バックエンド連携時はIDに変換
 };
 
-// モックトレーニングデータ
-const mockTrainingData: TrainingData[] = [
+// タグマッピング（ID → 名前）
+const tagIdToNameMap: Record<string, string> = {
+	"1": "立技",
+	"2": "坐技",
+	"3": "半身半立",
+	"4": "相半身",
+	"5": "逆半身",
+	"6": "後ろ",
+	"7": "片手取り",
+	"8": "諸手取り",
+	"9": "両手取り",
+	"10": "袖取り",
+	"11": "肩取り",
+	"12": "肩取り面打ち",
+	"13": "正面打ち",
+	"14": "横面打ち",
+	"15": "突き",
+	"16": "一教",
+	"17": "二教",
+	"18": "三教",
+	"19": "四教",
+	"20": "五教",
+	"21": "入身投げ",
+	"22": "四方投げ",
+	"23": "小手返し",
+	"24": "回転投げ",
+};
+
+// モック稽古ページデータ（表示用に名前で保持）
+const mockTrainingPageData: TrainingPageData[] = [
 	{
 		id: "1",
 		title: "2025-09-09 10月の審査に向けて",
@@ -36,12 +64,12 @@ const mockTrainingData: TrainingData[] = [
 ];
 
 /**
- * モックトレーニングデータを取得する関数
- * @returns Promise<TrainingData[]> トレーニングデータの配列
+ * モック稽古ページデータを取得する関数
+ * @returns Promise<TrainingPageData[]> 稽古ページデータの配列
  */
-export async function mockGetTrainingData(): Promise<TrainingData[]> {
+export async function mockGetTrainingPageData(): Promise<TrainingPageData[]> {
 	// 実際のAPIコールをシミュレートするため、少しの遅延を追加
 	await new Promise((resolve) => setTimeout(resolve, 100));
 
-	return mockTrainingData;
+	return mockTrainingPageData;
 }

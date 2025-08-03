@@ -3,29 +3,23 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createClient } from "@supabase/supabase-js";
+import { mockTrainingPages, mockTrainingTags } from "./types/training.js";
 
 // 環境変数からSupabase接続情報を取得
 const supabaseUrl = process.env.SUPABASE_URL || "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const isProduction = process.env.NODE_ENV === "production";
 
-if (!supabaseUrl || !supabaseServiceKey) {
-	console.error("Supabase環境変数が設定されていません");
-	process.exit(1);
+// Supabaseクライアントの初期化（本番環境のみ）
+let supabase: ReturnType<typeof createClient> | null = null;
+if (isProduction && supabaseUrl && supabaseServiceKey) {
+	supabase = createClient(supabaseUrl, supabaseServiceKey, {
+		auth: {
+			autoRefreshToken: false,
+			persistSession: false,
+		},
+	});
 }
-
-console.log("Supabase URL:", supabaseUrl);
-console.log(
-	"Serviceキーが設定されています:",
-	supabaseServiceKey.length > 0 ? "はい" : "いいえ",
-);
-
-// Supabaseクライアントの初期化
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-	auth: {
-		autoRefreshToken: false,
-		persistSession: false,
-	},
-});
 
 // Honoアプリケーションの作成
 const app = new Hono();
@@ -52,46 +46,18 @@ app.get("/health", (c) => {
 	});
 });
 
-// Supabase接続テストエンドポイント
-app.get("/api/supabase-test", async (c) => {
-	try {
-		// Supabaseから現在の日時を取得するシンプルなクエリ
-		const { data, error } = await supabase.rpc("now");
-
-		if (error) {
-			console.error("Supabase接続エラー:", error);
-			return c.json(
-				{
-					success: false,
-					error: error.message,
-					details: error,
-				},
-				500,
-			);
-		}
-
-		return c.json({
-			success: true,
-			message: "Supabaseに正常に接続できました",
-			serverTime: data,
-			timestamp: new Date().toISOString(),
-		});
-	} catch (err) {
-		console.error("予期せぬエラー:", err);
-		return c.json(
-			{
-				success: false,
-				error: err instanceof Error ? err.message : "不明なエラー",
-				details: err,
-			},
-			500,
-		);
-	}
-});
-
 // 道場一覧取得エンドポイント
 app.get("/api/dojo", async (c) => {
 	try {
+		if (!supabase) {
+			// 開発環境ではモックデータを返却
+			return c.json({
+				success: true,
+				data: [],
+				source: "mock",
+			});
+		}
+
 		const { data, error } = await supabase
 			.from("dojo")
 			.select("*")
@@ -115,29 +81,109 @@ app.get("/api/dojo", async (c) => {
 // ユーザー一覧取得エンドポイント
 app.get("/api/users", async (c) => {
 	try {
-		// テーブル名がuserの場合
-		let { data, error } = await supabase
-			.from("user")
+		if (!supabase) {
+			// 開発環境ではモックデータを返却
+			return c.json({
+				success: true,
+				data: [],
+				source: "mock",
+			});
+		}
+
+		// 本番環境ではSupabaseからデータを取得
+		const { data, error } = await supabase
+			.from("users")
 			.select("*")
 			.order("created_at", { ascending: false });
-
-		// エラーが発生し、かつテーブル名に関するエラーの場合はusersテーブルを試す
-		if (error?.message?.includes("does not exist")) {
-			console.log("userテーブルが見つからないため、usersテーブルを試します");
-			const result = await supabase
-				.from("users")
-				.select("*")
-				.order("created_at", { ascending: false });
-
-			data = result.data;
-			error = result.error;
-		}
 
 		if (error) throw error;
 
 		return c.json({ success: true, data });
 	} catch (err) {
 		console.error("ユーザー取得エラー:", err);
+		return c.json(
+			{
+				success: false,
+				error: err instanceof Error ? err.message : "不明なエラー",
+			},
+			500,
+		);
+	}
+});
+
+// 稽古ページ取得エンドポイント
+app.get("/api/training-pages", async (c) => {
+	try {
+		const userId = c.req.query("user_id") || "mock-user-123";
+
+		if (!supabase) {
+			// 開発環境ではモックデータを返却
+			console.log("🧪 モックデータを返却中");
+			const userPages = mockTrainingPages.filter(
+				(page) => page.user_id === userId,
+			);
+			return c.json({
+				success: true,
+				data: userPages,
+				source: "mock",
+			});
+		}
+
+		// 本番環境ではSupabaseからデータを取得
+		const { data, error } = await supabase
+			.from("training_pages")
+			.select("*")
+			.eq("user_id", userId)
+			.order("date", { ascending: false });
+
+		if (error) throw error;
+
+		return c.json({
+			success: true,
+			data,
+			source: "supabase",
+		});
+	} catch (err) {
+		console.error("稽古ページ取得エラー:", err);
+		return c.json(
+			{
+				success: false,
+				error: err instanceof Error ? err.message : "不明なエラー",
+			},
+			500,
+		);
+	}
+});
+
+// 稽古タグ取得エンドポイント
+app.get("/api/training-tags", async (c) => {
+	try {
+		if (!supabase) {
+			// 開発環境ではモックデータを返却
+			console.log("🧪 モック稽古タグデータを返却中");
+			return c.json({
+				success: true,
+				data: mockTrainingTags,
+				source: "mock",
+			});
+		}
+
+		// 本番環境ではSupabaseからデータを取得
+		const { data, error } = await supabase
+			.from("training_tags")
+			.select("*")
+			.order("category", { ascending: true })
+			.order("name", { ascending: true });
+
+		if (error) throw error;
+
+		return c.json({
+			success: true,
+			data,
+			source: "supabase",
+		});
+	} catch (err) {
+		console.error("稽古タグ取得エラー:", err);
 		return c.json(
 			{
 				success: false,

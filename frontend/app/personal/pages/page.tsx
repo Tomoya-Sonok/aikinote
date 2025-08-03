@@ -7,29 +7,31 @@ import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigatio
 import { FilterSection } from "@/components/molecules/FilterSection/FilterSection";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import {
-	mockGetTrainingData,
-	type TrainingData,
+	mockGetTrainingPageData,
+	type TrainingPageData,
 } from "@/lib/server/msw/training";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./personal-pages.module.css";
 
 export default function PersonalPagesPage() {
 	const [loading, setLoading] = useState(true);
-	const [trainingData, setTrainingData] = useState<TrainingData[]>([]);
-	const [filteredData, setFilteredData] = useState<TrainingData[]>([]);
+	const [trainingPageData, setTrainingPageData] = useState<TrainingPageData[]>(
+		[],
+	);
+	const [filteredData, setFilteredData] = useState<TrainingPageData[]>([]);
 	const router = useRouter();
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				// トレーニングデータを取得
-				const trainingDataResult = await mockGetTrainingData();
-				setTrainingData(trainingDataResult);
-				setFilteredData(trainingDataResult);
+				// 稽古ページデータを取得
+				const trainingPageDataResult = await mockGetTrainingPageData();
+				setTrainingPageData(trainingPageDataResult);
+				setFilteredData(trainingPageDataResult);
 			} catch (err) {
-				console.error("Failed to fetch training data:", err);
+				console.error("Failed to fetch training page data:", err);
 				// エラー時は空配列を設定
-				setTrainingData([]);
+				setTrainingPageData([]);
 				setFilteredData([]);
 			} finally {
 				setLoading(false);
@@ -40,8 +42,8 @@ export default function PersonalPagesPage() {
 	}, []);
 
 	const handleSearchChange = (search: string) => {
-		const filtered = trainingData.filter(
-			(item: TrainingData) =>
+		const filtered = trainingPageData.filter(
+			(item: TrainingPageData) =>
 				item.title.toLowerCase().includes(search.toLowerCase()) ||
 				item.content.toLowerCase().includes(search.toLowerCase()) ||
 				item.tags.some((tag: string) =>
@@ -88,7 +90,9 @@ export default function PersonalPagesPage() {
 				<div className={styles.statsSection}>
 					<p className={styles.statsText}>
 						これまでに作成したページ数は
-						<span className={styles.statsNumber}>{trainingData.length}</span>
+						<span className={styles.statsNumber}>
+							{trainingPageData.length}
+						</span>
 						ページです
 					</p>
 				</div>
