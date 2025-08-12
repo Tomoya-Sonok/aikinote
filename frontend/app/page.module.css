@@ -1,77 +1,77 @@
 .container {
-	padding: 2rem;
-	max-width: 1200px;
-	margin: 0 auto;
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-	background: var(--background-rgb);
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-rgb);
 }
 
 .header {
-	margin-bottom: 2rem;
-	text-align: center;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .title {
-	font-size: 2.5rem;
-	font-weight: bold;
-	color: var(--text-color);
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--text-color);
 }
 
 .subtitle {
-	font-size: 1.2rem;
-	color: var(--text-light);
-	margin-top: 0.5rem;
+  font-size: 1.2rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
 }
 
 .main {
-	display: flex;
-	flex-direction: column;
-	gap: 2rem;
-	flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
 }
 
 .section {
-	background: var(--background-light);
-	padding: 2rem;
-	border-radius: 0.5rem;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background: var(--background-light);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .sectionTitle {
-	font-size: 1.5rem;
-	margin-bottom: 1rem;
-	font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .buttonContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .startButton {
-	display: block;
-	background: var(--primary-color);
-	color: white;
-	padding: 1rem;
-	border-radius: 0.25rem;
-	text-align: center;
-	font-weight: 500;
-	transition: background-color 0.2s;
-	text-decoration: none;
+  display: block;
+  background: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  text-decoration: none;
 }
 
 .startButton:hover {
-	background: var(--primary-dark);
+  background: var(--primary-dark);
 }
 
 .footer {
-	margin-top: auto;
-	text-align: center;
-	border-top: 1px solid var(--border-color);
-	padding-top: 1rem;
-	color: var(--text-light);
-	font-size: 0.9rem;
+  margin-top: auto;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  color: var(--text-light);
+  font-size: 0.9rem;
 }

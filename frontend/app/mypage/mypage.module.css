@@ -1,33 +1,33 @@
 .container {
-	font-family: var(--font-zen-old-mincho);
-	display: flex;
-	flex-direction: column;
-	min-height: calc(100vh - 164px); /* ロゴエリア(72px + 40px padding) + margin(48px) を除く */
-	padding-bottom: 92px; /* タブナビゲーション分のスペース */
+  font-family: var(--font-zen-old-mincho);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 164px); /* ロゴエリア(72px + 40px padding) + margin(48px) を除く */
+  padding-bottom: 92px; /* タブナビゲーション分のスペース */
 }
 
 .content {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	text-align: center;
-	padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
 }
 
 .content h1 {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 24px;
-	font-weight: 400;
-	color: var(--aikinote-black);
-	margin-bottom: 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--aikinote-black);
+  margin-bottom: 16px;
 }
 
 .content p {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 16px;
-	font-weight: 400;
-	color: var(--aikinote-text-light);
-	line-height: 1.6;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--aikinote-text-light);
+  line-height: 1.6;
 }

@@ -1,31 +1,31 @@
 .tag {
-	display: inline-flex;
-	align-items: center;
-	padding: 3px 10px;
-	border-radius: 24px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 10px;
-	font-weight: 400;
-	line-height: 1.4;
-	transition: all 0.2s ease;
-	border: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 24px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+  border: none;
 }
 
 .default {
-	background: var(--aikinote-black);
-	color: var(--aikinote-white);
+  background: var(--aikinote-black);
+  color: var(--aikinote-white);
 }
 
 .selected {
-	background: var(--aikinote-gray);
-	color: var(--aikinote-white);
+  background: var(--aikinote-gray);
+  color: var(--aikinote-white);
 }
 
 .clickable {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 .clickable:hover {
-	opacity: 0.8;
-	transform: translateY(-1px);
+  opacity: 0.8;
+  transform: translateY(-1px);
 }

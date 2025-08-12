@@ -1,42 +1,42 @@
 .filterContainer {
-	background: var(--aikinote-white);
-	border-radius: 24px;
-	padding: 24px 32px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: var(--aikinote-white);
+  border-radius: 24px;
+  padding: 24px 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .filterRow {
-	display: flex;
-	flex-direction: column;
-	gap: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
 .filterIcon {
-	width: 24px;
-	height: 24px;
-	flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .filterLabel {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	font-weight: 400;
-	color: var(--aikinote-black);
-	min-width: 40px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--aikinote-black);
+  min-width: 40px;
 }
 
 .filterValue {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 12px;
-	font-weight: 400;
-	color: var(--aikinote-black);
-	flex: 1;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--aikinote-black);
+  flex: 1;
 }
 
 .arrow {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	font-weight: 400;
-	color: var(--aikinote-black);
-	margin-left: auto;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--aikinote-black);
+  margin-left: auto;
 }

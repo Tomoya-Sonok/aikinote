@@ -1,19 +1,19 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { Tag } from './Tag';
+import type { Meta, StoryObj } from "@storybook/nextjs";
+import { Tag } from "./Tag";
 
 const meta: Meta<typeof Tag> = {
-  title: 'Atoms/Tag',
+  title: "Atoms/Tag",
   component: Tag,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     variant: {
-      control: 'select',
-      options: ['default', 'selected'],
+      control: "select",
+      options: ["default", "selected"],
     },
-    onClick: { action: 'clicked' },
+    onClick: { action: "clicked" },
   },
 };
 
@@ -22,29 +22,29 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'タグ',
-    variant: 'default',
+    children: "タグ",
+    variant: "default",
   },
 };
 
 export const Selected: Story = {
   args: {
-    children: '選択中タグ',
-    variant: 'selected',
+    children: "選択中タグ",
+    variant: "selected",
   },
 };
 
 export const Clickable: Story = {
   args: {
-    children: 'クリック可能',
-    variant: 'default',
-    onClick: () => console.log('Tag clicked'),
+    children: "クリック可能",
+    variant: "default",
+    onClick: () => console.log("Tag clicked"),
   },
 };
 
 export const LongText: Story = {
   args: {
-    children: '長いテキストのタグサンプル',
-    variant: 'default',
+    children: "長いテキストのタグサンプル",
+    variant: "default",
   },
 };

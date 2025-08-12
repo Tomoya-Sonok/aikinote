@@ -1,15 +1,15 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { FloatingActionButton } from './FloatingActionButton';
+import type { Meta, StoryObj } from "@storybook/nextjs";
+import { FloatingActionButton } from "./FloatingActionButton";
 
 const meta: Meta<typeof FloatingActionButton> = {
-  title: 'Atoms/FloatingActionButton',
+  title: "Atoms/FloatingActionButton",
   component: FloatingActionButton,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
-    onClick: { action: 'clicked' },
+    onClick: { action: "clicked" },
   },
 };
 
@@ -18,13 +18,13 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    onClick: () => console.log('FAB clicked'),
+    onClick: () => console.log("FAB clicked"),
   },
 };
 
 export const CustomLabel: Story = {
   args: {
-    label: 'カスタムラベル',
-    onClick: () => console.log('FAB with custom label clicked'),
+    label: "カスタムラベル",
+    onClick: () => console.log("FAB with custom label clicked"),
   },
 };

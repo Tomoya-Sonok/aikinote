@@ -1,20 +1,20 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { TabNavigation } from './TabNavigation';
+import type { Meta, StoryObj } from "@storybook/nextjs";
+import { TabNavigation } from "./TabNavigation";
 
 const meta: Meta<typeof TabNavigation> = {
-  title: 'Molecules/TabNavigation',
+  title: "Molecules/TabNavigation",
   component: TabNavigation,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: '/personal/pages',
+        pathname: "/personal/pages",
         push: () => {},
       },
     },
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -25,7 +25,7 @@ export const PersonalActive: Story = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: '/personal/pages',
+        pathname: "/personal/pages",
         push: () => {},
       },
     },
@@ -37,7 +37,7 @@ export const SocialActive: Story = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: '/social/posts',
+        pathname: "/social/posts",
         push: () => {},
       },
     },
@@ -49,7 +49,7 @@ export const MypageActive: Story = {
     nextjs: {
       appDirectory: true,
       navigation: {
-        pathname: '/mypage',
+        pathname: "/mypage",
         push: () => {},
       },
     },
