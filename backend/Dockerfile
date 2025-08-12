@@ -13,8 +13,8 @@ RUN pnpm install
 
 COPY . .
 
-# 開発サーバーを起動
-CMD ["pnpm", "run", "dev"]
+# 開発サーバーを起動（Docker用スクリプトを使用）
+CMD ["pnpm", "run", "dev:docker"]
 
 # Production stage
 FROM node:20.11.1-alpine AS production

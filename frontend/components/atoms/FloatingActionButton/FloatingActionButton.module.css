@@ -1,0 +1,41 @@
+.fab {
+  position: fixed;
+  bottom: 112px; /* タブナビゲーション(72px) + margin(40px) の上に配置 */
+  right: 14px; /* Figmaでは x: 296、画面幅390pxとして right: 14px */
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--aikinote-gray);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 999;
+  border: none;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.icon {
+  width: 32px;
+  height: 33px;
+  margin-bottom: 2px;
+  filter: brightness(0) invert(1); /* 白色にする */
+}
+
+.label {
+  font-family: var(--font-inter);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--aikinote-white);
+  text-align: center;
+  white-space: nowrap;
+}

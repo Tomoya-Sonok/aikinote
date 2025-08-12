@@ -1,0 +1,57 @@
+.button {
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  font-family: var(--font-zen-old-mincho);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primary {
+  background: var(--aikinote-gray);
+  color: var(--aikinote-white);
+}
+
+.secondary {
+  background: var(--aikinote-white);
+  color: var(--aikinote-black);
+  border: 1px solid var(--aikinote-black);
+}
+
+.icon {
+  background: var(--aikinote-white);
+  color: var(--aikinote-black);
+  padding: 6px;
+  border-radius: 24px;
+  width: 20px;
+  height: 20px;
+}
+
+.small {
+  padding: 8px;
+  font-size: 10px;
+}
+
+.medium {
+  padding: 12px 16px;
+  font-size: 12px;
+}
+
+.large {
+  padding: 16px 24px;
+  font-size: 14px;
+}
+
+.button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

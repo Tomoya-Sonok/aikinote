@@ -1,61 +1,78 @@
 :root {
-	--foreground-rgb: 0, 0, 0;
-	--background-rgb: 255, 255, 255;
-	--primary-color: #3b82f6;
-	--primary-dark: #2563eb;
-	--secondary-color: #10b981;
-	--accent-color: #f59e0b;
-	--error-color: #ef4444;
-	--text-color: #1f2937;
-	--text-light: #6b7280;
-	--border-color: #e5e7eb;
-	--background-light: #f9fafb;
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+  --primary-color: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary-color: #10b981;
+  --accent-color: #f59e0b;
+  --error-color: #ef4444;
+  --text-color: #1f2937;
+  --text-light: #6b7280;
+  --border-color: #e5e7eb;
+  --background-light: #f9fafb;
+
+  /* Figmaデザインに基づくカラー */
+  --aikinote-bg: #efecec;
+  --aikinote-white: #ffffff;
+  --aikinote-black: #000000;
+  --aikinote-gray: #838383;
+  --aikinote-text-light: #877f7f;
+
+  /* フォント変数 */
+  --font-zen-old-mincho:
+    "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
+  --font-inter:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
-	box-sizing: border-box;
-	padding: 0;
-	margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 html,
 body {
-	max-width: 100vw;
-	overflow-x: hidden;
-	height: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  height: 100%;
 }
 
 body {
-	color: rgb(var(--foreground-rgb));
-	background: rgb(var(--background-rgb));
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-		"Helvetica Neue", sans-serif;
-	line-height: 1.5;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: var(--font-zen-old-mincho);
+  line-height: 1.5;
 }
 
 a {
-	color: inherit;
-	text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 
 button,
 input,
 select,
 textarea {
-	font-family: inherit;
-	font-size: inherit;
-	line-height: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 main {
-	min-height: 100%;
-	display: flex;
-	flex-direction: column;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+h2 {
+  margin-bottom: 4px;
 }
 
 /* モバイルファースト対応 */
 @media (max-width: 768px) {
-	.container {
-		padding: 0 1rem;
-	}
+  .container {
+    padding: 0 1rem;
+  }
 }
