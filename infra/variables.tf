@@ -37,20 +37,4 @@ variable "private_subnet_ids" {
   type        = list(string)
 }
 
-variable "supabase_url" {
-  description = "Supabase project URL"
-  type        = string
-  sensitive   = true
-}
 
-variable "supabase_anon_key" {
-  description = "Supabase anonymous public key"
-  type        = string
-  sensitive   = true
-}
-
-variable "supabase_service_role_key" {
-  description = "Supabase service role key with admin privileges"
-  type        = string
-  sensitive   = true
-}
