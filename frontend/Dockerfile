@@ -34,6 +34,7 @@ COPY package.json pnpm-lock.yaml* ./
 
 # pnpmを使用してパッケージをインストール
 RUN pnpm install
+RUN ls -l node_modules/@supabase/ssr
 
 # Build arguments for Supabase configuration
 ARG NEXT_PUBLIC_SUPABASE_URL

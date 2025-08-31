@@ -10,10 +10,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .content h1 {
@@ -21,7 +21,8 @@
   font-size: 24px;
   font-weight: 400;
   color: var(--aikinote-black);
-  margin-bottom: 16px;
+  margin-bottom: 24px;
+  text-align: center;
 }
 
 .content p {
@@ -30,4 +31,86 @@
   font-weight: 400;
   color: var(--aikinote-text-light);
   line-height: 1.6;
+  text-align: center;
+}
+
+.userInfo {
+  margin-bottom: 32px;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f0f0f0;
+}
+
+.userDetails {
+  flex: 1;
+}
+
+.username {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--aikinote-black);
+  margin: 0 0 8px 0;
+}
+
+.email {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 4px 0;
+}
+
+.dojo {
+  font-size: 14px;
+  color: var(--aikinote-text-light);
+  margin: 0;
+}
+
+.features {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.features h3 {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--aikinote-black);
+  margin: 0 0 16px 0;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.featureList li {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  color: var(--aikinote-text-light);
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.featureList li:last-child {
+  border-bottom: none;
 }
