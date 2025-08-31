@@ -1,62 +1,97 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/server/auth";
+import { mockGetCurrentUser, mockGetSocialPosts, type MockUser, type SocialPost } from "@/lib/server/msw/training";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./social-posts.module.css";
 
 export default function SocialPostsPage() {
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+	const [user, setUser] = useState<MockUser | null>(null);
+	const [posts, setPosts] = useState<SocialPost[]>([]);
+	const [loading, setLoading] = useState(true);
+	const router = useRouter();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const authUser = await getCurrentUser();
+	useEffect(() => {
+		const checkAuthAndFetchData = async () => {
+			try {
+				// MSW環境でのモック認証チェック
+				const currentUser = await mockGetCurrentUser();
+				
+				if (!currentUser) {
+					router.push("/login");
+					return;
+				}
 
-        if (!authUser) {
-          // 開発環境以外ではログインページにリダイレクト
-          if (process.env.NODE_ENV !== "development") {
-            router.push("/login");
-            return;
-          }
-        }
-      } catch (err) {
-        console.error("Authentication check failed:", err);
-        const isDocker = process.env.NEXT_PUBLIC_IS_DOCKER === "true";
-        if (process.env.NODE_ENV !== "development" || isDocker) {
-          router.push("/login");
-          return;
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+				setUser(currentUser);
+				
+				// ソーシャル投稿データを取得
+				const socialPosts = await mockGetSocialPosts();
+				setPosts(socialPosts);
+			} catch (error) {
+				console.error("認証エラーまたはデータ取得エラー:", error);
+				router.push("/login");
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    checkAuth();
-  }, [router]);
+		checkAuthAndFetchData();
+	}, [router]);
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className={styles.container}>読み込み中...</div>
-      </AppLayout>
-    );
-  }
+	if (loading) {
+		return (
+			<AppLayout>
+				<div className={styles.container}>
+					<div className={styles.content}>
+						<p>読み込み中...</p>
+					</div>
+				</div>
+			</AppLayout>
+		);
+	}
 
-  return (
-    <AppLayout>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <h1>みんなで 投稿一覧</h1>
-          <p>こちらのページは後ほど実装予定です。</p>
-        </div>
+	return (
+		<AppLayout>
+			<div className={styles.container}>
+				<div className={styles.content}>
+					<h1>みんなで 投稿一覧</h1>
+					
+					{posts.length > 0 ? (
+						<div className={styles.postsList}>
+							{posts.map((post) => (
+								<div key={post.id} className={styles.postCard}>
+									<h3 className={styles.postTitle}>{post.title}</h3>
+									<p className={styles.postContent}>{post.content}</p>
+									<div className={styles.postMeta}>
+										<span className={styles.postAuthor}>投稿者: {post.authorName}</span>
+										<span className={styles.postDate}>
+											{new Date(post.createdAt).toLocaleDateString('ja-JP')}
+										</span>
+									</div>
+									<div className={styles.postStats}>
+										<span className={styles.likesCount}>👍 {post.likesCount}</span>
+										<span className={styles.commentsCount}>💬 {post.commentsCount}</span>
+									</div>
+									{post.tags.length > 0 && (
+										<div className={styles.postTags}>
+											{post.tags.map((tag) => (
+												<span key={`${post.id}-${tag}`} className={styles.tag}>#{tag}</span>
+											))}
+										</div>
+									)}
+								</div>
+							))}
+						</div>
+					) : (
+						<p>投稿がありません。</p>
+					)}
+				</div>
 
-        {/* タブナビゲーション */}
-        <TabNavigation />
-      </div>
-    </AppLayout>
-  );
+				{/* タブナビゲーション */}
+				<TabNavigation />
+			</div>
+		</AppLayout>
+	);
 }

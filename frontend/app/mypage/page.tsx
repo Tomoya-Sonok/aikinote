@@ -1,62 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser } from "@/lib/server/auth";
+import { mockGetCurrentUser, type MockUser } from "@/lib/server/msw/training";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./mypage.module.css";
 
 export default function MyPage() {
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+	const [user, setUser] = useState<MockUser | null>(null);
+	const [loading, setLoading] = useState(true);
+	const router = useRouter();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const authUser = await getCurrentUser();
+	useEffect(() => {
+		const checkAuth = async () => {
+			try {
+				// MSW環境でのモック認証チェック
+				const currentUser = await mockGetCurrentUser();
+				
+				if (!currentUser) {
+					router.push("/login");
+					return;
+				}
 
-        if (!authUser) {
-          // 開発環境以外ではログインページにリダイレクト
-          if (process.env.NODE_ENV !== "development") {
-            router.push("/login");
-            return;
-          }
-        }
-      } catch (err) {
-        console.error("Authentication check failed:", err);
-        const isDocker = process.env.NEXT_PUBLIC_IS_DOCKER === "true";
-        if (process.env.NODE_ENV !== "development" || isDocker) {
-          router.push("/login");
-          return;
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+				setUser(currentUser);
+			} catch (error) {
+				console.error("認証エラー:", error);
+				router.push("/login");
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    checkAuth();
-  }, [router]);
+		checkAuth();
+	}, [router]);
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className={styles.container}>読み込み中...</div>
-      </AppLayout>
-    );
-  }
+	if (loading) {
+		return (
+			<AppLayout>
+				<div className={styles.container}>
+					<div className={styles.content}>
+						<p>読み込み中...</p>
+					</div>
+				</div>
+			</AppLayout>
+		);
+	}
 
-  return (
-    <AppLayout>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <h1>マイページ</h1>
-          <p>こちらのページは後ほど実装予定です。</p>
-        </div>
+	return (
+		<AppLayout>
+			<div className={styles.container}>
+				<div className={styles.content}>
+					<h1>マイページ</h1>
+					
+					{user && (
+						<div className={styles.userInfo}>
+							<div className={styles.userProfile}>
+								<img 
+									src={user.avatarUrl || "/images/default-avatar.svg"} 
+									alt="プロフィール画像"
+									className={styles.avatar}
+								/>
+								<div className={styles.userDetails}>
+									<h2 className={styles.username}>{user.username}</h2>
+									<p className={styles.email}>{user.email}</p>
+									{user.dojo && <p className={styles.dojo}>所属道場: {user.dojo}</p>}
+								</div>
+							</div>
+						</div>
+					)}
 
-        {/* タブナビゲーション */}
-        <TabNavigation />
-      </div>
-    </AppLayout>
-  );
+					<div className={styles.features}>
+						<h3>機能一覧</h3>
+						<ul className={styles.featureList}>
+							<li>プロフィール編集（実装予定）</li>
+							<li>稽古記録の閲覧（実装予定）</li>
+							<li>設定変更（実装予定）</li>
+						</ul>
+					</div>
+				</div>
+
+				{/* タブナビゲーション */}
+				<TabNavigation />
+			</div>
+		</AppLayout>
+	);
 }
