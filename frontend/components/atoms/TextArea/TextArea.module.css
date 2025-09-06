@@ -1,0 +1,56 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-zen-old-mincho);
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #000000;
+  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.required {
+  color: #FF0000;
+  font-size: 12px;
+}
+
+.textarea {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 12px;
+  border: 1px solid #6B95EB;
+  border-radius: 4px;
+  background: #FFFFFF;
+  color: #000000;
+  outline: none;
+  transition: border-color 0.2s ease;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.textarea:focus {
+  border-color: #4A7BD8;
+  box-shadow: 0 0 0 2px rgba(107, 149, 235, 0.2);
+}
+
+.textarea.error {
+  border-color: #FF0000;
+}
+
+.textarea.error:focus {
+  border-color: #FF0000;
+  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+}
+
+.errorMessage {
+  font-size: 10px;
+  color: #FF0000;
+  font-family: var(--font-zen-old-mincho);
+}

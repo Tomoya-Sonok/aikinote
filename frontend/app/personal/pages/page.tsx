@@ -6,18 +6,21 @@ import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { FilterSection } from "@/components/molecules/FilterSection/FilterSection";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
+import { PageCreateModal, type PageCreateData } from "@/components/organisms/PageCreateModal/PageCreateModal";
 import {
 	mockGetTrainingPageData,
 	type TrainingPageData,
 } from "@/lib/server/msw/training";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./personal-pages.module.css";
+
 export default function PersonalPagesPage() {
 	const [loading, setLoading] = useState(true);
 	const [trainingPageData, setTrainingPageData] = useState<TrainingPageData[]>(
 		[],
 	);
 	const [filteredData, setFilteredData] = useState<TrainingPageData[]>([]);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -63,7 +66,28 @@ export default function PersonalPagesPage() {
 	};
 
 	const handleCreatePage = () => {
-		router.push("/create");
+		setIsModalOpen(true);
+	};
+
+	const handleSavePage = (pageData: PageCreateData) => {
+		// TODO: API実装後に実際の保存処理を実装
+		console.log("New page data:", pageData);
+		
+		// 仮のIDを生成（実際のAPIではサーバーから返される）
+		const newPage: TrainingPageData = {
+			id: Date.now().toString(),
+			title: pageData.title.trim(),
+			content: pageData.content,
+			date: new Date().toISOString().split('T')[0],
+			tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+		};
+
+		// ローカル状態を更新
+		setTrainingPageData(prev => [newPage, ...prev]);
+		setFilteredData(prev => [newPage, ...prev]);
+		
+		// モーダルを閉じる
+		setIsModalOpen(false);
 	};
 
 	const handleEditTraining = (id: string) => {
@@ -127,6 +151,13 @@ export default function PersonalPagesPage() {
 				<FloatingActionButton onClick={handleCreatePage} />
 
 				<TabNavigation />
+
+				{/* ページ作成モーダル */}
+				<PageCreateModal
+					isOpen={isModalOpen}
+					onClose={() => setIsModalOpen(false)}
+					onSave={handleSavePage}
+				/>
 			</div>
 		</AppLayout>
 	);

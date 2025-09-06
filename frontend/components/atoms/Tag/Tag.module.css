@@ -23,6 +23,12 @@
   color: var(--aikinote-white);
 }
 
+.selectable {
+  background: var(--aikinote-white);
+  color: var(--aikinote-black);
+  border: 1px solid var(--aikinote-black);
+}
+
 .clickable {
   cursor: pointer;
 }
