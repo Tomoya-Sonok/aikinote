@@ -3,7 +3,7 @@ import styles from "./Tag.module.css";
 
 interface TagProps {
   children: ReactNode;
-  variant?: "default" | "selected";
+  variant?: "default" | "selected" | "selectable";
   onClick?: () => void;
 }
 
