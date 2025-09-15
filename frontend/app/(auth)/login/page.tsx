@@ -1,96 +1,99 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { useId, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
-	const [loading, setLoading] = useState(false);
-	const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setLoading(true);
-		setError(null);
+  const emailId = useId();
+  const passwordId = useId();
 
-		try {
-			const { error } = await supabase.auth.signInWithPassword({
-				email,
-				password,
-			});
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-			if (error) {
-				throw error;
-			}
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-			// ログイン成功
-			router.push("/personal/pages");
-			router.refresh();
-		} catch (err) {
-			console.error("Login error:", err);
-			setError(
-				"ログインに失敗しました。メールアドレスとパスワードをご確認ください。",
-			);
-		} finally {
-			setLoading(false);
-		}
-	};
+      if (error) {
+        throw error;
+      }
 
-	return (
-		<div className={styles.authContainer}>
-			<h1 className={styles.title}>AikiNote</h1>
+      // ログイン成功
+      router.push("/personal/pages");
+      router.refresh();
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(
+        "ログインに失敗しました。メールアドレスとパスワードをご確認ください。",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-			<div className={styles.card}>
-				<h2 className={styles.subtitle}>ログイン</h2>
+  return (
+    <div className={styles.authContainer}>
+      <h1 className={styles.title}>AikiNote</h1>
 
-				{error && <div className={styles.errorMessage}>{error}</div>}
+      <div className={styles.card}>
+        <h2 className={styles.subtitle}>ログイン</h2>
 
-				<form onSubmit={handleSubmit}>
-					<div className={styles.formGroup}>
-						<label htmlFor="email" className={styles.label}>
-							メールアドレス
-						</label>
-						<input
-							id="email"
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-							className={styles.input}
-						/>
-					</div>
+        {error && <div className={styles.errorMessage}>{error}</div>}
 
-					<div className={styles.formGroup}>
-						<label htmlFor="password" className={styles.label}>
-							パスワード
-						</label>
-						<input
-							id="password"
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
-							className={styles.input}
-						/>
-					</div>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.formGroup}>
+            <label htmlFor="email" className={styles.label}>
+              メールアドレス
+            </label>
+            <input
+              id={emailId}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className={styles.input}
+            />
+          </div>
 
-					<button type="submit" disabled={loading} className={styles.button}>
-						{loading ? "ログイン中..." : "ログイン"}
-					</button>
-				</form>
+          <div className={styles.formGroup}>
+            <label htmlFor="password" className={styles.label}>
+              パスワード
+            </label>
+            <input
+              id={passwordId}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className={styles.input}
+            />
+          </div>
 
-				<div className={styles.footer}>
-					アカウントをお持ちでない方は
-					<Link href="/signup" className={styles.link}>
-						新規登録
-					</Link>
-				</div>
-			</div>
-		</div>
-	);
+          <button type="submit" disabled={loading} className={styles.button}>
+            {loading ? "ログイン中..." : "ログイン"}
+          </button>
+        </form>
+
+        <div className={styles.footer}>
+          アカウントをお持ちでない方は
+          <Link href="/signup" className={styles.link}>
+            新規登録
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }

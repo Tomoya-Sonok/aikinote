@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "NODE_ENV=production next build",
     "start": "next start -H 0.0.0.0",
-    "lint": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check . --write",
     "sb": "storybook dev -p 6006",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -14,10 +15,19 @@
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.39.8",
+    "@tanstack/react-query": "^5.87.4",
+    "@trpc/client": "^11.5.1",
+    "@trpc/next": "^11.5.1",
+    "@trpc/react-query": "^11.5.1",
+    "@trpc/server": "^11.5.1",
+    "axios": "^1.12.2",
     "clsx": "^2.1.1",
+    "hono": "^4.9.7",
+    "http-status-codes": "^2.3.0",
     "next": "^14.2.0",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod": "^4.1.8"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",

@@ -1,199 +1,199 @@
 .container {
-	background: #efecec; /* Figmaの背景色 */
-	min-height: 100vh;
-	padding-bottom: 92px; /* タブナビゲーション分のスペース */
-	font-family: var(--font-zen-old-mincho);
+  background: #efecec; /* Figmaの背景色 */
+  min-height: 100vh;
+  padding-bottom: 92px; /* タブナビゲーション分のスペース */
+  font-family: var(--font-zen-old-mincho);
 }
 
 .contentArea {
-	/* Figmaの白い背景エリア: x:18, y:67, width:355, height:690 */
-	background: #ffffff;
-	margin: 0;
-	border-radius: 0 24px 24px 0;
-	min-height: 600px;
-	position: relative;
-	max-width: calc(100vw - 36px); /* レスポンシブ対応 */
+  /* Figmaの白い背景エリア: x:18, y:67, width:355, height:690 */
+  background: #ffffff;
+  margin: 0;
+  border-radius: 0 24px 24px 0;
+  min-height: 600px;
+  position: relative;
+  max-width: calc(100vw - 36px); /* レスポンシブ対応 */
 }
 
 /* 左端の黒い罫線（ノートの罫線） */
 .contentArea::before {
-	content: "";
-	position: absolute;
-	left: 7px; /* 18 + 7 = 25px (Figmaの罫線位置) */
-	top: 0;
-	width: 1px;
-	height: 100%;
-	background-color: #838383; /* Figmaの罫線色 */
+  content: "";
+  position: absolute;
+  left: 7px; /* 18 + 7 = 25px (Figmaの罫線位置) */
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background-color: #838383; /* Figmaの罫線色 */
 }
 
 .header {
-	padding: 20px 20px 0 20px; /* 左端の罫線を避けるため */
-	margin-bottom: 24px;
+  padding: 20px 20px 0 20px; /* 左端の罫線を避けるため */
+  margin-bottom: 24px;
 }
 
 .title {
-	/* Figmaのタイトル: font-size:20px, x:38, y:87, width:315, height:29 */
-	font-family: var(--font-zen-old-mincho);
-	font-size: 20px;
-	line-height: 1.45;
-	color: #000000;
-	margin: 0 0 16px 0;
-	font-weight: 400;
-	padding-left: 0;
+  /* Figmaのタイトル: font-size:20px, x:38, y:87, width:315, height:29 */
+  font-family: var(--font-zen-old-mincho);
+  font-size: 20px;
+  line-height: 1.45;
+  color: #000000;
+  margin: 0 0 16px 0;
+  font-weight: 400;
+  padding-left: 0;
 }
 
 .tagsContainer {
-	/* Figmaのタグエリア: y:129付近 */
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px; /* タグ間のスペース調整 */
-	margin-bottom: 24px;
-	padding-left: 0;
+  /* Figmaのタグエリア: y:129付近 */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px; /* タグ間のスペース調整 */
+  margin-bottom: 24px;
+  padding-left: 0;
 }
 
 .section {
-	padding: 0 20px;
-	margin-bottom: 24px;
+  padding: 0 20px;
+  margin-bottom: 24px;
 }
 
 .sectionTitle {
-	/* Figmaのセクションタイトル: font-size:16px */
-	font-family: var(--font-zen-old-mincho);
-	font-size: 16px;
-	line-height: 1.45;
-	color: #000000;
-	margin: 0 0 8px 0;
-	font-weight: 400;
+  /* Figmaのセクションタイトル: font-size:16px */
+  font-family: var(--font-zen-old-mincho);
+  font-size: 16px;
+  line-height: 1.45;
+  color: #000000;
+  margin: 0 0 8px 0;
+  font-weight: 400;
 }
 
 .divider {
-	/* Figmaの区切り線: width:309px, height:2px */
-	width: 309px;
-	height: 1px;
-	background-color: #000000;
-	margin-bottom: 16px;
+  /* Figmaの区切り線: width:309px, height:2px */
+  width: 309px;
+  height: 1px;
+  background-color: #000000;
+  margin-bottom: 16px;
 }
 
 .content {
-	/* Figmaのコンテンツテキスト: font-size:12px */
-	font-family: var(--font-zen-old-mincho);
-	font-size: 12px;
-	line-height: 1.45;
-	color: #000000;
-	white-space: pre-wrap;
-	font-weight: 400;
-	padding: 0;
-	margin: 0;
+  /* Figmaのコンテンツテキスト: font-size:12px */
+  font-family: var(--font-zen-old-mincho);
+  font-size: 12px;
+  line-height: 1.45;
+  color: #000000;
+  white-space: pre-wrap;
+  font-weight: 400;
+  padding: 0;
+  margin: 0;
 }
 
 .buttonsContainer {
-	/* Figmaのボタンエリア: y:695付近 */
-	display: flex;
-	gap: 10px;
-	margin-top: 32px;
-	padding: 16px 20px 20px 20px;
-	justify-content: flex-start;
+  /* Figmaのボタンエリア: y:695付近 */
+  display: flex;
+  gap: 10px;
+  margin-top: 32px;
+  padding: 16px 20px 20px 20px;
+  justify-content: flex-start;
 }
 
 .backButton {
-	/* Figmaの戻るボタン: width:133, height:32, #C9C9C9 */
-	background-color: #c9c9c9;
-	color: #000000;
-	border: none;
-	border-radius: 24px;
-	padding: 0 16px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 1.45;
-	cursor: pointer;
-	height: 32px;
-	min-width: 133px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 400;
+  /* Figmaの戻るボタン: width:133, height:32, #C9C9C9 */
+  background-color: #c9c9c9;
+  color: #000000;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 133px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
 }
 
 .backButton:hover {
-	background-color: #b5b5b5;
+  background-color: #b5b5b5;
 }
 
 .editButton {
-	/* Figmaの編集ボタン: width:48, height:32, #838383 */
-	background-color: #838383;
-	color: #ffffff;
-	border: none;
-	border-radius: 24px;
-	padding: 0 16px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 1.45;
-	cursor: pointer;
-	height: 32px;
-	min-width: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 400;
+  /* Figmaの編集ボタン: width:48, height:32, #838383 */
+  background-color: #838383;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
 }
 
 .editButton:hover {
-	background-color: #6a6a6a;
+  background-color: #6a6a6a;
 }
 
 .deleteButton {
-	/* Figmaの削除ボタン: width:49, height:32, #FF2F2F */
-	background-color: #ff2f2f;
-	color: #ffffff;
-	border: none;
-	border-radius: 24px;
-	padding: 0 16px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 1.45;
-	cursor: pointer;
-	height: 32px;
-	min-width: 49px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 400;
+  /* Figmaの削除ボタン: width:49, height:32, #FF2F2F */
+  background-color: #ff2f2f;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
 }
 
 .deleteButton:hover {
-	background-color: #e62626;
+  background-color: #e62626;
 }
 
 .notFound {
-	text-align: center;
-	padding: 40px 20px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 16px;
-	color: #666;
+  text-align: center;
+  padding: 40px 20px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 16px;
+  color: #666;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 430px) {
-	.contentArea {
-		margin: 0;
-		max-width: none;
-	}
+  .contentArea {
+    margin: 0;
+    max-width: none;
+  }
 
-	.contentArea::before {
-		left: 7px;
-	}
+  .contentArea::before {
+    left: 7px;
+  }
 
-	.divider {
-		width: calc(100% - 20px);
-	}
+  .divider {
+    width: calc(100% - 20px);
+  }
 
-	.buttonsContainer {
-		flex-wrap: wrap;
-		gap: 8px;
-	}
+  .buttonsContainer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
-	.backButton {
-		min-width: auto;
-		flex: 1;
-	}
+  .backButton {
+    min-width: auto;
+    flex: 1;
+  }
 }

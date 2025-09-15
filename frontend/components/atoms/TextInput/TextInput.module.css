@@ -16,7 +16,7 @@
 }
 
 .required {
-  color: #FF0000;
+  color: #ff0000;
   font-size: 12px;
 }
 
@@ -25,30 +25,30 @@
   font-size: 12px;
   line-height: 1.45;
   padding: 8px 12px;
-  border: 1px solid #6B95EB;
+  border: 1px solid #6b95eb;
   border-radius: 4px;
-  background: #FFFFFF;
+  background: #ffffff;
   color: #000000;
   outline: none;
   transition: border-color 0.2s ease;
 }
 
 .input:focus {
-  border-color: #4A7BD8;
+  border-color: #4a7bd8;
   box-shadow: 0 0 0 2px rgba(107, 149, 235, 0.2);
 }
 
 .input.error {
-  border-color: #FF0000;
+  border-color: #ff0000;
 }
 
 .input.error:focus {
-  border-color: #FF0000;
+  border-color: #ff0000;
   box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
 }
 
 .errorMessage {
   font-size: 10px;
-  color: #FF0000;
+  color: #ff0000;
   font-family: var(--font-zen-old-mincho);
 }

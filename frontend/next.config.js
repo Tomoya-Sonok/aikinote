@@ -23,16 +23,16 @@ const nextConfig = {
   },
 
   // SSGを完全に無効化し、すべてをSSRに変更
-  output: 'standalone',
+  output: "standalone",
   trailingSlash: false,
-  
+
   // 実験的機能の設定
   experimental: {
     forceSwcTransforms: true,
     // プリレンダリングを完全に無効化
     ppr: false,
   },
-  
+
   // フォント最適化の設定（Docker環境での問題を回避）
   optimizeFonts: true,
 
@@ -42,14 +42,14 @@ const nextConfig = {
   },
 
   // webpack設定
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev }) => {
     if (!dev) {
       // プロダクションビルド時はMSW関連ファイルを除外
       config.resolve.alias = {
         ...config.resolve.alias,
-        '@/mocks/browser': false,
-        '@/mocks/server': false,
-        '@/mocks': false,
+        "@/mocks/browser": false,
+        "@/mocks/server": false,
+        "@/mocks": false,
       };
     }
     return config;

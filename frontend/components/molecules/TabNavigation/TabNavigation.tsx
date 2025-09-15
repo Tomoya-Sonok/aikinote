@@ -1,8 +1,8 @@
 "use client";
 
-import type { FC } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import type { FC } from "react";
 import styles from "./TabNavigation.module.css";
 
 interface TabItem {

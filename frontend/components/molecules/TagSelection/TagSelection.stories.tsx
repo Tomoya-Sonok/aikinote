@@ -18,24 +18,23 @@ const meta: Meta<typeof TagSelection> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const TagSelectionWithState = ({ 
-  title, 
-  tags, 
+const TagSelectionWithState = ({
+  title,
+  tags,
   initialSelectedTags = [],
-  onAddNew 
+  onAddNew,
 }: {
   title: string;
   tags: string[];
   initialSelectedTags?: string[];
   onAddNew?: () => void;
 }) => {
-  const [selectedTags, setSelectedTags] = useState<string[]>(initialSelectedTags);
+  const [selectedTags, setSelectedTags] =
+    useState<string[]>(initialSelectedTags);
 
   const handleTagToggle = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
   };
 
@@ -65,8 +64,16 @@ export const Uke: Story = {
     <TagSelectionWithState
       title="受け"
       tags={[
-        "相半身", "逆半身", "片手取り", "諸手取り", "両手取り", 
-        "後ろ", "肩取り", "正面打ち", "横面打ち", "突き"
+        "相半身",
+        "逆半身",
+        "片手取り",
+        "諸手取り",
+        "両手取り",
+        "後ろ",
+        "肩取り",
+        "正面打ち",
+        "横面打ち",
+        "突き",
       ]}
       onAddNew={() => console.log("Add new uke tag")}
     />
@@ -78,8 +85,15 @@ export const Waza: Story = {
     <TagSelectionWithState
       title="技"
       tags={[
-        "一教", "二教", "三教", "四教", "五教", 
-        "入身投げ", "四方投げ", "小手返し", "回転投げ"
+        "一教",
+        "二教",
+        "三教",
+        "四教",
+        "五教",
+        "入身投げ",
+        "四方投げ",
+        "小手返し",
+        "回転投げ",
       ]}
       initialSelectedTags={["一教", "正面打ち"]}
       onAddNew={() => console.log("Add new waza tag")}
