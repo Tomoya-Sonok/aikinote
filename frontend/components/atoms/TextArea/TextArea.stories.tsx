@@ -48,7 +48,8 @@ export const WithError: Story = {
 export const LargeText: Story = {
   args: {
     label: "長いテキストの例",
-    value: "これは長いテキストの例です。\n複数行にわたって入力されたテキストがどのように表示されるかを確認できます。\n\n段落分けもできます。",
+    value:
+      "これは長いテキストの例です。\n複数行にわたって入力されたテキストがどのように表示されるかを確認できます。\n\n段落分けもできます。",
     rows: 8,
   },
 };

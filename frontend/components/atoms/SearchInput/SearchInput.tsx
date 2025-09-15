@@ -1,5 +1,5 @@
-import type { FC, ChangeEvent } from "react";
 import Image from "next/image";
+import type { ChangeEvent, FC } from "react";
 import styles from "./SearchInput.module.css";
 
 interface SearchInputProps {

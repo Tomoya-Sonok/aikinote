@@ -1,7 +1,7 @@
-import type { FC, ChangeEvent } from "react";
+import type { ChangeEvent, FC } from "react";
 import { useState } from "react";
-import { SearchInput } from "../../atoms/SearchInput/SearchInput";
 import { FilterItem } from "../../atoms/FilterItem/FilterItem";
+import { SearchInput } from "../../atoms/SearchInput/SearchInput";
 import styles from "./FilterSection.module.css";
 
 interface FilterSectionProps {

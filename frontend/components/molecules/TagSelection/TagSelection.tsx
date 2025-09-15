@@ -28,7 +28,7 @@ export const TagSelection: FC<TagSelectionProps> = ({
           </button>
         )}
       </div>
-      
+
       <div className={styles.tagsGrid}>
         {tags.map((tag) => (
           <Tag
