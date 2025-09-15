@@ -7,6 +7,12 @@ export const MSWProvider = ({ children }: { children: React.ReactNode }) => {
     // プロダクションでは何もしない
     if (process.env.NODE_ENV !== "development") return;
 
+    // 環境変数でMSWを無効化する場合
+    if (process.env.NEXT_PUBLIC_DISABLE_MSW === "true") {
+      console.log("MSW is disabled by NEXT_PUBLIC_DISABLE_MSW=true");
+      return;
+    }
+
     // 開発環境でのみMSWを初期化
     const initMSW = async () => {
       try {
