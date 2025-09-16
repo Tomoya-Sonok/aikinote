@@ -3,44 +3,44 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface SendVerificationEmailParams {
-	email: string;
-	username: string;
-	verificationToken: string;
+  email: string;
+  username: string;
+  verificationToken: string;
 }
 
 interface SendPasswordResetEmailParams {
-	email: string;
-	resetToken: string;
+  email: string;
+  resetToken: string;
 }
 
 export async function sendVerificationEmail({
-	email,
-	username,
-	verificationToken,
+  email,
+  username,
+  verificationToken,
 }: SendVerificationEmailParams) {
-	console.log("=== Email Environment Variables Check ===");
-	console.log(
-		"RESEND_API_KEY:",
-		process.env.RESEND_API_KEY
-			? `${process.env.RESEND_API_KEY.slice(0, 10)}...`
-			: "UNDEFINED",
-	);
-	console.log(
-		"RESEND_FROM_EMAIL:",
-		process.env.RESEND_FROM_EMAIL || "UNDEFINED",
-	);
-	console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL || "UNDEFINED");
-	console.log("==========================================");
+  console.log("=== Email Environment Variables Check ===");
+  console.log(
+    "RESEND_API_KEY:",
+    process.env.RESEND_API_KEY
+      ? `${process.env.RESEND_API_KEY.slice(0, 10)}...`
+      : "UNDEFINED",
+  );
+  console.log(
+    "RESEND_FROM_EMAIL:",
+    process.env.RESEND_FROM_EMAIL || "UNDEFINED",
+  );
+  console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL || "UNDEFINED");
+  console.log("==========================================");
 
-	const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${verificationToken}`;
+  const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${verificationToken}`;
 
-	// TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
-	try {
-		const { data, error } = await resend.emails.send({
-			from: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
-			to: [email],
-			subject: "メールアドレスの認証",
-			html: `
+  // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
+      to: [email],
+      subject: "メールアドレスの認証",
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>メールアドレスの認証</h2>
           <p>こんにちは、${username}さん！</p>
@@ -55,33 +55,33 @@ export async function sendVerificationEmail({
           <p>もしこのメールに心当たりがない場合は、このメールを無視してください。</p>
         </div>
       `,
-		});
+    });
 
-		if (error) {
-			console.error("認証メール送信エラー:", error);
-			throw new Error("認証メールの送信に失敗しました");
-		}
+    if (error) {
+      console.error("認証メール送信エラー:", error);
+      throw new Error("認証メールの送信に失敗しました");
+    }
 
-		return data;
-	} catch (error) {
-		console.error("認証メール送信エラー:", error);
-		throw new Error("認証メールの送信に失敗しました");
-	}
+    return data;
+  } catch (error) {
+    console.error("認証メール送信エラー:", error);
+    throw new Error("認証メールの送信に失敗しました");
+  }
 }
 
 export async function sendPasswordResetEmail({
-	email,
-	resetToken,
+  email,
+  resetToken,
 }: SendPasswordResetEmailParams) {
-	const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
 
-	// TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
-	try {
-		const { data, error } = await resend.emails.send({
-			from: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
-			to: [email],
-			subject: "パスワードリセット",
-			html: `
+  // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
+      to: [email],
+      subject: "パスワードリセット",
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>パスワードリセット</h2>
           <p>パスワードリセットのリクエストを受け付けました。</p>
@@ -96,16 +96,16 @@ export async function sendPasswordResetEmail({
           <p>もしこのリクエストに心当たりがない場合は、このメールを無視してください。</p>
         </div>
       `,
-		});
+    });
 
-		if (error) {
-			console.error("パスワードリセットメール送信エラー:", error);
-			throw new Error("パスワードリセットメールの送信に失敗しました");
-		}
+    if (error) {
+      console.error("パスワードリセットメール送信エラー:", error);
+      throw new Error("パスワードリセットメールの送信に失敗しました");
+    }
 
-		return data;
-	} catch (error) {
-		console.error("パスワードリセットメール送信エラー:", error);
-		throw new Error("パスワードリセットメールの送信に失敗しました");
-	}
+    return data;
+  } catch (error) {
+    console.error("パスワードリセットメール送信エラー:", error);
+    throw new Error("パスワードリセットメールの送信に失敗しました");
+  }
 }

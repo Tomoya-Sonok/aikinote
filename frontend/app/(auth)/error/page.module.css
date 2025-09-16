@@ -1,132 +1,132 @@
 /* エラーページ全体のコンテナ */
 .container {
-	background-color: #efecec;
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 0 12px;
+  background-color: #efecec;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 12px;
 }
 
 /* タイトル */
 .title {
-	font-family: "Zen Old Mincho", serif;
-	font-size: 20px;
-	font-weight: 400;
-	line-height: 1.448;
-	color: #000000;
-	margin-bottom: 8px;
-	align-self: start;
-	margin-left: 4px;
+  font-family: "Zen Old Mincho", serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.448;
+  color: #000000;
+  margin-bottom: 8px;
+  align-self: start;
+  margin-left: 4px;
 }
 
 /* フォームカード */
 .formCard {
-	background-color: #ffffff;
-	border-radius: 24px;
-	padding: 24px;
-	width: 100%;
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
-	text-align: center;
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
 }
 
 /* エラー状態のアイコン */
 .errorIcon {
-	width: 48px;
-	height: 48px;
-	color: #fd4545;
-	margin: 0 auto 24px;
+  width: 48px;
+  height: 48px;
+  color: #fd4545;
+  margin: 0 auto 24px;
 }
 
 .errorTitle {
-	font-family: "Public Sans", sans-serif;
-	font-size: 16px;
-	font-weight: 500;
-	color: #141414;
-	margin-bottom: 8px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #141414;
+  margin-bottom: 8px;
 }
 
 .errorMessage {
-	font-family: "Public Sans", sans-serif;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.333;
-	color: #000000;
-	margin-bottom: 24px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #000000;
+  margin-bottom: 24px;
 }
 
 /* エラーコード表示 */
 .errorCode {
-	background-color: #efecec;
-	border-radius: 8px;
-	padding: 12px;
-	margin-bottom: 24px;
+  background-color: #efecec;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 24px;
 }
 
 .errorCodeText {
-	font-family: "Zen Old Mincho", serif;
-	font-size: 10px;
-	color: #707070;
+  font-family: "Zen Old Mincho", serif;
+  font-size: 10px;
+  color: #707070;
 }
 
 /* ボタン */
 .buttonContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
 }
 
 .button {
-	height: 35px;
-	border-radius: 24px;
-	border: none;
-	font-family: "Zen Old Mincho", serif;
-	font-size: 14px;
-	line-height: 1.448;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	text-decoration: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 177.61px;
+  height: 35px;
+  border-radius: 24px;
+  border: none;
+  font-family: "Zen Old Mincho", serif;
+  font-size: 14px;
+  line-height: 1.448;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 177.61px;
 }
 
 .primaryButton {
-	background-color: #838383;
-	color: #ffffff;
+  background-color: #838383;
+  color: #ffffff;
 }
 
 .primaryButton:hover {
-	background-color: #6d6d6d;
+  background-color: #6d6d6d;
 }
 
 .secondaryButton {
-	background-color: #c9c9c9;
-	color: #000000;
+  background-color: #c9c9c9;
+  color: #000000;
 }
 
 .secondaryButton:hover {
-	background-color: #b5b5b5;
+  background-color: #b5b5b5;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 480px) {
-	.container {
-		padding: 0 12px;
-	}
+  .container {
+    padding: 0 12px;
+  }
 
-	.formCard {
-		padding: 24px;
-		max-width: 100%;
-	}
+  .formCard {
+    padding: 24px;
+    max-width: 100%;
+  }
 
-	.button {
-		width: 100%;
-		max-width: 280px;
-	}
+  .button {
+    width: 100%;
+    max-width: 280px;
+  }
 }

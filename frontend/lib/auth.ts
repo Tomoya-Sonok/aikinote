@@ -6,81 +6,81 @@ import GoogleProvider from "next-auth/providers/google";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 export const authOptions: NextAuthOptions = {
-	adapter: SupabaseAdapter({
-		url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-		secret: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
-	}),
-	session: {
-		strategy: "jwt",
-	},
-	pages: {
-		signIn: "/login",
-		signUp: "/signup",
-		error: "/error",
-	},
-	providers: [
-		GoogleProvider({
-			clientId: process.env.GOOGLE_CLIENT_ID || "",
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-		}),
-		CredentialsProvider({
-			name: "credentials",
-			credentials: {
-				email: { label: "Email", type: "email" },
-				password: { label: "Password", type: "password" },
-			},
-			async authorize(credentials) {
-				if (!credentials?.email || !credentials?.password) {
-					return null;
-				}
+  adapter: SupabaseAdapter({
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    secret: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  }),
+  session: {
+    strategy: "jwt",
+  },
+  pages: {
+    signIn: "/login",
+    signUp: "/signup",
+    error: "/error",
+  },
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-				const supabase = getServiceRoleSupabase();
+        const supabase = getServiceRoleSupabase();
 
-				const { data: user, error } = await supabase
-					.from("User")
-					.select("*")
-					.eq("email", credentials.email)
-					.single();
+        const { data: user, error } = await supabase
+          .from("User")
+          .select("*")
+          .eq("email", credentials.email)
+          .single();
 
-				if (error || !user) {
-					return null;
-				}
+        if (error || !user) {
+          return null;
+        }
 
-				// メール認証の確認
-				if (!user.is_email_verified) {
-					return null;
-				}
+        // メール認証の確認
+        if (!user.is_email_verified) {
+          return null;
+        }
 
-				const isPasswordValid = await bcrypt.compare(
-					credentials.password,
-					user.password_hash,
-				);
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password_hash,
+        );
 
-				if (!isPasswordValid) {
-					return null;
-				}
+        if (!isPasswordValid) {
+          return null;
+        }
 
-				return {
-					id: user.id,
-					email: user.email,
-					name: user.username,
-					image: user.profile_image_url,
-				};
-			},
-		}),
-	],
-	callbacks: {
-		async jwt({ token, user }) {
-			if (user) {
-				token.id = user.id;
-			}
-			return token;
-		},
-		async session({ session, token }) {
-			if (token) {
-				session.user.id = token.id as string;
-			}
-			return session;
-		},
-	},
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.username,
+          image: user.profile_image_url,
+        };
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
 };

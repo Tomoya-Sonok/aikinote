@@ -94,7 +94,7 @@ export const handlers = [
   // Supabase Data API - Userテーブルから単一ユーザー取得
   http.get("*/rest/v1/User", ({ request }) => {
     const url = new URL(request.url);
-    const id = url.searchParams.get('id');
+    const id = url.searchParams.get("id");
     if (id === MOCK_USER.id) {
       return HttpResponse.json(MOCK_USER);
     }
