@@ -161,6 +161,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 							tags={toriTags}
 							selectedTags={formData.tori}
 							onTagToggle={(tag) => handleTagToggle("tori", tag)}
+							onAddNew={() => alert("タグ追加機能は未実装です")}
 						/>
 					</div>
 
@@ -170,6 +171,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 							tags={ukeTags}
 							selectedTags={formData.uke}
 							onTagToggle={(tag) => handleTagToggle("uke", tag)}
+							onAddNew={() => alert("タグ追加機能は未実装です")}
 						/>
 					</div>
 
@@ -179,6 +181,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 							tags={wazaTags}
 							selectedTags={formData.waza}
 							onTagToggle={(tag) => handleTagToggle("waza", tag)}
+							onAddNew={() => alert("タグ追加機能は未実装です")}
 						/>
 					</div>
 
