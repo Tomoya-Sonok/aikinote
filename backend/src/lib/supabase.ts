@@ -1,0 +1,135 @@
+import { createClient } from "@supabase/supabase-js";
+
+// 環境変数からSupabase接続情報を取得
+const supabaseUrl = process.env.SUPABASE_URL || "";
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+if (!supabaseUrl || !supabaseServiceKey) {
+	throw new Error("Supabase環境変数が設定されていません");
+}
+
+// Supabaseクライアントの初期化
+export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+	auth: {
+		autoRefreshToken: false,
+		persistSession: false,
+	},
+});
+
+// 実際のDB設計に基づくデータベース型定義
+export interface TrainingPageRow {
+	id: string; // uuid
+	user_id: string; // uuid FK
+	title: string; // text
+	content: string; // text
+	comment: string; // text
+	created_at: string; // timestamp
+	updated_at: string; // timestamp
+}
+
+export interface UserTagRow {
+	id: string; // uuid PK
+	user_id: string; // uuid FK
+	name: string; // text
+	category: string; // text (取り、受け、技)
+	created_at: string; // timestamp
+}
+
+export interface TrainingPageTagRow {
+	id: string; // uuid PK
+	training_page_id: string; // uuid FK
+	user_tag_id: string; // uuid FK
+}
+
+// データベース操作関数
+export const createTrainingPage = async (
+	pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at">,
+	tagNames: { tori: string[], uke: string[], waza: string[] }
+): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
+	// トランザクションを使用してページと関連タグを作成
+	try {
+		// 1. TrainingPageを作成
+		const { data: newPage, error: pageError } = await supabase
+			.from("TrainingPage")
+			.insert([pageData])
+			.select("*")
+			.single();
+
+		if (pageError) {
+			throw new Error(`ページの作成に失敗しました: ${pageError.message}`);
+		}
+
+		// 2. すべてのタグ名を統合
+		const allTagNames = [...tagNames.tori, ...tagNames.uke, ...tagNames.waza];
+		const categories = [
+			...tagNames.tori.map(name => ({ name, category: '取り' })),
+			...tagNames.uke.map(name => ({ name, category: '受け' })),
+			...tagNames.waza.map(name => ({ name, category: '技' }))
+		];
+
+		const associatedTags: UserTagRow[] = [];
+		const trainingPageTags: Omit<TrainingPageTagRow, "id">[] = [];
+
+		// 3. 各タグを処理
+		for (const { name, category } of categories) {
+			// 既存のタグをチェック
+			const { data: existingTag } = await supabase
+				.from("UserTag")
+				.select("*")
+				.eq("user_id", pageData.user_id)
+				.eq("name", name)
+				.eq("category", category)
+				.single();
+
+			let tagId: string;
+
+			if (existingTag) {
+				// 既存のタグを使用
+				tagId = existingTag.id;
+				associatedTags.push(existingTag);
+			} else {
+				// 新しいタグを作成
+				const { data: newTag, error: tagError } = await supabase
+					.from("UserTag")
+					.insert([{
+						user_id: pageData.user_id,
+						name,
+						category,
+						created_at: new Date().toISOString()
+					}])
+					.select("*")
+					.single();
+
+				if (tagError) {
+					throw new Error(`タグの作成に失敗しました: ${tagError.message}`);
+				}
+
+				tagId = newTag.id;
+				associatedTags.push(newTag);
+			}
+
+			// TrainingPageTagのリレーションを準備
+			trainingPageTags.push({
+				training_page_id: newPage.id,
+				user_tag_id: tagId
+			});
+		}
+
+		// 4. TrainingPageTagのリレーションを作成
+		if (trainingPageTags.length > 0) {
+			const { error: relationError } = await supabase
+				.from("TrainingPageTag")
+				.insert(trainingPageTags);
+
+			if (relationError) {
+				throw new Error(`タグ関連付けに失敗しました: ${relationError.message}`);
+			}
+		}
+
+		return { page: newPage, tags: associatedTags };
+
+	} catch (error) {
+		console.error("TrainingPage作成エラー:", error);
+		throw error;
+	}
+};

@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createClient } from "@supabase/supabase-js";
 import { mockTrainingPages, mockTrainingTags } from "./types/training.js";
+import pagesRoute from "./routes/pages.js";
 
 // 環境変数からSupabase接続情報を取得
 const supabaseUrl = process.env.SUPABASE_URL || "";
@@ -193,6 +194,12 @@ app.get("/api/training-tags", async (c) => {
 		);
 	}
 });
+
+// ページAPIルートを追加
+app.route("/api/pages", pagesRoute);
+
+// Hono RPC のために型をエクスポート
+export type AppType = typeof app;
 
 // サーバーの起動
 const port = Number(process.env.PORT) || 8787;

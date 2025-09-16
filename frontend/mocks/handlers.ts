@@ -1,8 +1,8 @@
 import { HttpResponse, http } from "msw";
 
-// モックデータの定義
+// モックデータの定義（UUIDフォーマットに修正）
 const MOCK_USER = {
-  id: "mock-user-123",
+  id: "550e8400-e29b-41d4-a716-446655440000", // UUID形式に修正
   username: "テストユーザー",
   email: "test@example.com",
   profile_image_url: null,
@@ -86,6 +86,21 @@ export const handlers = [
     return HttpResponse.json(MOCK_USER, { status: 201 });
   }),
 
+  // Supabase Data API - Userテーブル（大文字）への挿入
+  http.post("*/rest/v1/User", () => {
+    return HttpResponse.json(MOCK_USER, { status: 201 });
+  }),
+
+  // Supabase Data API - Userテーブルから単一ユーザー取得
+  http.get("*/rest/v1/User", ({ request }) => {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+    if (id === MOCK_USER.id) {
+      return HttpResponse.json(MOCK_USER);
+    }
+    return HttpResponse.json([MOCK_USER]);
+  }),
+
   // ユーザー情報取得API
   http.get("/api/users", () => {
     return HttpResponse.json([MOCK_USER]);
@@ -146,5 +161,41 @@ export const handlers = [
       ...body,
     };
     return HttpResponse.json(newUser, { status: 201 });
+  }),
+
+  // Next-Auth セッション API
+  http.get("/api/auth/session", () => {
+    return HttpResponse.json({
+      user: {
+        id: MOCK_USER.id,
+        name: MOCK_USER.username,
+        email: MOCK_USER.email,
+        image: MOCK_USER.profile_image_url,
+      },
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24時間後
+    });
+  }),
+
+  // Next-Auth CSRF token
+  http.get("/api/auth/csrf", () => {
+    return HttpResponse.json({
+      csrfToken: "mock-csrf-token",
+    });
+  }),
+
+  // Next-Auth providers
+  http.get("/api/auth/providers", () => {
+    return HttpResponse.json({
+      credentials: {
+        id: "credentials",
+        name: "credentials",
+        type: "credentials",
+      },
+      google: {
+        id: "google",
+        name: "Google",
+        type: "oauth",
+      },
+    });
   }),
 ];

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { FilterSection } from "@/components/molecules/FilterSection/FilterSection";
@@ -15,6 +16,7 @@ import {
 	mockGetTrainingPageData,
 	type TrainingPageData,
 } from "@/lib/server/msw/training";
+import { createPage, type CreatePagePayload } from "@/lib/api/client";
 import styles from "./page.module.css";
 
 export default function PersonalPagesPage() {
@@ -25,6 +27,7 @@ export default function PersonalPagesPage() {
 	const [filteredData, setFilteredData] = useState<TrainingPageData[]>([]);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const router = useRouter();
+	const { data: session, status } = useSession();
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -72,25 +75,53 @@ export default function PersonalPagesPage() {
 		setIsModalOpen(true);
 	};
 
-	const handleSavePage = (pageData: PageCreateData) => {
-		// TODO: API実装後に実際の保存処理を実装
-		console.log("New page data:", pageData);
+	const handleSavePage = async (pageData: PageCreateData) => {
+		try {
+			console.log("Creating new page:", pageData);
 
-		// 仮のIDを生成（実際のAPIではサーバーから返される）
-		const newPage: TrainingPageData = {
-			id: Date.now().toString(),
-			title: pageData.title.trim(),
-			content: pageData.content,
-			date: new Date().toISOString().split("T")[0],
-			tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
-		};
+			// セッションからユーザーIDを取得
+			if (!session?.user?.id) {
+				throw new Error("ログインが必要です");
+			}
 
-		// ローカル状態を更新
-		setTrainingPageData((prev) => [newPage, ...prev]);
-		setFilteredData((prev) => [newPage, ...prev]);
+			const userId = session.user.id;
 
-		// モーダルを閉じる
-		setIsModalOpen(false);
+			const payload: CreatePagePayload = {
+				title: pageData.title.trim(),
+				tori: pageData.tori,
+				uke: pageData.uke,
+				waza: pageData.waza,
+				content: pageData.content,
+				comment: pageData.comment,
+				user_id: userId,
+			};
+
+			// Hono RPC APIを呼び出してページを作成
+			const response = await createPage(payload);
+
+			if (response.success && response.data) {
+				// サーバーから返されたデータでローカル状態を更新
+				const newPage: TrainingPageData = {
+					id: response.data.page.id,
+					title: response.data.page.title,
+					content: response.data.page.content,
+					date: response.data.page.created_at.split('T')[0], // created_atから日付を抽出
+					tags: response.data.tags.map(tag => tag.name), // タグ名の配列に変換
+				};
+
+				setTrainingPageData((prev) => [newPage, ...prev]);
+				setFilteredData((prev) => [newPage, ...prev]);
+
+				console.log("Page created successfully:", response.data);
+			}
+
+			// モーダルを閉じる
+			setIsModalOpen(false);
+		} catch (error) {
+			console.error("Failed to create page:", error);
+			// TODO: エラーハンドリング（トーストやアラートで表示）
+			alert(error instanceof Error ? error.message : "ページの作成に失敗しました");
+		}
 	};
 
 	const handleEditTraining = (id: string) => {
@@ -105,10 +136,23 @@ export default function PersonalPagesPage() {
 		router.push(`/personal/pages/${id}`);
 	};
 
-	if (loading) {
+	// 認証状態のチェック
+	if (status === "loading" || loading) {
 		return (
 			<AppLayout>
 				<div className={styles.container}>読み込み中...</div>
+			</AppLayout>
+		);
+	}
+
+	// 未認証の場合はリダイレクト
+	if (status === "unauthenticated") {
+		return (
+			<AppLayout>
+				<div className={styles.container}>
+					<p>ログインが必要です。</p>
+					<button onClick={() => router.push("/login")}>ログインページへ</button>
+				</div>
 			</AppLayout>
 		);
 	}

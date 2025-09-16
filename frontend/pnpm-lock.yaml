@@ -8,6 +8,9 @@ dependencies:
   '@auth/supabase-adapter':
     specifier: ^1.10.0
     version: 1.10.0(@supabase/supabase-js@2.57.4)
+  '@hono/zod-validator':
+    specifier: ^0.7.2
+    version: 0.7.2(hono@4.9.7)(zod@4.1.8)
   '@hookform/resolvers':
     specifier: ^5.2.2
     version: 5.2.2(react-hook-form@7.62.0)
@@ -1668,6 +1671,16 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@hono/zod-validator@0.7.2(hono@4.9.7)(zod@4.1.8):
+    resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      zod: ^3.25.0 || ^4.0.0
+    dependencies:
+      hono: 4.9.7
+      zod: 4.1.8
+    dev: false
 
   /@hookform/resolvers@5.2.2(react-hook-form@7.62.0):
     resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
