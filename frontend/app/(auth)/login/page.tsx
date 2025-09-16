@@ -1,99 +1,22 @@
-"use client";
+import type { Metadata } from "next";
+import { SignInForm } from "@/components/auth/SignInForm";
+import { AppLayout } from "@/components/layout/AppLayout";
+import styles from "./page.module.css";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
-import styles from "./login.module.css";
+export const metadata: Metadata = {
+	title: "ログイン",
+	description: "アカウントにログインしてサービスをご利用ください",
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-
-  const emailId = useId();
-  const passwordId = useId();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      // ログイン成功
-      router.push("/personal/pages");
-      router.refresh();
-    } catch (err) {
-      console.error("Login error:", err);
-      setError(
-        "ログインに失敗しました。メールアドレスとパスワードをご確認ください。",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className={styles.authContainer}>
-      <h1 className={styles.title}>AikiNote</h1>
-
-      <div className={styles.card}>
-        <h2 className={styles.subtitle}>ログイン</h2>
-
-        {error && <div className={styles.errorMessage}>{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label htmlFor="email" className={styles.label}>
-              メールアドレス
-            </label>
-            <input
-              id={emailId}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="password" className={styles.label}>
-              パスワード
-            </label>
-            <input
-              id={passwordId}
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className={styles.input}
-            />
-          </div>
-
-          <button type="submit" disabled={loading} className={styles.button}>
-            {loading ? "ログイン中..." : "ログイン"}
-          </button>
-        </form>
-
-        <div className={styles.footer}>
-          アカウントをお持ちでない方は
-          <Link href="/signup" className={styles.link}>
-            新規登録
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+	return (
+		<AppLayout>
+			<div className={styles.container}>
+				<h1 className={styles.title}>ログイン</h1>
+				<div className={styles.formCard}>
+					<SignInForm />
+				</div>
+			</div>
+		</AppLayout>
+	);
 }

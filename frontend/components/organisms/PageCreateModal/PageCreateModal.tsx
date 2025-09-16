@@ -129,7 +129,6 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 			className={styles.overlay}
 			onClick={handleClose}
 			onKeyDown={(e) => e.key === "Escape" && handleClose()}
-			// biome-ignore lint/a11y/useSemanticElements: <explanation>
 			role="dialog"
 			aria-modal="true"
 		>
