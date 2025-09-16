@@ -1,27 +1,23 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
+import { AppLayout } from "@/components/layout/AppLayout";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "パスワードリセット",
-  description:
-    "パスワードをお忘れの場合は、登録されたメールアドレスにリセット用のリンクをお送りします",
+	title: "パスワードリセット",
+	description:
+		"パスワードをお忘れの場合は、登録されたメールアドレスにリセット用のリンクをお送りします",
 };
 
 export default function ForgotPasswordPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          サービス名
-        </h1>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          パスワードをリセットします
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <ForgotPasswordForm />
-      </div>
-    </div>
-  );
+	return (
+		<AppLayout>
+			<div className={styles.container}>
+				<h1 className={styles.title}>パスワードリセット</h1>
+				<div className={styles.formCard}>
+					<ForgotPasswordForm />
+				</div>
+			</div>
+		</AppLayout>
+	);
 }

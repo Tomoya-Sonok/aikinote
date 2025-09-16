@@ -10,10 +10,6 @@ import type {
 	SignUpFormData,
 } from "@/lib/utils/validation";
 
-interface AuthError {
-	message: string;
-}
-
 interface SignUpResponse {
 	message: string;
 	userId?: string;

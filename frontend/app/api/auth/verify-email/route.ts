@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 			{ message: "メールアドレスの認証が完了しました" },
 			{ status: 200 },
 		);
-	} catch (error) {
+	} catch (_error) {
 		return NextResponse.json(
 			{ error: "メール認証に失敗しました" },
 			{ status: 500 },

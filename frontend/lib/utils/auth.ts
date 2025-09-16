@@ -1,5 +1,5 @@
+import { randomBytes } from "node:crypto";
 import bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
 
 export async function hashPassword(password: string): Promise<string> {
 	const saltRounds = 12;

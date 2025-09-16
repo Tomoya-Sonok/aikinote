@@ -11,7 +11,7 @@
 	display: flex;
 	flex-direction: column;
 	padding: 20px;
-	max-width: 600px;
+	max-width: 800px;
 	margin: 0 auto;
 	width: 100%;
 }
@@ -34,83 +34,79 @@
 	text-align: center;
 }
 
-.userInfo {
-	margin-bottom: 32px;
-}
-
-.userProfile {
+.postsList {
 	display: flex;
-	align-items: center;
+	flex-direction: column;
 	gap: 16px;
+}
+
+.postCard {
 	background: white;
-	padding: 20px;
-	border-radius: 8px;
 	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 20px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.avatar {
-	width: 64px;
-	height: 64px;
-	border-radius: 50%;
-	object-fit: cover;
-	border: 2px solid #f0f0f0;
-}
-
-.userDetails {
-	flex: 1;
-}
-
-.username {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 20px;
-	font-weight: 600;
-	color: var(--aikinote-black);
-	margin: 0 0 8px 0;
-}
-
-.email {
-	font-size: 14px;
-	color: #666;
-	margin: 0 0 4px 0;
-}
-
-.dojo {
-	font-size: 14px;
-	color: var(--aikinote-text-light);
-	margin: 0;
-}
-
-.features {
-	background: white;
-	padding: 20px;
-	border-radius: 8px;
-	border: 1px solid #e0e0e0;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.features h3 {
+.postTitle {
 	font-family: var(--font-zen-old-mincho);
 	font-size: 18px;
 	font-weight: 600;
 	color: var(--aikinote-black);
-	margin: 0 0 16px 0;
+	margin: 0 0 12px 0;
 }
 
-.featureList {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-}
-
-.featureList li {
+.postContent {
 	font-family: var(--font-zen-old-mincho);
 	font-size: 14px;
 	color: var(--aikinote-text-light);
-	padding: 8px 0;
-	border-bottom: 1px solid #f0f0f0;
+	line-height: 1.6;
+	margin: 0 0 16px 0;
 }
 
-.featureList li:last-child {
-	border-bottom: none;
+.postMeta {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+	font-size: 12px;
+	color: #666;
+}
+
+.postAuthor {
+	font-weight: 500;
+}
+
+.postDate {
+	color: #999;
+}
+
+.postStats {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 12px;
+	font-size: 12px;
+	color: #666;
+}
+
+.likesCount,
+.commentsCount {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.postTags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.tag {
+	background: #f0f0f0;
+	color: #666;
+	padding: 4px 8px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 500;
 }

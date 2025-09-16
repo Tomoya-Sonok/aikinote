@@ -37,7 +37,7 @@ export async function sendVerificationEmail({
 	// TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
 	try {
 		const { data, error } = await resend.emails.send({
-			from: process.env.RESEND_FROM_EMAIL!,
+			from: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
 			to: [email],
 			subject: "メールアドレスの認証",
 			html: `
@@ -78,7 +78,7 @@ export async function sendPasswordResetEmail({
 	// TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
 	try {
 		const { data, error } = await resend.emails.send({
-			from: process.env.RESEND_FROM_EMAIL!,
+			from: process.env.RESEND_FROM_EMAIL || "noreply@example.com",
 			to: [email],
 			subject: "パスワードリセット",
 			html: `

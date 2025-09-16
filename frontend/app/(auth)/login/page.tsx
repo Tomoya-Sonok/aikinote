@@ -1,26 +1,22 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { SignInForm } from "@/components/auth/SignInForm";
+import { AppLayout } from "@/components/layout/AppLayout";
+import styles from "./page.module.css";
 
 export const metadata: Metadata = {
-  title: "ログイン",
-  description: "アカウントにログインしてサービスをご利用ください",
+	title: "ログイン",
+	description: "アカウントにログインしてサービスをご利用ください",
 };
 
 export default function LoginPage() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          サービス名
-        </h1>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          アカウントにログインしてサービスをご利用ください
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <SignInForm />
-      </div>
-    </div>
-  );
+	return (
+		<AppLayout>
+			<div className={styles.container}>
+				<h1 className={styles.title}>ログイン</h1>
+				<div className={styles.formCard}>
+					<SignInForm />
+				</div>
+			</div>
+		</AppLayout>
+	);
 }

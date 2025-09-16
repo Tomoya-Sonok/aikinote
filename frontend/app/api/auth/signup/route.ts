@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 				username,
 				verificationToken,
 			});
-		} catch (emailError) {
+		} catch (_emailError) {
 			// ユーザーは作成されたが、メール送信に失敗した場合は警告を返す
 			return NextResponse.json(
 				{
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 			},
 			{ status: 201 },
 		);
-	} catch (error) {
+	} catch (_error) {
 		return NextResponse.json(
 			{ error: "新規登録に失敗しました" },
 			{ status: 500 },

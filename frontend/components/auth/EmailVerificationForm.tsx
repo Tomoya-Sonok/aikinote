@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { AppLayout } from "../layout/AppLayout";
+import styles from "./EmailVerificationForm.module.css";
 
 interface EmailVerificationFormProps {
 	token: string;
@@ -18,7 +20,7 @@ export function EmailVerificationForm({
 	const [verificationStatus, setVerificationStatus] = useState<
 		"loading" | "success" | "error"
 	>("loading");
-	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [_errorMessage, setErrorMessage] = useState<string>("");
 	const { verifyEmail } = useAuth();
 
 	useEffect(() => {
@@ -50,120 +52,157 @@ export function EmailVerificationForm({
 		};
 
 		if (token && verificationStatus === "loading") {
-			console.log("=== Performing verification ===");
 			performVerification();
 		} else if (!token) {
-			console.log("=== No token provided ===");
 			setErrorMessage("認証トークンが無効です");
 			setVerificationStatus("error");
-		} else {
-			console.log(
-				"=== Skipping verification (already processed or no token) ===",
-			);
 		}
 	}, [token, verifyEmail, onSuccess, onError, verificationStatus]);
 
 	if (verificationStatus === "loading") {
 		return (
-			<div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-				<div className="text-center">
-					<div className="mb-4">
-						<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+			<AppLayout>
+				<div className={styles.container}>
+					<h1 className={styles.title}>新規登録</h1>
+
+					<div className={styles.formCard}>
+						{/* ステップインジケーター */}
+						<div className={styles.stepContainer}>
+							<div className={styles.stepInfo}>
+								<div className={styles.stepHeader}>
+									<span className={styles.stepText}>ステップ 3/4</span>
+								</div>
+								<div className={styles.progressContainer}>
+									<div
+										className={`${styles.progressBar} ${styles.progressStep3}`}
+									/>
+								</div>
+							</div>
+							<div className={styles.stepDots}>
+								<div className={`${styles.stepDot}`} />
+								<div className={`${styles.stepDot}`} />
+								<div className={`${styles.stepDot}`} />
+								<div
+									className={`${styles.stepDot} ${styles.stepDotInactive}`}
+								/>
+							</div>
+						</div>
+						<h2 className={styles.loadingTitle}>メール認証中</h2>
+						<p className={styles.loadingMessage}>
+							メールアドレスの認証を処理しています。しばらくお待ちください...
+						</p>
+						<div className={styles.loadingSpinner} />
 					</div>
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
-						メール認証中
-					</h2>
-					<p className="text-gray-600">
-						メールアドレスの認証を処理しています。しばらくお待ちください...
-					</p>
 				</div>
-			</div>
+			</AppLayout>
 		);
 	}
 
 	if (verificationStatus === "success") {
 		return (
-			<div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-				<div className="text-center">
-					<div className="mb-4 text-green-600">
-						<svg
-							className="mx-auto h-12 w-12"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M5 13l4 4L19 7"
-							/>
-						</svg>
+			<AppLayout>
+				<div className={styles.container}>
+					<h1 className={styles.title}>新規登録</h1>
+
+					<div className={styles.formCard}>
+						{/* ステップインジケーター */}
+						<div className={styles.stepContainer}>
+							<div className={styles.stepInfo}>
+								<div className={styles.stepHeader}>
+									<span className={styles.stepText}>ステップ 4/4</span>
+								</div>
+								<div className={styles.progressContainer}>
+									<div
+										className={`${styles.progressBar} ${styles.progressStep4}`}
+									/>
+								</div>
+							</div>
+							<div className={styles.stepDots}>
+								<div className={`${styles.stepDot} ${styles.stepDotActive}`} />
+								<div className={`${styles.stepDot} ${styles.stepDotActive}`} />
+								<div className={`${styles.stepDot} ${styles.stepDotActive}`} />
+								<div className={`${styles.stepDot} ${styles.stepDotActive}`} />
+							</div>
+						</div>
+
+						<div className={styles.successContainer}>
+							<div className={styles.successTextContainer}>
+								<div className={styles.stepText}>メール認証完了</div>
+								<p className={styles.completionMessage}>
+									お疲れさまでした！新規登録完了です！
+								</p>
+							</div>
+							<Link
+								role="button"
+								href="/personal/pages"
+								className={`${styles.button} ${styles.primaryButton}`}
+							>
+								AikiNoteをはじめる
+							</Link>
+						</div>
 					</div>
-					<h2 className="text-xl font-semibold text-gray-900 mb-2">
-						メール認証完了
-					</h2>
-					<p className="text-gray-600 mb-6">
-						メールアドレスの認証が完了しました！
-					</p>
-					<Link
-						href="/personal/pages"
-						className="inline-block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center font-medium"
-					>
-						AikiNoteを使ってみる
-					</Link>
 				</div>
-			</div>
+			</AppLayout>
 		);
 	}
 
 	return (
-		<div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-			<div className="text-center">
-				<div className="mb-4 text-red-600">
-					<svg
-						className="mx-auto h-12 w-12"
-						fill="none"
-						stroke="currentColor"
-						viewBox="0 0 24 24"
-					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L5.351 16.5c-.77.833.192 2.5 1.732 2.5z"
-						/>
-					</svg>
-				</div>
-				<h2 className="text-xl font-semibold text-gray-900 mb-2">
-					認証に失敗しました
-				</h2>
-				<p className="text-gray-600 mb-4">{errorMessage}</p>
+		<AppLayout>
+			<div className={styles.container}>
+				<h1 className={styles.title}>新規登録</h1>
 
-				<div className="space-y-3">
-					<p className="text-sm text-gray-500">認証に失敗する原因：</p>
-					<ul className="text-sm text-gray-500 text-left space-y-1">
-						<li>• 認証リンクの有効期限が切れている（1時間）</li>
-						<li>• 既に認証済みのアカウント</li>
-						<li>• 無効な認証トークン</li>
-					</ul>
-				</div>
+				<div className={styles.formCard}>
+					{/* ステップインジケーター */}
+					<div className={styles.stepContainer}>
+						<div className={styles.stepInfo}>
+							<div className={styles.stepHeader}>
+								<span className={styles.stepText}>ステップ 3/4</span>
+							</div>
+							<div className={styles.progressContainer}>
+								<div
+									className={`${styles.progressBar} ${styles.progressStep3}`}
+								/>
+							</div>
+						</div>
+						<div className={styles.stepDots}>
+							<div className={`${styles.stepDot}`} />
+							<div className={`${styles.stepDot}`} />
+							<div className={`${styles.stepDot}`} />
+							<div className={`${styles.stepDot} ${styles.stepDotInactive}`} />
+						</div>
+					</div>
+					<div className={styles.errorContentsWrapper}>
+						<h2 className={styles.errorTitle}>認証に失敗しました</h2>
+						<div className={styles.errorDetails}>
+							<p className={styles.errorDetailsTitle}>認証に失敗する原因：</p>
+							<ul className={styles.errorDetailsList}>
+								<li className={styles.errorDetailsItem}>
+									認証リンクの有効期限が切れている（1時間）
+								</li>
+								<li className={styles.errorDetailsItem}>
+									既に認証済みのアカウント
+								</li>
+								<li className={styles.errorDetailsItem}>無効な認証トークン</li>
+							</ul>
+						</div>
+					</div>
 
-				<div className="mt-6 space-y-3">
-					<Link
-						href="/signup"
-						className="block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-					>
-						新規登録をやり直す
-					</Link>
-					<Link
-						href="/login"
-						className="block w-full bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors"
-					>
-						ログインページへ
-					</Link>
+					<div className={styles.buttonContainer}>
+						<Link
+							href="/signup"
+							className={`${styles.button} ${styles.primaryButton}`}
+						>
+							新規登録をやり直す
+						</Link>
+						<Link
+							href="/login"
+							className={`${styles.button} ${styles.secondaryButton}`}
+						>
+							ログインページへ
+						</Link>
+					</div>
 				</div>
 			</div>
-		</div>
+		</AppLayout>
 	);
 }
