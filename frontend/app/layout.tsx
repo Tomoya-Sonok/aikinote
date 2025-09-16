@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Zen_Old_Mincho } from "next/font/google";
 import { MSWProvider } from "@/components/MSWProvider";
 import { TRPCProvider } from "@/components/TRPCProvider";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { AuthProvider } from "@/lib/providers/AuthProvider";
 import "./globals.css";
 
@@ -31,17 +32,19 @@ export default function RootLayout({
 	return (
 		<html lang="ja">
 			<body className={`${zenOldMincho.variable} ${inter.variable}`}>
-				<AuthProvider>
-					<TRPCProvider>
-						<MSWProvider>
-							<main
-								style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}
-							>
-								{children}
-							</main>
-						</MSWProvider>
-					</TRPCProvider>
-				</AuthProvider>
+				<ToastProvider>
+					<AuthProvider>
+						<TRPCProvider>
+							<MSWProvider>
+								<main
+									style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}
+								>
+									{children}
+								</main>
+							</MSWProvider>
+						</TRPCProvider>
+					</AuthProvider>
+				</ToastProvider>
 			</body>
 		</html>
 	);

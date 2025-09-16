@@ -8,6 +8,7 @@ interface TagSelectionProps {
 	selectedTags: string[];
 	onTagToggle: (tag: string) => void;
 	onAddNew?: () => void;
+	showAddButton?: boolean;
 }
 
 export const TagSelection: FC<TagSelectionProps> = ({
@@ -16,15 +17,18 @@ export const TagSelection: FC<TagSelectionProps> = ({
 	selectedTags,
 	onTagToggle,
 	onAddNew,
+	showAddButton = true,
 }) => {
 	return (
 		<div className={styles.container}>
 			<div className={styles.titleButtonWrapper}>
 				<div className={styles.header}>
 					<h3 className={styles.title}>{title}</h3>
-					<button type="button" className={styles.addButton} onClick={onAddNew}>
-						＋追加
-					</button>
+					{showAddButton && (
+						<button type="button" className={styles.addButton} onClick={onAddNew}>
+							＋追加
+						</button>
+					)}
 				</div>
 				<div className={styles.divider} />
 

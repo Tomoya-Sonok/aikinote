@@ -1,8 +1,11 @@
+"use client";
+
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { TextArea } from "@/components/atoms/TextArea/TextArea";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
+import { useToast } from "@/contexts/ToastContext";
 import { trpc } from "@/lib/shared/trpc";
 import styles from "./PageCreateModal.module.css";
 
@@ -27,6 +30,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 	onSave,
 }) => {
 	const today = new Date().toISOString().split("T")[0];
+	const { showToast } = useToast();
 
 	const [formData, setFormData] = useState<PageCreateData>({
 		title: `${today} `,
@@ -41,13 +45,45 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 	const [toriTags, setToriTags] = useState<string[]>([]);
 	const [ukeTags, setUkeTags] = useState<string[]>([]);
 	const [wazaTags, setWazaTags] = useState<string[]>([]);
+	const [newTagInput, setNewTagInput] = useState("");
+	const [showNewTagInput, setShowNewTagInput] = useState<string | null>(null);
 
-	const { data: allTags, error } = trpc.trainingTags.getAllTags.useQuery(
-		undefined,
-		{
-			enabled: isOpen,
+	const {
+		data: allTags,
+		error,
+		refetch,
+	} = trpc.trainingTags.getAllTags.useQuery(undefined, {
+		enabled: isOpen,
+	});
+
+	const postNewTagMutation = trpc.trainingTags.postNewTag.useMutation({
+		onSuccess: (newTag) => {
+			refetch();
+			setNewTagInput("");
+			setShowNewTagInput(null);
+			showToast("タグが追加されました", "success");
+
+			const categoryMap: { [key: string]: keyof PageCreateData } = {
+				取り: "tori",
+				受け: "uke",
+				技: "waza",
+			};
+
+			const formCategory = categoryMap[newTag.category];
+			if (formCategory) {
+				handleTagToggle(formCategory, newTag.name);
+			}
 		},
-	);
+		onError: (error) => {
+			console.error("Tag creation error:", error);
+			console.error("Error details:", {
+				message: error.message,
+				cause: error.cause,
+				data: error.data,
+			});
+			showToast(`タグの追加に失敗しました: ${error.message}`, "error");
+		},
+	});
 
 	useEffect(() => {
 		if (allTags) {
@@ -85,6 +121,54 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 				[category]: newTags,
 			};
 		});
+	};
+
+	const handleAddNewTag = (category: string) => {
+		setShowNewTagInput(category);
+	};
+
+	const handleSubmitNewTag = (category: string) => {
+		const trimmedInput = newTagInput.trim();
+
+		if (!trimmedInput) {
+			showToast("タグ名を入力してください", "error");
+			return;
+		}
+
+		// クライアントサイドバリデーション
+		if (trimmedInput.length > 20) {
+			showToast("タグ名は20文字以内で入力してください", "error");
+			return;
+		}
+
+		if (!/^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９]+$/.test(trimmedInput)) {
+			showToast("タグ名は全角・半角英数字のみ使用可能です", "error");
+			return;
+		}
+
+		const categoryMap: { [key: string]: "取り" | "受け" | "技" } = {
+			tori: "取り",
+			uke: "受け",
+			waza: "技",
+		};
+
+		const mappedCategory = categoryMap[category];
+		if (!mappedCategory) {
+			showToast("無効なカテゴリです", "error");
+			return;
+		}
+
+		console.log("Submitting tag:", { name: trimmedInput, category: mappedCategory });
+
+		postNewTagMutation.mutate({
+			name: trimmedInput,
+			category: mappedCategory,
+		});
+	};
+
+	const handleCancelNewTag = () => {
+		setNewTagInput("");
+		setShowNewTagInput(null);
 	};
 
 	const validateForm = (): boolean => {
@@ -161,8 +245,35 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 							tags={toriTags}
 							selectedTags={formData.tori}
 							onTagToggle={(tag) => handleTagToggle("tori", tag)}
-							onAddNew={() => alert("タグ追加機能は未実装です")}
+							onAddNew={() => handleAddNewTag("tori")}
+							showAddButton={showNewTagInput !== "tori"}
 						/>
+						{showNewTagInput === "tori" && (
+							<div className={styles.newTagInput}>
+								<input
+									type="text"
+									placeholder="新しいタグ名を入力"
+									value={newTagInput}
+									onChange={(e) => setNewTagInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Escape") {
+											handleCancelNewTag();
+										}
+									}}
+									maxLength={20}
+								/>
+								<button
+									type="button"
+									onClick={() => handleSubmitNewTag("tori")}
+									disabled={postNewTagMutation.isPending}
+								>
+									追加
+								</button>
+								<button type="button" onClick={handleCancelNewTag}>
+									キャンセル
+								</button>
+							</div>
+						)}
 					</div>
 
 					<div className={styles.section}>
@@ -171,8 +282,35 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 							tags={ukeTags}
 							selectedTags={formData.uke}
 							onTagToggle={(tag) => handleTagToggle("uke", tag)}
-							onAddNew={() => alert("タグ追加機能は未実装です")}
+							onAddNew={() => handleAddNewTag("uke")}
+							showAddButton={showNewTagInput !== "uke"}
 						/>
+						{showNewTagInput === "uke" && (
+							<div className={styles.newTagInput}>
+								<input
+									type="text"
+									placeholder="新しいタグ名を入力"
+									value={newTagInput}
+									onChange={(e) => setNewTagInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Escape") {
+											handleCancelNewTag();
+										}
+									}}
+									maxLength={20}
+								/>
+								<button
+									type="button"
+									onClick={() => handleSubmitNewTag("uke")}
+									disabled={postNewTagMutation.isPending}
+								>
+									追加
+								</button>
+								<button type="button" onClick={handleCancelNewTag}>
+									キャンセル
+								</button>
+							</div>
+						)}
 					</div>
 
 					<div className={styles.section}>
@@ -181,8 +319,35 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 							tags={wazaTags}
 							selectedTags={formData.waza}
 							onTagToggle={(tag) => handleTagToggle("waza", tag)}
-							onAddNew={() => alert("タグ追加機能は未実装です")}
+							onAddNew={() => handleAddNewTag("waza")}
+							showAddButton={showNewTagInput !== "waza"}
 						/>
+						{showNewTagInput === "waza" && (
+							<div className={styles.newTagInput}>
+								<input
+									type="text"
+									placeholder="新しいタグ名を入力"
+									value={newTagInput}
+									onChange={(e) => setNewTagInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Escape") {
+											handleCancelNewTag();
+										}
+									}}
+									maxLength={20}
+								/>
+								<button
+									type="button"
+									onClick={() => handleSubmitNewTag("waza")}
+									disabled={postNewTagMutation.isPending}
+								>
+									追加
+								</button>
+								<button type="button" onClick={handleCancelNewTag}>
+									キャンセル
+								</button>
+							</div>
+						)}
 					</div>
 
 					<div className={styles.section}>
