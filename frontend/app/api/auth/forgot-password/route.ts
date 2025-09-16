@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
-import { generateResetToken } from "@/lib/utils/auth";
+import { generateResetToken } from "@/lib/utils/auth-server";
 import { sendPasswordResetEmail } from "@/lib/utils/email";
 import { resetPasswordSchema } from "@/lib/utils/validation";
 

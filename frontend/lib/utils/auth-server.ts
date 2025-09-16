@@ -13,10 +13,6 @@ export async function verifyPassword(
 	return await bcrypt.compare(password, hashedPassword);
 }
 
-export function generateUsernameFromEmail(email: string): string {
-	return email.split("@")[0];
-}
-
 export function generateRandomUsername(prefix = "user"): string {
 	const randomSuffix = randomBytes(4).toString("hex");
 	return `${prefix}_${randomSuffix}`;
@@ -30,13 +26,5 @@ export function generateResetToken(): string {
 	return randomBytes(32).toString("hex");
 }
 
-// トークンの有効期限（1時間）
-export const TOKEN_EXPIRY_HOURS = 1;
-
-export function isTokenExpired(createdAt: Date): boolean {
-	const now = new Date();
-	const expiryTime = new Date(
-		createdAt.getTime() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000,
-	);
-	return now > expiryTime;
-}
+// Re-export client-safe utilities
+export { generateUsernameFromEmail, TOKEN_EXPIRY_HOURS, isTokenExpired } from "./auth-client";

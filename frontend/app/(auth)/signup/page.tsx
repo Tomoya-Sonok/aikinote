@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { EmailVerificationWaitingForm } from "@/components/auth/EmailVerificationWaitingForm";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { generateUsernameFromEmail } from "@/lib/utils/auth";
+import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import {
 	type EmailPasswordFormData,
 	emailPasswordSchema,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
-import { generateVerificationToken, hashPassword } from "@/lib/utils/auth";
+import { generateVerificationToken, hashPassword } from "@/lib/utils/auth-server";
 import { sendVerificationEmail } from "@/lib/utils/email";
 import { signUpSchema } from "@/lib/utils/validation";
 

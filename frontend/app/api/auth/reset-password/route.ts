@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
-import { hashPassword, isTokenExpired } from "@/lib/utils/auth";
+import { hashPassword, isTokenExpired } from "@/lib/utils/auth-server";
 import { newPasswordSchema } from "@/lib/utils/validation";
 
 export async function POST(request: NextRequest) {
