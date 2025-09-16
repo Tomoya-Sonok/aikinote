@@ -1,47 +1,51 @@
 .container {
-  font-family: var(--font-zen-old-mincho);
+	font-family: var(--font-zen-old-mincho);
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.titleButtonWrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 .title {
-  font-size: 12px;
-  font-weight: 400;
-  color: #000000;
-  margin: 0;
-  line-height: 1.45;
-  flex-shrink: 0;
+	font-size: 12px;
+	font-weight: 400;
+	color: #000000;
+	margin: 0;
+	line-height: 1.45;
+	flex-shrink: 0;
 }
 
 .divider {
-  flex: 1;
-  height: 1px;
-  background-color: #000000;
+	height: 1px;
+	background-color: #000000;
 }
 
 .addButton {
-  font-family: var(--font-zen-old-mincho);
-  font-size: 12px;
-  color: #000000;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1.45;
-  flex-shrink: 0;
+	font-family: var(--font-zen-old-mincho);
+	font-size: 12px;
+	color: #000000;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	line-height: 1.45;
+	flex-shrink: 0;
 }
 
 .addButton:hover {
-  opacity: 0.7;
+	opacity: 0.7;
 }
 
 .tagsGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
 }

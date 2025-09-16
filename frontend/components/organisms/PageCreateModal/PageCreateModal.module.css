@@ -104,6 +104,66 @@
   background-color: #6a6a6a;
 }
 
+.newTagInput {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.newTagInput input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: var(--font-zen-old-mincho);
+  height: 24px;
+}
+
+.newTagInput input:focus {
+  outline: none;
+  border-color: #838383;
+}
+
+.newTagInput button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 3px;
+  font-size: 10px;
+  font-family: var(--font-zen-old-mincho);
+  cursor: pointer;
+  white-space: nowrap;
+  height: 24px;
+}
+
+.newTagInput button:first-of-type {
+  background-color: #838383;
+  color: white;
+}
+
+.newTagInput button:first-of-type:hover {
+  background-color: #6a6a6a;
+}
+
+.newTagInput button:first-of-type:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.newTagInput button:last-of-type {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.newTagInput button:last-of-type:hover {
+  background-color: #d0d0d0;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 430px) {
   .modal {
