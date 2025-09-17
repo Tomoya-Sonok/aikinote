@@ -176,17 +176,27 @@ export const getTrainingPages = async ({
       const { data: pageTags, error: pageTagsError } = await supabase
         .from("TrainingPageTag")
         .select("training_page_id")
-        .in("user_tag_id", tagIds)
-        .groupBy("training_page_id")
-        .having("count", "eq", tagIds.length);
+        .in("user_tag_id", tagIds);
 
       if (pageTagsError)
         throw new Error("ページとタグの関連検索に失敗しました");
 
-      pageIds = pageTags.map((pt) => pt.training_page_id);
+      if (pageTags) {
+        // ページIDごとにタグ数をカウントして、全てのタグを持つページのみを抽出
+        const pageTagCounts: { [key: string]: number } = {};
+        pageTags.forEach((pt: { training_page_id: string }) => {
+          pageTagCounts[pt.training_page_id] = (pageTagCounts[pt.training_page_id] || 0) + 1;
+        });
+
+        pageIds = Object.entries(pageTagCounts)
+          .filter(([, count]) => count === tagIds.length)
+          .map(([pageId]) => pageId);
+      } else {
+        pageIds = [];
+      }
 
       // 一致するページがない場合は空配列を返す
-      if (pageIds.length === 0) {
+      if (!pageIds || pageIds.length === 0) {
         return [];
       }
     }
@@ -243,7 +253,10 @@ export const getTrainingPages = async ({
 
       const tags: UserTagRow[] =
         pageTags
-          ?.map((pt: { UserTag: UserTagRow }) => pt.UserTag)
+          ?.map((pt: { UserTag: UserTagRow | UserTagRow[] }) => {
+            // UserTagが配列の場合は最初の要素を取得、そうでなければそのまま返す
+            return Array.isArray(pt.UserTag) ? pt.UserTag[0] : pt.UserTag;
+          })
           .filter(Boolean) || [];
       pagesWithTags.push({ page, tags });
     }

@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/nextjs";
-import { FilterItemModal } from "./FilterItemModal";
+import { TagFilterModal } from "./TagFilterModal";
 
-const meta: Meta<typeof FilterItemModal> = {
-	title: "Atoms/FilterItemModal",
-	component: FilterItemModal,
+const meta: Meta<typeof TagFilterModal> = {
+	title: "Atoms/TagFilterModal",
+	component: TagFilterModal,
 	parameters: {
 		layout: "padded",
 	},

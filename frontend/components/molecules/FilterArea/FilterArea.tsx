@@ -6,26 +6,26 @@ import styles from "./FilterArea.module.css";
 interface FilterAreaProps {
   onSearchChange: (search: string) => void;
   onDateFilterChange: (date: string | null) => void;
+  onTagFilterChange: (tags: string[]) => void;
   currentSearchQuery: string;
   currentSelectedDate: string | null;
   currentSelectedTags: string[]; // 表示用にタグ名（またはID）の配列を受け取る
   onOpenTagSelection: () => void;
+  onOpenDateSelection: () => void;
 }
 
 export const FilterArea: FC<FilterAreaProps> = ({
   onSearchChange,
   onDateFilterChange,
+  onTagFilterChange,
   currentSearchQuery,
   currentSelectedDate,
   currentSelectedTags,
   onOpenTagSelection,
+  onOpenDateSelection,
 }) => {
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
-  };
-
-  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    onDateFilterChange(e.target.value || null);
   };
 
   // NOTE: タグの表示名は、IDから名前に変換するロジックが親にあることを想定しています。
@@ -34,6 +34,8 @@ export const FilterArea: FC<FilterAreaProps> = ({
     currentSelectedTags.length > 0
       ? currentSelectedTags.join(", ")
       : "指定なし";
+
+  const dateDisplayValue = currentSelectedDate || "指定なし";
 
   return (
     <div className={styles.filterContainer}>
@@ -62,8 +64,12 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <span className={styles.arrow}>＞</span>
         </button>
 
-        {/* Date Filter Input */}
-        <div className={styles.dateFilterContainer}>
+        {/* Date Filter Button */}
+        <button
+          type="button"
+          className={styles.filterItemButton}
+          onClick={onOpenDateSelection}
+        >
           <Image
             src="/icons/calendar-icon.svg"
             alt="日付"
@@ -71,17 +77,10 @@ export const FilterArea: FC<FilterAreaProps> = ({
             height={24}
             className={styles.filterIcon}
           />
-          <label htmlFor="date-filter" className={styles.filterLabel}>
-            日付
-          </label>
-          <input
-            id="date-filter"
-            type="date"
-            className={styles.dateInput}
-            value={currentSelectedDate || ""}
-            onChange={handleDateChange}
-          />
-        </div>
+          <span className={styles.filterLabel}>日付</span>
+          <span className={styles.filterValue}>{dateDisplayValue}</span>
+          <span className={styles.arrow}>＞</span>
+        </button>
       </div>
     </div>
   );
