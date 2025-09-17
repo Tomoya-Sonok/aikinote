@@ -1,269 +1,273 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useParams, useRouter } from "next/navigation";
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { getPage } from "@/lib/api/client";
+import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
+import { getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import PageDetailPage from "./page";
+import type { PageEditModalProps } from "@/components/organisms/PageEditModal/PageEditModal";
 
 // モック設定
 vi.mock("next/navigation", () => ({
-  useParams: vi.fn(),
-  useRouter: vi.fn(),
+	useParams: vi.fn(),
+	useRouter: vi.fn(),
 }));
 
 vi.mock("@/lib/api/client", () => ({
-  getPage: vi.fn(),
+	getPage: vi.fn(),
+	getTags: vi.fn(),
+	updatePage: vi.fn(),
 }));
 
 vi.mock("@/lib/hooks/useAuth", () => ({
-  useAuth: vi.fn(),
+	useAuth: vi.fn(),
 }));
 
 vi.mock("@/components/layout/AppLayout", () => ({
-  AppLayout: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-layout">{children}</div>
-  ),
+	AppLayout: ({ children }: { children: React.ReactNode }) => (
+		<div data-testid="app-layout">{children}</div>
+	),
 }));
 
 vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
-  TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
+	TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
 }));
 
 vi.mock("@/components/atoms/Tag/Tag", () => ({
-  Tag: ({ children }: { children: React.ReactNode }) => (
-    <span data-testid="tag">{children}</span>
-  ),
+	Tag: ({ children }: { children: React.ReactNode }) => (
+		<span data-testid="tag">{children}</span>
+	),
+}));
+
+// PageEditModalのモック
+// vi.hoisted でモック用コンポーネントを定義
+const { MockPageEditModal } = vi.hoisted(() => {
+	return {
+		MockPageEditModal: vi.fn(({ isOpen }: { isOpen: boolean }) =>
+			isOpen ? <div data-testid="page-edit-modal">モーダル</div> : null,
+		),
+	};
+});
+
+// モジュールモック
+vi.mock("@/components/organisms/PageEditModal/PageEditModal", () => ({
+	PageEditModal: MockPageEditModal,
 }));
 
 describe("ページ詳細画面", () => {
-  const mockUseRouter = vi.mocked(useRouter);
-  const mockUseParams = vi.mocked(useParams);
-  const mockUseAuth = vi.mocked(useAuth);
-  const mockGetPage = vi.mocked(getPage);
+	const mockUseRouter = vi.mocked(useRouter);
+	const mockUseParams = vi.mocked(useParams);
+	const mockUseAuth = vi.mocked(useAuth);
+	const mockGetPage = vi.mocked(getPage);
+	const mockGetTags = vi.mocked(getTags);
+	const mockUpdatePage = vi.mocked(updatePage);
 
-  const mockPush = vi.fn();
+	const mockPush = vi.fn();
 
-  beforeEach(() => {
-    vi.clearAllMocks();
+	// モックデータの定義
+	const mockInitialPageData = {
+		success: true,
+		data: {
+			page: {
+				id: "test-page-id",
+				title: "テスト稽古ページ",
+				content: "今日は基本動作の稽古を行いました",
+				comment: "姿勢に注意が必要",
+				user_id: "test-user-id",
+				created_at: "2023-01-01T00:00:00.000Z",
+				updated_at: "2023-01-01T00:00:00.000Z",
+			},
+			tags: [
+				{ id: "tag1", name: "立技", category: "取り" },
+				{ id: "tag2", name: "正面打ち", category: "受け" },
+			],
+		},
+	};
 
-    mockUseRouter.mockReturnValue({
-      push: mockPush,
-    } as any);
+	const mockAvailableTags = {
+		success: true,
+		data: [
+			{ id: "tag1", name: "立技", category: "取り" },
+			{ id: "tag2", name: "正面打ち", category: "受け" },
+			{ id: "tag3", name: "片手取り", category: "受け" },
+		],
+	};
 
-    mockUseParams.mockReturnValue({
-      page_id: "test-page-id",
-    });
+	beforeEach(() => {
+		vi.clearAllMocks();
 
-    mockUseAuth.mockReturnValue({
-      session: {
-        user: {
-          id: "test-user-id",
-        },
-      },
-    } as any);
-  });
+		mockUseRouter.mockReturnValue({ push: mockPush } as any);
+		mockUseParams.mockReturnValue({ page_id: "test-page-id" });
+		mockUseAuth.mockReturnValue({
+			session: { user: { id: "test-user-id" } },
+		} as any);
 
-  it("ページ詳細が正常に表示されること", async () => {
-    // Arrange
-    const mockApiResponse = {
-      success: true,
-      data: {
-        page: {
-          id: "test-page-id",
-          title: "テスト稽古ページ",
-          content: "今日は基本動作の稽古を行いました",
-          comment: "姿勢に注意が必要",
-          user_id: "test-user-id",
-          created_at: "2023-01-01T00:00:00.000Z",
-          updated_at: "2023-01-01T00:00:00.000Z",
-        },
-        tags: [
-          {
-            id: "tag1",
-            name: "立技",
-            category: "取り",
-          },
-          {
-            id: "tag2",
-            name: "正面打ち",
-            category: "受け",
-          },
-        ],
-      },
-      message: "ページ詳細を取得しました",
-    };
+		// デフォルトのAPIモック
+		mockGetPage.mockResolvedValue(mockInitialPageData);
+		mockGetTags.mockResolvedValue(mockAvailableTags);
+	});
 
-    mockGetPage.mockResolvedValue(mockApiResponse);
+	describe("表示", () => {
+		it("ページ詳細が正常に表示されること", async () => {
+			// Arrange
+			render(<PageDetailPage />);
 
-    // Act
-    render(<PageDetailPage />);
+			// Act & Assert
+			await waitFor(() => {
+				expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
+			});
+			expect(
+				screen.getByText("今日は基本動作の稽古を行いました"),
+			).toBeInTheDocument();
+			expect(screen.getByText("姿勢に注意が必要")).toBeInTheDocument();
+			expect(screen.getByText("立技")).toBeInTheDocument();
+			expect(screen.getByText("正面打ち")).toBeInTheDocument();
+		});
 
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
-    });
+		it("読み込み中の状態が表示されること", () => {
+			// Arrange
+			mockGetPage.mockImplementation(() => new Promise(() => {})); // 解決しないPromise
 
-    expect(screen.getByText("今日は基本動作の稽古を行いました")).toBeInTheDocument();
-    expect(screen.getByText("姿勢に注意が必要")).toBeInTheDocument();
-    expect(screen.getByText("立技")).toBeInTheDocument();
-    expect(screen.getByText("正面打ち")).toBeInTheDocument();
-  });
+			// Act
+			render(<PageDetailPage />);
 
-  it("読み込み中の状態が表示されること", async () => {
-    // Arrange
-    mockGetPage.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 1000))
-    );
+			// Assert
+			expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+		});
 
-    // Act
-    render(<PageDetailPage />);
+		it("ページが見つからない場合にエラーメッセージが表示されること", async () => {
+			// Arrange
+			mockGetPage.mockResolvedValue({ success: false, error: "Not Found" });
 
-    // Assert
-    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
-  });
+			// Act
+			render(<PageDetailPage />);
 
-  it("ページが見つからない場合にエラーメッセージが表示されること", async () => {
-    // Arrange
-    mockGetPage.mockRejectedValue(new Error("ページが見つかりません"));
+			// Assert
+			await waitFor(() => {
+				expect(
+					screen.getByText("ページが見つかりませんでした"),
+				).toBeInTheDocument();
+			});
+		});
+	});
 
-    // Act
-    render(<PageDetailPage />);
+	describe("編集機能", () => {
+		it("編集ボタンをクリックすると、ページ編集モーダルが表示されること", async () => {
+			// Arrange
+			render(<PageDetailPage />);
+			await waitFor(() => {
+				expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
+			});
 
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByText("ページが見つかりませんでした")).toBeInTheDocument();
-    });
+			// Act
+			const editButton = screen.getByRole("button", { name: "編集" });
+			await userEvent.click(editButton);
 
-    expect(screen.getByText("ページ一覧に戻る")).toBeInTheDocument();
-  });
+			// Assert
+			expect(screen.getByTestId("page-edit-modal")).toBeInTheDocument();
+		});
 
-  it("APIレスポンスが失敗の場合にエラーメッセージが表示されること", async () => {
-    // Arrange
-    const mockApiResponse = {
-      success: false,
-      error: "アクセス権限がありません",
-    };
+		it("モーダルに渡される初期データが正しいこと", async () => {
+			// Arrange
+			render(<PageDetailPage />);
+			await waitFor(() => {
+				expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
+			});
 
-    mockGetPage.mockResolvedValue(mockApiResponse);
+			// Act
+			const editButton = screen.getByRole("button", { name: "編集" });
+			await userEvent.click(editButton);
 
-    // Act
-    render(<PageDetailPage />);
+			// Assert
+			const expectedInitialData = {
+				id: "test-page-id",
+				title: "テスト稽古ページ",
+				content: "今日は基本動作の稽古を行いました",
+				comment: "姿勢に注意が必要",
+				tori: ["立技"],
+				uke: ["正面打ち"],
+				waza: [],
+			};
+			expect(MockPageEditModal).toHaveBeenCalledWith(
+				expect.objectContaining({ initialData: expectedInitialData }),
+				expect.anything(),
+			);
+		});
 
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByText("ページが見つかりませんでした")).toBeInTheDocument();
-    });
-  });
+		it("ページ更新が成功すると、表示が更新されること", async () => {
+			// Arrange
+			const updatedPageData = {
+				success: true,
+				data: {
+					page: {
+						id: "test-page-id",
+						title: "更新された稽古ページ",
+						content: "更新された内容",
+						comment: "更新されたコメント",
+						user_id: "test-user-id",
+						created_at: "2023-01-01T00:00:00.000Z",
+						updated_at: "2023-01-02T00:00:00.000Z",
+					},
+					tags: [{ id: "tag3", name: "片手取り", category: "受け" }],
+				},
+			};
+			mockUpdatePage.mockResolvedValue(updatedPageData);
 
-  it("ユーザーIDが存在しない場合にページが表示されないこと", async () => {
-    // Arrange
-    mockUseAuth.mockReturnValue({
-      session: null,
-    } as any);
+			render(<PageDetailPage />);
+			await waitFor(() => {
+				expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
+			});
 
-    // Act
-    render(<PageDetailPage />);
+			// Act
+			const editButton = screen.getByRole("button", { name: "編集" });
+			await userEvent.click(editButton);
 
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByText("ページが見つかりませんでした")).toBeInTheDocument();
-    });
+			const onUpdate = (MockPageEditModal as Mock<[PageEditModalProps]>).mock
+				.calls[0][0].onUpdate;
 
-    expect(mockGetPage).not.toHaveBeenCalled();
-  });
+			await act(async () => {
+				await onUpdate({ id: "test-page-id", title: "更新された稽古ページ" });
+			});
 
-  it("タグが存在しないページが正常に表示されること", async () => {
-    // Arrange
-    const mockApiResponse = {
-      success: true,
-      data: {
-        page: {
-          id: "test-page-id",
-          title: "タグなし稽古ページ",
-          content: "タグを設定していない稽古の記録",
-          comment: "",
-          user_id: "test-user-id",
-          created_at: "2023-01-01T00:00:00.000Z",
-          updated_at: "2023-01-01T00:00:00.000Z",
-        },
-        tags: [],
-      },
-      message: "ページ詳細を取得しました",
-    };
+			// Assert
+			await waitFor(() => {
+				expect(screen.getByText("更新された稽古ページ")).toBeInTheDocument();
+			});
+			expect(screen.getByText("更新された内容")).toBeInTheDocument();
+			expect(screen.getByText("更新されたコメント")).toBeInTheDocument();
+			expect(screen.getByText("片手取り")).toBeInTheDocument();
+			expect(screen.queryByText("テスト稽古ページ")).not.toBeInTheDocument();
+		});
 
-    mockGetPage.mockResolvedValue(mockApiResponse);
+		it("ページ更新APIの呼び出しが正しいパラメータで行われること", async () => {
+			// Arrange
+			render(<PageDetailPage />);
+			await waitFor(() => {
+				expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
+			});
 
-    // Act
-    render(<PageDetailPage />);
+			// Act
+			const editButton = screen.getByRole("button", { name: "編集" });
+			await userEvent.click(editButton);
 
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByText("タグなし稽古ページ")).toBeInTheDocument();
-    });
+			const onUpdate = (MockPageEditModal as Mock<[PageEditModalProps]>).mock
+				.calls[0][0].onUpdate;
 
-    expect(screen.getByText("タグを設定していない稽古の記録")).toBeInTheDocument();
-    expect(screen.queryByTestId("tag")).not.toBeInTheDocument();
-  });
+			const updatePayload = {
+				id: "test-page-id",
+				title: "更新ペイロード",
+				content: "内容",
+				comment: "コメント",
+				tori: [],
+				uke: [],
+				waza: [],
+			};
+			await act(async () => {
+				await onUpdate(updatePayload);
+			});
 
-  it("コメントが空の場合にコメントセクションが表示されないこと", async () => {
-    // Arrange
-    const mockApiResponse = {
-      success: true,
-      data: {
-        page: {
-          id: "test-page-id",
-          title: "コメントなしページ",
-          content: "稽古の記録",
-          comment: "",
-          user_id: "test-user-id",
-          created_at: "2023-01-01T00:00:00.000Z",
-          updated_at: "2023-01-01T00:00:00.000Z",
-        },
-        tags: [],
-      },
-      message: "ページ詳細を取得しました",
-    };
-
-    mockGetPage.mockResolvedValue(mockApiResponse);
-
-    // Act
-    render(<PageDetailPage />);
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByText("コメントなしページ")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByText("その他・コメント")).not.toBeInTheDocument();
-  });
-
-  it("APIが正しいパラメータで呼び出されること", async () => {
-    // Arrange
-    const mockApiResponse = {
-      success: true,
-      data: {
-        page: {
-          id: "test-page-id",
-          title: "テストページ",
-          content: "テスト内容",
-          comment: "",
-          user_id: "test-user-id",
-          created_at: "2023-01-01T00:00:00.000Z",
-          updated_at: "2023-01-01T00:00:00.000Z",
-        },
-        tags: [],
-      },
-      message: "ページ詳細を取得しました",
-    };
-
-    mockGetPage.mockResolvedValue(mockApiResponse);
-
-    // Act
-    render(<PageDetailPage />);
-
-    // Assert
-    await waitFor(() => {
-      expect(mockGetPage).toHaveBeenCalledWith("test-page-id", "test-user-id");
-    });
-  });
+			// Assert
+			expect(mockUpdatePage).toHaveBeenCalledWith(updatePayload);
+		});
+	});
 });
