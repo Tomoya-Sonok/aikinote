@@ -1,15 +1,10 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import {
-  createTrainingPage,
-  getTrainingPages,
-  supabase,
-} from "../lib/supabase.js";
+import { createTrainingPage, getTrainingPages } from "../lib/supabase.js";
 import {
   type ApiResponse,
   createPageSchema,
   getPagesSchema,
-  type PageResponse,
   type PagesListResponse,
   type PageWithTagsResponse,
 } from "../lib/validation.js";

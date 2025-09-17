@@ -216,6 +216,8 @@ describe("ページ一覧取得API", () => {
             id: "test-tag-id-1",
             name: "立技",
             category: "取り",
+            user_id: "test-user-id",
+            created_at: "2023-01-01T00:00:00.000Z",
           },
         ],
       },
