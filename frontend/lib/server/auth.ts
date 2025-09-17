@@ -1,4 +1,5 @@
 import { getServerSupabase } from "@/lib/supabase/server";
+import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 
 export type SignUpCredentials = {
   email: string;
@@ -47,6 +48,14 @@ export async function signUp(credentials: SignUpCredentials) {
       const { error } = await supabase.auth.admin.deleteUser(authData.user.id);
       if (error) return { data: null, error };
       return { data: null, error: profileError };
+    }
+
+    // ユーザー作成成功後、初期タグを作成
+    try {
+      await initializeUserTagsIfNeeded(authData.user.id);
+    } catch (error) {
+      console.error("初期タグ作成エラー:", error);
+      // 初期タグ作成に失敗してもアカウント作成は成功とする
     }
   }
 

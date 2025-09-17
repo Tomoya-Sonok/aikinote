@@ -1,8 +1,8 @@
 import { HttpResponse, http } from "msw";
 
-// モックデータの定義（UUIDフォーマットに修正）
+// モックデータの定義（実際のセッションIDに合わせて修正）
 const MOCK_USER = {
-  id: "550e8400-e29b-41d4-a716-446655440000", // UUID形式に修正
+  id: "ec40977c-1de8-4784-ac78-e3ff3a5cb915", // 実際のセッションIDに修正
   username: "テストユーザー",
   email: "test@example.com",
   profile_image_url: null,
@@ -21,6 +21,28 @@ const MOCK_DOJO = {
   created_at: "2023-01-01T00:00:00Z",
   updated_at: "2023-01-01T00:00:00Z",
 };
+
+// DefaultTagTemplateのモックデータ
+const MOCK_DEFAULT_TAG_TEMPLATES = [
+  { id: "default-1", category: "取り", name: "相半身", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-2", category: "取り", name: "逆半身", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-3", category: "取り", name: "正面", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-4", category: "受け", name: "片手取り", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-5", category: "受け", name: "諸手取り", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-6", category: "受け", name: "肩取り", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-7", category: "技", name: "四方投げ", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-8", category: "技", name: "入り身投げ", created_at: "2023-01-01T00:00:00Z" },
+  { id: "default-9", category: "技", name: "小手返し", created_at: "2023-01-01T00:00:00Z" },
+];
+
+// UserTagのモックデータ（初期状態は空の配列で、初期タグ作成をテストできるように）
+let MOCK_USER_TAGS: Array<{
+  id: string;
+  user_id: string;
+  category: string;
+  name: string;
+  created_at: string;
+}> = [];
 
 // Supabase認証のモックレスポンス
 const MOCK_AUTH_USER = {
@@ -77,7 +99,12 @@ export const handlers = [
   }),
 
   // Supabase Data API - userテーブル取得（プロフィール情報）
-  http.get("*/rest/v1/user", () => {
+  http.get("*/rest/v1/user", ({ request }) => {
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (id === MOCK_USER.id) {
+      return HttpResponse.json(MOCK_USER);
+    }
     return HttpResponse.json([MOCK_USER]);
   }),
 
@@ -197,5 +224,154 @@ export const handlers = [
         type: "oauth",
       },
     });
+  }),
+
+  // タグ一覧取得API
+  http.get("/api/tags", ({ request }) => {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get("user_id");
+
+    if (!userId) {
+      return HttpResponse.json({ error: "user_idが必要です" }, { status: 400 });
+    }
+
+    if (userId === MOCK_USER.id) {
+      return HttpResponse.json({ success: true, data: MOCK_USER_TAGS });
+    }
+
+    return HttpResponse.json({ success: true, data: [] });
+  }),
+
+  // タグ作成API
+  http.post("/api/tags", async ({ request }) => {
+    const body = await request.json() as {
+      name: string;
+      category: string;
+      user_id: string;
+    };
+
+    const { name, category, user_id } = body;
+
+    if (!name || !category || !user_id) {
+      return HttpResponse.json({ success: false, error: "必要なパラメータが不足しています" }, { status: 400 });
+    }
+
+    // ユーザーIDが存在するかチェック
+    if (user_id !== MOCK_USER.id) {
+      return HttpResponse.json({
+        success: false,
+        error: "タグの作成に失敗しました"
+      }, { status: 500 });
+    }
+
+    const newTag = {
+      id: `user-tag-api-${Date.now()}`,
+      user_id: user_id,
+      category: category,
+      name: name,
+      created_at: new Date().toISOString(),
+    };
+
+    // MOCK_USER_TAGSに追加
+    MOCK_USER_TAGS.push(newTag);
+
+    return HttpResponse.json({ success: true, data: newTag });
+  }),
+
+  // 初期タグ作成API
+  http.post("/api/initialize-user-tags", async ({ request }) => {
+    const body = await request.json() as { user_id: string };
+    if (body.user_id === MOCK_USER.id) {
+      // DefaultTagTemplateからUserTagを作成
+      const newUserTags = MOCK_DEFAULT_TAG_TEMPLATES.map((template, index) => ({
+        id: `user-tag-${index + 1}`,
+        user_id: MOCK_USER.id,
+        category: template.category,
+        name: template.name,
+        created_at: new Date().toISOString(),
+      }));
+
+      // MOCK_USER_TAGSを更新
+      MOCK_USER_TAGS.push(...newUserTags);
+
+      return HttpResponse.json({
+        success: true,
+        data: newUserTags,
+        message: "初期タグを作成しました"
+      });
+    }
+    return HttpResponse.json({ success: false, error: "ユーザーが見つかりません" }, { status: 404 });
+  }),
+
+  // Supabase Data API - DefaultTagTemplate取得
+  http.get("*/rest/v1/DefaultTagTemplate", () => {
+    return HttpResponse.json(MOCK_DEFAULT_TAG_TEMPLATES);
+  }),
+
+  // Supabase Data API - UserTag取得
+  http.get("*/rest/v1/UserTag", ({ request }) => {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get("user_id");
+    if (userId === MOCK_USER.id) {
+      return HttpResponse.json(MOCK_USER_TAGS);
+    }
+    return HttpResponse.json([]);
+  }),
+
+  // Supabase Data API - UserTag作成
+  http.post("*/rest/v1/UserTag", async ({ request }) => {
+    const body = await request.json();
+
+    // 配列の場合は一括作成
+    if (Array.isArray(body)) {
+      const createdTags = body.map((tag, index) => {
+        if (tag.user_id !== MOCK_USER.id) {
+          throw new Error("Foreign key constraint violation");
+        }
+        return {
+          id: `user-tag-bulk-${Date.now()}-${index}`,
+          user_id: tag.user_id,
+          category: tag.category,
+          name: tag.name,
+          created_at: new Date().toISOString(),
+        };
+      });
+
+      MOCK_USER_TAGS.push(...createdTags);
+      return HttpResponse.json(createdTags, { status: 201 });
+    }
+
+    // 単一オブジェクトの場合
+    if (body.user_id !== MOCK_USER.id) {
+      return HttpResponse.json(
+        { message: "insert or update on table \"UserTag\" violates foreign key constraint \"usertag_user_id_fkey\"" },
+        { status: 409 }
+      );
+    }
+
+    const newTag = {
+      id: `user-tag-new-${Date.now()}`,
+      user_id: body.user_id,
+      category: body.category,
+      name: body.name,
+      created_at: new Date().toISOString(),
+    };
+
+    MOCK_USER_TAGS.push(newTag);
+    return HttpResponse.json(newTag, { status: 201 });
+  }),
+
+  // Supabase Data API - UserTagのカウント（ヘッドリクエスト）
+  http.head("*/rest/v1/UserTag", ({ request }) => {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get("user_id");
+    const userTags = userId === MOCK_USER.id ? MOCK_USER_TAGS : [];
+    const count = userTags.length;
+    const response = new HttpResponse(null, {
+      headers: {
+        "Content-Range": count > 0 ? `0-${count - 1}/${count}` : "0-0/0"
+      }
+    });
+    return response;
   }),
 ];

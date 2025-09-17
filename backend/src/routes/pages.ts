@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { createTrainingPage } from "../lib/supabase.js";
-import { createPageSchema, type ApiResponse, type PageWithTagsResponse } from "../lib/validation.js";
+import { createPageSchema, type ApiResponse, type PageWithTagsResponse, type PageResponse } from "../lib/validation.js";
 
 const app = new Hono();
 

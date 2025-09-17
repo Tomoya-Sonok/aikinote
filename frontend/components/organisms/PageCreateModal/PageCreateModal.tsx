@@ -7,7 +7,7 @@ import { TextArea } from "@/components/atoms/TextArea/TextArea";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
 import { useToast } from "@/contexts/ToastContext";
-import { type CreateTagPayload, createTag, getTags } from "@/lib/api/client";
+import { type CreateTagPayload, createTag, getTags, initializeUserTags } from "@/lib/api/client";
 import styles from "./PageCreateModal.module.css";
 
 interface PageCreateModalProps {
@@ -53,6 +53,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
     { id: string; name: string; category: string; user_id: string }[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const [initialTagsCreated, setInitialTagsCreated] = useState(false);
 
   // タグ一覧を取得する関数
   const fetchTags = useCallback(async () => {
@@ -63,6 +64,24 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
       const response = await getTags(session.user.id);
       if (response.success && response.data) {
         setAllTags(response.data);
+
+        // タグが0件かつ初期タグがまだ作成されていない場合のみ初期タグを作成
+        if (response.data.length === 0 && !initialTagsCreated) {
+          try {
+            setInitialTagsCreated(true); // 重複実行を防ぐ
+            await initializeUserTags(session.user.id);
+            // 初期タグ作成後に再取得
+            const updatedResponse = await getTags(session.user.id);
+            if (updatedResponse.success && updatedResponse.data) {
+              setAllTags(updatedResponse.data);
+              showToast("初期タグを作成しました", "success");
+            }
+          } catch (initError) {
+            console.error("Failed to initialize tags:", initError);
+            showToast("初期タグの作成に失敗しました", "error");
+            setInitialTagsCreated(false); // エラー時はリセット
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to fetch tags:", error);
@@ -70,7 +89,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, isOpen, showToast]);
+  }, [session?.user?.id, isOpen, showToast, initialTagsCreated]);
 
   // タグ作成の関数
   const handleCreateTag = async (tagData: CreateTagPayload) => {
@@ -229,6 +248,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
       comment: "",
     });
     setErrors({});
+    setInitialTagsCreated(false); // モーダル閉時に初期タグ作成状態をリセット
     onClose();
   };
 

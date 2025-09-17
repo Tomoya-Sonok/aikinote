@@ -59,8 +59,7 @@ export const createTrainingPage = async (
 			throw new Error(`ページの作成に失敗しました: ${pageError.message}`);
 		}
 
-		// 2. すべてのタグ名を統合
-		const allTagNames = [...tagNames.tori, ...tagNames.uke, ...tagNames.waza];
+		// 2. すべてのタグ名を統合してカテゴリ付きで配列化
 		const categories = [
 			...tagNames.tori.map(name => ({ name, category: '取り' })),
 			...tagNames.uke.map(name => ({ name, category: '受け' })),

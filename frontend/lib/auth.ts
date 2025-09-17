@@ -4,6 +4,7 @@ import { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
+import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 
 export const authOptions: NextAuthOptions = {
   adapter: SupabaseAdapter({
@@ -70,6 +71,18 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Googleプロバイダー経由でのサインイン時も初期タグを作成
+      if (account?.provider === "google" && user.id) {
+        try {
+          await initializeUserTagsIfNeeded(user.id);
+        } catch (error) {
+          console.error("初期タグ作成エラー:", error);
+          // エラーが発生してもサインイン自体は継続する
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -79,6 +92,14 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.id as string;
+
+        // Credentials providerでのログイン時に初期タグを作成（初回ログインの場合のみ）
+        try {
+          await initializeUserTagsIfNeeded(session.user.id);
+        } catch (error) {
+          console.error("初期タグ作成エラー:", error);
+          // エラーが発生してもログイン自体は継続する
+        }
       }
       return session;
     },

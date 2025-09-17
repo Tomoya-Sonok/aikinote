@@ -190,3 +190,21 @@ export const createTag = async (tagData: CreateTagPayload) => {
 
   return await response.json();
 };
+
+// 初期タグ作成API関数（ローカル環境用）
+export const initializeUserTags = async (userId: string) => {
+  const response = await fetch("/api/initialize-user-tags", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ user_id: userId }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "初期タグの作成に失敗しました");
+  }
+
+  return await response.json();
+};
