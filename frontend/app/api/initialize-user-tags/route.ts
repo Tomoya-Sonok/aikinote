@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     if (!user_id) {
       return NextResponse.json(
         { success: false, error: "ユーザーIDが必要です" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     console.error("Initialize user tags error:", error);
     return NextResponse.json(
       { success: false, error: "初期タグの作成に失敗しました" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

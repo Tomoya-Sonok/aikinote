@@ -41,26 +41,29 @@ type ApiRoute = {
       input: {
         query: {
           user_id: string;
+          limit?: number;
         };
       };
       output: {
         success: boolean;
-        data?: Array<{
-          page: {
-            id: string;
-            title: string;
-            content: string;
-            comment: string;
-            user_id: string;
-            created_at: string;
-            updated_at: string;
-          };
-          tags: Array<{
-            id: string;
-            name: string;
-            category: string;
+        data?: {
+          training_pages: Array<{
+            page: {
+              id: string;
+              title: string;
+              content: string;
+              comment: string;
+              user_id: string;
+              created_at: string;
+              updated_at: string;
+            };
+            tags: Array<{
+              id: string;
+              name: string;
+              category: string;
+            }>;
           }>;
-        }>;
+        };
         error?: string;
         message?: string;
       };
@@ -143,9 +146,9 @@ export const createPage = async (pageData: CreatePagePayload) => {
 };
 
 // ページ一覧取得API関数
-export const getPages = async (userId: string) => {
+export const getPages = async (userId: string, limit?: number) => {
   const response = await apiClient.api.pages.$get({
-    query: { user_id: userId },
+    query: { user_id: userId, ...(limit && { limit }) },
   });
 
   if (!response.ok) {

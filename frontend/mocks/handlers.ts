@@ -24,19 +24,64 @@ const MOCK_DOJO = {
 
 // DefaultTagTemplateのモックデータ
 const MOCK_DEFAULT_TAG_TEMPLATES = [
-  { id: "default-1", category: "取り", name: "相半身", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-2", category: "取り", name: "逆半身", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-3", category: "取り", name: "正面", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-4", category: "受け", name: "片手取り", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-5", category: "受け", name: "諸手取り", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-6", category: "受け", name: "肩取り", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-7", category: "技", name: "四方投げ", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-8", category: "技", name: "入り身投げ", created_at: "2023-01-01T00:00:00Z" },
-  { id: "default-9", category: "技", name: "小手返し", created_at: "2023-01-01T00:00:00Z" },
+  {
+    id: "default-1",
+    category: "取り",
+    name: "相半身",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-2",
+    category: "取り",
+    name: "逆半身",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-3",
+    category: "取り",
+    name: "正面",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-4",
+    category: "受け",
+    name: "片手取り",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-5",
+    category: "受け",
+    name: "諸手取り",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-6",
+    category: "受け",
+    name: "肩取り",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-7",
+    category: "技",
+    name: "四方投げ",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-8",
+    category: "技",
+    name: "入り身投げ",
+    created_at: "2023-01-01T00:00:00Z",
+  },
+  {
+    id: "default-9",
+    category: "技",
+    name: "小手返し",
+    created_at: "2023-01-01T00:00:00Z",
+  },
 ];
 
 // UserTagのモックデータ（初期状態は空の配列で、初期タグ作成をテストできるように）
-let MOCK_USER_TAGS: Array<{
+const MOCK_USER_TAGS: Array<{
   id: string;
   user_id: string;
   category: string;
@@ -244,7 +289,7 @@ export const handlers = [
 
   // タグ作成API
   http.post("/api/tags", async ({ request }) => {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       name: string;
       category: string;
       user_id: string;
@@ -253,15 +298,21 @@ export const handlers = [
     const { name, category, user_id } = body;
 
     if (!name || !category || !user_id) {
-      return HttpResponse.json({ success: false, error: "必要なパラメータが不足しています" }, { status: 400 });
+      return HttpResponse.json(
+        { success: false, error: "必要なパラメータが不足しています" },
+        { status: 400 },
+      );
     }
 
     // ユーザーIDが存在するかチェック
     if (user_id !== MOCK_USER.id) {
-      return HttpResponse.json({
-        success: false,
-        error: "タグの作成に失敗しました"
-      }, { status: 500 });
+      return HttpResponse.json(
+        {
+          success: false,
+          error: "タグの作成に失敗しました",
+        },
+        { status: 500 },
+      );
     }
 
     const newTag = {
@@ -280,7 +331,7 @@ export const handlers = [
 
   // 初期タグ作成API
   http.post("/api/initialize-user-tags", async ({ request }) => {
-    const body = await request.json() as { user_id: string };
+    const body = (await request.json()) as { user_id: string };
     if (body.user_id === MOCK_USER.id) {
       // DefaultTagTemplateからUserTagを作成
       const newUserTags = MOCK_DEFAULT_TAG_TEMPLATES.map((template, index) => ({
@@ -297,10 +348,13 @@ export const handlers = [
       return HttpResponse.json({
         success: true,
         data: newUserTags,
-        message: "初期タグを作成しました"
+        message: "初期タグを作成しました",
       });
     }
-    return HttpResponse.json({ success: false, error: "ユーザーが見つかりません" }, { status: 404 });
+    return HttpResponse.json(
+      { success: false, error: "ユーザーが見つかりません" },
+      { status: 404 },
+    );
   }),
 
   // Supabase Data API - DefaultTagTemplate取得
@@ -344,8 +398,11 @@ export const handlers = [
     // 単一オブジェクトの場合
     if (body.user_id !== MOCK_USER.id) {
       return HttpResponse.json(
-        { message: "insert or update on table \"UserTag\" violates foreign key constraint \"usertag_user_id_fkey\"" },
-        { status: 409 }
+        {
+          message:
+            'insert or update on table "UserTag" violates foreign key constraint "usertag_user_id_fkey"',
+        },
+        { status: 409 },
       );
     }
 
@@ -369,8 +426,8 @@ export const handlers = [
     const count = userTags.length;
     const response = new HttpResponse(null, {
       headers: {
-        "Content-Range": count > 0 ? `0-${count - 1}/${count}` : "0-0/0"
-      }
+        "Content-Range": count > 0 ? `0-${count - 1}/${count}` : "0-0/0",
+      },
     });
     return response;
   }),

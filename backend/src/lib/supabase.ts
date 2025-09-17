@@ -132,3 +132,66 @@ export const createTrainingPage = async (
 		throw error;
 	}
 };
+
+// ページ一覧取得関数
+export const getTrainingPages = async (
+	userId: string,
+	limit: number = 20
+): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }[]> => {
+	try {
+		// 1. ユーザーのTrainingPageを取得
+		const { data: pages, error: pagesError } = await supabase
+			.from("TrainingPage")
+			.select("*")
+			.eq("user_id", userId)
+			.order("created_at", { ascending: false })
+			.limit(limit);
+
+		if (pagesError) {
+			throw new Error(`ページの取得に失敗しました: ${pagesError.message}`);
+		}
+
+		if (!pages || pages.length === 0) {
+			return [];
+		}
+
+		// 2. 各ページに関連するタグを取得
+		const pagesWithTags: { page: TrainingPageRow; tags: UserTagRow[] }[] = [];
+
+		for (const page of pages) {
+			// TrainingPageTagテーブルを結合してタグを取得
+			const { data: pageTags, error: tagsError } = await supabase
+				.from("TrainingPageTag")
+				.select(`
+					UserTag (
+						id,
+						user_id,
+						name,
+						category,
+						created_at
+					)
+				`)
+				.eq("training_page_id", page.id);
+
+			if (tagsError) {
+				console.error(`ページ ${page.id} のタグ取得エラー:`, tagsError);
+				// タグ取得エラーでもページ自体は返す
+				pagesWithTags.push({ page, tags: [] });
+				continue;
+			}
+
+			// UserTagのデータを抽出
+			const tags: UserTagRow[] = pageTags
+				?.map((pt: any) => pt.UserTag)
+				.filter(Boolean) || [];
+
+			pagesWithTags.push({ page, tags });
+		}
+
+		return pagesWithTags;
+
+	} catch (error) {
+		console.error("TrainingPages取得エラー:", error);
+		throw error;
+	}
+};

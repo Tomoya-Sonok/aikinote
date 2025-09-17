@@ -61,3 +61,18 @@ export type ApiResponse<T> = {
 	error?: string;
 	message?: string;
 };
+
+// ページ一覧取得のバリデーションスキーマ
+export const getPagesSchema = z.object({
+	user_id: z.string().min(1, "ユーザーIDは必須です"),
+	limit: z.number().int().min(1).max(100).default(20),
+});
+
+export type GetPagesInput = z.infer<typeof getPagesSchema>;
+
+// ページ一覧レスポンスの型
+export const pagesListResponseSchema = z.object({
+	training_pages: z.array(pageWithTagsResponseSchema),
+});
+
+export type PagesListResponse = z.infer<typeof pagesListResponseSchema>;

@@ -60,7 +60,8 @@ export async function createInitialUserTags(userId: string): Promise<{
   const supabase = getServiceRoleSupabase();
 
   // DefaultTagTemplateから全てのテンプレートを取得
-  const { data: templates, error: templatesError } = await getDefaultTagTemplates();
+  const { data: templates, error: templatesError } =
+    await getDefaultTagTemplates();
 
   if (templatesError || !templates) {
     return { data: null, error: templatesError };
@@ -104,7 +105,7 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
     if (count && count > 0) {
       return {
         success: true,
-        message: "ユーザーには既にタグが存在します"
+        message: "ユーザーには既にタグが存在します",
       };
     }
 
@@ -118,7 +119,7 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
     return {
       success: true,
       data: data || [],
-      message: "初期タグを作成しました"
+      message: "初期タグを作成しました",
     };
   } catch (error) {
     return { success: false, error };

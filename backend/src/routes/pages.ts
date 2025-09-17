@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { createTrainingPage } from "../lib/supabase.js";
-import { createPageSchema, type ApiResponse, type PageWithTagsResponse, type PageResponse } from "../lib/validation.js";
+import { createTrainingPage, getTrainingPages, supabase } from "../lib/supabase.js";
+import { createPageSchema, getPagesSchema, type ApiResponse, type PageWithTagsResponse, type PageResponse, type PagesListResponse } from "../lib/validation.js";
 
 const app = new Hono();
 
@@ -13,7 +13,7 @@ app.post(
 		try {
 			const input = c.req.valid("json");
 
-			// Supabaseにページを保存（実際のDB設計に合わせて修正）
+			// Supabaseにページを保存
 			const result = await createTrainingPage(
 				{
 					title: input.title,
@@ -49,37 +49,52 @@ app.post(
 );
 
 // ページ一覧取得API
-app.get("/", async (c) => {
-	try {
-		const userId = c.req.query("user_id");
+app.get(
+	"/",
+	zValidator("query", getPagesSchema),
+	async (c) => {
+		try {
+			const { user_id, limit } = c.req.valid("query");
 
-		if (!userId) {
+			// Supabaseからページ一覧を取得
+			const pagesWithTags = await getTrainingPages(user_id, limit);
+
+			// レスポンス形式に変換
+			const trainingPages = pagesWithTags.map(({ page, tags }) => ({
+				page: {
+					id: page.id,
+					title: page.title,
+					content: page.content,
+					comment: page.comment,
+					user_id: page.user_id,
+					created_at: page.created_at,
+					updated_at: page.updated_at,
+				},
+				tags: tags.map(tag => ({
+					id: tag.id,
+					name: tag.name,
+					category: tag.category,
+				})),
+			}));
+
+			const response: ApiResponse<PagesListResponse> = {
+				success: true,
+				data: { training_pages: trainingPages },
+				message: "ページ一覧を取得しました",
+			};
+
+			return c.json(response);
+		} catch (error) {
+			console.error("ページ一覧取得エラー:", error);
+
 			const errorResponse: ApiResponse<never> = {
 				success: false,
-				error: "user_idパラメータは必須です",
+				error: error instanceof Error ? error.message : "不明なエラーが発生しました",
 			};
-			return c.json(errorResponse, 400);
+
+			return c.json(errorResponse, 500);
 		}
-
-		// 開発環境では既存のモックデータ返却ロジックを使用
-		// ここは既存のindex.tsの実装を参考に実装
-		const response: ApiResponse<PageResponse[]> = {
-			success: true,
-			data: [], // 実際の実装では Supabase からデータを取得
-			message: "ページ一覧を取得しました",
-		};
-
-		return c.json(response);
-	} catch (error) {
-		console.error("ページ一覧取得エラー:", error);
-
-		const errorResponse: ApiResponse<never> = {
-			success: false,
-			error: error instanceof Error ? error.message : "不明なエラーが発生しました",
-		};
-
-		return c.json(errorResponse, 500);
 	}
-});
+);
 
 export default app;
