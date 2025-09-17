@@ -1,312 +1,312 @@
 /* メール認証フォーム全体のコンテナ */
 .container {
-	background-color: #efecec;
-	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 0 12px;
+  background-color: #efecec;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 12px;
 }
 
 /* タイトル */
 .title {
-	font-family: "Zen Old Mincho", serif;
-	font-size: 20px;
-	font-weight: 400;
-	line-height: 1.448;
-	color: #000000;
-	margin-bottom: 8px;
-	align-self: start;
-	margin-left: 4px;
+  font-family: "Zen Old Mincho", serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.448;
+  color: #000000;
+  margin-bottom: 8px;
+  align-self: start;
+  margin-left: 4px;
 }
 
 /* フォームカード */
 .formCard {
-	background-color: #ffffff;
-	border-radius: 24px;
-	padding: 24px;
-	width: 100%;
-	min-width: 290px;
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  min-width: 290px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .stepInfo {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-	background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: transparent;
 }
 
 .stepHeader {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .stepText {
-	font-family: "Public Sans", sans-serif;
-	font-size: 16px;
-	font-weight: 500;
-	line-height: 1.5;
-	color: #141414;
+  font-family: "Public Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #141414;
 }
 
 .progressContainer {
-	height: 8px;
-	background-color: #efecec;
-	border-radius: 4px;
-	overflow: hidden;
+  height: 8px;
+  background-color: #efecec;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .progressBar {
-	height: 100%;
-	background-color: #838383;
-	border-radius: 4px;
-	transition: width 0.3s ease;
+  height: 100%;
+  background-color: #838383;
+  border-radius: 4px;
+  transition: width 0.3s ease;
 }
 
 /* プログレスステップ3（メール認証段階） */
 .progressStep3 {
-	width: 75%;
+  width: 75%;
 }
 
 /* プログレスステップ4（完了） */
 .progressStep4 {
-	width: 100%;
+  width: 100%;
 }
 
 /* ステップドット */
 .stepDots {
-	display: flex;
-	justify-content: space-between;
-	position: absolute;
-	top: 56px;
-	left: 18px;
-	right: 18px;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  top: 56px;
+  left: 18px;
+  right: 18px;
 }
 
 .stepDot {
-	width: 16px;
-	height: 16px;
-	border-radius: 50%;
-	background-color: #838383;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #838383;
 }
 
 .stepDotInactive {
-	background-color: #efecec;
+  background-color: #efecec;
 }
 
 /* ローディング状態 */
 .loadingSpinner {
-	width: 48px;
-	height: 48px;
-	border: 3px solid #efecec;
-	border-top: 3px solid #838383;
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-	margin: 0 auto 24px;
+  width: 48px;
+  height: 48px;
+  border: 3px solid #efecec;
+  border-top: 3px solid #838383;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
 }
 
 @keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loadingTitle {
-	font-family: "Public Sans", sans-serif;
-	font-size: 16px;
-	font-weight: 500;
-	color: #141414;
-	margin-bottom: 8px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #141414;
+  margin-bottom: 8px;
 }
 
 .loadingMessage {
-	font-family: "Public Sans", sans-serif;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.333;
-	color: #000000;
+  font-family: "Public Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #000000;
 }
 
 /* 成功状態 */
 .successIcon {
-	width: 48px;
-	height: 48px;
-	color: #838383;
-	margin: 0 auto 24px;
+  width: 48px;
+  height: 48px;
+  color: #838383;
+  margin: 0 auto 24px;
 }
 
 .successTitle {
-	font-family: "Public Sans", sans-serif;
-	font-size: 16px;
-	font-weight: 500;
-	color: #141414;
-	margin-bottom: 8px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #141414;
+  margin-bottom: 8px;
 }
 
 .successMessage {
-	font-family: "Public Sans", sans-serif;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.333;
-	color: #000000;
-	margin-bottom: 32px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #000000;
+  margin-bottom: 32px;
 }
 
 .successContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .successTextContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .completionMessage {
-	font-family: "Public Sans", sans-serif;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.333;
-	color: #000000;
+  font-family: "Public Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #000000;
 }
 
 /* エラー状態 */
 .errorIcon {
-	width: 48px;
-	height: 48px;
-	color: #fd4545;
-	margin: 0 auto 24px;
+  width: 48px;
+  height: 48px;
+  color: #fd4545;
+  margin: 0 auto 24px;
 }
 
 .errorTitle {
-	font-family: "Public Sans", sans-serif;
-	font-size: 16px;
-	font-weight: 500;
-	color: #141414;
-	margin-bottom: 8px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #141414;
+  margin-bottom: 8px;
 }
 
 .errorMessage {
-	font-family: "Public Sans", sans-serif;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.333;
-	color: #000000;
-	margin-bottom: 24px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #000000;
+  margin-bottom: 24px;
 }
 
 .errorDetails {
-	text-align: left;
+  text-align: left;
 }
 
 .errorDetailsTitle {
-	font-family: "Public Sans", sans-serif;
-	font-size: 10px;
-	color: #707070;
-	margin-bottom: 8px;
+  font-family: "Public Sans", sans-serif;
+  font-size: 10px;
+  color: #707070;
+  margin-bottom: 8px;
 }
 
 .errorDetailsList {
-	list-style: none;
-	padding: 0;
-	margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .errorDetailsItem {
-	font-family: "Public Sans", sans-serif;
-	font-size: 10px;
-	color: #707070;
-	margin-bottom: 4px;
-	padding-left: 8px;
-	position: relative;
+  font-family: "Public Sans", sans-serif;
+  font-size: 10px;
+  color: #707070;
+  margin-bottom: 4px;
+  padding-left: 8px;
+  position: relative;
 }
 
 .errorDetailsItem::before {
-	content: "•";
-	position: absolute;
-	left: 0;
+  content: "•";
+  position: absolute;
+  left: 0;
 }
 
 .button {
-	width: 177.61px;
-	height: 35px;
-	border-radius: 24px;
-	border: none;
-	font-family: "Zen Old Mincho", serif;
-	font-size: 14px;
-	line-height: 1.448;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	text-decoration: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	margin: 0 auto;
+  width: 177.61px;
+  height: 35px;
+  border-radius: 24px;
+  border: none;
+  font-family: "Zen Old Mincho", serif;
+  font-size: 14px;
+  line-height: 1.448;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 .primaryButton {
-	background-color: #838383;
-	color: #ffffff;
+  background-color: #838383;
+  color: #ffffff;
 }
 
 .primaryButton:hover {
-	background-color: #6d6d6d;
+  background-color: #6d6d6d;
 }
 
 .secondaryButton {
-	background-color: #c9c9c9;
-	color: #000000;
+  background-color: #c9c9c9;
+  color: #000000;
 }
 
 .secondaryButton:hover {
-	background-color: #b5b5b5;
+  background-color: #b5b5b5;
 }
 
 .buttonContainer {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
 .contentsWrapper {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* メール送信完了メッセージ */
 .emailSentMessage {
-	font-family: "Public Sans", sans-serif;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1.333;
-	color: #000000;
-	white-space: pre-line;
+  font-family: "Public Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.333;
+  color: #000000;
+  white-space: pre-line;
 }
 
 /* レスポンシブ対応 */
 @media (min-width: 768px) {
-	.container {
-		padding: 0 12px;
-	}
+  .container {
+    padding: 0 12px;
+  }
 
-	.formCard {
-		min-width: 342px;
-	}
+  .formCard {
+    min-width: 342px;
+  }
 
-	.button {
-		width: 100%;
-		max-width: 280px;
-	}
+  .button {
+    width: 100%;
+    max-width: 280px;
+  }
 }
