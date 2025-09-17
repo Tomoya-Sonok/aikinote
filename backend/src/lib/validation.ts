@@ -22,6 +22,29 @@ export const createPageSchema = z.object({
 
 export type CreatePageInput = z.infer<typeof createPageSchema>;
 
+// ページ更新のバリデーションスキーマ
+export const updatePageSchema = z.object({
+  id: z.string().min(1, "ページIDは必須です"),
+  title: z
+    .string()
+    .min(1, "タイトルは必須です")
+    .max(100, "タイトルは100文字以内で入力してください"),
+  tori: z.array(z.string()).default([]),
+  uke: z.array(z.string()).default([]),
+  waza: z.array(z.string()).default([]),
+  content: z
+    .string()
+    .min(1, "稽古内容は必須です")
+    .max(2000, "稽古内容は2000文字以内で入力してください"),
+  comment: z
+    .string()
+    .max(1000, "コメントは1000文字以内で入力してください")
+    .default(""),
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+});
+
+export type UpdatePageInput = z.infer<typeof updatePageSchema>;
+
 // ページレスポンスの型（実際のDB設計に合わせて修正）
 export const pageResponseSchema = z.object({
   id: z.string(),
@@ -85,6 +108,13 @@ export const getPagesSchema = z.object({
 });
 
 export type GetPagesInput = z.infer<typeof getPagesSchema>;
+
+// ページ詳細取得のバリデーションスキーマ
+export const getPageSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+});
+
+export type GetPageInput = z.infer<typeof getPageSchema>;
 
 // ページ一覧レスポンスの型
 export const pagesListResponseSchema = z.object({

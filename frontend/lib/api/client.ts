@@ -73,6 +73,71 @@ type ApiRoute = {
       };
     };
   };
+  "/api/pages/:id": {
+    $get: {
+      input: {
+        query: {
+          user_id: string;
+        };
+      };
+      output: {
+        success: boolean;
+        data?: {
+          page: {
+            id: string;
+            title: string;
+            content: string;
+            comment: string;
+            user_id: string;
+            created_at: string;
+            updated_at: string;
+          };
+          tags: Array<{
+            id: string;
+            name: string;
+            category: string;
+          }>;
+        };
+        error?: string;
+        message?: string;
+      };
+    };
+    $put: {
+      input: {
+        json: {
+          id: string;
+          title: string;
+          tori: string[];
+          uke: string[];
+          waza: string[];
+          content: string;
+          comment: string;
+          user_id: string;
+        };
+      };
+      output: {
+        success: boolean;
+        data?: {
+          page: {
+            id: string;
+            title: string;
+            content: string;
+            comment: string;
+            user_id: string;
+            created_at: string;
+            updated_at: string;
+          };
+          tags: Array<{
+            id: string;
+            name: string;
+            category: string;
+          }>;
+        };
+        error?: string;
+        message?: string;
+      };
+    };
+  };
   "/api/tags": {
     $get: {
       input: {
@@ -187,6 +252,21 @@ export const getPages = async ({
   return await response.json();
 };
 
+// ページ詳細取得API関数
+export const getPage = async (pageId: string, userId: string) => {
+  const response = await apiClient.api.pages[":id"].$get({
+    param: { id: pageId },
+    query: { user_id: userId },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "ページ詳細の取得に失敗しました");
+  }
+
+  return await response.json();
+};
+
 // タグ関連のAPI関数
 export interface CreateTagPayload {
   name: string;
@@ -217,6 +297,33 @@ export const createTag = async (tagData: CreateTagPayload) => {
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.error || "タグの作成に失敗しました");
+  }
+
+  return await response.json();
+};
+
+// ページ更新の型定義（フロントエンド用）
+export interface UpdatePagePayload {
+  id: string;
+  title: string;
+  tori: string[];
+  uke: string[];
+  waza: string[];
+  content: string;
+  comment: string;
+  user_id: string;
+}
+
+// ページ更新API関数
+export const updatePage = async (pageData: UpdatePagePayload) => {
+  const response = await apiClient.api.pages[":id"].$put({
+    param: { id: pageData.id },
+    json: pageData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "ページの更新に失敗しました");
   }
 
   return await response.json();
