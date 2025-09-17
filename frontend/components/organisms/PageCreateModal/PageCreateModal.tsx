@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import type { FC } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TextArea } from "@/components/atoms/TextArea/TextArea";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
@@ -35,12 +35,12 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
   onClose,
   onSave,
 }) => {
-  const today = new Date().toISOString().split("T")[0];
   const { showToast } = useToast();
   const { data: session } = useSession();
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<PageCreateData>({
-    title: `${today} `,
+    title: "",
     tori: [],
     uke: [],
     waza: [],
@@ -130,6 +130,18 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
   useEffect(() => {
     fetchTags();
   }, [fetchTags]);
+
+  // モーダルが開いた時にタイトルフィールドにフォーカス
+  useEffect(() => {
+    if (isOpen && titleInputRef.current) {
+      // 少し遅延を設けてモーダルの表示が完了してからフォーカス
+      const timeoutId = setTimeout(() => {
+        titleInputRef.current?.focus();
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isOpen]);
 
   // タグをカテゴリ別に分類
   useEffect(() => {
@@ -245,7 +257,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
 
   const handleClose = () => {
     setFormData({
-      title: `${today} `,
+      title: "",
       tori: [],
       uke: [],
       waza: [],
@@ -280,6 +292,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
         <div className={styles.content}>
           <div className={styles.section}>
             <TextInput
+              ref={titleInputRef}
               label="タイトル"
               required
               value={formData.title}

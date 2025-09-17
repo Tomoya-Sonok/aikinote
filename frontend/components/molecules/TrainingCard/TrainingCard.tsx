@@ -18,7 +18,7 @@ interface TrainingCardProps {
 export const TrainingCard: FC<TrainingCardProps> = ({
   title,
   content,
-  date: _date,
+  date,
   tags,
   onEdit,
   onDelete,
@@ -74,6 +74,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
       </div>
 
       <p className={styles.content}>{content}</p>
+      <div className={styles.date}>作成日: {date}</div>
     </>
   );
 

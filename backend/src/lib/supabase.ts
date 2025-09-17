@@ -135,18 +135,89 @@ export const createTrainingPage = async (
 };
 
 // ページ一覧取得関数
-export const getTrainingPages = async (
-  userId: string,
-  limit: number = 20,
-): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }[]> => {
+export const getTrainingPages = async ({
+  userId,
+  limit = 20,
+  offset = 0,
+  query,
+  tags: tagsString,
+  date,
+}: {
+  userId: string;
+  limit?: number;
+  offset?: number;
+  query?: string;
+  tags?: string;
+  date?: string;
+}): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }[]> => {
   try {
-    // 1. ユーザーのTrainingPageを取得
-    const { data: pages, error: pagesError } = await supabase
+    let pageIds: string[] | null = null;
+
+    // タグによる絞り込み（AND検索）
+    if (tagsString) {
+      const tagNames = tagsString.split(",");
+
+      // 1. タグ名からタグIDを検索
+      const { data: tagIdsData, error: tagIdsError } = await supabase
+        .from("UserTag")
+        .select("id")
+        .in("name", tagNames)
+        .eq("user_id", userId);
+
+      if (tagIdsError) throw new Error("タグIDの検索に失敗しました");
+
+      // 検索したタグの数が一致しない場合、結果は0件
+      if (tagIdsData.length !== tagNames.length) {
+        return [];
+      }
+      const tagIds = tagIdsData.map((t) => t.id);
+
+      // 2. 全てのタグIDを持つtraining_page_idを検索
+      const { data: pageTags, error: pageTagsError } = await supabase
+        .from("TrainingPageTag")
+        .select("training_page_id")
+        .in("user_tag_id", tagIds)
+        .groupBy("training_page_id")
+        .having("count", "eq", tagIds.length);
+
+      if (pageTagsError)
+        throw new Error("ページとタグの関連検索に失敗しました");
+
+      pageIds = pageTags.map((pt) => pt.training_page_id);
+
+      // 一致するページがない場合は空配列を返す
+      if (pageIds.length === 0) {
+        return [];
+      }
+    }
+
+    // ページ取得のベースクエリ
+    let queryBuilder = supabase
       .from("TrainingPage")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", userId);
+
+    // フリーワード検索
+    if (query) {
+      queryBuilder = queryBuilder.ilike("title", `%${query}%`);
+    }
+
+    // 日付検索
+    if (date) {
+      queryBuilder = queryBuilder
+        .gte("created_at", `${date}T00:00:00Z`)
+        .lte("created_at", `${date}T23:59:59Z`);
+    }
+
+    // タグ検索結果で絞り込み
+    if (pageIds) {
+      queryBuilder = queryBuilder.in("id", pageIds);
+    }
+
+    // ページネーションと順序付け
+    const { data: pages, error: pagesError } = await queryBuilder
       .order("created_at", { ascending: false })
-      .limit(limit);
+      .range(offset, offset + limit - 1);
 
     if (pagesError) {
       throw new Error(`ページの取得に失敗しました: ${pagesError.message}`);
@@ -156,35 +227,24 @@ export const getTrainingPages = async (
       return [];
     }
 
-    // 2. 各ページに関連するタグを取得
+    // 各ページに関連するタグを取得（N+1問題は残存）
     const pagesWithTags: { page: TrainingPageRow; tags: UserTagRow[] }[] = [];
-
     for (const page of pages) {
-      // TrainingPageTagテーブルを結合してタグを取得
       const { data: pageTags, error: tagsError } = await supabase
         .from("TrainingPageTag")
-        .select(`
-					UserTag (
-						id,
-						user_id,
-						name,
-						category,
-						created_at
-					)
-				`)
+        .select("UserTag(*)")
         .eq("training_page_id", page.id);
 
       if (tagsError) {
         console.error(`ページ ${page.id} のタグ取得エラー:`, tagsError);
-        // タグ取得エラーでもページ自体は返す
         pagesWithTags.push({ page, tags: [] });
         continue;
       }
 
-      // UserTagのデータを抽出
       const tags: UserTagRow[] =
-        pageTags?.map((pt: any) => pt.UserTag).filter(Boolean) || [];
-
+        pageTags
+          ?.map((pt: { UserTag: UserTagRow }) => pt.UserTag)
+          .filter(Boolean) || [];
       pagesWithTags.push({ page, tags });
     }
 

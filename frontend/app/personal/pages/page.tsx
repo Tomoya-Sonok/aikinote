@@ -2,228 +2,429 @@
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { FilterSection } from "@/components/molecules/FilterSection/FilterSection";
+import { FilterArea } from "@/components/molecules/FilterArea/FilterArea";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
 import {
-  type PageCreateData,
-  PageCreateModal,
+	type PageCreateData,
+	PageCreateModal,
 } from "@/components/organisms/PageCreateModal/PageCreateModal";
-import { type CreatePagePayload, createPage, getPages } from "@/lib/api/client";
+import {
+	type CreatePagePayload,
+	createPage,
+	getPages,
+	getTags,
+} from "@/lib/api/client"; // getTags を追加
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import { type TrainingPageData } from "@/lib/server/msw/training";
 import styles from "./page.module.css";
 
+const PAGE_LIMIT = 18;
+
 export default function PersonalPagesPage() {
-  const [loading, setLoading] = useState(true);
-  const [trainingPageData, setTrainingPageData] = useState<TrainingPageData[]>(
-    [],
-  );
-  const [filteredData, setFilteredData] = useState<TrainingPageData[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
-  const { data: session, status } = useSession();
+	const [loading, setLoading] = useState(true);
+	const [allTrainingPageData, setAllTrainingPageData] = useState<
+		TrainingPageData[]
+	>([]);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const router = useRouter();
+	const { data: session, status } = useSession();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // セッションからユーザーIDを取得
-        if (!session?.user?.id) {
-          setLoading(false);
-          return;
-        }
+	const [searchQuery, setSearchQuery] = useState("");
+	const debouncedSearchQuery = useDebounce(searchQuery, 300);
+	const [selectedDate, setSelectedDate] = useState<string | null>(null);
+	const [selectedTags, setSelectedTags] = useState<string[]>([]);
+	const [displayedItemsCount, setDisplayedItemsCount] = useState(PAGE_LIMIT);
 
-        // Hono RPC API でページ一覧を取得
-        const response = await getPages(session.user.id, 20);
+	const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+	const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+	const [availableTags, setAvailableTags] = useState<string[]>([]); // 利用可能なタグ一覧
 
-        if (response.success && response.data) {
-          // APIレスポンスをTrainingPageData形式に変換
-          const trainingPageDataResult: TrainingPageData[] =
-            response.data.training_pages.map((item) => ({
-              id: item.page.id,
-              title: item.page.title,
-              content: item.page.content,
-              date: item.page.created_at.split("T")[0], // created_atから日付を抽出
-              tags: item.tags.map((tag) => tag.name), // タグ名の配列に変換
-            }));
+	useEffect(() => {
+		const fetchAllData = async () => {
+			if (!session?.user?.id) {
+				setLoading(false);
+				return;
+			}
 
-          setTrainingPageData(trainingPageDataResult);
-          setFilteredData(trainingPageDataResult);
-        } else {
-          throw new Error(response.error || "データの取得に失敗しました");
-        }
-      } catch (err) {
-        console.error("Failed to fetch training page data:", err);
-        // エラー時は空配列を設定
-        setTrainingPageData([]);
-        setFilteredData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+			setLoading(true);
 
-    fetchData();
-  }, [session]);
+			try {
+				// 全件取得（クエリ、タグ、日付フィルタなし）
+				const response = await getPages({
+					userId: session.user.id,
+					limit: 1000, // 十分大きな値で全件取得
+					offset: 0,
+					query: "",
+					tags: [],
+					date: undefined,
+				});
 
-  const handleSearchChange = (search: string) => {
-    const filtered = trainingPageData.filter(
-      (item: TrainingPageData) =>
-        item.title.toLowerCase().includes(search.toLowerCase()) ||
-        item.content.toLowerCase().includes(search.toLowerCase()) ||
-        item.tags.some((tag: string) =>
-          tag.toLowerCase().includes(search.toLowerCase()),
-        ),
-    );
-    setFilteredData(filtered);
-  };
+				if (response.success && response.data) {
+					const trainingPageDataResult: TrainingPageData[] =
+						response.data.training_pages.map((item) => ({
+							id: item.page.id,
+							title: item.page.title,
+							content: item.page.content,
+							date: item.page.created_at.split("T")[0],
+							tags: item.tags.map((tag) => tag.name),
+						}));
 
-  const handleDateFilterChange = (date: string | null) => {
-    // 日付フィルタリングロジック
-    console.log("Date filter:", date);
-  };
+					setAllTrainingPageData(trainingPageDataResult);
+				} else {
+					throw new Error(response.error || "データの取得に失敗しました");
+				}
+			} catch (err) {
+				console.error("Failed to fetch training page data:", err);
+				setAllTrainingPageData([]);
+			} finally {
+				setLoading(false);
+			}
+		};
 
-  const handleTagFilterChange = (tags: string[]) => {
-    // タグフィルタリングロジック
-    console.log("Tag filter:", tags);
-  };
+		fetchAllData();
+	}, [session]);
 
-  const handleCreatePage = () => {
-    setIsModalOpen(true);
-  };
+	// フィルター条件変更時に表示件数をリセット
+	useEffect(() => {
+		// Reset pagination when filter conditions change
+		// We intentionally depend on these filter values to trigger pagination reset
+		if (
+			debouncedSearchQuery !== undefined ||
+			selectedTags !== undefined ||
+			selectedDate !== undefined
+		) {
+			setDisplayedItemsCount(PAGE_LIMIT);
+		}
+	}, [debouncedSearchQuery, selectedTags, selectedDate]);
 
-  const handleSavePage = async (pageData: PageCreateData) => {
-    try {
-      // セッションからユーザーIDを取得
-      if (!session?.user?.id) {
-        throw new Error("ログインが必要です");
-      }
+	// クライアントサイドフィルタリング
+	const filteredTrainingPageData = useMemo(() => {
+		let filtered = allTrainingPageData;
 
-      const userId = session.user.id;
+		// 検索クエリでフィルタリング
+		if (debouncedSearchQuery.trim()) {
+			filtered = filtered.filter(
+				(page) =>
+					page.title
+						.toLowerCase()
+						.includes(debouncedSearchQuery.toLowerCase()) ||
+					page.content
+						.toLowerCase()
+						.includes(debouncedSearchQuery.toLowerCase()),
+			);
+		}
 
-      const payload: CreatePagePayload = {
-        title: pageData.title.trim(),
-        tori: pageData.tori,
-        uke: pageData.uke,
-        waza: pageData.waza,
-        content: pageData.content,
-        comment: pageData.comment,
-        user_id: userId,
-      };
+		// タグでフィルタリング
+		if (selectedTags.length > 0) {
+			filtered = filtered.filter((page) =>
+				selectedTags.every((selectedTag) =>
+					page.tags.some((pageTag) => pageTag === selectedTag),
+				),
+			);
+		}
 
-      // Hono RPC APIを呼び出してページを作成
-      const response = await createPage(payload);
+		// 日付でフィルタリング
+		if (selectedDate) {
+			filtered = filtered.filter((page) => page.date === selectedDate);
+		}
 
-      if (response.success && response.data) {
-        // サーバーから返されたデータでローカル状態を更新
-        const newPage: TrainingPageData = {
-          id: response.data.page.id,
-          title: response.data.page.title,
-          content: response.data.page.content,
-          date: response.data.page.created_at.split("T")[0], // created_atから日付を抽出
-          tags: response.data.tags.map((tag) => tag.name), // タグ名の配列に変換
-        };
+		return filtered;
+	}, [allTrainingPageData, debouncedSearchQuery, selectedTags, selectedDate]);
 
-        setTrainingPageData((prev) => [newPage, ...prev]);
-        setFilteredData((prev) => [newPage, ...prev]);
-      }
+	// 表示用データ（ページネーション適用）
+	const displayedTrainingPageData = useMemo(() => {
+		return filteredTrainingPageData.slice(0, displayedItemsCount);
+	}, [filteredTrainingPageData, displayedItemsCount]);
 
-      // モーダルを閉じる
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Failed to create page:", error);
-      // TODO: エラーハンドリング（トーストやアラートで表示）
-      alert(
-        error instanceof Error ? error.message : "ページの作成に失敗しました",
-      );
-    }
-  };
+	// 「もっと見る」ボタンの表示判定
+	const hasMore = filteredTrainingPageData.length > displayedItemsCount;
 
-  const handleEditTraining = (id: string) => {
-    router.push(`/edit/${id}`);
-  };
+	// 利用可能なタグ一覧を取得するuseEffect
+	useEffect(() => {
+		const fetchTags = async () => {
+			if (!session?.user?.id) return;
+			try {
+				const response = await getTags(session.user.id);
+				if (response.success && response.data) {
+					setAvailableTags(response.data.map((tag) => tag.name));
+				} else {
+					console.error("Failed to fetch tags:", response.error);
+				}
+			} catch (err) {
+				console.error("Failed to fetch tags:", err);
+			}
+		};
+		fetchTags();
+	}, [session]);
 
-  const handleDeleteTraining = (id: string) => {
-    setFilteredData((prev) => prev.filter((item) => item.id !== id));
-  };
+	const handleLoadMore = () => {
+		setDisplayedItemsCount((prev) => prev + PAGE_LIMIT);
+	};
 
-  const handleViewTraining = (id: string) => {
-    router.push(`/personal/pages/${id}`);
-  };
+	const handleSearchChange = (search: string) => {
+		setSearchQuery(search);
+	};
 
-  // 認証状態のチェック
-  if (status === "loading" || loading) {
-    return (
-      <AppLayout>
-        <div className={styles.container}>読み込み中...</div>
-      </AppLayout>
-    );
-  }
+	const handleDateFilterChange = (date: string | null) => {
+		setSelectedDate(date);
+	};
 
-  // 未認証の場合はリダイレクト
-  if (status === "unauthenticated") {
-    return (
-      <AppLayout>
-        <div className={styles.container}>
-          <p>ログインが必要です。</p>
-          <button type="button" onClick={() => router.push("/login")}>
-            ログインページへ
-          </button>
-        </div>
-      </AppLayout>
-    );
-  }
+	const handleTagFilterChange = (tags: string[]) => {
+		setSelectedTags(tags);
+	};
 
-  return (
-    <AppLayout>
-      <div className={styles.container}>
-        {/* 統計エリア */}
-        <div className={styles.statsSection}>
-          <p className={styles.statsText}>
-            これまでに作成したページ数は
-            <span className={styles.statsNumber}>
-              {trainingPageData.length}
-            </span>
-            ページです
-          </p>
-        </div>
+	const handleOpenTagSelection = () => {
+		setIsTagModalOpen(true);
+	};
 
-        <FilterSection
-          onSearchChange={handleSearchChange}
-          onDateFilterChange={handleDateFilterChange}
-          onTagFilterChange={handleTagFilterChange}
-        />
+	const handleCloseTagSelection = () => {
+		setIsTagModalOpen(false);
+	};
 
-        <div className={styles.pageListWrapper}>
-          <div className={styles.pageListDescription}>
-            <h2 className={styles.pageTitle}>最近作成したページ</h2>
-            <p className={styles.pageCount}>全{filteredData.length}件表示中</p>
-          </div>
-          <div className={styles.trainingList}>
-            {filteredData.map((training) => (
-              <TrainingCard
-                key={training.id}
-                {...training}
-                onClick={() => handleViewTraining(training.id)}
-                onEdit={() => handleEditTraining(training.id)}
-                onDelete={() => handleDeleteTraining(training.id)}
-              />
-            ))}
-          </div>
-        </div>
+	const handleOpenDateSelection = () => {
+		setIsDateModalOpen(true);
+	};
 
-        <FloatingActionButton onClick={handleCreatePage} />
+	const handleCloseDateSelection = () => {
+		setIsDateModalOpen(false);
+	};
 
-        <TabNavigation />
+	const handleCreatePage = () => {
+		setIsModalOpen(true);
+	};
 
-        {/* ページ作成モーダル */}
-        <PageCreateModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSavePage}
-        />
-      </div>
-    </AppLayout>
-  );
+	const handleSavePage = async (pageData: PageCreateData) => {
+		try {
+			if (!session?.user?.id) {
+				throw new Error("ログインが必要です");
+			}
+
+			const userId = session.user.id;
+
+			const payload: CreatePagePayload = {
+				title: pageData.title.trim(),
+				tori: pageData.tori,
+				uke: pageData.uke,
+				waza: pageData.waza,
+				content: pageData.content,
+				comment: pageData.comment,
+				user_id: userId,
+			};
+
+			const response = await createPage(payload);
+
+			if (response.success && response.data) {
+				const newPage: TrainingPageData = {
+					id: response.data.page.id,
+					title: response.data.page.title,
+					content: response.data.page.content,
+					date: response.data.page.created_at.split("T")[0],
+					tags: response.data.tags.map((tag) => tag.name),
+				};
+
+				setAllTrainingPageData((prev) => [newPage, ...prev]);
+			}
+
+			setIsModalOpen(false);
+		} catch (error) {
+			console.error("Failed to create page:", error);
+			alert(
+				error instanceof Error ? error.message : "ページの作成に失敗しました",
+			);
+		}
+	};
+
+	const handleEditTraining = (id: string) => {
+		router.push(`/edit/${id}`);
+	};
+
+	const handleDeleteTraining = (id: string) => {
+		setAllTrainingPageData((prev) => prev.filter((item) => item.id !== id));
+	};
+
+	const handleViewTraining = (id: string) => {
+		router.push(`/personal/pages/${id}`);
+	};
+
+	if (status === "loading" || loading) {
+		return (
+			<AppLayout>
+				<div className={styles.container}>読み込み中...</div>
+			</AppLayout>
+		);
+	}
+
+	if (status === "unauthenticated") {
+		return (
+			<AppLayout>
+				<div className={styles.container}>
+					<p>ログインが必要です。</p>
+					<button type="button" onClick={() => router.push("/login")}>
+						ログインページへ
+					</button>
+				</div>
+			</AppLayout>
+		);
+	}
+
+	return (
+		<AppLayout>
+			<div className={styles.container}>
+				<div className={styles.statsSection}>
+					<p className={styles.statsText}>
+						これまでに作成したページ数は
+						<span className={styles.statsNumber}>
+							{allTrainingPageData.length}
+						</span>
+						ページです
+					</p>
+				</div>
+
+				<FilterArea
+					onSearchChange={handleSearchChange}
+					onDateFilterChange={handleDateFilterChange}
+					onTagFilterChange={handleTagFilterChange}
+					currentSearchQuery={searchQuery}
+					currentSelectedDate={selectedDate}
+					currentSelectedTags={selectedTags}
+					onOpenTagSelection={handleOpenTagSelection}
+					onOpenDateSelection={handleOpenDateSelection}
+				/>
+
+				<div className={styles.pageListWrapper}>
+					<div className={styles.pageListDescription}>
+						<h2 className={styles.pageTitle}>最近作成したページ</h2>
+						<p className={styles.pageCount}>
+							{allTrainingPageData.length === displayedTrainingPageData.length
+								? `全${allTrainingPageData.length}件表示中`
+								: `全${allTrainingPageData.length}件中
+              ${displayedTrainingPageData.length}件表示中`}
+						</p>
+					</div>
+					<div className={styles.trainingList}>
+						{displayedTrainingPageData.map((training) => (
+							<TrainingCard
+								key={training.id}
+								{...training}
+								onClick={() => handleViewTraining(training.id)}
+								onEdit={() => handleEditTraining(training.id)}
+								onDelete={() => handleDeleteTraining(training.id)}
+							/>
+						))}
+					</div>
+					{hasMore && (
+						<div className={styles.loadMoreContainer}>
+							<button
+								type="button"
+								onClick={handleLoadMore}
+								className={styles.loadMoreButton}
+							>
+								もっと見る
+							</button>
+						</div>
+					)}
+				</div>
+
+				<FloatingActionButton onClick={handleCreatePage} />
+
+				<TabNavigation />
+
+				<PageCreateModal
+					isOpen={isModalOpen}
+					onClose={() => setIsModalOpen(false)}
+					onSave={handleSavePage}
+				/>
+
+				{/* TODO: タグ選択モーダルとしてコンポーネント切り分ける */}
+				{isTagModalOpen && (
+					<div
+						style={{
+							position: "fixed",
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							backgroundColor: "rgba(0,0,0,0.5)",
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							zIndex: 1000,
+						}}
+					>
+						<div
+							style={{
+								backgroundColor: "white",
+								padding: "20px",
+								borderRadius: "8px",
+							}}
+						>
+							<h3>タグを選択</h3>
+							{availableTags.map((tag) => (
+								<label key={tag}>
+									<input
+										type="checkbox"
+										value={tag}
+										checked={selectedTags.includes(tag)}
+										onChange={(e) => {
+											if (e.target.checked) {
+												handleTagFilterChange([...selectedTags, tag]);
+											} else {
+												handleTagFilterChange(
+													selectedTags.filter((t) => t !== tag),
+												);
+											}
+										}}
+									/>
+									{tag}
+								</label>
+							))}
+							<button type="button" onClick={handleCloseTagSelection}>
+								閉じる
+							</button>
+						</div>
+					</div>
+				)}
+
+				{/* TODO: 日付選択モーダルとしてコンポーネント切り分ける */}
+				{isDateModalOpen && (
+					<div
+						style={{
+							position: "fixed",
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							backgroundColor: "rgba(0,0,0,0.5)",
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							zIndex: 1000,
+						}}
+					>
+						<div
+							style={{
+								backgroundColor: "white",
+								padding: "20px",
+								borderRadius: "8px",
+							}}
+						>
+							<h3>日付を選択</h3>
+							<input
+								type="date"
+								value={selectedDate || ""}
+								onChange={(e) => handleDateFilterChange(e.target.value || null)}
+							/>
+							<button type="button" onClick={handleCloseDateSelection}>
+								閉じる
+							</button>
+						</div>
+					</div>
+				)}
+			</div>
+		</AppLayout>
+	);
 }

@@ -16,4 +16,9 @@ export default defineConfig({
       "@": resolve(process.cwd(), "./"),
     },
   },
+  server: {
+    deps: {
+      inline: ["@testing-library/react"],
+    },
+  },
 });

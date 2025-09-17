@@ -62,3 +62,24 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.loadMoreContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.loadMoreButton {
+  background-color: var(--primary-color);
+  color: var(--aikinote-white); /* 白いテキスト */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.loadMoreButton:hover {
+  background-color: var(--primary-dark);
+}
