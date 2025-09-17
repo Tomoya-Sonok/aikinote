@@ -1,33 +1,39 @@
 import type { ChangeEvent, FC } from "react";
-import { FilterItem } from "../../atoms/FilterItem/FilterItem";
+import Image from "next/image";
 import { SearchInput } from "../../atoms/SearchInput/SearchInput";
 import styles from "./FilterArea.module.css";
 
 interface FilterAreaProps {
   onSearchChange: (search: string) => void;
   onDateFilterChange: (date: string | null) => void;
-  onTagFilterChange: (tags: string[]) => void;
-  // 親から現在の選択状態を受け取る
   currentSearchQuery: string;
   currentSelectedDate: string | null;
-  currentSelectedTags: string[];
-  // タグ選択モーダルなどを開くためのハンドラ
+  currentSelectedTags: string[]; // 表示用にタグ名（またはID）の配列を受け取る
   onOpenTagSelection: () => void;
-  onOpenDateSelection: () => void;
 }
 
 export const FilterArea: FC<FilterAreaProps> = ({
   onSearchChange,
+  onDateFilterChange,
   currentSearchQuery,
   currentSelectedDate,
   currentSelectedTags,
   onOpenTagSelection,
-  onOpenDateSelection,
 }) => {
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    onSearchChange(value);
+    onSearchChange(e.target.value);
   };
+
+  const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onDateFilterChange(e.target.value || null);
+  };
+
+  // NOTE: タグの表示名は、IDから名前に変換するロジックが親にあることを想定しています。
+  // ここでは受け取った配列をそのまま表示します。
+  const tagDisplayValue =
+    currentSelectedTags.length > 0
+      ? currentSelectedTags.join(", ")
+      : "指定なし";
 
   return (
     <div className={styles.filterContainer}>
@@ -38,23 +44,44 @@ export const FilterArea: FC<FilterAreaProps> = ({
       />
 
       <div className={styles.filterRow}>
-        <FilterItem
-          icon="/icons/tag-icon.svg"
-          label="タグ"
-          value={
-            currentSelectedTags.length > 0
-              ? currentSelectedTags.join(", ")
-              : "指定なし"
-          }
-          onClick={onOpenTagSelection} // タグ選択UIを開く
-        />
+        {/* Tag Filter Button */}
+        <button
+          type="button"
+          className={styles.filterItemButton}
+          onClick={onOpenTagSelection}
+        >
+          <Image
+            src="/icons/tag-icon.svg"
+            alt="タグ"
+            width={24}
+            height={24}
+            className={styles.filterIcon}
+          />
+          <span className={styles.filterLabel}>タグ</span>
+          <span className={styles.filterValue}>{tagDisplayValue}</span>
+          <span className={styles.arrow}>＞</span>
+        </button>
 
-        <FilterItem
-          icon="/icons/calendar-icon.svg"
-          label="日付"
-          value={currentSelectedDate || "指定なし"}
-          onClick={onOpenDateSelection} // 日付選択UIを開く
-        />
+        {/* Date Filter Input */}
+        <div className={styles.dateFilterContainer}>
+          <Image
+            src="/icons/calendar-icon.svg"
+            alt="日付"
+            width={24}
+            height={24}
+            className={styles.filterIcon}
+          />
+          <label htmlFor="date-filter" className={styles.filterLabel}>
+            日付
+          </label>
+          <input
+            id="date-filter"
+            type="date"
+            className={styles.dateInput}
+            value={currentSelectedDate || ""}
+            onChange={handleDateChange}
+          />
+        </div>
       </div>
     </div>
   );

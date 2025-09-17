@@ -12,36 +12,42 @@ import {
 	type PageCreateData,
 	PageCreateModal,
 } from "@/components/organisms/PageCreateModal/PageCreateModal";
+import { TagFilterModal } from "@/components/organisms/TagFilterModal/TagFilterModal"; // インポート
 import {
 	type CreatePagePayload,
 	createPage,
 	getPages,
 	getTags,
-} from "@/lib/api/client"; // getTags を追加
+} from "@/lib/api/client";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { type TrainingPageData } from "@/lib/server/msw/training";
 import styles from "./page.module.css";
 
 const PAGE_LIMIT = 18;
 
+// タグの型定義
+interface Tag {
+	id: string;
+	name: string;
+}
+
 export default function PersonalPagesPage() {
 	const [loading, setLoading] = useState(true);
 	const [allTrainingPageData, setAllTrainingPageData] = useState<
 		TrainingPageData[]
 	>([]);
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isPageCreateModalOpen, setPageCreateModalOpen] = useState(false);
 	const router = useRouter();
 	const { data: session, status } = useSession();
 
 	const [searchQuery, setSearchQuery] = useState("");
 	const debouncedSearchQuery = useDebounce(searchQuery, 300);
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);
-	const [selectedTags, setSelectedTags] = useState<string[]>([]);
+	const [selectedTags, setSelectedTags] = useState<string[]>([]); // 選択されたタグ名
 	const [displayedItemsCount, setDisplayedItemsCount] = useState(PAGE_LIMIT);
 
 	const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-	const [isDateModalOpen, setIsDateModalOpen] = useState(false);
-	const [availableTags, setAvailableTags] = useState<string[]>([]); // 利用可能なタグ一覧
+	const [availableTags, setAvailableTags] = useState<Tag[]>([]); // 利用可能なタグ一覧
 
 	useEffect(() => {
 		const fetchAllData = async () => {
@@ -53,10 +59,9 @@ export default function PersonalPagesPage() {
 			setLoading(true);
 
 			try {
-				// 全件取得（クエリ、タグ、日付フィルタなし）
 				const response = await getPages({
 					userId: session.user.id,
-					limit: 1000, // 十分大きな値で全件取得
+					limit: 1000,
 					offset: 0,
 					query: "",
 					tags: [],
@@ -88,10 +93,7 @@ export default function PersonalPagesPage() {
 		fetchAllData();
 	}, [session]);
 
-	// フィルター条件変更時に表示件数をリセット
 	useEffect(() => {
-		// Reset pagination when filter conditions change
-		// We intentionally depend on these filter values to trigger pagination reset
 		if (
 			debouncedSearchQuery !== undefined ||
 			selectedTags !== undefined ||
@@ -101,11 +103,9 @@ export default function PersonalPagesPage() {
 		}
 	}, [debouncedSearchQuery, selectedTags, selectedDate]);
 
-	// クライアントサイドフィルタリング
 	const filteredTrainingPageData = useMemo(() => {
 		let filtered = allTrainingPageData;
 
-		// 検索クエリでフィルタリング
 		if (debouncedSearchQuery.trim()) {
 			filtered = filtered.filter(
 				(page) =>
@@ -118,7 +118,6 @@ export default function PersonalPagesPage() {
 			);
 		}
 
-		// タグでフィルタリング
 		if (selectedTags.length > 0) {
 			filtered = filtered.filter((page) =>
 				selectedTags.every((selectedTag) =>
@@ -127,7 +126,6 @@ export default function PersonalPagesPage() {
 			);
 		}
 
-		// 日付でフィルタリング
 		if (selectedDate) {
 			filtered = filtered.filter((page) => page.date === selectedDate);
 		}
@@ -135,22 +133,19 @@ export default function PersonalPagesPage() {
 		return filtered;
 	}, [allTrainingPageData, debouncedSearchQuery, selectedTags, selectedDate]);
 
-	// 表示用データ（ページネーション適用）
 	const displayedTrainingPageData = useMemo(() => {
 		return filteredTrainingPageData.slice(0, displayedItemsCount);
 	}, [filteredTrainingPageData, displayedItemsCount]);
 
-	// 「もっと見る」ボタンの表示判定
 	const hasMore = filteredTrainingPageData.length > displayedItemsCount;
 
-	// 利用可能なタグ一覧を取得するuseEffect
 	useEffect(() => {
 		const fetchTags = async () => {
 			if (!session?.user?.id) return;
 			try {
 				const response = await getTags(session.user.id);
 				if (response.success && response.data) {
-					setAvailableTags(response.data.map((tag) => tag.name));
+					setAvailableTags(response.data); // オブジェクトの配列をそのままセット
 				} else {
 					console.error("Failed to fetch tags:", response.error);
 				}
@@ -173,28 +168,16 @@ export default function PersonalPagesPage() {
 		setSelectedDate(date);
 	};
 
-	const handleTagFilterChange = (tags: string[]) => {
-		setSelectedTags(tags);
-	};
-
-	const handleOpenTagSelection = () => {
-		setIsTagModalOpen(true);
-	};
-
-	const handleCloseTagSelection = () => {
-		setIsTagModalOpen(false);
-	};
-
-	const handleOpenDateSelection = () => {
-		setIsDateModalOpen(true);
-	};
-
-	const handleCloseDateSelection = () => {
-		setIsDateModalOpen(false);
+	const handleTagClick = (tagName: string) => {
+		setSelectedTags((prev) =>
+			prev.includes(tagName)
+				? prev.filter((t) => t !== tagName)
+				: [...prev, tagName],
+		);
 	};
 
 	const handleCreatePage = () => {
-		setIsModalOpen(true);
+		setPageCreateModalOpen(true);
 	};
 
 	const handleSavePage = async (pageData: PageCreateData) => {
@@ -229,7 +212,7 @@ export default function PersonalPagesPage() {
 				setAllTrainingPageData((prev) => [newPage, ...prev]);
 			}
 
-			setIsModalOpen(false);
+			setPageCreateModalOpen(false);
 		} catch (error) {
 			console.error("Failed to create page:", error);
 			alert(
@@ -287,12 +270,10 @@ export default function PersonalPagesPage() {
 				<FilterArea
 					onSearchChange={handleSearchChange}
 					onDateFilterChange={handleDateFilterChange}
-					onTagFilterChange={handleTagFilterChange}
 					currentSearchQuery={searchQuery}
 					currentSelectedDate={selectedDate}
 					currentSelectedTags={selectedTags}
-					onOpenTagSelection={handleOpenTagSelection}
-					onOpenDateSelection={handleOpenDateSelection}
+					onOpenTagSelection={() => setIsTagModalOpen(true)}
 				/>
 
 				<div className={styles.pageListWrapper}>
@@ -334,96 +315,19 @@ export default function PersonalPagesPage() {
 				<TabNavigation />
 
 				<PageCreateModal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
+					isOpen={isPageCreateModalOpen}
+					onClose={() => setPageCreateModalOpen(false)}
 					onSave={handleSavePage}
 				/>
 
-				{/* TODO: タグ選択モーダルとしてコンポーネント切り分ける */}
-				{isTagModalOpen && (
-					<div
-						style={{
-							position: "fixed",
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-							backgroundColor: "rgba(0,0,0,0.5)",
-							display: "flex",
-							justifyContent: "center",
-							alignItems: "center",
-							zIndex: 1000,
-						}}
-					>
-						<div
-							style={{
-								backgroundColor: "white",
-								padding: "20px",
-								borderRadius: "8px",
-							}}
-						>
-							<h3>タグを選択</h3>
-							{availableTags.map((tag) => (
-								<label key={tag}>
-									<input
-										type="checkbox"
-										value={tag}
-										checked={selectedTags.includes(tag)}
-										onChange={(e) => {
-											if (e.target.checked) {
-												handleTagFilterChange([...selectedTags, tag]);
-											} else {
-												handleTagFilterChange(
-													selectedTags.filter((t) => t !== tag),
-												);
-											}
-										}}
-									/>
-									{tag}
-								</label>
-							))}
-							<button type="button" onClick={handleCloseTagSelection}>
-								閉じる
-							</button>
-						</div>
-					</div>
-				)}
-
-				{/* TODO: 日付選択モーダルとしてコンポーネント切り分ける */}
-				{isDateModalOpen && (
-					<div
-						style={{
-							position: "fixed",
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-							backgroundColor: "rgba(0,0,0,0.5)",
-							display: "flex",
-							justifyContent: "center",
-							alignItems: "center",
-							zIndex: 1000,
-						}}
-					>
-						<div
-							style={{
-								backgroundColor: "white",
-								padding: "20px",
-								borderRadius: "8px",
-							}}
-						>
-							<h3>日付を選択</h3>
-							<input
-								type="date"
-								value={selectedDate || ""}
-								onChange={(e) => handleDateFilterChange(e.target.value || null)}
-							/>
-							<button type="button" onClick={handleCloseDateSelection}>
-								閉じる
-							</button>
-						</div>
-					</div>
-				)}
+        {/* TagFilterModal の呼び出し */}
+				<TagFilterModal
+					isOpen={isTagModalOpen}
+					onClose={() => setIsTagModalOpen(false)}
+					tags={availableTags}
+					selectedTags={selectedTags}
+					onTagToggle={handleTagClick}
+				/>
 			</div>
 		</AppLayout>
 	);
