@@ -6,7 +6,8 @@
       "!node_modules/**/*",
       "!.next/**/*",
       "!storybook-static/**/*",
-      "!public/mockServiceWorker.js"
+      "!public/mockServiceWorker.js",
+      "!coverage/**/*"
     ]
   },
   "linter": {

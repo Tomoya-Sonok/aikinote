@@ -1,3 +1,4 @@
+import { PostgrestError } from "@supabase/supabase-js";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 export type DefaultTagTemplate = {
@@ -20,7 +21,7 @@ export type UserTag = {
  */
 export async function getDefaultTagTemplates(): Promise<{
   data: DefaultTagTemplate[] | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
@@ -38,7 +39,7 @@ export async function getDefaultTagTemplates(): Promise<{
  */
 export async function getUserTagCount(userId: string): Promise<{
   count: number | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
@@ -55,7 +56,7 @@ export async function getUserTagCount(userId: string): Promise<{
  */
 export async function createInitialUserTags(userId: string): Promise<{
   data: UserTag[] | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
@@ -90,7 +91,7 @@ export async function createInitialUserTags(userId: string): Promise<{
 export async function initializeUserTagsIfNeeded(userId: string): Promise<{
   success: boolean;
   data?: UserTag[];
-  error?: any;
+  error?: PostgrestError | null;
   message?: string;
 }> {
   try {

@@ -7,7 +7,10 @@ import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 // ユーザー情報を User テーブルに同期する関数
-async function syncUserToUserTable(userId: string, userData: { email?: string | null, name?: string | null }) {
+async function syncUserToUserTable(
+  userId: string,
+  userData: { email?: string | null; name?: string | null },
+) {
   const supabase = getServiceRoleSupabase();
 
   // User テーブルにユーザーが存在するかチェック
@@ -17,27 +20,26 @@ async function syncUserToUserTable(userId: string, userData: { email?: string | 
     .eq("id", userId)
     .single();
 
-  if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = No rows found
+  if (checkError && checkError.code !== "PGRST116") {
+    // PGRST116 = No rows found
     console.error("User テーブルチェックエラー:", checkError);
     return;
   }
 
   if (!existingUser) {
     // User テーブルにユーザーを作成
-    const { error: insertError } = await supabase
-      .from("User")
-      .insert({
-        id: userId,
-        email: userData.email || "",
-        username: userData.name || "",
-        profile_image_url: null,
-        dojo_id: null,
-        training_start_date: null,
-        publicity_setting: "private",
-        language: "ja",
-        is_email_verified: true, // NextAuth経由なので認証済み
-        password_hash: "", // OAuth や Credentials でログインする場合は空
-      });
+    const { error: insertError } = await supabase.from("User").insert({
+      id: userId,
+      email: userData.email || "",
+      username: userData.name || "",
+      profile_image_url: null,
+      dojo_id: null,
+      training_start_date: null,
+      publicity_setting: "private",
+      language: "ja",
+      is_email_verified: true, // NextAuth経由なので認証済み
+      password_hash: "", // OAuth や Credentials でログインする場合は空
+    });
 
     if (insertError) {
       console.error("User テーブル挿入エラー:", insertError);
@@ -110,11 +112,14 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // NextAuth の users テーブルと アプリケーションの User テーブルを同期
       if (user.id) {
         try {
-          await syncUserToUserTable(user.id, { email: user.email, name: user.name });
+          await syncUserToUserTable(user.id, {
+            email: user.email,
+            name: user.name,
+          });
         } catch (error) {
           console.error("User テーブル同期エラー:", error);
           // エラーが発生してもサインイン自体は継続する
@@ -144,7 +149,10 @@ export const authOptions: NextAuthOptions = {
 
         // セッション作成時にもUser テーブル同期を確認
         try {
-          await syncUserToUserTable(session.user.id, { email: session.user.email, name: session.user.name });
+          await syncUserToUserTable(session.user.id, {
+            email: session.user.email,
+            name: session.user.name,
+          });
         } catch (error) {
           console.error("Session User テーブル同期エラー:", error);
         }
