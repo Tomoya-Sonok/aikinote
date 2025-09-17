@@ -1,5 +1,5 @@
-import type { FC, InputHTMLAttributes } from "react";
-import { useId } from "react";
+import type { InputHTMLAttributes } from "react";
+import { forwardRef, useId } from "react";
 import styles from "./TextInput.module.css";
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -8,35 +8,34 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-export const TextInput: FC<TextInputProps> = ({
-  label,
-  required = false,
-  error,
-  className,
-  ...props
-}) => {
-  const inputId = useId();
-  const errorId = useId();
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
+  ({ label, required = false, error, className, ...props }, ref) => {
+    const inputId = useId();
+    const errorId = useId();
 
-  return (
-    <div className={`${styles.container} ${className || ""}`}>
-      {label && (
-        <label htmlFor={inputId} className={styles.label}>
-          {required && <span className={styles.required}>*</span>}
-          {label}
-        </label>
-      )}
-      <input
-        id={inputId}
-        className={`${styles.input} ${error ? styles.error : ""}`}
-        aria-describedby={error ? errorId : undefined}
-        {...props}
-      />
-      {error && (
-        <span id={errorId} className={styles.errorMessage}>
-          {error}
-        </span>
-      )}
-    </div>
-  );
-};
+    return (
+      <div className={`${styles.container} ${className || ""}`}>
+        {label && (
+          <label htmlFor={inputId} className={styles.label}>
+            {required && <span className={styles.required}>*</span>}
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          id={inputId}
+          className={`${styles.input} ${error ? styles.error : ""}`}
+          aria-describedby={error ? errorId : undefined}
+          {...props}
+        />
+        {error && (
+          <span id={errorId} className={styles.errorMessage}>
+            {error}
+          </span>
+        )}
+      </div>
+    );
+  },
+);
+
+TextInput.displayName = "TextInput";

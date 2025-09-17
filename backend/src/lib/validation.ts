@@ -71,8 +71,17 @@ export const getPagesSchema = z.object({
     .string()
     .optional()
     .default("20")
-    .transform((val) => parseInt(val))
+    .transform((val) => parseInt(val, 10))
     .pipe(z.number().int().min(1).max(100)),
+  offset: z
+    .string()
+    .optional()
+    .default("0")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(0)),
+  query: z.string().optional(),
+  tags: z.string().optional(), // "tag1,tag2,tag3" のような形式
+  date: z.string().optional(), // "YYYY-MM-DD" の形式
 });
 
 export type GetPagesInput = z.infer<typeof getPagesSchema>;

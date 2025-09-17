@@ -42,6 +42,10 @@ type ApiRoute = {
         query: {
           user_id: string;
           limit?: number;
+          offset?: number;
+          query?: string;
+          tags?: string;
+          date?: string;
         };
       };
       output: {
@@ -145,10 +149,34 @@ export const createPage = async (pageData: CreatePagePayload) => {
   return await response.json();
 };
 
+// ページ一覧取得の引数の型
+export interface GetPagesParams {
+  userId: string;
+  limit?: number;
+  offset?: number;
+  query?: string;
+  tags?: string[];
+  date?: string;
+}
+
 // ページ一覧取得API関数
-export const getPages = async (userId: string, limit?: number) => {
+export const getPages = async ({
+  userId,
+  limit,
+  offset,
+  query,
+  tags,
+  date,
+}: GetPagesParams) => {
+  const queryParams: Record<string, string | number> = { user_id: userId };
+  if (limit) queryParams.limit = limit;
+  if (offset) queryParams.offset = offset;
+  if (query) queryParams.query = query;
+  if (tags && tags.length > 0) queryParams.tags = tags.join(",");
+  if (date) queryParams.date = date;
+
   const response = await apiClient.api.pages.$get({
-    query: { user_id: userId, ...(limit && { limit }) },
+    query: queryParams,
   });
 
   if (!response.ok) {
