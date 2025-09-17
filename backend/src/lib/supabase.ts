@@ -195,3 +195,64 @@ export const getTrainingPages = async (
 		throw error;
 	}
 };
+
+// タグ一覧取得関数
+export const getUserTags = async (userId: string): Promise<UserTagRow[]> => {
+	const { data: tags, error } = await supabase
+		.from("UserTag")
+		.select("*")
+		.eq("user_id", userId)
+		.order("category", { ascending: true })
+		.order("name", { ascending: true });
+
+	if (error) {
+		throw new Error(`タグ取得に失敗しました: ${error.message}`);
+	}
+
+	return tags || [];
+};
+
+// 重複タグチェック関数
+export const checkDuplicateTag = async (
+	userId: string,
+	name: string,
+	category: string
+): Promise<UserTagRow | null> => {
+	const { data: existingTag, error } = await supabase
+		.from("UserTag")
+		.select("*")
+		.eq("user_id", userId)
+		.eq("name", name)
+		.eq("category", category)
+		.single();
+
+	if (error && error.code !== "PGRST116") {
+		throw new Error(`既存タグチェックに失敗しました: ${error.message}`);
+	}
+
+	return existingTag;
+};
+
+// タグ作成関数
+export const createUserTag = async (
+	userId: string,
+	name: string,
+	category: string
+): Promise<UserTagRow> => {
+	const { data: newTag, error } = await supabase
+		.from("UserTag")
+		.insert([{
+			user_id: userId,
+			name,
+			category,
+			created_at: new Date().toISOString(),
+		}])
+		.select("*")
+		.single();
+
+	if (error) {
+		throw new Error(`タグ作成に失敗しました: ${error.message}`);
+	}
+
+	return newTag;
+};

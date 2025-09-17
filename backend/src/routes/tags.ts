@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getUserTags, checkDuplicateTag, createUserTag } from "../lib/supabase.js";
 import { type ApiResponse } from "../lib/validation.js";
 
 const app = new Hono();
@@ -43,20 +43,11 @@ app.get("/", async (c) => {
 			return c.json(errorResponse, 400);
 		}
 
-		const { data: tags, error } = await supabase
-			.from("UserTag")
-			.select("*")
-			.eq("user_id", userId)
-			.order("category", { ascending: true })
-			.order("name", { ascending: true });
-
-		if (error) {
-			throw new Error(`タグ取得に失敗しました: ${error.message}`);
-		}
+		const tags = await getUserTags(userId);
 
 		const response: ApiResponse<Tag[]> = {
 			success: true,
-			data: tags || [],
+			data: tags,
 			message: "タグ一覧を取得しました",
 		};
 
@@ -82,17 +73,7 @@ app.post(
 			const input = c.req.valid("json");
 
 			// 既存タグの重複チェック
-			const { data: existingTag, error: checkError } = await supabase
-				.from("UserTag")
-				.select("*")
-				.eq("user_id", input.user_id)
-				.eq("name", input.name)
-				.eq("category", input.category)
-				.single();
-
-			if (checkError && checkError.code !== "PGRST116") {
-				throw new Error(`既存タグチェックに失敗しました: ${checkError.message}`);
-			}
+			const existingTag = await checkDuplicateTag(input.user_id, input.name, input.category);
 
 			if (existingTag) {
 				const errorResponse: ApiResponse<never> = {
@@ -103,20 +84,7 @@ app.post(
 			}
 
 			// 新規タグ作成
-			const { data: newTag, error } = await supabase
-				.from("UserTag")
-				.insert([{
-					user_id: input.user_id,
-					name: input.name,
-					category: input.category,
-					created_at: new Date().toISOString(),
-				}])
-				.select("*")
-				.single();
-
-			if (error) {
-				throw new Error(`タグ作成に失敗しました: ${error.message}`);
-			}
+			const newTag = await createUserTag(input.user_id, input.name, input.category);
 
 			const response: ApiResponse<Tag> = {
 				success: true,

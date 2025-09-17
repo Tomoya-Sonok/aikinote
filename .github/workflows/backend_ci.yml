@@ -50,6 +50,9 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: pnpm build
 
-      # - name: Run Backend Tests
-      #   run: pnpm test
-      #   working-directory: ./backend
+      - name: Run Backend Tests
+        run: pnpm test:ci
+        working-directory: ./backend
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

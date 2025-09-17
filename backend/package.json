@@ -7,7 +7,11 @@
 		"dev": "cd .. && dotenv -e .env.local -- tsx watch backend/src/index.ts",
 		"dev:docker": "tsx watch src/index.ts",
 		"build": "tsc",
-		"start": "node dist/index.js"
+		"start": "node dist/index.js",
+		"test": "vitest",
+		"test:ui": "vitest --ui",
+		"test:watch": "vitest --watch",
+		"test:ci": "vitest run --coverage"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.14.1",
@@ -18,9 +22,14 @@
 	},
 	"devDependencies": {
 		"@types/node": "^20.17.30",
+		"@vitest/ui": "^3.2.4",
 		"dotenv-cli": "^10.0.0",
+		"happy-dom": "^18.0.1",
+		"msw": "^2.11.2",
 		"tsx": "^4.19.3",
-		"typescript": "^5.8.3"
+		"typescript": "^5.8.3",
+		"undici": "^7.16.0",
+		"vitest": "^3.2.4"
 	},
 	"packageManager": "pnpm@8.15.4+sha256.cea6d0bdf2de3a0549582da3983c70c92ffc577ff4410cbf190817ddc35137c2"
 }

@@ -65,7 +65,7 @@ export type ApiResponse<T> = {
 // ページ一覧取得のバリデーションスキーマ
 export const getPagesSchema = z.object({
 	user_id: z.string().min(1, "ユーザーIDは必須です"),
-	limit: z.number().int().min(1).max(100).default(20),
+	limit: z.string().optional().default("20").transform(val => parseInt(val)).pipe(z.number().int().min(1).max(100)),
 });
 
 export type GetPagesInput = z.infer<typeof getPagesSchema>;
