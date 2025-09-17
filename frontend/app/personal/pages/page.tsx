@@ -12,11 +12,8 @@ import {
   type PageCreateData,
   PageCreateModal,
 } from "@/components/organisms/PageCreateModal/PageCreateModal";
-import { type CreatePagePayload, createPage } from "@/lib/api/client";
-import {
-  mockGetTrainingPageData,
-  type TrainingPageData,
-} from "@/lib/server/msw/training";
+import { type CreatePagePayload, createPage, getPages } from "@/lib/api/client";
+import { type TrainingPageData } from "@/lib/server/msw/training";
 import styles from "./page.module.css";
 
 export default function PersonalPagesPage() {
@@ -32,10 +29,31 @@ export default function PersonalPagesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 稽古ページデータを取得
-        const trainingPageDataResult = await mockGetTrainingPageData();
-        setTrainingPageData(trainingPageDataResult);
-        setFilteredData(trainingPageDataResult);
+        // セッションからユーザーIDを取得
+        if (!session?.user?.id) {
+          setLoading(false);
+          return;
+        }
+
+        // Hono RPC API でページ一覧を取得
+        const response = await getPages(session.user.id, 20);
+
+        if (response.success && response.data) {
+          // APIレスポンスをTrainingPageData形式に変換
+          const trainingPageDataResult: TrainingPageData[] =
+            response.data.training_pages.map((item) => ({
+              id: item.page.id,
+              title: item.page.title,
+              content: item.page.content,
+              date: item.page.created_at.split("T")[0], // created_atから日付を抽出
+              tags: item.tags.map((tag) => tag.name), // タグ名の配列に変換
+            }));
+
+          setTrainingPageData(trainingPageDataResult);
+          setFilteredData(trainingPageDataResult);
+        } else {
+          throw new Error(response.error || "データの取得に失敗しました");
+        }
       } catch (err) {
         console.error("Failed to fetch training page data:", err);
         // エラー時は空配列を設定
@@ -47,7 +65,7 @@ export default function PersonalPagesPage() {
     };
 
     fetchData();
-  }, []);
+  }, [session]);
 
   const handleSearchChange = (search: string) => {
     const filtered = trainingPageData.filter(
@@ -77,8 +95,6 @@ export default function PersonalPagesPage() {
 
   const handleSavePage = async (pageData: PageCreateData) => {
     try {
-      console.log("Creating new page:", pageData);
-
       // セッションからユーザーIDを取得
       if (!session?.user?.id) {
         throw new Error("ログインが必要です");
@@ -111,8 +127,6 @@ export default function PersonalPagesPage() {
 
         setTrainingPageData((prev) => [newPage, ...prev]);
         setFilteredData((prev) => [newPage, ...prev]);
-
-        console.log("Page created successfully:", response.data);
       }
 
       // モーダルを閉じる

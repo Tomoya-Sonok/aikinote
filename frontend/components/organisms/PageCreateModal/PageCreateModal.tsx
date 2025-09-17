@@ -7,7 +7,12 @@ import { TextArea } from "@/components/atoms/TextArea/TextArea";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
 import { useToast } from "@/contexts/ToastContext";
-import { type CreateTagPayload, createTag, getTags, initializeUserTags } from "@/lib/api/client";
+import {
+  type CreateTagPayload,
+  createTag,
+  getTags,
+  initializeUserTags,
+} from "@/lib/api/client";
 import styles from "./PageCreateModal.module.css";
 
 interface PageCreateModalProps {

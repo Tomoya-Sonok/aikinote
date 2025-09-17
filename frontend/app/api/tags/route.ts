@@ -5,7 +5,7 @@ import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 // 開発環境用のモックデータ
 const MOCK_USER_ID = "ec40977c-1de8-4784-ac78-e3ff3a5cb915";
-let mockUserTags: Array<{
+const mockUserTags: Array<{
   id: string;
   user_id: string;
   category: string;
@@ -46,7 +46,10 @@ app.get("/tags", async (c) => {
 
   if (error) {
     console.error(error);
-    return c.json({ success: false, error: "データベースの取得に失敗しました" }, 500);
+    return c.json(
+      { success: false, error: "データベースの取得に失敗しました" },
+      500,
+    );
   }
 
   return c.json({ success: true, data: tags });
@@ -57,7 +60,10 @@ app.post("/tags", async (c) => {
   const { name, category, user_id } = body;
 
   if (!name || !category || !user_id) {
-    return c.json({ success: false, error: "必要なパラメータが不足しています" }, 400);
+    return c.json(
+      { success: false, error: "必要なパラメータが不足しています" },
+      400,
+    );
   }
 
   // 開発環境でモックユーザーの場合はモックデータで処理

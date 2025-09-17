@@ -1,5 +1,5 @@
-import { getServerSupabase } from "@/lib/supabase/server";
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
+import { getServerSupabase } from "@/lib/supabase/server";
 
 export type SignUpCredentials = {
   email: string;

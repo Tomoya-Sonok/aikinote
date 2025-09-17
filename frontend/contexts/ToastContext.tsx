@@ -37,7 +37,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     type: "success" | "error" | "info" = "info",
     duration = 3000,
   ) => {
-    const id = Date.now().toString();
+    const id = `${Date.now()}-${Math.random()}`;
     const newToast: ToastMessage = { id, message, type, duration };
 
     setToasts((prev) => [...prev, newToast]);

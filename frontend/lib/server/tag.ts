@@ -1,3 +1,4 @@
+import { PostgrestError } from "@supabase/supabase-js";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 export type DefaultTagTemplate = {
@@ -20,7 +21,7 @@ export type UserTag = {
  */
 export async function getDefaultTagTemplates(): Promise<{
   data: DefaultTagTemplate[] | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
@@ -38,7 +39,7 @@ export async function getDefaultTagTemplates(): Promise<{
  */
 export async function getUserTagCount(userId: string): Promise<{
   count: number | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
@@ -55,12 +56,13 @@ export async function getUserTagCount(userId: string): Promise<{
  */
 export async function createInitialUserTags(userId: string): Promise<{
   data: UserTag[] | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
   // DefaultTagTemplateから全てのテンプレートを取得
-  const { data: templates, error: templatesError } = await getDefaultTagTemplates();
+  const { data: templates, error: templatesError } =
+    await getDefaultTagTemplates();
 
   if (templatesError || !templates) {
     return { data: null, error: templatesError };
@@ -89,7 +91,7 @@ export async function createInitialUserTags(userId: string): Promise<{
 export async function initializeUserTagsIfNeeded(userId: string): Promise<{
   success: boolean;
   data?: UserTag[];
-  error?: any;
+  error?: PostgrestError | null;
   message?: string;
 }> {
   try {
@@ -104,7 +106,7 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
     if (count && count > 0) {
       return {
         success: true,
-        message: "ユーザーには既にタグが存在します"
+        message: "ユーザーには既にタグが存在します",
       };
     }
 
@@ -118,7 +120,7 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
     return {
       success: true,
       data: data || [],
-      message: "初期タグを作成しました"
+      message: "初期タグを作成しました",
     };
   } catch (error) {
     return { success: false, error };
