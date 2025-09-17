@@ -373,6 +373,25 @@ describe("ページ詳細取得API", () => {
   });
 });
 
+type PageWithTags = {
+  page: {
+    id: string;
+    title: string;
+    content: string;
+    comment: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+  };
+  tags: {
+    id: string;
+    user_id: string;
+    name: string;
+    category: string;
+    created_at: string;
+  }[];
+};
+
 describe("ページ一覧取得API", () => {
   let app: Hono;
 
@@ -383,7 +402,7 @@ describe("ページ一覧取得API", () => {
   });
 
   it("正常なリクエストでページ一覧が取得されること", async () => {
-    const mockPagesWithTags = [
+    const mockPagesWithTags: PageWithTags[] = [
       {
         page: {
           id: "test-page-id-1",
@@ -482,7 +501,7 @@ describe("ページ一覧取得API", () => {
 
   it("limit=100の場合に正常に処理されること", async () => {
     // Arrange
-    const mockPagesWithTags = [
+    const mockPagesWithTags: PageWithTags[] = [
       {
         page: {
           id: "test-page-id",
@@ -527,7 +546,7 @@ describe("ページ一覧取得API", () => {
 
   it("offsetパラメータが正常に処理されること", async () => {
     // Arrange
-    const mockPagesWithTags = [];
+    const mockPagesWithTags: PageWithTags[] = [];
 
     vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
       mockPagesWithTags,
@@ -559,7 +578,7 @@ describe("ページ一覧取得API", () => {
 
   it("queryパラメータが正常に処理されること", async () => {
     // Arrange
-    const mockPagesWithTags = [];
+    const mockPagesWithTags: PageWithTags[] = [];
 
     vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
       mockPagesWithTags,
@@ -591,7 +610,7 @@ describe("ページ一覧取得API", () => {
 
   it("tagsパラメータが正常に処理されること", async () => {
     // Arrange
-    const mockPagesWithTags = [];
+    const mockPagesWithTags: PageWithTags[] = [];
 
     vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
       mockPagesWithTags,
@@ -623,7 +642,7 @@ describe("ページ一覧取得API", () => {
 
   it("dateパラメータが正常に処理されること", async () => {
     // Arrange
-    const mockPagesWithTags = [];
+    const mockPagesWithTags: PageWithTags[] = [];
 
     vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
       mockPagesWithTags,
