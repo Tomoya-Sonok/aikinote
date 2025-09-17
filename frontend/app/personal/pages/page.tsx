@@ -12,15 +12,22 @@ import {
 	type PageCreateData,
 	PageCreateModal,
 } from "@/components/organisms/PageCreateModal/PageCreateModal";
+import {
+	type PageEditData,
+	PageEditModal,
+} from "@/components/organisms/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/organisms/TagFilterModal/TagFilterModal"; // インポート
 import {
 	type CreatePagePayload,
 	createPage,
 	getPages,
 	getTags,
+	type UpdatePagePayload,
+	updatePage,
 } from "@/lib/api/client";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { type TrainingPageData } from "@/lib/server/msw/training";
+import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./page.module.css";
 
 const PAGE_LIMIT = 18;
@@ -37,6 +44,10 @@ export default function PersonalPagesPage() {
 		TrainingPageData[]
 	>([]);
 	const [isPageCreateModalOpen, setPageCreateModalOpen] = useState(false);
+	const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
+	const [editingPageData, setEditingPageData] = useState<PageEditData | null>(
+		null,
+	);
 	const router = useRouter();
 	const { data: session, status } = useSession();
 
@@ -74,7 +85,8 @@ export default function PersonalPagesPage() {
 							id: item.page.id,
 							title: item.page.title,
 							content: item.page.content,
-							date: item.page.created_at.split("T")[0],
+							Comment: item.page.Comment,
+							date: formatToLocalDateString(item.page.created_at),
 							tags: item.tags.map((tag) => tag.name),
 						}));
 
@@ -114,6 +126,9 @@ export default function PersonalPagesPage() {
 						.includes(debouncedSearchQuery.toLowerCase()) ||
 					page.content
 						.toLowerCase()
+						.includes(debouncedSearchQuery.toLowerCase()) ||
+					page.comment
+						?.toLowerCase()
 						.includes(debouncedSearchQuery.toLowerCase()),
 			);
 		}
@@ -205,7 +220,8 @@ export default function PersonalPagesPage() {
 					id: response.data.page.id,
 					title: response.data.page.title,
 					content: response.data.page.content,
-					date: response.data.page.created_at.split("T")[0],
+					comment: response.data.page.comment,
+					date: formatToLocalDateString(response.data.page.created_at),
 					tags: response.data.tags.map((tag) => tag.name),
 				};
 
@@ -222,7 +238,55 @@ export default function PersonalPagesPage() {
 	};
 
 	const handleEditTraining = (id: string) => {
-		router.push(`/edit/${id}`);
+		const pageToEdit = allTrainingPageData.find((page) => page.id === id);
+		if (pageToEdit) {
+			const editData: PageEditData = {
+				id: pageToEdit.id,
+				title: pageToEdit.title,
+				content: pageToEdit.content,
+				comment: pageToEdit.comment || "",
+				tori: pageToEdit.tags.filter((tag) =>
+					availableTags.find((t) => t.name === tag && t.category === "取り"),
+				),
+				uke: pageToEdit.tags.filter((tag) =>
+					availableTags.find((t) => t.name === tag && t.category === "受け"),
+				),
+				waza: pageToEdit.tags.filter((tag) =>
+					availableTags.find((t) => t.name === tag && t.category === "技"),
+				),
+			};
+			setEditingPageData(editData);
+			setPageEditModalOpen(true);
+		}
+	};
+
+	const handleUpdatePage = async (pageData: UpdatePagePayload) => {
+		try {
+			const response = await updatePage(pageData);
+
+			if (response.success && response.data) {
+				const updatedPage: TrainingPageData = {
+					id: response.data.page.id,
+					title: response.data.page.title,
+					content: response.data.page.content,
+					comment: response.data.page.comment,
+					date: formatToLocalDateString(response.data.page.created_at),
+					tags: response.data.tags.map((tag) => tag.name),
+				};
+
+				setAllTrainingPageData((prev) =>
+					prev.map((page) => (page.id === updatedPage.id ? updatedPage : page)),
+				);
+			}
+
+			setPageEditModalOpen(false);
+			setEditingPageData(null);
+		} catch (error) {
+			console.error("Failed to update page:", error);
+			alert(
+				error instanceof Error ? error.message : "ページの更新に失敗しました",
+			);
+		}
 	};
 
 	const handleDeleteTraining = (id: string) => {
@@ -320,7 +384,19 @@ export default function PersonalPagesPage() {
 					onSave={handleSavePage}
 				/>
 
-        {/* TagFilterModal の呼び出し */}
+				{editingPageData && (
+					<PageEditModal
+						isOpen={isPageEditModalOpen}
+						onClose={() => {
+							setPageEditModalOpen(false);
+							setEditingPageData(null);
+						}}
+						onUpdate={handleUpdatePage}
+						initialData={editingPageData}
+					/>
+				)}
+
+				{/* TagFilterModal の呼び出し */}
 				<TagFilterModal
 					isOpen={isTagModalOpen}
 					onClose={() => setIsTagModalOpen(false)}

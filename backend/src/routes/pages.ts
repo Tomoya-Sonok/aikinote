@@ -1,12 +1,13 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { createTrainingPage, getTrainingPages } from "../lib/supabase.js";
+import { createTrainingPage, getTrainingPages, updateTrainingPage } from "../lib/supabase.js";
 import {
   type ApiResponse,
   createPageSchema,
   getPagesSchema,
   type PagesListResponse,
   type PageWithTagsResponse,
+  updatePageSchema,
 } from "../lib/validation.js";
 
 const app = new Hono();
@@ -93,6 +94,57 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
     return c.json(response);
   } catch (error) {
     console.error("ページ一覧取得エラー:", error);
+
+    const errorResponse: ApiResponse<never> = {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "不明なエラーが発生しました",
+    };
+
+    return c.json(errorResponse, 500);
+  }
+});
+
+// ページ更新API
+app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
+  try {
+    const input = c.req.valid("json");
+    const pageId = c.req.param("id");
+
+    // パスパラメータとボディのIDの一致チェック
+    if (pageId !== input.id) {
+      const errorResponse: ApiResponse<never> = {
+        success: false,
+        error: "パスパラメータとリクエストボディのIDが一致しません",
+      };
+      return c.json(errorResponse, 400);
+    }
+
+    // Supabaseでページを更新
+    const result = await updateTrainingPage(
+      {
+        id: input.id,
+        title: input.title,
+        content: input.content,
+        comment: input.comment,
+        user_id: input.user_id,
+      },
+      {
+        tori: input.tori,
+        uke: input.uke,
+        waza: input.waza,
+      },
+    );
+
+    const response: ApiResponse<PageWithTagsResponse> = {
+      success: true,
+      data: result,
+      message: "ページが正常に更新されました",
+    };
+
+    return c.json(response, 200);
+  } catch (error) {
+    console.error("ページ更新エラー:", error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,

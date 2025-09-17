@@ -330,3 +330,124 @@ export const createUserTag = async (
 
   return newTag;
 };
+
+// ページ更新関数
+export const updateTrainingPage = async (
+  pageData: Omit<TrainingPageRow, "created_at" | "updated_at"> & { id: string },
+  tagNames: { tori: string[]; uke: string[]; waza: string[] },
+): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
+  try {
+    // 1. ページの存在確認と権限チェック
+    const { data: existingPage, error: pageCheckError } = await supabase
+      .from("TrainingPage")
+      .select("*")
+      .eq("id", pageData.id)
+      .eq("user_id", pageData.user_id)
+      .single();
+
+    if (pageCheckError || !existingPage) {
+      throw new Error("ページが見つからないか、編集権限がありません");
+    }
+
+    // 2. TrainingPageを更新
+    const { data: updatedPage, error: pageError } = await supabase
+      .from("TrainingPage")
+      .update({
+        title: pageData.title,
+        content: pageData.content,
+        comment: pageData.comment,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", pageData.id)
+      .eq("user_id", pageData.user_id)
+      .select("*")
+      .single();
+
+    if (pageError) {
+      throw new Error(`ページの更新に失敗しました: ${pageError.message}`);
+    }
+
+    // 3. 既存のタグ関連付けを削除
+    const { error: deleteTagsError } = await supabase
+      .from("TrainingPageTag")
+      .delete()
+      .eq("training_page_id", pageData.id);
+
+    if (deleteTagsError) {
+      throw new Error(`既存のタグ関連付け削除に失敗しました: ${deleteTagsError.message}`);
+    }
+
+    // 4. 新しいタグを処理（createTrainingPageと同じロジック）
+    const categories = [
+      ...tagNames.tori.map((name) => ({ name, category: "取り" })),
+      ...tagNames.uke.map((name) => ({ name, category: "受け" })),
+      ...tagNames.waza.map((name) => ({ name, category: "技" })),
+    ];
+
+    const associatedTags: UserTagRow[] = [];
+    const trainingPageTags: Omit<TrainingPageTagRow, "id">[] = [];
+
+    // 5. 各タグを処理
+    for (const { name, category } of categories) {
+      // 既存のタグをチェック
+      const { data: existingTag } = await supabase
+        .from("UserTag")
+        .select("*")
+        .eq("user_id", pageData.user_id)
+        .eq("name", name)
+        .eq("category", category)
+        .single();
+
+      let tagId: string;
+
+      if (existingTag) {
+        // 既存のタグを使用
+        tagId = existingTag.id;
+        associatedTags.push(existingTag);
+      } else {
+        // 新しいタグを作成
+        const { data: newTag, error: tagError } = await supabase
+          .from("UserTag")
+          .insert([
+            {
+              user_id: pageData.user_id,
+              name,
+              category,
+              created_at: new Date().toISOString(),
+            },
+          ])
+          .select("*")
+          .single();
+
+        if (tagError) {
+          throw new Error(`タグの作成に失敗しました: ${tagError.message}`);
+        }
+
+        tagId = newTag.id;
+        associatedTags.push(newTag);
+      }
+
+      // TrainingPageTagのリレーションを準備
+      trainingPageTags.push({
+        training_page_id: updatedPage.id,
+        user_tag_id: tagId,
+      });
+    }
+
+    // 6. TrainingPageTagのリレーションを作成
+    if (trainingPageTags.length > 0) {
+      const { error: relationError } = await supabase
+        .from("TrainingPageTag")
+        .insert(trainingPageTags);
+
+      if (relationError) {
+        throw new Error(`タグ関連付けに失敗しました: ${relationError.message}`);
+      }
+    }
+
+    return { page: updatedPage, tags: associatedTags };
+  } catch (error) {
+    console.error("TrainingPage更新エラー:", error);
+    throw error;
+  }
+};
