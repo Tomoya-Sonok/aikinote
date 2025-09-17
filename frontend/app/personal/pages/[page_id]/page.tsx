@@ -5,10 +5,9 @@ import { useEffect, useState } from "react";
 import { Tag } from "@/components/atoms/Tag/Tag";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
-import {
-  mockGetTrainingPageDataById,
-  type TrainingPageData,
-} from "@/lib/server/msw/training";
+import { getPage } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
+import type { TrainingPageData } from "@/lib/server/msw/training";
 import styles from "./page.module.css";
 
 export default function PageDetailPage() {
@@ -16,14 +15,29 @@ export default function PageDetailPage() {
   const [pageData, setPageData] = useState<TrainingPageData | null>(null);
   const router = useRouter();
   const params = useParams();
+  const { session } = useAuth();
   const pageId = params.page_id as string;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (pageId) {
-          const data = await mockGetTrainingPageDataById(pageId);
-          setPageData(data);
+        if (pageId && session?.user?.id) {
+          const response = await getPage(pageId, session.user.id);
+
+          if (response.success && response.data) {
+            // APIレスポンスを既存コンポーネントの期待する形式に変換
+            const convertedData: TrainingPageData = {
+              id: response.data.page.id,
+              title: response.data.page.title,
+              content: response.data.page.content,
+              comment: response.data.page.comment,
+              date: response.data.page.created_at,
+              tags: response.data.tags.map(tag => tag.name), // タグ名の配列に変換
+            };
+            setPageData(convertedData);
+          } else {
+            setPageData(null);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch page data:", err);
@@ -34,7 +48,7 @@ export default function PageDetailPage() {
     };
 
     fetchData();
-  }, [pageId]);
+  }, [pageId, session?.user?.id]);
 
   const handleBackToList = () => {
     router.push("/personal/pages");
@@ -83,20 +97,9 @@ export default function PageDetailPage() {
     );
   }
 
-  // コンテンツを稽古内容とコメントに分割（特定の判定ロジックを使用）
-  const contentLines = pageData.content.split("\n\n");
-  let trainingContent = "";
-  let comments = "";
-
-  if (contentLines.length > 2) {
-    // 複数のパラグラフがある場合、最後のパラグラフをコメントとして扱う
-    trainingContent = contentLines.slice(0, -1).join("\n\n");
-    comments = contentLines[contentLines.length - 1];
-  } else {
-    // パラグラフが少ない場合は全てを稽古内容とする
-    trainingContent = pageData.content;
-    comments = "";
-  }
+  // 稽古内容とコメントを適切に表示
+  const trainingContent = pageData.content;
+  const comments = pageData.comment || "";
 
   return (
     <AppLayout>

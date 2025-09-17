@@ -30,7 +30,7 @@ import { type TrainingPageData } from "@/lib/server/msw/training";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./page.module.css";
 
-const PAGE_LIMIT = 18;
+const PAGE_LIMIT = 25;
 
 // タグの型定義
 interface Tag {
@@ -70,30 +70,43 @@ export default function PersonalPagesPage() {
 			setLoading(true);
 
 			try {
-				const response = await getPages({
-					userId: session.user.id,
-					limit: 1000,
-					offset: 0,
-					query: "",
-					tags: [],
-					date: undefined,
-				});
+				let allPages: TrainingPageData[] = [];
+				let offset = 0;
+				const limit = 100;
+				let hasMoreData = true;
 
-				if (response.success && response.data) {
-					const trainingPageDataResult: TrainingPageData[] =
-						response.data.training_pages.map((item) => ({
+				// 全ページを取得するまでループ
+				while (hasMoreData) {
+					const response = await getPages({
+						userId: session.user.id,
+						limit,
+						offset,
+						query: "",
+						tags: [],
+						date: undefined,
+					});
+
+					if (response.success && response.data) {
+						const pagesBatch = response.data.training_pages.map((item) => ({
 							id: item.page.id,
 							title: item.page.title,
 							content: item.page.content,
-							Comment: item.page.Comment,
+							comment: item.page.comment,
 							date: formatToLocalDateString(item.page.created_at),
 							tags: item.tags.map((tag) => tag.name),
 						}));
 
-					setAllTrainingPageData(trainingPageDataResult);
-				} else {
-					throw new Error(response.error || "データの取得に失敗しました");
+						allPages = [...allPages, ...pagesBatch];
+
+						// 取得したページ数がlimitより少ない場合、これ以上データがない
+						hasMoreData = pagesBatch.length === limit;
+						offset += limit;
+					} else {
+						throw new Error(response.error || "データの取得に失敗しました");
+					}
 				}
+
+				setAllTrainingPageData(allPages);
 			} catch (err) {
 				console.error("Failed to fetch training page data:", err);
 				setAllTrainingPageData([]);
@@ -322,7 +335,7 @@ export default function PersonalPagesPage() {
 		<AppLayout>
 			<div className={styles.container}>
 				<div className={styles.statsSection}>
-					<p className={styles.statsText}>
+					<p className={styles.statsText} data-testid="page-stats">
 						これまでに作成したページ数は
 						<span className={styles.statsNumber}>
 							{allTrainingPageData.length}
@@ -343,7 +356,7 @@ export default function PersonalPagesPage() {
 				<div className={styles.pageListWrapper}>
 					<div className={styles.pageListDescription}>
 						<h2 className={styles.pageTitle}>最近作成したページ</h2>
-						<p className={styles.pageCount}>
+						<p className={styles.pageCount} data-testid="page-count">
 							{allTrainingPageData.length === displayedTrainingPageData.length
 								? `全${allTrainingPageData.length}件表示中`
 								: `全${allTrainingPageData.length}件中

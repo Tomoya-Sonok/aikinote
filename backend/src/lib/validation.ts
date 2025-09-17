@@ -109,6 +109,13 @@ export const getPagesSchema = z.object({
 
 export type GetPagesInput = z.infer<typeof getPagesSchema>;
 
+// ページ詳細取得のバリデーションスキーマ
+export const getPageSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+});
+
+export type GetPageInput = z.infer<typeof getPageSchema>;
+
 // ページ一覧レスポンスの型
 export const pagesListResponseSchema = z.object({
   training_pages: z.array(pageWithTagsResponseSchema),

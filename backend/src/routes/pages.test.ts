@@ -190,6 +190,189 @@ describe("ページ作成API", () => {
   });
 });
 
+describe("ページ詳細取得API", () => {
+  let app: Hono;
+
+  beforeEach(() => {
+    app = new Hono();
+    app.route("/", pagesRoute);
+    vi.clearAllMocks();
+  });
+
+  it("正常なリクエストでページ詳細が取得されること", async () => {
+    // Arrange
+    const mockPageWithTags = {
+      page: {
+        id: "test-page-id",
+        title: "テスト稽古ページ",
+        content: "今日は基本動作の稽古を行いました",
+        comment: "姿勢に注意が必要",
+        user_id: "test-user-id",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
+      },
+      tags: [
+        {
+          id: "test-tag-id-1",
+          user_id: "test-user-id",
+          name: "立技",
+          category: "取り",
+          created_at: "2023-01-01T00:00:00.000Z",
+        },
+        {
+          id: "test-tag-id-2",
+          user_id: "test-user-id",
+          name: "正面打ち",
+          category: "受け",
+          created_at: "2023-01-01T00:00:00.000Z",
+        },
+      ],
+    };
+
+    vi.spyOn(supabaseModule, "getTrainingPageById").mockResolvedValue(
+      mockPageWithTags,
+    );
+
+    const request = new Request(
+      "http://localhost/test-page-id?user_id=test-user-id",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe("ページ詳細を取得しました");
+    expect(responseBody.data.page.id).toBe("test-page-id");
+    expect(responseBody.data.page.title).toBe("テスト稽古ページ");
+    expect(responseBody.data.tags).toHaveLength(2);
+  });
+
+  it("user_idが未指定の場合にバリデーションエラーが返されること", async () => {
+    // Arrange
+    const request = new Request("http://localhost/test-page-id", {
+      method: "GET",
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(400);
+  });
+
+  it("存在しないページIDを指定した場合にエラーが返されること", async () => {
+    // Arrange
+    vi.spyOn(supabaseModule, "getTrainingPageById").mockRejectedValue(
+      new Error("ページが見つからないか、アクセス権限がありません"),
+    );
+
+    const request = new Request(
+      "http://localhost/non-existent-id?user_id=test-user-id",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(500);
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.error).toBe("ページが見つからないか、アクセス権限がありません");
+  });
+
+  it("他のユーザーのページにアクセスした場合にエラーが返されること", async () => {
+    // Arrange
+    vi.spyOn(supabaseModule, "getTrainingPageById").mockRejectedValue(
+      new Error("ページが見つからないか、アクセス権限がありません"),
+    );
+
+    const request = new Request(
+      "http://localhost/test-page-id?user_id=other-user-id",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(500);
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.error).toBe("ページが見つからないか、アクセス権限がありません");
+  });
+
+  it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
+    vi.spyOn(supabaseModule, "getTrainingPageById").mockRejectedValue(
+      new Error("データベース接続エラー"),
+    );
+
+    const request = new Request(
+      "http://localhost/test-page-id?user_id=test-user-id",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(500);
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.error).toBe("データベース接続エラー");
+  });
+
+  it("タグが存在しないページの詳細が正常に取得されること", async () => {
+    // Arrange
+    const mockPageWithoutTags = {
+      page: {
+        id: "test-page-id",
+        title: "タグなし稽古ページ",
+        content: "タグを設定していない稽古の記録",
+        comment: "",
+        user_id: "test-user-id",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
+      },
+      tags: [],
+    };
+
+    vi.spyOn(supabaseModule, "getTrainingPageById").mockResolvedValue(
+      mockPageWithoutTags,
+    );
+
+    const request = new Request(
+      "http://localhost/test-page-id?user_id=test-user-id",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(responseBody.data.page.title).toBe("タグなし稽古ページ");
+    expect(responseBody.data.tags).toHaveLength(0);
+  });
+});
+
 describe("ページ一覧取得API", () => {
   let app: Hono;
 
@@ -282,6 +465,7 @@ describe("ページ一覧取得API", () => {
   });
 
   it("limitが100を超える場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const request = new Request(
       "http://localhost/?user_id=test-user-id&limit=101",
       {
@@ -289,9 +473,184 @@ describe("ページ一覧取得API", () => {
       },
     );
 
+    // Act
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
+  });
+
+  it("limit=100の場合に正常に処理されること", async () => {
+    // Arrange
+    const mockPagesWithTags = [
+      {
+        page: {
+          id: "test-page-id",
+          title: "稽古ページ",
+          content: "基本動作の稽古",
+          comment: "",
+          user_id: "test-user-id",
+          created_at: "2023-01-01T00:00:00.000Z",
+          updated_at: "2023-01-01T00:00:00.000Z",
+        },
+        tags: [],
+      },
+    ];
+
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
+      mockPagesWithTags,
+    );
+
+    const request = new Request(
+      "http://localhost/?user_id=test-user-id&limit=100",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(supabaseModule.getTrainingPages).toHaveBeenCalledWith({
+      userId: "test-user-id",
+      limit: 100,
+      offset: 0,
+      query: undefined,
+      tags: undefined,
+      date: undefined,
+    });
+  });
+
+  it("offsetパラメータが正常に処理されること", async () => {
+    // Arrange
+    const mockPagesWithTags = [];
+
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
+      mockPagesWithTags,
+    );
+
+    const request = new Request(
+      "http://localhost/?user_id=test-user-id&limit=20&offset=40",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(supabaseModule.getTrainingPages).toHaveBeenCalledWith({
+      userId: "test-user-id",
+      limit: 20,
+      offset: 40,
+      query: undefined,
+      tags: undefined,
+      date: undefined,
+    });
+  });
+
+  it("queryパラメータが正常に処理されること", async () => {
+    // Arrange
+    const mockPagesWithTags = [];
+
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
+      mockPagesWithTags,
+    );
+
+    const request = new Request(
+      "http://localhost/?user_id=test-user-id&query=基本動作",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(supabaseModule.getTrainingPages).toHaveBeenCalledWith({
+      userId: "test-user-id",
+      limit: 20,
+      offset: 0,
+      query: "基本動作",
+      tags: undefined,
+      date: undefined,
+    });
+  });
+
+  it("tagsパラメータが正常に処理されること", async () => {
+    // Arrange
+    const mockPagesWithTags = [];
+
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
+      mockPagesWithTags,
+    );
+
+    const request = new Request(
+      "http://localhost/?user_id=test-user-id&tags=立技,正面打ち",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(supabaseModule.getTrainingPages).toHaveBeenCalledWith({
+      userId: "test-user-id",
+      limit: 20,
+      offset: 0,
+      query: undefined,
+      tags: "立技,正面打ち",
+      date: undefined,
+    });
+  });
+
+  it("dateパラメータが正常に処理されること", async () => {
+    // Arrange
+    const mockPagesWithTags = [];
+
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
+      mockPagesWithTags,
+    );
+
+    const request = new Request(
+      "http://localhost/?user_id=test-user-id&date=2023-01-01",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(supabaseModule.getTrainingPages).toHaveBeenCalledWith({
+      userId: "test-user-id",
+      limit: 20,
+      offset: 0,
+      query: undefined,
+      tags: undefined,
+      date: "2023-01-01",
+    });
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {

@@ -74,6 +74,34 @@ type ApiRoute = {
     };
   };
   "/api/pages/:id": {
+    $get: {
+      input: {
+        query: {
+          user_id: string;
+        };
+      };
+      output: {
+        success: boolean;
+        data?: {
+          page: {
+            id: string;
+            title: string;
+            content: string;
+            comment: string;
+            user_id: string;
+            created_at: string;
+            updated_at: string;
+          };
+          tags: Array<{
+            id: string;
+            name: string;
+            category: string;
+          }>;
+        };
+        error?: string;
+        message?: string;
+      };
+    };
     $put: {
       input: {
         json: {
@@ -219,6 +247,21 @@ export const getPages = async ({
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.error || "ページ一覧の取得に失敗しました");
+  }
+
+  return await response.json();
+};
+
+// ページ詳細取得API関数
+export const getPage = async (pageId: string, userId: string) => {
+  const response = await apiClient.api.pages[":id"].$get({
+    param: { id: pageId },
+    query: { user_id: userId },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "ページ詳細の取得に失敗しました");
   }
 
   return await response.json();

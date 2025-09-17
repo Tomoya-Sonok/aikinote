@@ -331,6 +331,50 @@ export const createUserTag = async (
   return newTag;
 };
 
+// ページ詳細取得関数
+export const getTrainingPageById = async (
+  pageId: string,
+  userId: string,
+): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
+  try {
+    // 1. ページの存在確認と権限チェック
+    const { data: page, error: pageError } = await supabase
+      .from("TrainingPage")
+      .select("*")
+      .eq("id", pageId)
+      .eq("user_id", userId)
+      .single();
+
+    if (pageError || !page) {
+      throw new Error("ページが見つからないか、アクセス権限がありません");
+    }
+
+    // 2. ページに関連するタグを取得
+    const { data: pageTags, error: tagsError } = await supabase
+      .from("TrainingPageTag")
+      .select("UserTag(*)")
+      .eq("training_page_id", pageId);
+
+    if (tagsError) {
+      console.error(`ページ ${pageId} のタグ取得エラー:`, tagsError);
+      return { page, tags: [] };
+    }
+
+    const tags: UserTagRow[] =
+      pageTags
+        ?.map((pt: { UserTag: UserTagRow | UserTagRow[] }) => {
+          // UserTagが配列の場合は最初の要素を取得、そうでなければそのまま返す
+          return Array.isArray(pt.UserTag) ? pt.UserTag[0] : pt.UserTag;
+        })
+        .filter(Boolean) || [];
+
+    return { page, tags };
+  } catch (error) {
+    console.error("TrainingPage詳細取得エラー:", error);
+    throw error;
+  }
+};
+
 // ページ更新関数
 export const updateTrainingPage = async (
   pageData: Omit<TrainingPageRow, "created_at" | "updated_at"> & { id: string },

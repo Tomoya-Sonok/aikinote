@@ -1,9 +1,10 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { createTrainingPage, getTrainingPages, updateTrainingPage } from "../lib/supabase.js";
+import { createTrainingPage, getTrainingPageById, getTrainingPages, updateTrainingPage } from "../lib/supabase.js";
 import {
   type ApiResponse,
   createPageSchema,
+  getPageSchema,
   getPagesSchema,
   type PagesListResponse,
   type PageWithTagsResponse,
@@ -94,6 +95,53 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
     return c.json(response);
   } catch (error) {
     console.error("ページ一覧取得エラー:", error);
+
+    const errorResponse: ApiResponse<never> = {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "不明なエラーが発生しました",
+    };
+
+    return c.json(errorResponse, 500);
+  }
+});
+
+// ページ詳細取得API
+app.get("/:id", zValidator("query", getPageSchema), async (c) => {
+  try {
+    const pageId = c.req.param("id");
+    const { user_id } = c.req.valid("query");
+
+    // Supabaseからページ詳細を取得
+    const result = await getTrainingPageById(pageId, user_id);
+
+    // レスポンス形式に変換
+    const pageWithTags = {
+      page: {
+        id: result.page.id,
+        title: result.page.title,
+        content: result.page.content,
+        comment: result.page.comment,
+        user_id: result.page.user_id,
+        created_at: result.page.created_at,
+        updated_at: result.page.updated_at,
+      },
+      tags: result.tags.map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        category: tag.category,
+      })),
+    };
+
+    const response: ApiResponse<PageWithTagsResponse> = {
+      success: true,
+      data: pageWithTags,
+      message: "ページ詳細を取得しました",
+    };
+
+    return c.json(response);
+  } catch (error) {
+    console.error("ページ詳細取得エラー:", error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,
