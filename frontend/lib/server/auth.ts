@@ -1,94 +1,81 @@
-import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
-import { getServerSupabase } from "@/lib/supabase/server";
+import type { UserSession } from "@/lib/auth";
+import {
+  getServerSupabase,
+  getServiceRoleSupabase,
+} from "@/lib/supabase/server";
 
-export type SignUpCredentials = {
-  email: string;
-  password: string;
-  username: string;
-  dojoId?: string;
-};
-
-export type SignInCredentials = {
-  email: string;
-  password: string;
-};
-
-export async function signUp(credentials: SignUpCredentials) {
+export async function getCurrentUser(): Promise<UserSession | null> {
   const supabase = getServerSupabase();
 
-  // Supabase Authでユーザーを作成
-  const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: credentials.email,
-    password: credentials.password,
-    options: {
-      data: {
-        username: credentials.username,
-        dojo_id: credentials.dojoId || null,
-      },
-    },
-  });
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
 
-  if (authError) {
-    return { data: null, error: authError };
-  }
+    // デバッグ用ログ
+    if (process.env.NODE_ENV === "development") {
+      console.log("getCurrentUser session check:", {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userId: session?.user?.id,
+        error: error?.message,
+      });
+    }
 
-  // 認証が成功したら、ユーザーテーブルにも情報を追加
-  if (authData?.user) {
-    const { error: profileError } = await supabase.from("user").insert({
-      id: authData.user.id,
-      email: credentials.email,
-      username: credentials.username,
-      password_hash: "managed_by_supabase", // 実際のハッシュはSupabaseが管理
-      dojo_id: credentials.dojoId || null,
-      publicity_setting: "private",
-    });
+    if (error) {
+      console.error("Session error in getCurrentUser:", error);
+      return null;
+    }
+
+    if (!session?.user) {
+      console.log("No session or user found in getCurrentUser");
+      return null;
+    }
+
+    // Userテーブルからプロフィール情報を取得（Service Roleキーを使用してRLSをバイパス）
+    const serviceSupabase = getServiceRoleSupabase();
+    const { data: userProfile, error: profileError } = await serviceSupabase
+      .from("User")
+      .select("*")
+      .eq("id", session.user.id)
+      .single();
 
     if (profileError) {
-      // プロフィール作成に失敗した場合は、作成したユーザーを削除
-      const { error } = await supabase.auth.admin.deleteUser(authData.user.id);
-      if (error) return { data: null, error };
-      return { data: null, error: profileError };
+      console.error("Profile fetch error in getCurrentUser:", profileError);
+      return null;
     }
 
-    // ユーザー作成成功後、初期タグを作成
-    try {
-      await initializeUserTagsIfNeeded(authData.user.id);
-    } catch (error) {
-      console.error("初期タグ作成エラー:", error);
-      // 初期タグ作成に失敗してもアカウント作成は成功とする
+    if (!userProfile) {
+      console.error("No user profile found for user:", session.user.id);
+      return null;
     }
+
+    // デバッグ用ログ
+    if (process.env.NODE_ENV === "development") {
+      console.log("getCurrentUser success:", {
+        userId: session.user.id,
+        username: userProfile.username,
+      });
+    }
+
+    return {
+      id: session.user.id,
+      email: userProfile.email,
+      username: userProfile.username,
+      profile_image_url: userProfile.profile_image_url,
+    };
+  } catch (error) {
+    console.error("Unexpected error in getCurrentUser:", error);
+    return null;
   }
-
-  return { data: authData, error: null };
-}
-
-export async function signIn({ email, password }: SignInCredentials) {
-  const supabase = getServerSupabase();
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-  return { data, error };
-}
-
-export async function signOut() {
-  const supabase = getServerSupabase();
-  const { error } = await supabase.auth.signOut();
-  return { error };
-}
-
-export async function getCurrentUser() {
-  const supabase = getServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
 }
 
 export async function getUserProfile(userId: string) {
-  const supabase = getServerSupabase();
-  const { data, error } = await supabase
-    .from("user")
+  const serviceSupabase = getServiceRoleSupabase();
+
+  const { data, error } = await serviceSupabase
+    .from("User")
     .select("*")
     .eq("id", userId)
     .single();

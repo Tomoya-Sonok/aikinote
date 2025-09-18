@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 import { isTokenExpired } from "@/lib/utils/auth-server";
 
@@ -16,10 +17,9 @@ export async function POST(request: NextRequest) {
 
     const supabase = getServiceRoleSupabase();
 
-    // トークンでユーザーを検索
     const { data: user, error: findError } = await supabase
       .from("User")
-      .select("*")
+      .select("id, email, is_email_verified, verification_token, created_at")
       .eq("verification_token", token)
       .single();
 
@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 既に認証済みかチェック
     if (user.is_email_verified) {
       return NextResponse.json(
         { message: "このアカウントは既に認証済みです" },
@@ -38,7 +37,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // トークンの有効期限をチェック
     if (isTokenExpired(new Date(user.created_at))) {
       return NextResponse.json(
         { error: "認証トークンの有効期限が切れています" },
@@ -46,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ユーザーを認証済みにマーク
     const { error: updateError } = await supabase
       .from("User")
       .update({
@@ -63,11 +60,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    try {
+      await supabase.auth.admin.updateUserById(user.id, {
+        email_confirm: true,
+      });
+    } catch (adminError) {
+      console.error("Supabase admin email confirm error", adminError);
+    }
+
     return NextResponse.json(
       { message: "メールアドレスの認証が完了しました" },
       { status: 200 },
     );
-  } catch (_error) {
+  } catch (error) {
+    console.error("verify-email error", error);
     return NextResponse.json(
       { error: "メール認証に失敗しました" },
       { status: 500 },

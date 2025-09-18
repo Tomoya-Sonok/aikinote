@@ -1,0 +1,72 @@
+/* ローダーコンテナ */
+.loader {
+  display: inline-block;
+  position: relative;
+}
+
+/* スピナー本体 */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 大きいサイズ */
+.large .spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+/* 小さいサイズ */
+.small .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+/* 中央揃えコンテナ */
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* テキスト付きの場合 */
+.withText {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text {
+  font-size: 14px;
+  color: #666;
+}
+
+/* スピンアニメーション */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .spinner {
+    border-color: #444;
+    border-top-color: #3498db;
+  }
+
+  .text {
+    color: #ccc;
+  }
+}

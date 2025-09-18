@@ -286,7 +286,9 @@ describe("ページ詳細取得API", () => {
     // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
-    expect(responseBody.error).toBe("ページが見つからないか、アクセス権限がありません");
+    expect(responseBody.error).toBe(
+      "ページが見つからないか、アクセス権限がありません",
+    );
   });
 
   it("他のユーザーのページにアクセスした場合にエラーが返されること", async () => {
@@ -309,7 +311,9 @@ describe("ページ詳細取得API", () => {
     // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
-    expect(responseBody.error).toBe("ページが見つからないか、アクセス権限がありません");
+    expect(responseBody.error).toBe(
+      "ページが見つからないか、アクセス権限がありません",
+    );
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {

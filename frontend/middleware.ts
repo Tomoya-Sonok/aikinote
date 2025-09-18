@@ -23,11 +23,13 @@ export async function middleware(request: NextRequest) {
         return request.cookies.get(name)?.value;
       },
       set(name: string, value: string, options: CookieOptions) {
+        // リクエストにCookieを設定
         request.cookies.set({
           name,
           value,
           ...options,
         });
+        // 新しいレスポンスを作成してCookieを設定
         response = NextResponse.next({
           request: {
             headers: request.headers,
@@ -40,11 +42,13 @@ export async function middleware(request: NextRequest) {
         });
       },
       remove(name: string, options: CookieOptions) {
+        // リクエストからCookieを削除
         request.cookies.set({
           name,
           value: "",
           ...options,
         });
+        // 新しいレスポンスを作成してCookieを削除
         response = NextResponse.next({
           request: {
             headers: request.headers,
@@ -59,7 +63,18 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getSession();
+  // セッションを取得してCookieを同期
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  // セッション情報をログ出力（デバッグ用）
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "Middleware session:",
+      session ? "authenticated" : "not authenticated",
+    );
+  }
 
   return response;
 }

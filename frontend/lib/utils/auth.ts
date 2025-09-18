@@ -30,13 +30,13 @@ export function generateResetToken(): string {
   return randomBytes(32).toString("hex");
 }
 
-// トークンの有効期限（1時間）
-export const TOKEN_EXPIRY_HOURS = 1;
+// トークンの有効期限（30分）
+export const TOKEN_EXPIRY_MINS = 30;
 
 export function isTokenExpired(createdAt: Date): boolean {
   const now = new Date();
   const expiryTime = new Date(
-    createdAt.getTime() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000,
+    createdAt.getTime() + TOKEN_EXPIRY_MINS * 60 * 1000,
   );
   return now > expiryTime;
 }

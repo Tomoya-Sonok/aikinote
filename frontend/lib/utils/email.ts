@@ -29,10 +29,14 @@ export async function sendVerificationEmail({
     "RESEND_FROM_EMAIL:",
     process.env.RESEND_FROM_EMAIL || "UNDEFINED",
   );
-  console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL || "UNDEFINED");
+  console.log(
+    "APP_URL:",
+    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "UNDEFINED",
+  );
   console.log("==========================================");
 
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${verificationToken}`;
+  const appUrl = getAppUrl();
+  const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {
@@ -73,7 +77,8 @@ export async function sendPasswordResetEmail({
   email,
   resetToken,
 }: SendPasswordResetEmailParams) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+  const appUrl = getAppUrl();
+  const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {
@@ -108,4 +113,19 @@ export async function sendPasswordResetEmail({
     console.error("パスワードリセットメール送信エラー:", error);
     throw new Error("パスワードリセットメールの送信に失敗しました");
   }
+}
+
+function getAppUrl() {
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.APP_URL ||
+    (process.env.NODE_ENV === "test" ? "http://localhost:3000" : undefined);
+
+  if (!appUrl) {
+    throw new Error(
+      "アプリケーションのURLが設定されていません。NEXT_PUBLIC_APP_URL もしくは APP_URL を設定してください。",
+    );
+  }
+
+  return appUrl.endsWith("/") ? appUrl.slice(0, -1) : appUrl;
 }

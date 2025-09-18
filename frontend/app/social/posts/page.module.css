@@ -28,88 +28,11 @@
   text-align: center;
 }
 
-.content p {
+.notice {
   font-family: var(--font-zen-old-mincho);
   font-size: 16px;
   font-weight: 400;
   color: var(--aikinote-text-light);
   line-height: 1.6;
-  text-align: center;
-}
-
-.postsList {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.postCard {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.postTitle {
-  font-family: var(--font-zen-old-mincho);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--aikinote-black);
-  margin: 0 0 12px 0;
-}
-
-.postContent {
-  font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
-  color: var(--aikinote-text-light);
-  line-height: 1.6;
-  margin: 0 0 16px 0;
-}
-
-.postMeta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: #666;
-}
-
-.postAuthor {
-  font-weight: 500;
-}
-
-.postDate {
-  color: #999;
-}
-
-.postStats {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: #666;
-}
-
-.likesCount,
-.commentsCount {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.postTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  background: #f0f0f0;
-  color: #666;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
+  text-align: left;
 }

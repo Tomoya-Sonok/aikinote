@@ -185,7 +185,8 @@ export const getTrainingPages = async ({
         // ページIDごとにタグ数をカウントして、全てのタグを持つページのみを抽出
         const pageTagCounts: { [key: string]: number } = {};
         pageTags.forEach((pt: { training_page_id: string }) => {
-          pageTagCounts[pt.training_page_id] = (pageTagCounts[pt.training_page_id] || 0) + 1;
+          pageTagCounts[pt.training_page_id] =
+            (pageTagCounts[pt.training_page_id] || 0) + 1;
         });
 
         pageIds = Object.entries(pageTagCounts)
@@ -418,7 +419,9 @@ export const updateTrainingPage = async (
       .eq("training_page_id", pageData.id);
 
     if (deleteTagsError) {
-      throw new Error(`既存のタグ関連付け削除に失敗しました: ${deleteTagsError.message}`);
+      throw new Error(
+        `既存のタグ関連付け削除に失敗しました: ${deleteTagsError.message}`,
+      );
     }
 
     // 4. 新しいタグを処理（createTrainingPageと同じロジック）

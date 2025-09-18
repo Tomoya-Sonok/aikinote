@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getPages, getTags } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import PersonalPagesPage from "./page";
 
 // モック設定
@@ -10,8 +10,8 @@ vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
 }));
 
-vi.mock("next-auth/react", () => ({
-  useSession: vi.fn(),
+vi.mock("@/lib/hooks/useAuth", () => ({
+  useAuth: vi.fn(),
 }));
 
 vi.mock("@/lib/api/client", () => ({
@@ -26,7 +26,7 @@ vi.mock("@/lib/hooks/useDebounce", () => ({
 }));
 
 vi.mock("@/lib/utils/dateUtils", () => ({
-  formatToLocalDateString: vi.fn((date) => "2023-01-01"),
+  formatToLocalDateString: vi.fn((_date) => "2023-01-01"),
 }));
 
 vi.mock("@/components/layout/AppLayout", () => ({
@@ -44,23 +44,35 @@ vi.mock("@/components/molecules/FilterArea/FilterArea", () => ({
 }));
 
 vi.mock("@/components/molecules/TrainingCard/TrainingCard", () => ({
-  TrainingCard: ({ title, onClick }: { title: string; onClick: () => void }) => (
-    <div data-testid="training-card" onClick={onClick}>
+  TrainingCard: ({
+    title,
+    onClick,
+  }: {
+    title: string;
+    onClick: () => void;
+  }) => (
+    <button type="button" data-testid="training-card" onClick={onClick}>
       {title}
-    </div>
+    </button>
   ),
 }));
 
 vi.mock("@/components/atoms/FloatingActionButton/FloatingActionButton", () => ({
   FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
-    <button data-testid="floating-action-button" onClick={onClick}>
+    <button
+      type="button"
+      data-testid="floating-action-button"
+      onClick={onClick}
+    >
       +
     </button>
   ),
 }));
 
 vi.mock("@/components/organisms/PageCreateModal/PageCreateModal", () => ({
-  PageCreateModal: () => <div data-testid="page-create-modal">PageCreateModal</div>,
+  PageCreateModal: () => (
+    <div data-testid="page-create-modal">PageCreateModal</div>
+  ),
 }));
 
 vi.mock("@/components/organisms/PageEditModal/PageEditModal", () => ({
@@ -68,7 +80,9 @@ vi.mock("@/components/organisms/PageEditModal/PageEditModal", () => ({
 }));
 
 vi.mock("@/components/organisms/TagFilterModal/TagFilterModal", () => ({
-  TagFilterModal: () => <div data-testid="tag-filter-modal">TagFilterModal</div>,
+  TagFilterModal: () => (
+    <div data-testid="tag-filter-modal">TagFilterModal</div>
+  ),
 }));
 
 // テスト用定数
@@ -76,7 +90,7 @@ const PAGE_LIMIT = 25;
 
 describe("ページ一覧画面", () => {
   const mockUseRouter = vi.mocked(useRouter);
-  const mockUseSession = vi.mocked(useSession);
+  const mockUseAuth = vi.mocked(useAuth);
   const mockGetPages = vi.mocked(getPages);
   const mockGetTags = vi.mocked(getTags);
 
@@ -87,16 +101,28 @@ describe("ページ一覧画面", () => {
 
     mockUseRouter.mockReturnValue({
       push: mockPush,
-    } as any);
+    });
 
-    mockUseSession.mockReturnValue({
-      data: {
-        user: {
-          id: "test-user-id",
-        },
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: "test-user-id",
+        email: "test@example.com",
+        username: "testuser",
+        profile_image_url: null,
       },
-      status: "authenticated",
-    } as any);
+      loading: false,
+      isInitializing: false,
+      isProcessing: false,
+      error: null,
+      signUp: vi.fn(),
+      signInWithCredentials: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      signOutUser: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+      verifyEmail: vi.fn(),
+      clearError: vi.fn(),
+    });
 
     mockGetTags.mockResolvedValue({
       success: true,
@@ -186,10 +212,21 @@ describe("ページ一覧画面", () => {
 
   it("認証されていない場合にログインメッセージが表示されること", async () => {
     // Arrange
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: "unauthenticated",
-    } as any);
+    mockUseAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      isInitializing: false,
+      isProcessing: false,
+      error: null,
+      signUp: vi.fn(),
+      signInWithCredentials: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      signOutUser: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+      verifyEmail: vi.fn(),
+      clearError: vi.fn(),
+    });
 
     // Act
     render(<PersonalPagesPage />);
@@ -201,10 +238,21 @@ describe("ページ一覧画面", () => {
 
   it("セッション読み込み中の状態が表示されること", async () => {
     // Arrange
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: "loading",
-    } as any);
+    mockUseAuth.mockReturnValue({
+      user: null,
+      loading: true,
+      isInitializing: false,
+      isProcessing: true,
+      error: null,
+      signUp: vi.fn(),
+      signInWithCredentials: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      signOutUser: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+      verifyEmail: vi.fn(),
+      clearError: vi.fn(),
+    });
 
     // Act
     render(<PersonalPagesPage />);
@@ -372,29 +420,34 @@ describe("ページ一覧画面", () => {
 
   it("ユーザーIDが存在しない場合にAPI呼び出しが実行されないこと", async () => {
     // Arrange
-    mockUseSession.mockReturnValue({
-      data: {
-        user: {
-          id: undefined,
-        },
-      },
-      status: "authenticated",
-    } as any);
+    mockUseAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      isInitializing: false,
+      isProcessing: false,
+      error: null,
+      signUp: vi.fn(),
+      signInWithCredentials: vi.fn(),
+      signInWithGoogle: vi.fn(),
+      signOutUser: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+      verifyEmail: vi.fn(),
+      clearError: vi.fn(),
+    });
 
     // Act
     render(<PersonalPagesPage />);
 
     // Assert
     await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
+      expect(screen.getByText("ログインが必要です。")).toBeInTheDocument();
     });
 
     expect(mockGetPages).not.toHaveBeenCalled();
   });
 
-it("25件のページが表示される場合に正しく表示されること", async () => {
+  it("25件のページが表示される場合に正しく表示されること", async () => {
     // Arrange
     const createMockPages = (count: number) =>
       Array.from({ length: count }, (_, i) => ({
@@ -433,7 +486,9 @@ it("25件のページが表示される場合に正しく表示されること",
       expect(screen.getByTestId("page-stats")).toHaveTextContent(
         "これまでに作成したページ数は25ページです",
       );
-      expect(screen.getByTestId("page-count")).toHaveTextContent("全25件表示中");
+      expect(screen.getByTestId("page-count")).toHaveTextContent(
+        "全25件表示中",
+      );
     });
   });
 

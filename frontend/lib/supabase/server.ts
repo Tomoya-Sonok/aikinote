@@ -32,10 +32,20 @@ export function getServerSupabase() {
             return cookieStore.get(name)?.value;
           },
           set(name, value, options) {
-            cookieStore.set({ name, value, ...options });
+            try {
+              cookieStore.set({ name, value, ...options });
+            } catch (error) {
+              // Cookie設定エラーを無視（読み取り専用コンテキストの場合）
+              console.warn("Failed to set cookie:", name, error);
+            }
           },
           remove(name, options) {
-            cookieStore.set({ name, value: "", ...options });
+            try {
+              cookieStore.set({ name, value: "", ...options });
+            } catch (error) {
+              // Cookie削除エラーを無視（読み取り専用コンテキストの場合）
+              console.warn("Failed to remove cookie:", name, error);
+            }
           },
         },
       },

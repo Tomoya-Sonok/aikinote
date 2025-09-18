@@ -1,0 +1,25 @@
+.container {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.small {
+  width: 40px;
+  height: 40px;
+}
+
+.medium {
+  width: 60px;
+  height: 60px;
+}
+
+.large {
+  width: 120px;
+  height: 120px;
+}

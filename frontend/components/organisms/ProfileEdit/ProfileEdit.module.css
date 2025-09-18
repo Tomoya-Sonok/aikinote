@@ -1,0 +1,147 @@
+.container {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.backButton,
+.moreButton {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover,
+.moreButton:hover {
+  background-color: #f3f4f6;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.content {
+  padding: 24px 16px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.imageSection {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profileImage {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.profileImage::after {
+  content: "✏️";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.imageUpload {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.uploadText {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.fileInfo {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.deleteButton {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.fileInput {
+  display: none;
+}
+
+.formSection {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formGroup {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+}
+
+.requiredIndicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 12px;
+  color: #ef4444;
+  background-color: #ffffff;
+  padding: 0 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cancelButton,
+.saveButton {
+  flex: 1;
+  max-width: 120px;
+}

@@ -1,32 +1,33 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
+import { Loader } from "@/components/atoms/Loader";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { FilterArea } from "@/components/molecules/FilterArea/FilterArea";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
 import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
 import {
-	type PageCreateData,
-	PageCreateModal,
+  type PageCreateData,
+  PageCreateModal,
 } from "@/components/organisms/PageCreateModal/PageCreateModal";
 import {
-	type PageEditData,
-	PageEditModal,
+  type PageEditData,
+  PageEditModal,
 } from "@/components/organisms/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/organisms/TagFilterModal/TagFilterModal"; // インポート
 import {
-	type CreatePagePayload,
-	createPage,
-	getPages,
-	getTags,
-	type UpdatePagePayload,
-	updatePage,
+  type CreatePagePayload,
+  createPage,
+  getPages,
+  getTags,
+  type UpdatePagePayload,
+  updatePage,
 } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { type TrainingPageData } from "@/lib/server/msw/training";
+import { type TrainingPageData } from "@/lib/types/training";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./page.module.css";
 
@@ -34,390 +35,392 @@ const PAGE_LIMIT = 25;
 
 // タグの型定義
 interface Tag {
-	id: string;
-	name: string;
+  id: string;
+  name: string;
 }
 
 export default function PersonalPagesPage() {
-	const [loading, setLoading] = useState(true);
-	const [allTrainingPageData, setAllTrainingPageData] = useState<
-		TrainingPageData[]
-	>([]);
-	const [isPageCreateModalOpen, setPageCreateModalOpen] = useState(false);
-	const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
-	const [editingPageData, setEditingPageData] = useState<PageEditData | null>(
-		null,
-	);
-	const router = useRouter();
-	const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(true);
+  const [allTrainingPageData, setAllTrainingPageData] = useState<
+    TrainingPageData[]
+  >([]);
+  const [isPageCreateModalOpen, setPageCreateModalOpen] = useState(false);
+  const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
+  const [editingPageData, setEditingPageData] = useState<PageEditData | null>(
+    null,
+  );
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
 
-	const [searchQuery, setSearchQuery] = useState("");
-	const debouncedSearchQuery = useDebounce(searchQuery, 300);
-	const [selectedDate, setSelectedDate] = useState<string | null>(null);
-	const [selectedTags, setSelectedTags] = useState<string[]>([]); // 選択されたタグ名
-	const [displayedItemsCount, setDisplayedItemsCount] = useState(PAGE_LIMIT);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); // 選択されたタグ名
+  const [displayedItemsCount, setDisplayedItemsCount] = useState(PAGE_LIMIT);
 
-	const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-	const [availableTags, setAvailableTags] = useState<Tag[]>([]); // 利用可能なタグ一覧
+  const [isTagModalOpen, setIsTagModalOpen] = useState(false);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]); // 利用可能なタグ一覧
 
-	useEffect(() => {
-		const fetchAllData = async () => {
-			if (!session?.user?.id) {
-				setLoading(false);
-				return;
-			}
+  useEffect(() => {
+    const fetchAllData = async () => {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
 
-			setLoading(true);
+      setLoading(true);
 
-			try {
-				let allPages: TrainingPageData[] = [];
-				let offset = 0;
-				const limit = 100;
-				let hasMoreData = true;
+      try {
+        let allPages: TrainingPageData[] = [];
+        let offset = 0;
+        const limit = 100;
+        let hasMoreData = true;
 
-				// 全ページを取得するまでループ
-				while (hasMoreData) {
-					const response = await getPages({
-						userId: session.user.id,
-						limit,
-						offset,
-						query: "",
-						tags: [],
-						date: undefined,
-					});
+        // 全ページを取得するまでループ
+        while (hasMoreData) {
+          const response = await getPages({
+            userId: user.id,
+            limit,
+            offset,
+            query: "",
+            tags: [],
+            date: undefined,
+          });
 
-					if (response.success && response.data) {
-						const pagesBatch = response.data.training_pages.map((item) => ({
-							id: item.page.id,
-							title: item.page.title,
-							content: item.page.content,
-							comment: item.page.comment,
-							date: formatToLocalDateString(item.page.created_at),
-							tags: item.tags.map((tag) => tag.name),
-						}));
+          if (response.success && response.data) {
+            const pagesBatch = response.data.training_pages.map((item) => ({
+              id: item.page.id,
+              title: item.page.title,
+              content: item.page.content,
+              comment: item.page.comment,
+              date: formatToLocalDateString(item.page.created_at),
+              tags: item.tags.map((tag) => tag.name),
+            }));
 
-						allPages = [...allPages, ...pagesBatch];
+            allPages = [...allPages, ...pagesBatch];
 
-						// 取得したページ数がlimitより少ない場合、これ以上データがない
-						hasMoreData = pagesBatch.length === limit;
-						offset += limit;
-					} else {
-						throw new Error(response.error || "データの取得に失敗しました");
-					}
-				}
+            // 取得したページ数がlimitより少ない場合、これ以上データがない
+            hasMoreData = pagesBatch.length === limit;
+            offset += limit;
+          } else {
+            throw new Error(response.error || "データの取得に失敗しました");
+          }
+        }
 
-				setAllTrainingPageData(allPages);
-			} catch (err) {
-				console.error("Failed to fetch training page data:", err);
-				setAllTrainingPageData([]);
-			} finally {
-				setLoading(false);
-			}
-		};
+        setAllTrainingPageData(allPages);
+      } catch (err) {
+        console.error("Failed to fetch training page data:", err);
+        setAllTrainingPageData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-		fetchAllData();
-	}, [session]);
+    fetchAllData();
+  }, [user]);
 
-	useEffect(() => {
-		if (
-			debouncedSearchQuery !== undefined ||
-			selectedTags !== undefined ||
-			selectedDate !== undefined
-		) {
-			setDisplayedItemsCount(PAGE_LIMIT);
-		}
-	}, [debouncedSearchQuery, selectedTags, selectedDate]);
+  useEffect(() => {
+    if (
+      debouncedSearchQuery !== undefined ||
+      selectedTags !== undefined ||
+      selectedDate !== undefined
+    ) {
+      setDisplayedItemsCount(PAGE_LIMIT);
+    }
+  }, [debouncedSearchQuery, selectedTags, selectedDate]);
 
-	const filteredTrainingPageData = useMemo(() => {
-		let filtered = allTrainingPageData;
+  const filteredTrainingPageData = useMemo(() => {
+    let filtered = allTrainingPageData;
 
-		if (debouncedSearchQuery.trim()) {
-			filtered = filtered.filter(
-				(page) =>
-					page.title
-						.toLowerCase()
-						.includes(debouncedSearchQuery.toLowerCase()) ||
-					page.content
-						.toLowerCase()
-						.includes(debouncedSearchQuery.toLowerCase()) ||
-					page.comment
-						?.toLowerCase()
-						.includes(debouncedSearchQuery.toLowerCase()),
-			);
-		}
+    if (debouncedSearchQuery.trim()) {
+      filtered = filtered.filter(
+        (page) =>
+          page.title
+            .toLowerCase()
+            .includes(debouncedSearchQuery.toLowerCase()) ||
+          page.content
+            .toLowerCase()
+            .includes(debouncedSearchQuery.toLowerCase()) ||
+          page.comment
+            ?.toLowerCase()
+            .includes(debouncedSearchQuery.toLowerCase()),
+      );
+    }
 
-		if (selectedTags.length > 0) {
-			filtered = filtered.filter((page) =>
-				selectedTags.every((selectedTag) =>
-					page.tags.some((pageTag) => pageTag === selectedTag),
-				),
-			);
-		}
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((page) =>
+        selectedTags.every((selectedTag) =>
+          page.tags.some((pageTag) => pageTag === selectedTag),
+        ),
+      );
+    }
 
-		if (selectedDate) {
-			filtered = filtered.filter((page) => page.date === selectedDate);
-		}
+    if (selectedDate) {
+      filtered = filtered.filter((page) => page.date === selectedDate);
+    }
 
-		return filtered;
-	}, [allTrainingPageData, debouncedSearchQuery, selectedTags, selectedDate]);
+    return filtered;
+  }, [allTrainingPageData, debouncedSearchQuery, selectedTags, selectedDate]);
 
-	const displayedTrainingPageData = useMemo(() => {
-		return filteredTrainingPageData.slice(0, displayedItemsCount);
-	}, [filteredTrainingPageData, displayedItemsCount]);
+  const displayedTrainingPageData = useMemo(() => {
+    return filteredTrainingPageData.slice(0, displayedItemsCount);
+  }, [filteredTrainingPageData, displayedItemsCount]);
 
-	const hasMore = filteredTrainingPageData.length > displayedItemsCount;
+  const hasMore = filteredTrainingPageData.length > displayedItemsCount;
 
-	useEffect(() => {
-		const fetchTags = async () => {
-			if (!session?.user?.id) return;
-			try {
-				const response = await getTags(session.user.id);
-				if (response.success && response.data) {
-					setAvailableTags(response.data); // オブジェクトの配列をそのままセット
-				} else {
-					console.error("Failed to fetch tags:", response.error);
-				}
-			} catch (err) {
-				console.error("Failed to fetch tags:", err);
-			}
-		};
-		fetchTags();
-	}, [session]);
+  useEffect(() => {
+    const fetchTags = async () => {
+      if (!user?.id) return;
+      try {
+        const response = await getTags(user.id);
+        if (response.success && response.data) {
+          setAvailableTags(response.data); // オブジェクトの配列をそのままセット
+        } else {
+          console.error("Failed to fetch tags:", response.error);
+        }
+      } catch (err) {
+        console.error("Failed to fetch tags:", err);
+      }
+    };
+    fetchTags();
+  }, [user]);
 
-	const handleLoadMore = () => {
-		setDisplayedItemsCount((prev) => prev + PAGE_LIMIT);
-	};
+  const handleLoadMore = () => {
+    setDisplayedItemsCount((prev) => prev + PAGE_LIMIT);
+  };
 
-	const handleSearchChange = (search: string) => {
-		setSearchQuery(search);
-	};
+  const handleSearchChange = (search: string) => {
+    setSearchQuery(search);
+  };
 
-	const handleDateFilterChange = (date: string | null) => {
-		setSelectedDate(date);
-	};
+  const handleDateFilterChange = (date: string | null) => {
+    setSelectedDate(date);
+  };
 
-	const handleTagClick = (tagName: string) => {
-		setSelectedTags((prev) =>
-			prev.includes(tagName)
-				? prev.filter((t) => t !== tagName)
-				: [...prev, tagName],
-		);
-	};
+  const handleTagClick = (tagName: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName],
+    );
+  };
 
-	const handleCreatePage = () => {
-		setPageCreateModalOpen(true);
-	};
+  const handleCreatePage = () => {
+    setPageCreateModalOpen(true);
+  };
 
-	const handleSavePage = async (pageData: PageCreateData) => {
-		try {
-			if (!session?.user?.id) {
-				throw new Error("ログインが必要です");
-			}
+  const handleSavePage = async (pageData: PageCreateData) => {
+    try {
+      if (!user?.id) {
+        throw new Error("ログインが必要です");
+      }
 
-			const userId = session.user.id;
+      const userId = user.id;
 
-			const payload: CreatePagePayload = {
-				title: pageData.title.trim(),
-				tori: pageData.tori,
-				uke: pageData.uke,
-				waza: pageData.waza,
-				content: pageData.content,
-				comment: pageData.comment,
-				user_id: userId,
-			};
+      const payload: CreatePagePayload = {
+        title: pageData.title.trim(),
+        tori: pageData.tori,
+        uke: pageData.uke,
+        waza: pageData.waza,
+        content: pageData.content,
+        comment: pageData.comment,
+        user_id: userId,
+      };
 
-			const response = await createPage(payload);
+      const response = await createPage(payload);
 
-			if (response.success && response.data) {
-				const newPage: TrainingPageData = {
-					id: response.data.page.id,
-					title: response.data.page.title,
-					content: response.data.page.content,
-					comment: response.data.page.comment,
-					date: formatToLocalDateString(response.data.page.created_at),
-					tags: response.data.tags.map((tag) => tag.name),
-				};
+      if (response.success && response.data) {
+        const newPage: TrainingPageData = {
+          id: response.data.page.id,
+          title: response.data.page.title,
+          content: response.data.page.content,
+          comment: response.data.page.comment,
+          date: formatToLocalDateString(response.data.page.created_at),
+          tags: response.data.tags.map((tag) => tag.name),
+        };
 
-				setAllTrainingPageData((prev) => [newPage, ...prev]);
-			}
+        setAllTrainingPageData((prev) => [newPage, ...prev]);
+      }
 
-			setPageCreateModalOpen(false);
-		} catch (error) {
-			console.error("Failed to create page:", error);
-			alert(
-				error instanceof Error ? error.message : "ページの作成に失敗しました",
-			);
-		}
-	};
+      setPageCreateModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create page:", error);
+      alert(
+        error instanceof Error ? error.message : "ページの作成に失敗しました",
+      );
+    }
+  };
 
-	const handleEditTraining = (id: string) => {
-		const pageToEdit = allTrainingPageData.find((page) => page.id === id);
-		if (pageToEdit) {
-			const editData: PageEditData = {
-				id: pageToEdit.id,
-				title: pageToEdit.title,
-				content: pageToEdit.content,
-				comment: pageToEdit.comment || "",
-				tori: pageToEdit.tags.filter((tag) =>
-					availableTags.find((t) => t.name === tag && t.category === "取り"),
-				),
-				uke: pageToEdit.tags.filter((tag) =>
-					availableTags.find((t) => t.name === tag && t.category === "受け"),
-				),
-				waza: pageToEdit.tags.filter((tag) =>
-					availableTags.find((t) => t.name === tag && t.category === "技"),
-				),
-			};
-			setEditingPageData(editData);
-			setPageEditModalOpen(true);
-		}
-	};
+  const handleEditTraining = (id: string) => {
+    const pageToEdit = allTrainingPageData.find((page) => page.id === id);
+    if (pageToEdit) {
+      const editData: PageEditData = {
+        id: pageToEdit.id,
+        title: pageToEdit.title,
+        content: pageToEdit.content,
+        comment: pageToEdit.comment || "",
+        tori: pageToEdit.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "取り"),
+        ),
+        uke: pageToEdit.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "受け"),
+        ),
+        waza: pageToEdit.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "技"),
+        ),
+      };
+      setEditingPageData(editData);
+      setPageEditModalOpen(true);
+    }
+  };
 
-	const handleUpdatePage = async (pageData: UpdatePagePayload) => {
-		try {
-			const response = await updatePage(pageData);
+  const handleUpdatePage = async (pageData: UpdatePagePayload) => {
+    try {
+      const response = await updatePage(pageData);
 
-			if (response.success && response.data) {
-				const updatedPage: TrainingPageData = {
-					id: response.data.page.id,
-					title: response.data.page.title,
-					content: response.data.page.content,
-					comment: response.data.page.comment,
-					date: formatToLocalDateString(response.data.page.created_at),
-					tags: response.data.tags.map((tag) => tag.name),
-				};
+      if (response.success && response.data) {
+        const updatedPage: TrainingPageData = {
+          id: response.data.page.id,
+          title: response.data.page.title,
+          content: response.data.page.content,
+          comment: response.data.page.comment,
+          date: formatToLocalDateString(response.data.page.created_at),
+          tags: response.data.tags.map((tag) => tag.name),
+        };
 
-				setAllTrainingPageData((prev) =>
-					prev.map((page) => (page.id === updatedPage.id ? updatedPage : page)),
-				);
-			}
+        setAllTrainingPageData((prev) =>
+          prev.map((page) => (page.id === updatedPage.id ? updatedPage : page)),
+        );
+      }
 
-			setPageEditModalOpen(false);
-			setEditingPageData(null);
-		} catch (error) {
-			console.error("Failed to update page:", error);
-			alert(
-				error instanceof Error ? error.message : "ページの更新に失敗しました",
-			);
-		}
-	};
+      setPageEditModalOpen(false);
+      setEditingPageData(null);
+    } catch (error) {
+      console.error("Failed to update page:", error);
+      alert(
+        error instanceof Error ? error.message : "ページの更新に失敗しました",
+      );
+    }
+  };
 
-	const handleDeleteTraining = (id: string) => {
-		setAllTrainingPageData((prev) => prev.filter((item) => item.id !== id));
-	};
+  const handleDeleteTraining = (id: string) => {
+    setAllTrainingPageData((prev) => prev.filter((item) => item.id !== id));
+  };
 
-	const handleViewTraining = (id: string) => {
-		router.push(`/personal/pages/${id}`);
-	};
+  const handleViewTraining = (id: string) => {
+    router.push(`/personal/pages/${id}`);
+  };
 
-	if (status === "loading" || loading) {
-		return (
-			<AppLayout>
-				<div className={styles.container}>読み込み中...</div>
-			</AppLayout>
-		);
-	}
+  if (authLoading || loading) {
+    return (
+      <AppLayout>
+        <div className={styles.container}>
+          <Loader size="large" centered text="読み込み中..." />
+        </div>
+      </AppLayout>
+    );
+  }
 
-	if (status === "unauthenticated") {
-		return (
-			<AppLayout>
-				<div className={styles.container}>
-					<p>ログインが必要です。</p>
-					<button type="button" onClick={() => router.push("/login")}>
-						ログインページへ
-					</button>
-				</div>
-			</AppLayout>
-		);
-	}
+  if (!user) {
+    return (
+      <AppLayout>
+        <div className={styles.container}>
+          <p>ログインが必要です。</p>
+          <button type="button" onClick={() => router.push("/login")}>
+            ログインページへ
+          </button>
+        </div>
+      </AppLayout>
+    );
+  }
 
-	return (
-		<AppLayout>
-			<div className={styles.container}>
-				<div className={styles.statsSection}>
-					<p className={styles.statsText} data-testid="page-stats">
-						これまでに作成したページ数は
-						<span className={styles.statsNumber}>
-							{allTrainingPageData.length}
-						</span>
-						ページです
-					</p>
-				</div>
+  return (
+    <AppLayout>
+      <div className={styles.container}>
+        <div className={styles.statsSection}>
+          <p className={styles.statsText} data-testid="page-stats">
+            これまでに作成したページ数は
+            <span className={styles.statsNumber}>
+              {allTrainingPageData.length}
+            </span>
+            ページです
+          </p>
+        </div>
 
-				<FilterArea
-					onSearchChange={handleSearchChange}
-					onDateFilterChange={handleDateFilterChange}
-					currentSearchQuery={searchQuery}
-					currentSelectedDate={selectedDate}
-					currentSelectedTags={selectedTags}
-					onOpenTagSelection={() => setIsTagModalOpen(true)}
-				/>
+        <FilterArea
+          onSearchChange={handleSearchChange}
+          onDateFilterChange={handleDateFilterChange}
+          currentSearchQuery={searchQuery}
+          currentSelectedDate={selectedDate}
+          currentSelectedTags={selectedTags}
+          onOpenTagSelection={() => setIsTagModalOpen(true)}
+        />
 
-				<div className={styles.pageListWrapper}>
-					<div className={styles.pageListDescription}>
-						<h2 className={styles.pageTitle}>最近作成したページ</h2>
-						<p className={styles.pageCount} data-testid="page-count">
-							{allTrainingPageData.length === displayedTrainingPageData.length
-								? `全${allTrainingPageData.length}件表示中`
-								: `全${allTrainingPageData.length}件中
+        <div className={styles.pageListWrapper}>
+          <div className={styles.pageListDescription}>
+            <h2 className={styles.pageTitle}>最近作成したページ</h2>
+            <p className={styles.pageCount} data-testid="page-count">
+              {allTrainingPageData.length === displayedTrainingPageData.length
+                ? `全${allTrainingPageData.length}件表示中`
+                : `全${allTrainingPageData.length}件中
               ${displayedTrainingPageData.length}件表示中`}
-						</p>
-					</div>
-					<div className={styles.trainingList}>
-						{displayedTrainingPageData.map((training) => (
-							<TrainingCard
-								key={training.id}
-								{...training}
-								onClick={() => handleViewTraining(training.id)}
-								onEdit={() => handleEditTraining(training.id)}
-								onDelete={() => handleDeleteTraining(training.id)}
-							/>
-						))}
-					</div>
-					{hasMore && (
-						<div className={styles.loadMoreContainer}>
-							<button
-								type="button"
-								onClick={handleLoadMore}
-								className={styles.loadMoreButton}
-							>
-								もっと見る
-							</button>
-						</div>
-					)}
-				</div>
+            </p>
+          </div>
+          <div className={styles.trainingList}>
+            {displayedTrainingPageData.map((training) => (
+              <TrainingCard
+                key={training.id}
+                {...training}
+                onClick={() => handleViewTraining(training.id)}
+                onEdit={() => handleEditTraining(training.id)}
+                onDelete={() => handleDeleteTraining(training.id)}
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <div className={styles.loadMoreContainer}>
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                className={styles.loadMoreButton}
+              >
+                もっと見る
+              </button>
+            </div>
+          )}
+        </div>
 
-				<FloatingActionButton onClick={handleCreatePage} />
+        <FloatingActionButton onClick={handleCreatePage} />
 
-				<TabNavigation />
+        <TabNavigation />
 
-				<PageCreateModal
-					isOpen={isPageCreateModalOpen}
-					onClose={() => setPageCreateModalOpen(false)}
-					onSave={handleSavePage}
-				/>
+        <PageCreateModal
+          isOpen={isPageCreateModalOpen}
+          onClose={() => setPageCreateModalOpen(false)}
+          onSave={handleSavePage}
+        />
 
-				{editingPageData && (
-					<PageEditModal
-						isOpen={isPageEditModalOpen}
-						onClose={() => {
-							setPageEditModalOpen(false);
-							setEditingPageData(null);
-						}}
-						onUpdate={handleUpdatePage}
-						initialData={editingPageData}
-					/>
-				)}
+        {editingPageData && (
+          <PageEditModal
+            isOpen={isPageEditModalOpen}
+            onClose={() => {
+              setPageEditModalOpen(false);
+              setEditingPageData(null);
+            }}
+            onUpdate={handleUpdatePage}
+            initialData={editingPageData}
+          />
+        )}
 
-				{/* TagFilterModal の呼び出し */}
-				<TagFilterModal
-					isOpen={isTagModalOpen}
-					onClose={() => setIsTagModalOpen(false)}
-					tags={availableTags}
-					selectedTags={selectedTags}
-					onTagToggle={handleTagClick}
-				/>
-			</div>
-		</AppLayout>
-	);
+        {/* TagFilterModal の呼び出し */}
+        <TagFilterModal
+          isOpen={isTagModalOpen}
+          onClose={() => setIsTagModalOpen(false)}
+          tags={availableTags}
+          selectedTags={selectedTags}
+          onTagToggle={handleTagClick}
+        />
+      </div>
+    </AppLayout>
+  );
 }

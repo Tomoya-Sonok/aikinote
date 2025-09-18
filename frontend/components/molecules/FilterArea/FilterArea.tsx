@@ -1,5 +1,5 @@
-import type { ChangeEvent, FC } from "react";
 import Image from "next/image";
+import type { ChangeEvent, FC } from "react";
 import { SearchInput } from "../../atoms/SearchInput/SearchInput";
 import styles from "./FilterArea.module.css";
 
@@ -16,8 +16,8 @@ interface FilterAreaProps {
 
 export const FilterArea: FC<FilterAreaProps> = ({
   onSearchChange,
-  onDateFilterChange,
-  onTagFilterChange,
+  _onDateFilterChange,
+  _onTagFilterChange,
   currentSearchQuery,
   currentSelectedDate,
   currentSelectedTags,
