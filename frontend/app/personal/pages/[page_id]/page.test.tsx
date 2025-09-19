@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import type { PageEditModalProps } from "@/components/organisms/PageEditModal/PageEditModal";
 import { getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import PageDetailPage from "./page";
+import { PageDetailPageClient } from "./PageDetailPageClient";
 
 // モック設定
 vi.mock("next/navigation", () => ({
@@ -23,18 +23,12 @@ vi.mock("@/lib/hooks/useAuth", () => ({
   useAuth: vi.fn(),
 }));
 
-vi.mock("@/components/layout/AppLayout", () => ({
-  AppLayout: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-layout">{children}</div>
-  ),
-}));
-
 vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
   TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
 }));
 
 vi.mock("@/components/atoms/Tag/Tag", () => ({
-  Tag: ({ children }: { children: React.ReactNode }) => (
+  Tag: ({ children }: { children: ReactNode }) => (
     <span data-testid="tag">{children}</span>
   ),
 }));
@@ -127,7 +121,9 @@ describe("ページ詳細画面", () => {
   describe("表示", () => {
     it("ページ詳細が正常に表示されること", async () => {
       // Arrange
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
 
       // Act & Assert
       await waitFor(() => {
@@ -141,12 +137,14 @@ describe("ページ詳細画面", () => {
       expect(screen.getByText("正面打ち")).toBeInTheDocument();
     });
 
-    it("読み込み中の状態が表示されること", () => {
+    it("読み込み中の状態が表示されること", async () => {
       // Arrange
       mockGetPage.mockImplementation(() => new Promise(() => {})); // 解決しないPromise
 
       // Act
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
 
       // Assert
       expect(screen.getByText("読み込み中...")).toBeInTheDocument();
@@ -157,7 +155,9 @@ describe("ページ詳細画面", () => {
       mockGetPage.mockResolvedValue({ success: false, error: "Not Found" });
 
       // Act
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
 
       // Assert
       await waitFor(() => {
@@ -171,7 +171,9 @@ describe("ページ詳細画面", () => {
   describe("編集機能", () => {
     it("編集ボタンをクリックすると、ページ編集モーダルが表示されること", async () => {
       // Arrange
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
       });
@@ -186,7 +188,9 @@ describe("ページ詳細画面", () => {
 
     it("モーダルに渡される初期データが正しいこと", async () => {
       // Arrange
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
       });
@@ -230,7 +234,9 @@ describe("ページ詳細画面", () => {
       };
       mockUpdatePage.mockResolvedValue(updatedPageData);
 
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
       });
@@ -258,7 +264,9 @@ describe("ページ詳細画面", () => {
 
     it("ページ更新APIの呼び出しが正しいパラメータで行われること", async () => {
       // Arrange
-      render(<PageDetailPage />);
+      await act(async () => {
+        render(<PageDetailPageClient />);
+      });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
       });

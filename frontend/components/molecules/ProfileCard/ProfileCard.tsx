@@ -26,9 +26,13 @@ export const ProfileCard: FC<ProfileCardProps> = ({
 					size="small"
 					alt={`${username}のプロフィール画像`}
 				/>
-				<div className={styles.userInfo}>
+				<div
+					className={
+						username.length > 10 ? styles.userInfo : styles.userInfoShort
+					}
+				>
 					<h1 className={styles.username}>{username}</h1>
-					<Button variant="secondary" size="small" onClick={onEditClick}>
+					<Button variant="primary" size="small" onClick={onEditClick}>
 						編集する
 					</Button>
 				</div>

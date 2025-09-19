@@ -1,0 +1,107 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--aikinote-border, #e5e5e5);
+  background: var(--aikinote-surface, #ffffff);
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #5143d0, #8475f5);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 140px;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--aikinote-text-primary, #1f2937);
+  line-height: 1.2;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: var(--aikinote-text-secondary, #6b7280);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settingsButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid rgba(31, 41, 55, 0.08);
+  background: var(--aikinote-surface, #ffffff);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.settingsButton:hover {
+  background: rgba(132, 117, 245, 0.08);
+  border-color: rgba(132, 117, 245, 0.4);
+}
+
+.settingsIcon {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 480px) {
+  .logo {
+    width: 48px;
+    height: 48px;
+  }
+
+  .userInfo {
+    max-width: 120px;
+  }
+}

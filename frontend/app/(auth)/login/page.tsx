@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 import { SignInForm } from "@/components/auth/SignInForm";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { NotLoggedInLayout } from "@/components/layouts/NotLoggedInLayout";
+import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
-export const metadata: Metadata = {
-  title: "ログイン",
-  description: "アカウントにログインしてサービスをご利用ください",
-};
+export const metadata: Metadata = buildMetadata({
+	title: "ログイン",
+	description: "アカウントにログインしてサービスをご利用ください",
+});
 
 export default function LoginPage() {
-  return (
-    <AppLayout>
-      <div className={styles.container}>
-        <h1 className={styles.title}>ログイン</h1>
-        <div className={styles.formCard}>
-          <SignInForm />
-        </div>
-      </div>
-    </AppLayout>
-  );
+	return (
+		<NotLoggedInLayout>
+			<div className={styles.container}>
+				<h1 className={styles.title}>ログイン</h1>
+				<div className={styles.formCard}>
+					<SignInForm />
+				</div>
+			</div>
+		</NotLoggedInLayout>
+	);
 }

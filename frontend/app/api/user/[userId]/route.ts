@@ -5,8 +5,10 @@ import {
   createForbiddenResponse,
   createNotFoundResponse,
   createInternalServerErrorResponse,
+  createBadRequestResponse,
   handleApiError,
 } from "@/lib/utils/api-response";
+import { usernameSchema } from "@/lib/utils/validation";
 
 export async function GET(
   request: NextRequest,
@@ -55,7 +57,7 @@ export async function GET(
     console.log("API: Service Role を使用してユーザー取得");
     const { data: userDataById, error: userByIdError } = await serviceSupabase
       .from("User")
-      .select("id, email, username, profile_image_url, dojo_id, is_email_verified")
+      .select("id, email, username, profile_image_url, dojo_style_name, is_email_verified")
       .eq("id", userId)
       .maybeSingle();
 
@@ -82,7 +84,7 @@ export async function GET(
       profile_image_url: userDataById.profile_image_url,
       // 本人以外には詳細情報を隠す
       ...(session?.user?.id === userId && {
-        dojo_id: userDataById.dojo_id,
+        dojo_style_name: userDataById.dojo_style_name,
         is_email_verified: userDataById.is_email_verified
       })
     };
@@ -94,5 +96,68 @@ export async function GET(
 
   } catch (err) {
     return handleApiError(err, "GET /api/user/[userId]");
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { userId: string } }
+) {
+  try {
+    const { userId } = params;
+
+    // セッション確認
+    const serverSupabase = getServerSupabase();
+    const { data: { session }, error: sessionError } = await serverSupabase.auth.getSession();
+
+    if (!session?.user) {
+      return createForbiddenResponse("認証が必要です");
+    }
+
+    // 本人のプロフィールのみ更新可能
+    if (session.user.id !== userId) {
+      return createForbiddenResponse("他のユーザーのプロフィールは更新できません");
+    }
+
+    // リクエストボディの取得とバリデーション
+    const body = await request.json();
+    const { username, dojo_style_name, training_start_date } = body;
+
+    // ユーザー名のバリデーション
+    if (username !== undefined) {
+      try {
+        usernameSchema.parse({ username });
+      } catch (error) {
+        return createBadRequestResponse("無効なユーザー名です");
+      }
+    }
+
+    // Service Roleでユーザー情報を更新
+    const serviceSupabase = getServiceRoleSupabase();
+
+    const updateData: any = {};
+    if (username !== undefined) updateData.username = username;
+    if (dojo_style_name !== undefined) updateData.dojo_style_name = dojo_style_name || null;
+    if (training_start_date !== undefined) updateData.training_start_date = training_start_date || null;
+
+    const { data: updatedUser, error: updateError } = await serviceSupabase
+      .from("User")
+      .update(updateData)
+      .eq("id", userId)
+      .select("id, email, username, profile_image_url, dojo_style_name, training_start_date")
+      .single();
+
+    if (updateError) {
+      console.error("プロフィール更新エラー:", updateError);
+      return createInternalServerErrorResponse("プロフィールの更新に失敗しました");
+    }
+
+    console.log("プロフィール更新成功:", { userId, updateData });
+    return createSuccessResponse(updatedUser, {
+      message: "プロフィールを更新しました"
+    });
+
+  } catch (err) {
+    return handleApiError(err, "PUT /api/user/[userId]");
   }
 }

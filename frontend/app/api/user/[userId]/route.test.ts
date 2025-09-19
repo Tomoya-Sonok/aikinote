@@ -34,7 +34,7 @@ describe("/api/user/[userId] GET エンドポイント", () => {
       email: "test@example.com",
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
-      dojo_id: "dojo-1",
+      dojo_style_name: "合気会",
       is_email_verified: true,
     };
 
@@ -80,7 +80,7 @@ describe("/api/user/[userId] GET エンドポイント", () => {
       email: "test@example.com",
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
-      dojo_id: "dojo-1",
+      dojo_style_name: "合気会",
       is_email_verified: true,
     };
 
@@ -121,7 +121,7 @@ describe("/api/user/[userId] GET エンドポイント", () => {
       email: "test@example.com",
       username: "testuser",
       profile_image_url: null,
-      dojo_id: null,
+      dojo_style_name: null,
       is_email_verified: false,
     };
 
@@ -317,7 +317,7 @@ describe("/api/user/[userId] GET エンドポイント", () => {
 
     // セキュリティを考慮して必要なフィールドのみ選択
     expect(mockSelect).toHaveBeenCalledWith(
-      "id, email, username, profile_image_url, dojo_id, is_email_verified"
+      "id, email, username, profile_image_url, dojo_style_name, is_email_verified"
     );
   });
 });
