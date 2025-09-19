@@ -1,7 +1,7 @@
-import { useSession } from "next-auth/react";
 import type { FC } from "react";
-import { PageModal, type PageFormData } from "../PageModal/PageModal";
 import type { UpdatePagePayload } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
 interface PageEditModalProps {
   isOpen: boolean;
@@ -26,10 +26,10 @@ export const PageEditModal: FC<PageEditModalProps> = ({
   onUpdate,
   initialData,
 }) => {
-  const { data: session } = useSession();
+  const { user } = useAuth();
 
   const handleSubmit = (formData: PageFormData) => {
-    if (session?.user?.id) {
+    if (user?.id) {
       const updateData: UpdatePagePayload = {
         id: initialData.id,
         title: formData.title,
@@ -38,7 +38,7 @@ export const PageEditModal: FC<PageEditModalProps> = ({
         waza: formData.waza,
         content: formData.content,
         comment: formData.comment,
-        user_id: session.user.id,
+        user_id: user.id,
       };
       onUpdate(updateData);
     }

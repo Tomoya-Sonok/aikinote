@@ -1,88 +1,62 @@
-"use client";
-
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
-import { type MockUser, mockGetCurrentUser } from "@/lib/server/msw/training";
-import styles from "./mypage.module.css";
+import { MyPageContent } from "@/components/organisms/MyPageContent/MyPageContent";
+import { getCurrentUser, getUserProfile } from "@/lib/server/auth";
+import styles from "./page.module.css";
 
-export default function MyPage() {
-  const [user, setUser] = useState<MockUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // MSW環境でのモック認証チェック
-        const currentUser = await mockGetCurrentUser();
-
-        if (!currentUser) {
-          router.push("/login");
-          return;
-        }
-
-        setUser(currentUser);
-      } catch (error) {
-        console.error("認証エラー:", error);
-        router.push("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
-
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className={styles.container}>
-          <div className={styles.content}>
-            <p>読み込み中...</p>
-          </div>
-        </div>
-      </AppLayout>
-    );
+export default async function MyPage() {
+  // ログ出力でデバッグ
+  if (process.env.NODE_ENV === "development") {
+    console.log("MyPage: Starting authentication check");
   }
+
+  const user = await getCurrentUser();
+
+  if (!user) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("MyPage: No user found, redirecting to login");
+    }
+    redirect("/login");
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("MyPage: User authenticated:", {
+      userId: user.id,
+      username: user.username,
+    });
+  }
+
+  // ユーザープロフィールを取得
+  const { data: userProfile, error } = await getUserProfile(user.id);
+
+  if (error || !userProfile) {
+    console.error("ユーザープロフィール取得エラー:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.log("MyPage: Profile fetch error, redirecting to login");
+    }
+    redirect("/login");
+  }
+
+  // プロフィールが存在しない場合はデフォルト値を使用
+  const profile = userProfile || {
+    id: user.id,
+    email: user.email || "",
+    username: user.username || "未設定",
+    profile_image_url: user.profile_image_url || null,
+    dojo_id: null,
+    training_start_date: null,
+    publicity_setting: "private",
+    language: "ja",
+    is_email_verified: true,
+    password_hash: "",
+  };
 
   return (
     <AppLayout>
       <div className={styles.container}>
         <div className={styles.content}>
-          <h1>マイページ</h1>
-
-          {user && (
-            <div className={styles.userInfo}>
-              <div className={styles.userProfile}>
-                <Image
-                  src={user.avatarUrl || "/images/default-avatar.svg"}
-                  alt="プロフィール画像"
-                  className={styles.avatar}
-                  width={80}
-                  height={80}
-                />
-                <div className={styles.userDetails}>
-                  <h2 className={styles.username}>{user.username}</h2>
-                  <p className={styles.email}>{user.email}</p>
-                  {user.dojo && (
-                    <p className={styles.dojo}>所属道場: {user.dojo}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.features}>
-            <h3>機能一覧</h3>
-            <ul className={styles.featureList}>
-              <li>プロフィール編集（実装予定）</li>
-              <li>稽古記録の閲覧（実装予定）</li>
-              <li>設定変更（実装予定）</li>
-            </ul>
-          </div>
+          <MyPageContent user={profile} />
         </div>
 
         {/* タブナビゲーション */}

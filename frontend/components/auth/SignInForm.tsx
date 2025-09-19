@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { type SignInFormData, signInSchema } from "@/lib/utils/validation";
 
@@ -18,7 +19,7 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
   const {
     signInWithCredentials,
     signInWithGoogle,
-    loading,
+    isProcessing,
     error,
     clearError,
   } = useAuth();
@@ -126,10 +127,14 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isProcessing}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "ログイン中..." : "ログイン"}
+          {isProcessing ? (
+            <Loader size="small" text="ログイン中..." />
+          ) : (
+            "ログイン"
+          )}
         </button>
       </form>
 
@@ -146,7 +151,7 @@ export function SignInForm({ onSuccess }: SignInFormProps) {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          disabled={loading}
+          disabled={isProcessing}
           className="mt-4 w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">

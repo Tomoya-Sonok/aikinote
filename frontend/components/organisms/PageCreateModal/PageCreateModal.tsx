@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { PageModal, type PageFormData } from "../PageModal/PageModal";
+import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
 interface PageCreateModalProps {
   isOpen: boolean;

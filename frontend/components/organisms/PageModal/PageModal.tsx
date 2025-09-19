@@ -1,7 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import type { FC, ReactNode } from "react";
+import type { FC } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TextArea } from "@/components/atoms/TextArea/TextArea";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
@@ -13,6 +12,7 @@ import {
   getTags,
   initializeUserTags,
 } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./PageModal.module.css";
 
 export interface PageFormData {
@@ -54,7 +54,7 @@ export const PageModal: FC<PageModalProps> = ({
   shouldCreateInitialTags = false,
 }) => {
   const { showToast } = useToast();
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState<PageFormData>(initialData);
@@ -78,21 +78,25 @@ export const PageModal: FC<PageModalProps> = ({
 
   // タグ一覧を取得する関数
   const fetchTags = useCallback(async () => {
-    if (!session?.user?.id || !isOpen) return;
+    if (!user?.id || !isOpen) return;
 
     try {
       setLoading(true);
-      const response = await getTags(session.user.id);
+      const response = await getTags(user.id);
       if (response.success && response.data) {
         setAllTags(response.data);
 
         // 初期タグ作成が必要で、タグが0件かつ初期タグがまだ作成されていない場合のみ初期タグを作成
-        if (shouldCreateInitialTags && response.data.length === 0 && !initialTagsCreated) {
+        if (
+          shouldCreateInitialTags &&
+          response.data.length === 0 &&
+          !initialTagsCreated
+        ) {
           try {
             setInitialTagsCreated(true); // 重複実行を防ぐ
-            await initializeUserTags(session.user.id);
+            await initializeUserTags(user.id);
             // 初期タグ作成後に再取得
-            const updatedResponse = await getTags(session.user.id);
+            const updatedResponse = await getTags(user.id);
             if (updatedResponse.success && updatedResponse.data) {
               setAllTags(updatedResponse.data);
               showToast("初期タグを作成しました", "success");
@@ -110,7 +114,13 @@ export const PageModal: FC<PageModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [session?.user?.id, isOpen, showToast, initialTagsCreated, shouldCreateInitialTags]);
+  }, [
+    user?.id,
+    isOpen,
+    showToast,
+    initialTagsCreated,
+    shouldCreateInitialTags,
+  ]);
 
   // タグ作成の関数
   const handleCreateTag = async (tagData: CreateTagPayload) => {
@@ -227,7 +237,7 @@ export const PageModal: FC<PageModalProps> = ({
       return;
     }
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       showToast("ログインが必要です", "error");
       return;
     }
@@ -240,7 +250,7 @@ export const PageModal: FC<PageModalProps> = ({
     handleCreateTag({
       name: trimmedInput,
       category: mappedCategory,
-      user_id: session.user.id,
+      user_id: user.id,
     });
   };
 

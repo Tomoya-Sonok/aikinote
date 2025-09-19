@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Loader } from "@/components/atoms/Loader";
 import { EmailVerificationForm } from "@/components/auth/EmailVerificationForm";
 import { AppLayout } from "@/components/layout/AppLayout";
 import styles from "./page.module.css";
@@ -65,7 +66,7 @@ export default function VerifyEmailPage({
   searchParams: { token?: string };
 }) {
   return (
-    <Suspense fallback={<div>読み込み中...</div>}>
+    <Suspense fallback={<Loader size="large" centered text="読み込み中..." />}>
       <EmailVerificationContent searchParams={searchParams} />
     </Suspense>
   );

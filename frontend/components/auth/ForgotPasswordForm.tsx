@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
   type ResetPasswordFormData,
@@ -16,7 +17,7 @@ interface ForgotPasswordFormProps {
 
 export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const { forgotPassword, loading, error, clearError } = useAuth();
+  const { forgotPassword, isProcessing, error, clearError } = useAuth();
   const emailId = useId();
 
   const {
@@ -128,10 +129,14 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isProcessing}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "送信中..." : "リセットメールを送信"}
+          {isProcessing ? (
+            <Loader size="small" text="送信中..." />
+          ) : (
+            "リセットメールを送信"
+          )}
         </button>
       </form>
 

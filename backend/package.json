@@ -29,7 +29,6 @@
     "@vitest/ui": "^3.2.4",
     "dotenv-cli": "^10.0.0",
     "happy-dom": "^18.0.1",
-    "msw": "^2.11.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "undici": "^7.16.0",

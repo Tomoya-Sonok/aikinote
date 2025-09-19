@@ -1,200 +1,203 @@
 .contentArea {
-	background: #ffffff;
-	margin: 0 auto; /* Center the page */
-	border-radius: 3px; /* A subtle radius for a paper feel */
-	min-height: 600px;
-	position: relative;
-	max-width: 800px; /* A comfortable reading width on desktop */
-	padding: 24px 24px 24px 48px; /* Inner padding, with more space on the left for the line */
-	/* Multiple shadows to create a 3D, stacked-paper effect */
-	box-shadow:
-		0 1px 1px rgba(0, 0, 0, 0.08),
-		0 2px 2px rgba(0, 0, 0, 0.08),
-		0 4px 4px rgba(0, 0, 0, 0.08),
-		0 8px 8px rgba(0, 0, 0, 0.08),
-		0 16px 16px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  margin: 0 auto; /* Center the page */
+  border-radius: 3px; /* A subtle radius for a paper feel */
+  min-height: 600px;
+  position: relative;
+  max-width: 800px; /* A comfortable reading width on desktop */
+  padding: 24px 24px 24px 48px; /* Inner padding, with more space on the left for the line */
+  /* Multiple shadows to create a 3D, stacked-paper effect */
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.08),
+    0 2px 2px rgba(0, 0, 0, 0.08),
+    0 4px 4px rgba(0, 0, 0, 0.08),
+    0 8px 8px rgba(0, 0, 0, 0.08),
+    0 16px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* The vertical line, like in a notebook */
 .contentArea::before {
-	content: "";
-	position: absolute;
-	left: 32px; /* Positioned within the left padding */
-	top: 24px; /* Margin from the top edge of the paper */
-	bottom: 24px; /* Margin from the bottom edge */
-	width: 1px;
-	background-color: #e0e0e0; /* A soft, non-intrusive line color */
+  content: "";
+  position: absolute;
+  left: 32px; /* Positioned within the left padding */
+  top: 24px; /* Margin from the top edge of the paper */
+  bottom: 24px; /* Margin from the bottom edge */
+  width: 1px;
+  background-color: #e0e0e0; /* A soft, non-intrusive line color */
 }
 
 .header {
-	padding: 0; /* Padding is now on contentArea */
-	margin-bottom: 24px;
+  padding: 0; /* Padding is now on contentArea */
+  margin-bottom: 24px;
 }
 
 .title {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 20px;
-	line-height: 1.45;
-	color: #000000;
-	margin: 0 0 16px 0;
-	font-weight: 400;
-	padding-left: 0;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 20px;
+  line-height: 1.45;
+  color: #000000;
+  margin: 0 0 16px 0;
+  font-weight: 400;
+  padding-left: 0;
 }
 
 .tagsContainer {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px;
-	margin-bottom: 24px;
-	padding-left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding-left: 0;
 }
 
 .section {
-	padding: 0; /* Padding is now on contentArea */
-	margin-bottom: 24px;
+  padding: 0; /* Padding is now on contentArea */
+  margin-bottom: 24px;
 }
 
 .sectionTitle {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 16px;
-	line-height: 1.45;
-	color: #000000;
-	margin: 0 0 8px 0;
-	font-weight: 400;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 16px;
+  line-height: 1.45;
+  color: #000000;
+  margin: 0 0 8px 0;
+  font-weight: 400;
 }
 
 .divider {
-	width: 100%; /* Divider spans the full content width */
-	height: 1px;
-	background-color: #e0e0e0; /* A soft color to match the vertical line */
-	margin-bottom: 16px;
+  width: 100%; /* Divider spans the full content width */
+  height: 1px;
+  background-color: #e0e0e0; /* A soft color to match the vertical line */
+  margin-bottom: 16px;
 }
 
 .content {
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 2; /* Generous line height for readability and to align with the background lines */
-	color: #000000;
-	white-space: pre-wrap;
-	font-weight: 400;
-	padding: 0;
-	margin: 0;
-	/* Faint horizontal lines to simulate a ruled notebook */
-	background-image: repeating-linear-gradient(
-		to bottom,
-		transparent,
-		transparent 27px,
-		#f0f0f0 28px
-	);
-	background-size: 100% 28px; /* Matches the line-height */
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 2; /* Generous line height for readability and to align with the background lines */
+  color: #000000;
+  white-space: pre-wrap;
+  font-weight: 400;
+  padding: 0;
+  margin: 0;
+  /* Faint horizontal lines to simulate a ruled notebook */
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    #f0f0f0 28px
+  );
+  background-size: 100% 28px; /* Matches the line-height */
 }
 
 .buttonsContainer {
-	display: flex;
-	gap: 10px;
-	margin-top: 32px;
-	padding: 0; /* Padding is now on contentArea */
-	justify-content: flex-start;
+  display: flex;
+  gap: 10px;
+  margin-top: 32px;
+  padding: 0; /* Padding is now on contentArea */
+  justify-content: flex-start;
 }
 
 .backButton {
-	background-color: #c9c9c9;
-	color: #000000;
-	border: none;
-	border-radius: 24px;
-	padding: 0 16px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 1.45;
-	cursor: pointer;
-	height: 32px;
-	min-width: 133px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 400;
+  background-color: #c9c9c9;
+  color: #000000;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 133px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
 }
 
 .backButton:hover {
-	background-color: #b5b5b5;
+  background-color: #b5b5b5;
 }
 
 .editButton {
-	background-color: #838383;
-	color: #ffffff;
-	border: none;
-	border-radius: 24px;
-	padding: 0 16px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 1.45;
-	cursor: pointer;
-	height: 32px;
-	min-width: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 400;
+  background-color: #838383;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
 }
 
 .editButton:hover {
-	background-color: #6a6a6a;
+  background-color: #6a6a6a;
 }
 
 .deleteButton {
-	background-color: #ff2f2f;
-	color: #ffffff;
-	border: none;
-	border-radius: 24px;
-	padding: 0 16px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 14px;
-	line-height: 1.45;
-	cursor: pointer;
-	height: 32px;
-	min-width: 49px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 400;
+  background-color: #ff2f2f;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 400;
 }
 
 .deleteButton:hover {
-	background-color: #e62626;
+  background-color: #e62626;
 }
 
 .notFound {
-	text-align: center;
-	padding: 40px 20px;
-	font-family: var(--font-zen-old-mincho);
-	font-size: 16px;
-	color: #666;
+  text-align: center;
+  padding: 40px 20px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 16px;
+  color: #666;
 }
 
 /* Responsive adjustments for smartphones */
 @media (max-width: 430px) {
-	.contentArea {
-		padding: 24px 16px 24px 32px; /* Adjust inner padding */
-		/* A slightly more subtle shadow for mobile, but still present */
-		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.06), 0 2px 2px rgba(0, 0, 0, 0.06), 0
-			3px 4px rgba(0, 0, 0, 0.06), 0 4px 8px rgba(0, 0, 0, 0.06);
-	}
+  .contentArea {
+    padding: 24px 16px 24px 32px; /* Adjust inner padding */
+    /* A slightly more subtle shadow for mobile, but still present */
+    box-shadow:
+      0 1px 1px rgba(0, 0, 0, 0.06),
+      0 2px 2px rgba(0, 0, 0, 0.06),
+      0 3px 4px rgba(0, 0, 0, 0.06),
+      0 4px 8px rgba(0, 0, 0, 0.06);
+  }
 
-	.contentArea::before {
-		left: 20px; /* Move the vertical line for the new padding */
-	}
+  .contentArea::before {
+    left: 20px; /* Move the vertical line for the new padding */
+  }
 
-	.divider {
-		width: 100%;
-	}
+  .divider {
+    width: 100%;
+  }
 
-	.buttonsContainer {
-		flex-wrap: wrap;
-		gap: 8px;
-	}
+  .buttonsContainer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 
-	.backButton {
-		min-width: auto;
-		flex: 1;
-	}
+  .backButton {
+    min-width: auto;
+    flex: 1;
+  }
 }

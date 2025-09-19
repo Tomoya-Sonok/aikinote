@@ -1,0 +1,40 @@
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 0;
+  border: none;
+  background: none;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.item:hover {
+  background-color: #f9fafb;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.text {
+  font-size: 16px;
+  font-weight: 400;
+  text-align: left;
+}
+
+.arrow {
+  font-size: 18px;
+  color: #9ca3af;
+  font-weight: 300;
+}
+
+.default .text {
+  color: #1f2937;
+}
+
+.danger .text {
+  color: #ef4444;
+}

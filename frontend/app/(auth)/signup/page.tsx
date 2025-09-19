@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Loader } from "@/components/atoms/Loader";
 import { EmailVerificationWaitingForm } from "@/components/auth/EmailVerificationWaitingForm";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -35,7 +36,8 @@ export default function SignUpPage({ onSuccess }: SignUpPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const { signUp, signInWithGoogle, loading, error, clearError } = useAuth();
+  const { signUp, signInWithGoogle, isProcessing, error, clearError } =
+    useAuth();
 
   // ステップ1用のフォーム（メールアドレス・パスワード）
   const emailPasswordForm = useForm<EmailPasswordFormData>({
@@ -212,10 +214,14 @@ export default function SignUpPage({ onSuccess }: SignUpPageProps) {
                 <div className={styles.buttonContainer}>
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={isProcessing}
                     className={`${styles.button} ${styles.primaryButton}`}
                   >
-                    {loading ? "処理中..." : "次へ進む"}
+                    {isProcessing ? (
+                      <Loader size="small" text="処理中..." />
+                    ) : (
+                      "次へ進む"
+                    )}
                   </button>
                 </div>
               </form>
@@ -224,7 +230,7 @@ export default function SignUpPage({ onSuccess }: SignUpPageProps) {
                 <button
                   type="button"
                   onClick={handleGoogleSignUp}
-                  disabled={loading}
+                  disabled={isProcessing}
                   className={styles.googleButton}
                 >
                   <svg className={styles.googleIcon} viewBox="0 0 24 24">
@@ -333,10 +339,14 @@ export default function SignUpPage({ onSuccess }: SignUpPageProps) {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isProcessing}
                   className={`${styles.button} ${styles.primaryButton}`}
                 >
-                  {loading ? "作成中..." : "次へ進む"}
+                  {isProcessing ? (
+                    <Loader size="small" text="作成中..." />
+                  ) : (
+                    "次へ進む"
+                  )}
                 </button>
               </div>
             </form>

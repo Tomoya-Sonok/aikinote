@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getExternalUrl } from "./env";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -29,10 +30,9 @@ export async function sendVerificationEmail({
     "RESEND_FROM_EMAIL:",
     process.env.RESEND_FROM_EMAIL || "UNDEFINED",
   );
-  console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL || "UNDEFINED");
   console.log("==========================================");
 
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${verificationToken}`;
+  const verificationUrl = getExternalUrl(`/verify-email?token=${verificationToken}`);
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {
@@ -73,7 +73,8 @@ export async function sendPasswordResetEmail({
   email,
   resetToken,
 }: SendPasswordResetEmailParams) {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+  const appUrl = getAppUrl();
+  const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {
@@ -109,3 +110,5 @@ export async function sendPasswordResetEmail({
     throw new Error("パスワードリセットメールの送信に失敗しました");
   }
 }
+
+// 削除: getAppUrl関数は getExternalUrl に置き換え済み

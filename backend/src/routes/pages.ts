@@ -1,6 +1,11 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { createTrainingPage, getTrainingPageById, getTrainingPages, updateTrainingPage } from "../lib/supabase.js";
+import {
+  createTrainingPage,
+  getTrainingPageById,
+  getTrainingPages,
+  updateTrainingPage,
+} from "../lib/supabase.js";
 import {
   type ApiResponse,
   createPageSchema,
@@ -95,6 +100,7 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
     return c.json(response);
   } catch (error) {
     console.error("ページ一覧取得エラー:", error);
+    console.error(error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,

@@ -42,16 +42,7 @@ const nextConfig = {
   },
 
   // webpack設定
-  webpack: (config, { dev }) => {
-    if (!dev) {
-      // プロダクションビルド時はMSW関連ファイルを除外
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        "@/mocks/browser": false,
-        "@/mocks/server": false,
-        "@/mocks": false,
-      };
-    }
+  webpack: (config) => {
     return config;
   },
 

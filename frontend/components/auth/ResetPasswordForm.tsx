@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
   type NewPasswordFormData,
@@ -23,7 +24,7 @@ export function ResetPasswordForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { resetPassword, loading, error, clearError } = useAuth();
+  const { resetPassword, isProcessing, error, clearError } = useAuth();
   const router = useRouter();
   const passwordId = useId();
   const confirmPasswordId = useId();
@@ -167,10 +168,14 @@ export function ResetPasswordForm({
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isProcessing}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "変更中..." : "パスワードを変更"}
+          {isProcessing ? (
+            <Loader size="small" text="変更中..." />
+          ) : (
+            "パスワードを変更"
+          )}
         </button>
       </form>
 

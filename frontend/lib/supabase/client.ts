@@ -1,8 +1,6 @@
-// lib/supabase/client.ts  ← クライアントだけ
 "use client";
 import { createBrowserClient } from "@supabase/ssr";
 
-// 環境変数の存在確認
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -12,4 +10,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
+export function getClientSupabase() {
+  try {
+    const client = createBrowserClient(supabaseUrl, supabaseAnonKey);
+    return client;
+  } catch (error) {
+    console.error("getClientSupabase: クライアント作成エラー", error);
+    throw error;
+  }
+}
