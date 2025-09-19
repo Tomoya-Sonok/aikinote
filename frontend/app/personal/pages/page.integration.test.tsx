@@ -1,7 +1,7 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createPage, getPages, getTags } from "@/lib/api/client";
-import PersonalPagesPage from "./page";
+import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
 
 // useAuth をモック
 vi.mock("@/lib/hooks/useAuth", () => ({
@@ -36,13 +36,6 @@ vi.mock("next/navigation", () => ({
 
 // API クライアントをモック
 vi.mock("@/lib/api/client");
-
-// AppLayout をモック
-vi.mock("@/components/layout/AppLayout", () => ({
-  AppLayout: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-layout">{children}</div>
-  ),
-}));
 
 // TabNavigation をモック
 vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
@@ -166,7 +159,7 @@ describe("PersonalPagesPage - クライアントサイドフィルタリング�
 
   it("ページを初期化すると全件取得でgetPagesAPIが呼ばれる", async () => {
     // Arrange
-    render(<PersonalPagesPage />);
+    render(<PersonalPagesPageClient />);
 
     // Assert
     await waitFor(() => {

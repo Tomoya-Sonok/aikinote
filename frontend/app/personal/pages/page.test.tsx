@@ -1,9 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getPages, getTags } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import PersonalPagesPage from "./page";
+import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
 
 // モック設定
 vi.mock("next/navigation", () => ({
@@ -27,12 +27,6 @@ vi.mock("@/lib/hooks/useDebounce", () => ({
 
 vi.mock("@/lib/utils/dateUtils", () => ({
   formatToLocalDateString: vi.fn((_date) => "2023-01-01"),
-}));
-
-vi.mock("@/components/layout/AppLayout", () => ({
-  AppLayout: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-layout">{children}</div>
-  ),
 }));
 
 vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
@@ -182,7 +176,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockResolvedValue(mockPagesResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -204,7 +200,9 @@ describe("ページ一覧画面", () => {
     );
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     expect(screen.getByText("読み込み中...")).toBeInTheDocument();
@@ -229,7 +227,9 @@ describe("ページ一覧画面", () => {
     });
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     expect(screen.getByText("ログインが必要です。")).toBeInTheDocument();
@@ -255,7 +255,9 @@ describe("ページ一覧画面", () => {
     });
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     expect(screen.getByText("読み込み中...")).toBeInTheDocument();
@@ -274,7 +276,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockResolvedValue(mockEmptyResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -299,7 +303,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockResolvedValue(mockPagesResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -351,7 +357,9 @@ describe("ページ一覧画面", () => {
       .mockResolvedValueOnce(secondBatchResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -388,7 +396,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockRejectedValue(new Error("API呼び出しエラー"));
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -408,7 +418,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockResolvedValue(mockFailureResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -437,7 +449,9 @@ describe("ページ一覧画面", () => {
     });
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -474,7 +488,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockResolvedValue(mockPagesResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
@@ -519,7 +535,9 @@ describe("ページ一覧画面", () => {
     mockGetPages.mockResolvedValue(mockPagesResponse);
 
     // Act
-    render(<PersonalPagesPage />);
+    await act(async () => {
+      render(<PersonalPagesPageClient />);
+    });
 
     // Assert
     await waitFor(() => {
