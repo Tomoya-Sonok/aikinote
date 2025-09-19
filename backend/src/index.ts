@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import pagesRoute from "./routes/pages.js";
 import tagsRoute from "./routes/tags.js";
+import usersRoute from "./routes/users.js";
 import { mockTrainingPages, mockTrainingTags } from "./types/training.js";
 
 // 環境変数からSupabase接続情報を取得
@@ -203,6 +204,7 @@ app.get("/api/training-tags", async (c) => {
 // APIルートを追加
 app.route("/api/pages", pagesRoute);
 app.route("/api/tags", tagsRoute);
+app.route("/api/users", usersRoute);
 
 // Hono RPC のために型をエクスポート
 export type AppType = typeof app;

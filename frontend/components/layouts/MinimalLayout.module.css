@@ -27,6 +27,14 @@
   justify-content: center;
 }
 
+.backButton {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--aikinote-text-primary, #1f2937);
+}
+
 .main {
   flex: 1;
   width: 100%;
