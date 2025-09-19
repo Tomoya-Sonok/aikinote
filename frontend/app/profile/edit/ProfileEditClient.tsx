@@ -11,6 +11,7 @@ import { EditIcon } from "@/components/atoms/icons/EditIcon";
 import { TrashIcon } from "@/components/atoms/icons/TrashIcon";
 import { Loader } from "@/components/atoms/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
+import { getClientSupabase } from "@/lib/supabase/client";
 
 interface ProfileEditClientProps {
 	user: UserProfile;
@@ -36,18 +37,25 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUse
 			}
 		}
 
-		const updatedData = {
-			username: formData.username,
-			dojo_style_name: formData.dojo_style_name || null,
-			training_start_date: formData.training_start_date || null,
-		};
-
-		// TODO: 画像アップロード処理を実装
-		if (profileImageFile) {
-			console.log("画像ファイル:", profileImageFile);
-		}
-
 		try {
+			let updatedProfileImageUrl = formData.profile_image_url;
+
+			// 画像アップロード処理
+			if (profileImageFile) {
+				console.log("画像アップロード開始:", profileImageFile.name);
+				updatedProfileImageUrl = await uploadImageToS3(profileImageFile);
+				console.log("画像アップロード成功:", updatedProfileImageUrl);
+			}
+
+			const updatedData = {
+				username: formData.username,
+				dojo_style_name: formData.dojo_style_name || null,
+				training_start_date: formData.training_start_date || null,
+				profile_image_url: updatedProfileImageUrl || null,
+			};
+
+			console.log("送信するデータ:", updatedData);
+
 			// JWTトークンを取得
 			const tokenResponse = await fetch("/api/auth/token", {
 				method: "POST",
@@ -82,7 +90,10 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUse
 			router.push("/mypage");
 		} catch (error) {
 			console.error("プロフィール更新エラー:", error);
-			showToast("通信に失敗しました", "error");
+			showToast(
+				error instanceof Error ? error.message : "通信に失敗しました",
+				"error"
+			);
 		}
 	};
 
@@ -98,11 +109,67 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUse
 		username: user.username,
 		dojo_style_name: user.dojo_style_name || "",
 		training_start_date: user.training_start_date || "",
+		profile_image_url: user.profile_image_url || "",
 	});
 
 	const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
 	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 	const [usernameError, setUsernameError] = useState<string | null>(null);
+
+	// 画像アップロード用のヘルパー関数
+	const uploadImageToS3 = async (file: File): Promise<string> => {
+		// ステップ1: 署名付きURLを取得
+		const uploadUrlResponse = await fetch('/api/upload-url', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				filename: file.name,
+				contentType: file.type,
+				fileSize: file.size,
+			}),
+		});
+
+		if (!uploadUrlResponse.ok) {
+			const errorData = await uploadUrlResponse.json();
+			throw new Error(errorData.error || 'アップロードURLの取得に失敗しました');
+		}
+
+		const { uploadUrl, fileKey } = await uploadUrlResponse.json();
+
+		// ステップ2: S3にファイルをアップロード
+		const uploadResponse = await fetch(uploadUrl, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': file.type,
+			},
+			body: file,
+		});
+
+		if (!uploadResponse.ok) {
+			throw new Error('S3へのアップロードに失敗しました');
+		}
+
+		// ステップ3: プロフィール画像URLを更新
+		const updateResponse = await fetch('/api/profile-image', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				fileKey,
+			}),
+		});
+
+		if (!updateResponse.ok) {
+			const errorData = await updateResponse.json();
+			throw new Error(errorData.error || 'プロフィール画像の更新に失敗しました');
+		}
+
+		const { imageUrl } = await updateResponse.json();
+		return imageUrl;
+	};
 
 	// 最新のプロフィール情報を取得
 	const fetchUserProfile = async () => {
@@ -141,6 +208,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUse
 				username: latestUser.username,
 				dojo_style_name: latestUser.dojo_style_name || "",
 				training_start_date: latestUser.training_start_date || "",
+				profile_image_url: latestUser.profile_image_url || "",
 			});
 		} catch (error) {
 			console.error("プロフィール取得エラー:", error);
@@ -161,6 +229,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUse
 			username: user.username,
 			dojo_style_name: user.dojo_style_name || "",
 			training_start_date: user.training_start_date || "",
+			profile_image_url: user.profile_image_url || "",
 		});
 	}, [user]);
 

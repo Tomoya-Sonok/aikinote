@@ -23,6 +23,7 @@ const updateProfileSchema = z.object({
 	username: z.string().min(1, "ユーザー名は必須です").optional(),
 	dojo_style_name: z.string().nullable().optional(),
 	training_start_date: z.string().nullable().optional(),
+	profile_image_url: z.string().nullable().optional(),
 });
 
 // ユーザープロフィール取得API
