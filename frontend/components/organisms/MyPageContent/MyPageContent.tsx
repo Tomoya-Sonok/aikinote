@@ -93,7 +93,7 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 				<ProfileCard
 					username={currentUser.username}
 					trainingDescription={currentUser.dojo_id || "未設定"}
-					mood={currentUser.training_start_date || "未設定"}
+					trainingStartDate={currentUser.training_start_date || "未設定"}
 					profileImageUrl={currentUser.profile_image_url}
 					onEditClick={handleEditProfile}
 				/>
