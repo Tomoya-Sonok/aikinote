@@ -23,6 +23,7 @@ export const ProfileImage: FC<ProfileImageProps> = ({
         src={imageSrc}
         alt={alt}
         fill
+        unoptimized
         className={styles.image}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />

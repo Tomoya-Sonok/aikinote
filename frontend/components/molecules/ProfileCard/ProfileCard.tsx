@@ -25,7 +25,7 @@ export const ProfileCard: FC<ProfileCardProps> = ({
       <div className={styles.profileSection}>
         <ProfileImage
           src={profileImageUrl}
-          size="large"
+          size="small"
           alt={`${username}のプロフィール画像`}
         />
         <div className={styles.userInfo}>

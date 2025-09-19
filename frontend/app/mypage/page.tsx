@@ -30,7 +30,7 @@ export default async function MyPage() {
   // ユーザープロフィールを取得
   const { data: userProfile, error } = await getUserProfile(user.id);
 
-  if (error && error.code !== "PGRST116") {
+  if (error || !userProfile) {
     console.error("ユーザープロフィール取得エラー:", error);
     if (process.env.NODE_ENV === "development") {
       console.log("MyPage: Profile fetch error, redirecting to login");

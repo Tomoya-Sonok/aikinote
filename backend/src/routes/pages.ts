@@ -100,6 +100,7 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
     return c.json(response);
   } catch (error) {
     console.error("ページ一覧取得エラー:", error);
+    console.error(error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,

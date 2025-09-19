@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 import { isTokenExpired } from "@/lib/utils/auth-server";
+import {
+  createSuccessResponse,
+  createValidationErrorResponse,
+  createInternalServerErrorResponse,
+  handleApiError,
+} from "@/lib/utils/api-response";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,10 +15,7 @@ export async function POST(request: NextRequest) {
     const token = searchParams.get("token");
 
     if (!token) {
-      return NextResponse.json(
-        { error: "認証トークンが提供されていません" },
-        { status: 400 },
-      );
+      return createValidationErrorResponse("認証トークンが提供されていません");
     }
 
     const supabase = getServiceRoleSupabase();
@@ -21,27 +24,21 @@ export async function POST(request: NextRequest) {
       .from("User")
       .select("id, email, is_email_verified, verification_token, created_at")
       .eq("verification_token", token)
-      .single();
+      .maybeSingle(); // singleの代わりにmaybeSingleを使用
 
     if (findError || !user) {
-      return NextResponse.json(
-        { error: "無効な認証トークンです" },
-        { status: 400 },
-      );
+      console.error("verify-email: ユーザー取得エラー", { findError, token: `${token.slice(0, 8)}...` });
+      return createValidationErrorResponse("無効な認証トークンです");
     }
 
     if (user.is_email_verified) {
-      return NextResponse.json(
-        { message: "このアカウントは既に認証済みです" },
-        { status: 200 },
-      );
+      return createSuccessResponse(null, {
+        message: "このアカウントは既に認証済みです"
+      });
     }
 
     if (isTokenExpired(new Date(user.created_at))) {
-      return NextResponse.json(
-        { error: "認証トークンの有効期限が切れています" },
-        { status: 400 },
-      );
+      return createValidationErrorResponse("認証トークンの有効期限が切れています");
     }
 
     const { error: updateError } = await supabase
@@ -54,10 +51,7 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id);
 
     if (updateError) {
-      return NextResponse.json(
-        { error: "認証の更新に失敗しました" },
-        { status: 500 },
-      );
+      return createInternalServerErrorResponse("認証の更新に失敗しました");
     }
 
     try {
@@ -68,15 +62,10 @@ export async function POST(request: NextRequest) {
       console.error("Supabase admin email confirm error", adminError);
     }
 
-    return NextResponse.json(
-      { message: "メールアドレスの認証が完了しました" },
-      { status: 200 },
-    );
+    return createSuccessResponse(null, {
+      message: "メールアドレスの認証が完了しました"
+    });
   } catch (error) {
-    console.error("verify-email error", error);
-    return NextResponse.json(
-      { error: "メール認証に失敗しました" },
-      { status: 500 },
-    );
+    return handleApiError(error, "POST /api/auth/verify-email");
   }
 }

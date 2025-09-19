@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getExternalUrl } from "./env";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -29,14 +30,9 @@ export async function sendVerificationEmail({
     "RESEND_FROM_EMAIL:",
     process.env.RESEND_FROM_EMAIL || "UNDEFINED",
   );
-  console.log(
-    "APP_URL:",
-    process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "UNDEFINED",
-  );
   console.log("==========================================");
 
-  const appUrl = getAppUrl();
-  const verificationUrl = `${appUrl}/verify-email?token=${verificationToken}`;
+  const verificationUrl = getExternalUrl(`/verify-email?token=${verificationToken}`);
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {
@@ -115,17 +111,4 @@ export async function sendPasswordResetEmail({
   }
 }
 
-function getAppUrl() {
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.APP_URL ||
-    (process.env.NODE_ENV === "test" ? "http://localhost:3000" : undefined);
-
-  if (!appUrl) {
-    throw new Error(
-      "アプリケーションのURLが設定されていません。NEXT_PUBLIC_APP_URL もしくは APP_URL を設定してください。",
-    );
-  }
-
-  return appUrl.endsWith("/") ? appUrl.slice(0, -1) : appUrl;
-}
+// 削除: getAppUrl関数は getExternalUrl に置き換え済み

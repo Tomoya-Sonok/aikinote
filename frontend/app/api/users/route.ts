@@ -1,11 +1,20 @@
-import { NextResponse } from "next/server";
-
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 import { generateVerificationToken } from "@/lib/utils/auth-server";
 import { sendVerificationEmail } from "@/lib/utils/email";
+import {
+  createSuccessResponse,
+  createValidationErrorResponse,
+  createInternalServerErrorResponse,
+  handleApiError,
+} from "@/lib/utils/api-response";
 
 export async function POST(request: Request) {
+  console.log("=== /api/users POST request received ===");
+  console.log("Request URL:", request.url);
+  console.log("Request headers:", Object.fromEntries(request.headers.entries()));
+  console.log("Stack trace:", new Error().stack?.split('\n').slice(0, 8));
+
   const supabase = getServiceRoleSupabase();
 
   try {
@@ -24,13 +33,11 @@ export async function POST(request: Request) {
     });
 
     if (!id || !email || !username) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "id, email, username は必須です",
-        },
-        { status: 400 },
-      );
+      return createValidationErrorResponse({
+        id: id ? [] : ["IDは必須です"],
+        email: email ? [] : ["メールアドレスは必須です"],
+        username: username ? [] : ["ユーザー名は必須です"],
+      });
     }
 
     const verificationToken = generateVerificationToken();
@@ -58,13 +65,13 @@ export async function POST(request: Request) {
     if (insertError) {
       await supabase.auth.admin.deleteUser(id);
       console.error("[api/users] user insert failed", insertError);
-      return NextResponse.json(
-        {
-          success: false,
-          error: insertError.message,
-        },
-        { status: 500 },
-      );
+
+      // 重複エラーの場合は適切なエラーコードを返す
+      if (insertError.message.includes("duplicate") || insertError.message.includes("unique")) {
+        return createValidationErrorResponse("既に登録済みのメールアドレスまたはユーザー名です");
+      }
+
+      return createInternalServerErrorResponse(insertError.message);
     }
 
     console.log("[api/users] user inserted", insertedUser);
@@ -91,13 +98,8 @@ export async function POST(request: Request) {
         console.error("Supabase auth cleanup error:", cleanupError);
       }
 
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            "認証メールの送信に失敗しました。しばらくしてからもう一度お試しください。",
-        },
-        { status: 500 },
+      return createInternalServerErrorResponse(
+        "認証メールの送信に失敗しました。しばらくしてからもう一度お試しください。"
       );
     }
 
@@ -110,19 +112,10 @@ export async function POST(request: Request) {
       count: tagResult.data?.length,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: insertedUser,
+    return createSuccessResponse(insertedUser, {
+      message: "ユーザー登録が完了しました。認証メールを確認してください。"
     });
   } catch (error) {
-    console.error("/api/users POST error", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error:
-          error instanceof Error ? error.message : "未知のエラーが発生しました",
-      },
-      { status: 500 },
-    );
+    return handleApiError(error, "POST /api/users");
   }
 }

@@ -2,10 +2,12 @@
 
 import type { FC } from "react";
 import { useState } from "react";
+import { ZodError } from "zod";
 import { Button } from "@/components/atoms/Button/Button";
 import { ProfileImage } from "@/components/atoms/ProfileImage/ProfileImage";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
 import type { UserProfile } from "@/components/organisms/MyPageContent/MyPageContent";
+import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
 
 interface ProfileEditProps {
@@ -29,14 +31,30 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
 
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const handleInputChange =
     (field: keyof typeof formData) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
       setFormData((prev) => ({
         ...prev,
-        [field]: event.target.value,
+        [field]: value,
       }));
+
+      // ユーザー名のバリデーション
+      if (field === "username") {
+        try {
+          usernameSchema.parse({ username: value });
+          setUsernameError(null);
+        } catch (error) {
+          if (error instanceof ZodError) {
+            setUsernameError(
+              error.errors[0]?.message || "無効なユーザー名です",
+            );
+          }
+        }
+      }
     };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +67,16 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
   };
 
   const handleSave = () => {
+    // バリデーションチェック
+    try {
+      usernameSchema.parse({ username: formData.username });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        setUsernameError(error.errors[0]?.message || "無効なユーザー名です");
+        return;
+      }
+    }
+
     const updatedData: Partial<UserProfile> = {
       username: formData.username,
       dojo_id: formData.dojo_id || null,
@@ -130,6 +158,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
               value={formData.username}
               onChange={handleInputChange("username")}
               required
+              error={usernameError || undefined}
               className={styles.input}
             />
             <span className={styles.requiredIndicator}>必須</span>
