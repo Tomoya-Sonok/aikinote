@@ -33,7 +33,7 @@
 
 .title {
   font-family: var(--font-zen-old-mincho);
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   line-height: 1.45;
   color: #000000;
   margin: 0 0 16px 0;
@@ -56,7 +56,7 @@
 
 .sectionTitle {
   font-family: var(--font-zen-old-mincho);
-  font-size: 16px;
+  font-size: var(--font-size-base);
   line-height: 1.45;
   color: #000000;
   margin: 0 0 8px 0;
@@ -72,7 +72,7 @@
 
 .content {
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   line-height: 2; /* Generous line height for readability and to align with the background lines */
   color: #000000;
   white-space: pre-wrap;
@@ -104,7 +104,7 @@
   border-radius: 24px;
   padding: 0 16px;
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   line-height: 1.45;
   cursor: pointer;
   height: 32px;
@@ -126,7 +126,7 @@
   border-radius: 24px;
   padding: 0 16px;
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   line-height: 1.45;
   cursor: pointer;
   height: 32px;
@@ -148,7 +148,7 @@
   border-radius: 24px;
   padding: 0 16px;
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   line-height: 1.45;
   cursor: pointer;
   height: 32px;
@@ -167,7 +167,7 @@
   text-align: center;
   padding: 40px 20px;
   font-family: var(--font-zen-old-mincho);
-  font-size: 16px;
+  font-size: var(--font-size-base);
   color: #666;
 }
 

@@ -21,7 +21,7 @@
 
 .content h1 {
   font-family: var(--font-zen-old-mincho);
-  font-size: 24px;
+  font-size: var(--font-size-2xl);
   font-weight: 400;
   color: var(--aikinote-black);
   margin-bottom: 24px;
@@ -30,7 +30,7 @@
 
 .notice {
   font-family: var(--font-zen-old-mincho);
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 400;
   color: var(--aikinote-text-light);
   line-height: 1.6;

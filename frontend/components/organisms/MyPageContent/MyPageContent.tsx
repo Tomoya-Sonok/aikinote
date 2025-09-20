@@ -50,19 +50,21 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 		}
 	};
 
+	const handleTextSizeClick = () => {
+		window.location.href = "/settings/font-size";
+	};
+
 	const handleSettingClick = (settingType: string) => {
 		console.log(`${settingType}がクリックされました`);
 	};
-
-
 
 	return (
 		<div className={`${styles.content} ${className}`}>
 			<MenuSection title="プロフィール">
 				<ProfileCard
 					username={currentUser.username}
-					trainingDescription={currentUser.dojo_style_name || "未設定"}
-					trainingStartDate={currentUser.training_start_date || "未設定"}
+					dojoStyleName={currentUser.dojo_style_name || "未入力"}
+					trainingStartDate={currentUser.training_start_date || "未入力"}
 					profileImageUrl={currentUser.profile_image_url}
 					onEditClick={handleEditProfile}
 				/>
@@ -72,7 +74,7 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 				<SettingsMenu
 					onPublicityClick={() => handleSettingClick("公開範囲")}
 					onEmailClick={() => handleSettingClick("メール")}
-					onTextSizeClick={() => handleSettingClick("文字サイズ")}
+					onTextSizeClick={handleTextSizeClick}
 					onLanguageClick={() => handleSettingClick("言語")}
 				/>
 			</MenuSection>

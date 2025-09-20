@@ -24,6 +24,7 @@ describe("fetchUserProfile", () => {
       email: "test@example.com",
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
+      dojo_style_name: null,
     };
 
     mockFetch.mockResolvedValue({
@@ -52,6 +53,7 @@ describe("fetchUserProfile", () => {
           email: "test@example.com",
           username: "testuser",
           profile_image_url: null,
+          dojo_style_name: null,
         },
       }),
     });
@@ -157,6 +159,7 @@ describe("fetchUserProfile", () => {
       email: "test@example.com",
       username: "testuser",
       profile_image_url: null,
+      dojo_style_name: null,
     };
 
     mockFetch.mockResolvedValue({
@@ -174,6 +177,7 @@ describe("fetchUserProfile", () => {
       email: "test@example.com",
       username: "testuser",
       profile_image_url: null,
+      dojo_style_name: null,
     });
   });
 });

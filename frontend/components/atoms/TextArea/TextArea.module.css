@@ -6,7 +6,7 @@
 }
 
 .label {
-	font-size: 12px;
+	font-size: var(--font-size-xs);
 	font-weight: 400;
 	color: #000000;
 	line-height: 1.45;
@@ -17,13 +17,13 @@
 
 .required {
 	color: #ff0000;
-	font-size: 10px;
+	font-size: var(--font-size-xs);
 	padding-left: 4px;
 }
 
 .textarea {
 	font-family: var(--font-zen-old-mincho);
-	font-size: 12px;
+	font-size: var(--font-size-xs);
 	line-height: 1.45;
 	padding: 8px 12px;
 	border: 1px solid #6b95eb;
@@ -51,7 +51,7 @@
 }
 
 .errorMessage {
-	font-size: 10px;
+	font-size: var(--font-size-xs);
 	color: #ff0000;
 	font-family: var(--font-zen-old-mincho);
 }

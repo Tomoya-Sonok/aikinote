@@ -18,7 +18,7 @@ export default async function MyPage() {
 		email: user.email || "",
 		username: user.username || "未設定",
 		profile_image_url: user.profile_image_url || null,
-		dojo_style_name: null,
+		dojo_style_name: user.dojo_style_name || null, // dojo_style_nameも初期データに含める
 		training_start_date: null,
 		publicity_setting: "private" as const,
 		language: "ja",
@@ -27,7 +27,7 @@ export default async function MyPage() {
 	};
 
 	return (
-		<DefaultLayout settingsHref="/settings">
+		<DefaultLayout settingsHref="/mypage">
 			<div className={styles.container}>
 				<div className={styles.content}>
 					<MyPageClient initialUser={initialProfile} />

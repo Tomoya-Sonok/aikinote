@@ -24,6 +24,21 @@
   --font-inter:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Helvetica Neue", Arial, sans-serif;
+
+  /* フォントサイズ変数 */
+  --font-size-small: 14px;
+  --font-size-medium: 16px;
+  --font-size-large: 20px;
+  --current-font-size: var(--font-size-medium);
+
+  /* スケーリング対応のタイポグラフィ */
+  --font-size-xs: calc(var(--current-font-size) * 0.75);
+  --font-size-sm: calc(var(--current-font-size) * 0.875);
+  --font-size-base: var(--current-font-size);
+  --font-size-lg: calc(var(--current-font-size) * 1.125);
+  --font-size-xl: calc(var(--current-font-size) * 1.25);
+  --font-size-2xl: calc(var(--current-font-size) * 1.5);
+  --font-size-3xl: calc(var(--current-font-size) * 1.875);
 }
 
 * {
@@ -43,6 +58,7 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   font-family: var(--font-zen-old-mincho);
+  font-size: var(--current-font-size);
   line-height: 1.5;
 }
 
@@ -68,6 +84,19 @@ main {
 
 h2 {
   margin-bottom: 4px;
+}
+
+/* フォントサイズ切り替え用のデータ属性 */
+[data-font-size="small"] {
+  --current-font-size: var(--font-size-small);
+}
+
+[data-font-size="medium"] {
+  --current-font-size: var(--font-size-medium);
+}
+
+[data-font-size="large"] {
+  --current-font-size: var(--font-size-large);
 }
 
 /* モバイルファースト対応 */

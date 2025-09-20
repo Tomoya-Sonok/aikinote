@@ -5,7 +5,7 @@ import styles from "./ProfileCard.module.css";
 
 interface ProfileCardProps {
 	username: string;
-	trainingDescription?: string;
+	dojoStyleName?: string;
 	trainingStartDate?: string;
 	profileImageUrl?: string | null;
 	onEditClick: () => void;
@@ -13,8 +13,8 @@ interface ProfileCardProps {
 
 export const ProfileCard: FC<ProfileCardProps> = ({
 	username,
-	trainingDescription = "未設定",
-	trainingStartDate = "未設定",
+	dojoStyleName = "未入力",
+	trainingStartDate = "未入力",
 	profileImageUrl,
 	onEditClick,
 }) => {
@@ -41,7 +41,7 @@ export const ProfileCard: FC<ProfileCardProps> = ({
 			<div className={styles.detailsSection}>
 				<div className={styles.detail}>
 					<span className={styles.label}>現在所属している道場（流派）</span>
-					<span className={styles.value}>{trainingDescription}</span>
+					<span className={styles.value}>{dojoStyleName}</span>
 				</div>
 
 				<div className={styles.detail}>

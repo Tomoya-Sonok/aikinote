@@ -15,7 +15,7 @@
 }
 
 .headerTitle {
-  font-size: 16px;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--aikinote-text-primary, #1f2937);
 }

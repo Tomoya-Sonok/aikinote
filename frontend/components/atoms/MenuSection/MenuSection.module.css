@@ -4,7 +4,7 @@
 }
 
 .title {
-	font-size: 18px;
+	font-size: var(--font-size-lg);
 	font-weight: 600;
 	color: #1f2937;
 	margin: 0 0 16px 0;

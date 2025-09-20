@@ -4,7 +4,7 @@
   padding: 3px 8px; /* Figmaに合わせて少し狭く */
   border-radius: 24px;
   font-family: var(--font-zen-old-mincho);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.45; /* Figmaの行間に合わせる */
   transition: all 0.2s ease;

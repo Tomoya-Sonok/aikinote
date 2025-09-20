@@ -1,0 +1,146 @@
+/* オーバーレイ - 背景を覆う半透明レイヤー */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ドロワー本体 */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 300px;
+  max-width: 80vw;
+  background: var(--aikinote-white);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+
+  /* 日本的な境界線 */
+  border-left: 2px solid var(--aikinote-bg);
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* ヘッダー部分 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--aikinote-bg);
+  background: linear-gradient(135deg,
+    var(--aikinote-white) 0%,
+    rgba(239, 236, 236, 0.3) 100%);
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  color: var(--aikinote-black);
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--aikinote-gray);
+  font-size: var(--font-size-xl);
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--aikinote-bg);
+  color: var(--aikinote-black);
+  transform: scale(1.05);
+}
+
+.closeButton:active {
+  transform: scale(0.95);
+}
+
+/* コンテンツエリア */
+.content {
+  flex: 1;
+  padding: 24px 0;
+  overflow-y: auto;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 480px) {
+  .drawer {
+    width: 280px;
+    max-width: 85vw;
+  }
+
+  .header {
+    padding: 16px 20px 12px;
+  }
+
+  .content {
+    padding: 20px 0;
+  }
+
+  .menu {
+    padding: 0 20px;
+  }
+}
+
+/* アクセシビリティ - フォーカス管理 */
+.drawer:focus {
+  outline: none;
+}
+
+/* 禅的な静寂を表現する微細なアニメーション */
+.drawer.open .menu {
+  animation: gentleSlideIn 0.5s ease-out 0.1s both;
+}
+
+@keyframes gentleSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

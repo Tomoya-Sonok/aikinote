@@ -1,6 +1,8 @@
+"use client";
+
 import { Suspense, type ReactNode } from "react";
 import { TabNavigation } from "@/components/molecules/TabNavigation/TabNavigation";
-import { getCurrentUser } from "@/lib/server/auth";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { DefaultHeader } from "./DefaultHeader";
 import styles from "./DefaultLayout.module.css";
 
@@ -12,14 +14,20 @@ interface DefaultLayoutProps {
   settingsHref?: string;
 }
 
-export async function DefaultLayout({
+export function DefaultLayout({
   children,
   showHeader = true,
   showFooter = true,
   showTabNavigation = true,
   settingsHref,
 }: DefaultLayoutProps) {
-  const user = await getCurrentUser();
+  const { user } = useAuth();
+
+  console.log("🏗️ [DEBUG] DefaultLayout: レンダリング中", {
+    hasUser: !!user,
+    username: user?.username,
+    dojo_style_name: user?.dojo_style_name
+  });
 
   return (
     <div className={styles.layout}>

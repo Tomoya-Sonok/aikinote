@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Zen_Old_Mincho } from "next/font/google";
 import { ToastProvider } from "@/contexts/ToastContext";
+import { FontSizeProvider } from "@/components/providers/FontSizeProvider";
 import "./globals.css";
 
 const zenOldMincho = Zen_Old_Mincho({
@@ -29,13 +30,15 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${zenOldMincho.variable} ${inter.variable}`}>
-        <ToastProvider>
-          <main
-            style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}
-          >
-            {children}
-          </main>
-        </ToastProvider>
+        <FontSizeProvider>
+          <ToastProvider>
+            <main
+              style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}
+            >
+              {children}
+            </main>
+          </ToastProvider>
+        </FontSizeProvider>
       </body>
     </html>
   );

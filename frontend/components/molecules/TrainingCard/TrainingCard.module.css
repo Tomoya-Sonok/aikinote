@@ -34,7 +34,7 @@
 
 .title {
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 400;
   line-height: 1.4;
   color: var(--aikinote-black);
@@ -56,7 +56,7 @@
 
 .content {
   font-family: var(--font-zen-old-mincho);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.4;
   color: var(--aikinote-black);
@@ -65,7 +65,7 @@
 
 .date {
   font-family: var(--font-zen-old-mincho);
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.4;
   color: var(--aikinote-text-light);
