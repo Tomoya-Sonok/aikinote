@@ -4,15 +4,16 @@
   position: relative;
 }
 
-/* スピナー本体 */
+/* スピナー本体 - 武道的な円（禅円）をイメージ */
 .spinner {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #3498db;
+  border: 2px solid var(--aikinote-bg);
+  border-top: 2px solid var(--aikinote-gray);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: zen-rotation 2s ease-in-out infinite;
+  opacity: 0.9;
 }
 
 /* 大きいサイズ */
@@ -31,10 +32,15 @@
 
 /* 中央揃えコンテナ */
 .centered {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  z-index: 1000;
 }
 
 /* テキスト付きの場合 */
@@ -45,28 +51,52 @@
 }
 
 .text {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--font-size-sm);
+  color: var(--aikinote-gray);
+  font-family: var(--font-zen-old-mincho);
+  font-weight: 400;
+  letter-spacing: 0.05em;
 }
 
-/* スピンアニメーション */
-@keyframes spin {
+/* 禅的な呼吸のようなゆっくりとした回転アニメーション */
+@keyframes zen-rotation {
   0% {
     transform: rotate(0deg);
+    opacity: 0.6;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: rotate(180deg);
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 0.9;
   }
   100% {
     transform: rotate(360deg);
+    opacity: 0.6;
   }
+}
+
+/* 中央配置時の背景 - 半透明で落ち着いた背景 */
+.centered {
+  background: rgba(255, 255, 255, 0.95);
 }
 
 /* ダークモード対応 */
 @media (prefers-color-scheme: dark) {
   .spinner {
-    border-color: #444;
-    border-top-color: #3498db;
+    border-color: rgba(131, 131, 131, 0.3);
+    border-top-color: var(--aikinote-gray);
   }
 
   .text {
-    color: #ccc;
+    color: var(--aikinote-gray);
+  }
+
+  .centered {
+    background: rgba(239, 236, 236, 0.95);
   }
 }

@@ -11,6 +11,7 @@ import { EditIcon } from "@/components/atoms/icons/EditIcon";
 import { TrashIcon } from "@/components/atoms/icons/TrashIcon";
 import { Loader } from "@/components/atoms/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { getClientSupabase } from "@/lib/supabase/client";
 
 interface ProfileEditClientProps {
@@ -23,6 +24,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUser }) => {
 	const router = useRouter();
 	const { showToast } = useToast();
+	const { refreshUser } = useAuth();
 	const [user, setUser] = useState<UserProfile>(initialUser);
 	const [loading, setLoading] = useState(true);
 
@@ -84,9 +86,16 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({ user: initialUse
 			}
 
 			const result = await response.json();
-			console.log("プロフィール更新成功:", result);
+			console.log("✅ [DEBUG] ProfileEdit: プロフィール更新成功:", result);
+
+			// ユーザー情報を再取得してセッションを更新
+			console.log("🔄 [DEBUG] ProfileEdit: refreshUser()を呼び出し開始");
+			const refreshedUser = await refreshUser();
+			console.log("🔄 [DEBUG] ProfileEdit: refreshUser()完了", { refreshedUser });
 
 			showToast("プロフィールを更新しました", "success");
+
+			console.log("🔄 [DEBUG] ProfileEdit: マイページにリダイレクト中");
 			router.push("/mypage");
 		} catch (error) {
 			console.error("プロフィール更新エラー:", error);

@@ -20,7 +20,7 @@
 }
 
 .username {
-	font-size: 16px;
+	font-size: var(--font-size-base);
 	font-weight: 600;
 	color: #1f2937;
 	margin: 0;
@@ -39,13 +39,13 @@
 }
 
 .label {
-	font-size: 14px;
+	font-size: var(--font-size-sm);
 	color: #6b7280;
 	font-weight: 400;
 }
 
 .value {
-	font-size: 16px;
+	font-size: var(--font-size-base);
 	color: #1f2937;
 	font-weight: 400;
 }

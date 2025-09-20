@@ -14,13 +14,13 @@
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: var(--font-size-3xl);
   font-weight: bold;
   color: var(--text-color);
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: var(--font-size-xl);
   color: var(--text-light);
   margin-top: 0.5rem;
 }
@@ -40,7 +40,7 @@
 }
 
 .sectionTitle {
-  font-size: 1.5rem;
+  font-size: var(--font-size-2xl);
   margin-bottom: 1rem;
   font-weight: 600;
 }
@@ -73,5 +73,5 @@
   border-top: 1px solid var(--border-color);
   padding-top: 1rem;
   color: var(--text-light);
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
 }
