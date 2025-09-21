@@ -1,7 +1,10 @@
 <div align="center">
-    <img src="https://github.com/user-attachments/assets/548a6599-0df3-4a25-996c-38d4e956503e" width=200 height=200>
+    <img width="200" height="200" alt="AikiNote Logo" src="https://github.com/user-attachments/assets/5e6cc759-3f93-48c1-a6e5-1b2c7eb11eae" />
     <h1>AikiNote</h1>
 </div>
+
+
+
 
 <!-- TODO: Add screenshots to briefly understand how to use aikinote  -->
 
