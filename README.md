@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://github.com/user-attachments/assets/5d4c4e84-fd9a-4b97-93f0-25417f2fa9bd" width=200 height=200>
+    <img src="https://github.com/user-attachments/assets/548a6599-0df3-4a25-996c-38d4e956503e" width=200 height=200>
     <h1>AikiNote</h1>
 </div>
 
