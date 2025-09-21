@@ -2,6 +2,7 @@
 
 import type { FC } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { TextArea } from "@/components/atoms/TextArea/TextArea";
 import { TextInput } from "@/components/atoms/TextInput/TextInput";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
@@ -54,6 +55,7 @@ export const PageModal: FC<PageModalProps> = ({
 	actionButtonText,
 	shouldCreateInitialTags = false,
 }) => {
+	const t = useTranslations();
 	const { showToast } = useToast();
 	const { user } = useAuth();
 	const titleInputRef = useRef<HTMLInputElement>(null);
@@ -100,18 +102,18 @@ export const PageModal: FC<PageModalProps> = ({
 						const updatedResponse = await getTags(user.id);
 						if (updatedResponse.success && updatedResponse.data) {
 							setAllTags(updatedResponse.data);
-							showToast("初期タグを作成しました", "success");
+							showToast(t("pageModal.initialTagsCreated"), "success");
 						}
 					} catch (initError) {
 						console.error("Failed to initialize tags:", initError);
-						showToast("初期タグの作成に失敗しました", "error");
+						showToast(t("pageModal.initialTagsCreateFailed"), "error");
 						setInitialTagsCreated(false); // エラー時はリセット
 					}
 				}
 			}
 		} catch (error) {
 			console.error("Failed to fetch tags:", error);
-			showToast("タグの取得に失敗しました", "error");
+			showToast(t("pageModal.tagsFetchFailed"), "error");
 		} finally {
 			setLoading(false);
 		}
@@ -131,7 +133,7 @@ export const PageModal: FC<PageModalProps> = ({
 				await fetchTags(); // タグ一覧を再取得
 				setNewTagInput("");
 				setShowNewTagInput(null);
-				showToast("タグが追加されました", "success");
+				showToast(t("pageModal.tagAdded"), "success");
 
 				const categoryMap: { [key: string]: keyof PageFormData } = {
 					取り: "tori",
@@ -147,7 +149,7 @@ export const PageModal: FC<PageModalProps> = ({
 		} catch (error) {
 			console.error("Tag creation error:", error);
 			showToast(
-				`タグの追加に失敗しました: ${error instanceof Error ? error.message : "不明なエラー"}`,
+				`${t("pageModal.tagAddFailed")}: ${error instanceof Error ? error.message : t("pageModal.unknownError")}`,
 				"error",
 			);
 		}
@@ -211,18 +213,18 @@ export const PageModal: FC<PageModalProps> = ({
 		const trimmedInput = newTagInput.trim();
 
 		if (!trimmedInput) {
-			showToast("タグ名を入力してください", "error");
+			showToast(t("pageModal.tagNameRequired"), "error");
 			return;
 		}
 
 		// クライアントサイドバリデーション
 		if (trimmedInput.length > 20) {
-			showToast("タグ名は20文字以内で入力してください", "error");
+			showToast(t("pageModal.tagNameTooLong"), "error");
 			return;
 		}
 
 		if (!/^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９]+$/.test(trimmedInput)) {
-			showToast("タグ名は全角・半角英数字のみ使用可能です", "error");
+			showToast(t("pageModal.tagNameInvalid"), "error");
 			return;
 		}
 
@@ -234,12 +236,12 @@ export const PageModal: FC<PageModalProps> = ({
 
 		const mappedCategory = categoryMap[category];
 		if (!mappedCategory) {
-			showToast("無効なカテゴリです", "error");
+			showToast(t("pageModal.invalidCategory"), "error");
 			return;
 		}
 
 		if (!user?.id) {
-			showToast("ログインが必要です", "error");
+			showToast(t("pageModal.loginRequired"), "error");
 			return;
 		}
 
@@ -264,11 +266,11 @@ export const PageModal: FC<PageModalProps> = ({
 		const newErrors: Record<string, string> = {};
 
 		if (!formData.title.trim()) {
-			newErrors.title = "タイトルは必須です";
+			newErrors.title = t("pageModal.titleRequired");
 		}
 
 		if (!formData.content.trim()) {
-			newErrors.content = "稽古内容は必須です";
+			newErrors.content = t("pageModal.contentRequired");
 		}
 
 		setErrors(newErrors);
@@ -315,7 +317,7 @@ export const PageModal: FC<PageModalProps> = ({
 					<div className={styles.section}>
 						<TextInput
 							ref={titleInputRef}
-							label="タイトル"
+							label={t("pageModal.title")}
 							required
 							value={formData.title}
 							onChange={(e) =>
@@ -327,7 +329,7 @@ export const PageModal: FC<PageModalProps> = ({
 
 					<div className={styles.section}>
 						<TagSelection
-							title="取り"
+							title={t("pageModal.tori")}
 							tags={toriTags}
 							selectedTags={formData.tori}
 							onTagToggle={(tag) => handleTagToggle("tori", tag)}
@@ -338,7 +340,7 @@ export const PageModal: FC<PageModalProps> = ({
 							<div className={styles.newTagInput}>
 								<input
 									type="text"
-									placeholder="新しいタグ名を入力"
+									placeholder={t("pageModal.addNewTag")}
 									value={newTagInput}
 									onChange={(e) => setNewTagInput(e.target.value)}
 									onKeyDown={(e) => {
@@ -353,10 +355,10 @@ export const PageModal: FC<PageModalProps> = ({
 									onClick={() => handleSubmitNewTag("tori")}
 									disabled={loading}
 								>
-									追加
+									{t("pageModal.add")}
 								</button>
 								<button type="button" onClick={handleCancelNewTag}>
-									キャンセル
+									{t("common.cancel")}
 								</button>
 							</div>
 						)}
@@ -364,7 +366,7 @@ export const PageModal: FC<PageModalProps> = ({
 
 					<div className={styles.section}>
 						<TagSelection
-							title="受け"
+							title={t("pageModal.uke")}
 							tags={ukeTags}
 							selectedTags={formData.uke}
 							onTagToggle={(tag) => handleTagToggle("uke", tag)}
@@ -375,7 +377,7 @@ export const PageModal: FC<PageModalProps> = ({
 							<div className={styles.newTagInput}>
 								<input
 									type="text"
-									placeholder="新しいタグ名を入力"
+									placeholder={t("pageModal.addNewTag")}
 									value={newTagInput}
 									onChange={(e) => setNewTagInput(e.target.value)}
 									onKeyDown={(e) => {
@@ -390,10 +392,10 @@ export const PageModal: FC<PageModalProps> = ({
 									onClick={() => handleSubmitNewTag("uke")}
 									disabled={loading}
 								>
-									追加
+									{t("pageModal.add")}
 								</button>
 								<button type="button" onClick={handleCancelNewTag}>
-									キャンセル
+									{t("common.cancel")}
 								</button>
 							</div>
 						)}
@@ -401,7 +403,7 @@ export const PageModal: FC<PageModalProps> = ({
 
 					<div className={styles.section}>
 						<TagSelection
-							title="技"
+							title={t("pageModal.waza")}
 							tags={wazaTags}
 							selectedTags={formData.waza}
 							onTagToggle={(tag) => handleTagToggle("waza", tag)}
@@ -412,7 +414,7 @@ export const PageModal: FC<PageModalProps> = ({
 							<div className={styles.newTagInput}>
 								<input
 									type="text"
-									placeholder="新しいタグ名を入力"
+									placeholder={t("pageModal.addNewTag")}
 									value={newTagInput}
 									onChange={(e) => setNewTagInput(e.target.value)}
 									onKeyDown={(e) => {
@@ -427,10 +429,10 @@ export const PageModal: FC<PageModalProps> = ({
 									onClick={() => handleSubmitNewTag("waza")}
 									disabled={loading}
 								>
-									追加
+									{t("pageModal.add")}
 								</button>
 								<button type="button" onClick={handleCancelNewTag}>
-									キャンセル
+									{t("common.cancel")}
 								</button>
 							</div>
 						)}
@@ -438,7 +440,7 @@ export const PageModal: FC<PageModalProps> = ({
 
 					<div className={styles.section}>
 						<TextArea
-							label="稽古内容"
+							label={t("pageModal.content")}
 							required
 							value={formData.content}
 							onChange={(e) =>
@@ -451,7 +453,7 @@ export const PageModal: FC<PageModalProps> = ({
 
 					<div className={styles.section}>
 						<TextArea
-							label="その他・コメント（補足や動画URL等）"
+							label={t("pageModal.comment")}
 							value={formData.comment}
 							onChange={(e) =>
 								setFormData((prev) => ({ ...prev, comment: e.target.value }))
@@ -463,7 +465,7 @@ export const PageModal: FC<PageModalProps> = ({
 
 				<div className={styles.footer}>
 					<Button variant="secondary" onClick={handleClose}>
-						キャンセル
+						{t("common.cancel")}
 					</Button>
 					<Button variant="primary" onClick={handleSubmit}>
 						{actionButtonText}

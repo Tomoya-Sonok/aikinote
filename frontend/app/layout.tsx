@@ -1,21 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Zen_Old_Mincho } from "next/font/google";
-import { ToastProvider } from "@/contexts/ToastContext";
-import { FontSizeProvider } from "@/components/providers/FontSizeProvider";
 import "./globals.css";
-
-const zenOldMincho = Zen_Old_Mincho({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-zen-old-mincho",
-  display: "swap", // フォント読み込みの最適化
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap", // フォント読み込みの最適化
-});
 
 export const metadata: Metadata = {
   title: "AikiNote",
@@ -28,18 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
-      <body className={`${zenOldMincho.variable} ${inter.variable}`}>
-        <FontSizeProvider>
-          <ToastProvider>
-            <main
-              style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}
-            >
-              {children}
-            </main>
-          </ToastProvider>
-        </FontSizeProvider>
-      </body>
+    <html lang="ja" suppressHydrationWarning>
+      <body>{children}</body>
     </html>
   );
 }

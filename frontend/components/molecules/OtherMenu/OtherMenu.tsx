@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import { SettingItem } from "@/components/atoms/SettingItem/SettingItem";
 import styles from "./OtherMenu.module.css";
 
@@ -13,11 +14,12 @@ export const OtherMenu: FC<OtherMenuProps> = ({
   onLogoutClick,
   className = "",
 }) => {
+  const t = useTranslations();
   return (
     <div className={`${styles.menu} ${className}`}>
-      <SettingItem onClick={onHelpClick}>ヘルプ・問い合わせ</SettingItem>
+      <SettingItem onClick={onHelpClick}>{t("components.helpContact")}</SettingItem>
       <SettingItem onClick={onLogoutClick} variant="danger">
-        ログアウト
+        {t("components.logout")}
       </SettingItem>
     </div>
   );

@@ -1,5 +1,7 @@
 import type { FC } from "react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import React from "react";
+import { useTranslations } from "next-intl";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
 import styles from "./TagFilterModal.module.css";
 
@@ -14,7 +16,7 @@ interface TagFilterModalProps {
   onClose: () => void;
   tags: TagType[];
   selectedTags: string[]; // 選択されているタグ名の配列
-  onTagToggle: (tagName: string) => void;
+  onTagsConfirm: (tags: string[]) => void;
   title?: string;
 }
 
@@ -23,9 +25,18 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
   onClose,
   tags,
   selectedTags,
-  onTagToggle,
-  title = "タグで絞り込み",
+  onTagsConfirm,
+  title,
 }) => {
+  const t = useTranslations();
+  const [tempSelectedTags, setTempSelectedTags] = useState<string[]>(selectedTags);
+
+  // モーダルが開いたときに現在の選択タグを一時選択に設定
+  React.useEffect(() => {
+    if (isOpen) {
+      setTempSelectedTags(selectedTags);
+    }
+  }, [isOpen, selectedTags]);
   // タグをカテゴリ別に分類
   const { toriTags, ukeTags, wazaTags } = useMemo(() => {
     const toriTags = tags
@@ -44,15 +55,35 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
     return null;
   }
 
+  const handleTempTagToggle = (tagName: string) => {
+    setTempSelectedTags(prev => {
+      if (prev.includes(tagName)) {
+        return prev.filter(tag => tag !== tagName);
+      } else {
+        return [...prev, tagName];
+      }
+    });
+  };
+
+  const handleConfirm = () => {
+    onTagsConfirm(tempSelectedTags);
+    onClose();
+  };
+
+  const handleCancel = () => {
+    setTempSelectedTags(selectedTags);
+    onClose();
+  };
+
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      handleCancel();
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Escape") {
-      onClose();
+      handleCancel();
     }
   };
 
@@ -68,42 +99,60 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
       <div className={styles.modal}>
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleCancel}
           className={styles.closeButton}
-          aria-label="閉じる"
+          aria-label={t("tagFilterModal.close")}
         >
           ×
         </button>
         <div className={styles.header}>
-          <h3 className={styles.title}>{title}</h3>
+          <h3 className={styles.title}>{title || t("tagFilterModal.title")}</h3>
         </div>
         <div className={styles.content}>
           <div className={styles.section}>
             <TagSelection
-              title="取り"
+              title={t("tagFilterModal.tori")}
               tags={toriTags}
-              selectedTags={selectedTags}
-              onTagToggle={onTagToggle}
+              selectedTags={tempSelectedTags}
+              onTagToggle={handleTempTagToggle}
               showAddButton={false}
             />
           </div>
           <div className={styles.section}>
             <TagSelection
-              title="受け"
+              title={t("tagFilterModal.uke")}
               tags={ukeTags}
-              selectedTags={selectedTags}
-              onTagToggle={onTagToggle}
+              selectedTags={tempSelectedTags}
+              onTagToggle={handleTempTagToggle}
               showAddButton={false}
             />
           </div>
           <div className={styles.section}>
             <TagSelection
-              title="技"
+              title={t("tagFilterModal.waza")}
               tags={wazaTags}
-              selectedTags={selectedTags}
-              onTagToggle={onTagToggle}
+              selectedTags={tempSelectedTags}
+              onTagToggle={handleTempTagToggle}
               showAddButton={false}
             />
+          </div>
+
+          {/* Action Buttons */}
+          <div className={styles.actionButtons}>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={handleCancel}
+            >
+              キャンセル
+            </button>
+            <button
+              type="button"
+              className={styles.confirmButton}
+              onClick={handleConfirm}
+            >
+              上記のタグで絞り込む
+            </button>
           </div>
         </div>
       </div>

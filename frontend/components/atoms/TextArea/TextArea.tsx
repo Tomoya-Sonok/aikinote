@@ -1,5 +1,6 @@
 import type { FC, TextareaHTMLAttributes } from "react";
 import { useId } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./TextArea.module.css";
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -15,6 +16,7 @@ export const TextArea: FC<TextAreaProps> = ({
 	className,
 	...props
 }) => {
+	const t = useTranslations();
 	const inputId = useId();
 	const errorId = useId();
 
@@ -23,7 +25,7 @@ export const TextArea: FC<TextAreaProps> = ({
 			{label && (
 				<label htmlFor={inputId} className={styles.label}>
 					{label}
-					{required && <span className={styles.required}>必須</span>}
+					{required && <span className={styles.required}>{t("components.required")}</span>}
 				</label>
 			)}
 			<textarea

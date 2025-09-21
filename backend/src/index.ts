@@ -3,9 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import pagesRoute from "./routes/pages.js";
-import tagsRoute from "./routes/tags.js";
-import usersRoute from "./routes/users.js";
+import pagesRoute from "./routes/pages/index.js";
+import tagsRoute from "./routes/tags/index.js";
+import usersRoute from "./routes/users/index.js";
 import { mockTrainingPages, mockTrainingTags } from "./types/training.js";
 
 // 環境変数からSupabase接続情報を取得
@@ -125,7 +125,6 @@ app.get("/api/training-pages", async (c) => {
 
 		if (!supabase) {
 			// 開発環境ではモックデータを返却
-			console.log("🧪 モックデータを返却中");
 			const userPages = mockTrainingPages.filter(
 				(page) => page.user_id === userId,
 			);
@@ -167,7 +166,6 @@ app.get("/api/training-tags", async (c) => {
 	try {
 		if (!supabase) {
 			// 開発環境ではモックデータを返却
-			console.log("🧪 モック稽古タグデータを返却中");
 			return c.json({
 				success: true,
 				data: mockTrainingTags,

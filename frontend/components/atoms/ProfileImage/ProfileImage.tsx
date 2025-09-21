@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./ProfileImage.module.css";
 
 interface ProfileImageProps {
@@ -11,17 +12,19 @@ interface ProfileImageProps {
 
 export const ProfileImage: FC<ProfileImageProps> = ({
   src,
-  alt = "プロフィール画像",
+  alt,
   size = "medium",
   className = "",
 }) => {
+  const t = useTranslations();
+  const defaultAlt = alt || t("components.profileImage");
   const imageSrc = src || "/mypage/assets/default-profile-image.svg";
 
   return (
     <div className={`${styles.container} ${styles[size]} ${className}`}>
       <Image
         src={imageSrc}
-        alt={alt}
+        alt={defaultAlt}
         fill
         unoptimized
         className={styles.image}

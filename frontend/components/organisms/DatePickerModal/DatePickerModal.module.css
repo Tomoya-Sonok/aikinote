@@ -1,0 +1,238 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.modal {
+  position: relative;
+  background-color: white;
+  width: 100%;
+  height: 80vh;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px -4px 16px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+  z-index: 10;
+  padding: 4px;
+}
+
+.header {
+  flex-shrink: 0;
+  margin-bottom: 24px;
+  padding-right: 32px;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.content {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.navButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.navButton:hover {
+  background-color: #f5f5f5;
+}
+
+.monthYear {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.calendar {
+  flex-grow: 1;
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.weekDay {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  padding: 8px 0;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dayButton {
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayButton:hover {
+  background-color: #f0f0f0;
+}
+
+.dayButton.otherMonth {
+  color: #ccc;
+}
+
+.dayButton.otherMonth:hover {
+  background-color: #f8f8f8;
+}
+
+/* 現在の日付 - アウトライン */
+.dayButton.today {
+  border: 2px solid #838383;
+  color: #838383;
+  font-weight: 600;
+}
+
+.dayButton.today:hover {
+  background-color: rgba(131, 131, 131, 0.1);
+}
+
+/* 選択された日付 - 陰影のある背景 */
+.dayButton.selected {
+  background-color: #838383;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(131, 131, 131, 0.3);
+}
+
+.dayButton.selected:hover {
+  background-color: #6a6a6a;
+  box-shadow: 0 4px 12px rgba(131, 131, 131, 0.4);
+}
+
+/* 今日かつ選択された日付の場合 */
+.dayButton.today.selected {
+  background-color: #838383;
+  color: white;
+  border: 2px solid #6a6a6a;
+  box-shadow: 0 2px 8px rgba(131, 131, 131, 0.3);
+}
+
+.dayButton.today.selected:hover {
+  background-color: #6a6a6a;
+  box-shadow: 0 4px 12px rgba(131, 131, 131, 0.4);
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0 0 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 16px;
+}
+
+.cancelButton {
+  background-color: #c9c9c9;
+  color: #000000;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 82px;
+  font-weight: 400;
+  flex: 1;
+}
+
+.cancelButton:hover {
+  background-color: #b5b5b5;
+}
+
+.confirmButton {
+  background-color: #838383;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 53px;
+  font-weight: 400;
+  flex: 1;
+}
+
+.confirmButton:hover {
+  background-color: #6a6a6a;
+}

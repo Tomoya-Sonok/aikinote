@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type { FC } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import styles from "./TabNavigation.module.css";
 
 interface TabItem {
@@ -12,36 +13,45 @@ interface TabItem {
   href: string;
 }
 
-const tabs: TabItem[] = [
-  {
-    id: "personal",
-    label: "ひとりで",
-    icon: "/icons/edit-icon.svg",
-    href: "/personal/pages",
-  },
-  {
-    id: "social",
-    label: "みんなで",
-    icon: "/icons/message-chat-icon.svg",
-    href: "/social/posts",
-  },
-  {
-    id: "mypage",
-    label: "マイページ",
-    icon: "/icons/user-profile-icon.svg",
-    href: "/mypage",
-  },
-];
+// tabsは動的に生成されるようにする
 
 export const TabNavigation: FC = () => {
+  const t = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
 
+  const tabs: TabItem[] = [
+    {
+      id: "personal",
+      label: t("components.personal"),
+      icon: "/icons/edit-icon.svg",
+      href: `/${locale}/personal/pages`,
+    },
+    {
+      id: "social",
+      label: t("components.group"),
+      icon: "/icons/message-chat-icon.svg",
+      href: `/${locale}/social/posts`,
+    },
+    {
+      id: "mypage",
+      label: t("components.mypage"),
+      icon: "/icons/user-profile-icon.svg",
+      href: `/${locale}/mypage`,
+    },
+  ];
+
   // 現在のパスからアクティブなタブを判定
   const getActiveTab = () => {
-    if (pathname.startsWith("/personal")) return "personal";
-    if (pathname.startsWith("/social")) return "social";
-    if (pathname.startsWith("/mypage")) return "mypage";
+    const localePrefix = `/${locale}`;
+    const normalizedPath = pathname.startsWith(localePrefix)
+      ? pathname.slice(localePrefix.length) || "/"
+      : pathname;
+
+    if (normalizedPath.startsWith("/personal")) return "personal";
+    if (normalizedPath.startsWith("/social")) return "social";
+    if (normalizedPath.startsWith("/mypage")) return "mypage";
     return "personal"; // デフォルト
   };
 

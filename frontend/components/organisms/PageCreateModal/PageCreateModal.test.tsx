@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PageCreateModal } from "./PageCreateModal";
+import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
 
 // PageModalをモック
 vi.mock("../PageModal/PageModal", () => ({
@@ -59,12 +60,12 @@ describe("PageCreateModal", () => {
     const isOpen = false;
 
     // Act: モーダルをレンダリングする
-    render(
+    render(<I18nTestProvider>
       <PageCreateModal
         isOpen={isOpen}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />,
+      /></I18nTestProvider>,
     );
 
     // Assert: モーダルが表示されない
@@ -78,12 +79,12 @@ describe("PageCreateModal", () => {
     const isOpen = true;
 
     // Act: モーダルをレンダリングする
-    render(
+    render(<I18nTestProvider>
       <PageCreateModal
         isOpen={isOpen}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />,
+      /></I18nTestProvider>,
     );
 
     // Assert: ページ作成モーダルが表示される
@@ -97,12 +98,12 @@ describe("PageCreateModal", () => {
     const isOpen = true;
 
     // Act: モーダルをレンダリングする
-    render(
+    render(<I18nTestProvider>
       <PageCreateModal
         isOpen={isOpen}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />,
+      /></I18nTestProvider>,
     );
 
     // Assert: 保存ボタンが表示される
@@ -116,12 +117,12 @@ describe("PageCreateModal", () => {
     const mockOnSave = vi.fn();
     const isOpen = true;
 
-    render(
+    render(<I18nTestProvider>
       <PageCreateModal
         isOpen={isOpen}
         onClose={mockOnClose}
         onSave={mockOnSave}
-      />,
+      /></I18nTestProvider>,
     );
 
     const saveButton = screen.getByText("保存");

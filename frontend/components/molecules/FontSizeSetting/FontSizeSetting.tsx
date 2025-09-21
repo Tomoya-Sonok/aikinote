@@ -1,13 +1,15 @@
+"use client";
+
 import type { FC } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import {
 	type FontSize,
 	useFontSizeStore,
-	getFontSizeLabel,
 	fontSizeToIndex,
 	indexToFontSize,
 } from "@/stores/fontSizeStore";
 import { Button } from "@/components/atoms/Button/Button";
+import { useTranslations } from "next-intl";
 import styles from "./FontSizeSetting.module.css";
 
 interface FontSizeSettingProps {
@@ -20,6 +22,7 @@ export const FontSizeSetting: FC<FontSizeSettingProps> = ({
 	className = "",
 }) => {
 	const { fontSize, setFontSize } = useFontSizeStore();
+	const t = useTranslations();
 
 	const handleSliderChange = (value: number[]) => {
 		const newFontSize = indexToFontSize(value[0]);
@@ -32,20 +35,24 @@ export const FontSizeSetting: FC<FontSizeSettingProps> = ({
 
 	const fontSizes: FontSize[] = ["small", "medium", "large"];
 
+	const getFontSizeLabel = (fontSize: FontSize): string => {
+		return t(`fontSize.${fontSize}`);
+	};
+
 	return (
 		<div className={styles.container}>
 			<p className={styles.description}>
-				読みやすい文字サイズを選択してください
+				{t("fontSize.description")}
 			</p>
 
 			<div className={styles.settingArea}>
 				{/* プレビュー */}
 				<div className={styles.preview} data-font-size={fontSize}>
 					<p className={styles.previewText}>
-						合気道の練習内容をここに記録します。技の名前や感想、上達のポイントなどを書き残しておきましょう。
+						{t("fontSize.previewText")}
 					</p>
 					<Button variant="primary" size="medium">
-						サンプルボタン
+						{t("fontSize.sampleButton")}
 					</Button>
 				</div>
 
@@ -64,7 +71,7 @@ export const FontSizeSetting: FC<FontSizeSettingProps> = ({
 						</Slider.Track>
 						<Slider.Thumb
 							className={styles.sliderThumb}
-							aria-label="フォントサイズ"
+							aria-label={t("fontSize.title")}
 						/>
 					</Slider.Root>
 
@@ -87,7 +94,7 @@ export const FontSizeSetting: FC<FontSizeSettingProps> = ({
 				{onSave && (
 					<div className={styles.actions}>
 						<Button variant="primary" onClick={onSave}>
-							保存する
+							{t("fontSize.saveButton")}
 						</Button>
 					</div>
 				)}

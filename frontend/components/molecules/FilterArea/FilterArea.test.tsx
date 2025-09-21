@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FilterArea } from "./FilterArea";
+import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
 
 describe("FilterArea", () => {
   beforeEach(() => {
@@ -22,7 +23,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Assert: 検索入力フィールドが表示される
     expect(
@@ -44,7 +49,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Assert: タグフィルターが表示される
     expect(screen.getByText("タグ")).toBeInTheDocument();
@@ -64,7 +73,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Assert: 日付フィルターが表示される
     expect(screen.getByText("日付")).toBeInTheDocument();
@@ -84,7 +97,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Assert: タグフィルターに「指定なし」が表示される
     const tagFilterElements = screen.getAllByText("指定なし");
@@ -106,7 +123,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Assert: 選択されたタグがカンマ区切りで表示される
     expect(screen.getByText("React, TypeScript")).toBeInTheDocument();
@@ -127,7 +148,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Assert: 選択された日付が表示される
     expect(screen.getByText("2024-01-15")).toBeInTheDocument();
@@ -148,7 +173,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Assert: 現在の検索クエリが表示される
@@ -169,7 +198,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Assert: 親から渡された検索クエリが表示される
@@ -190,7 +223,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Act: 1文字入力する
@@ -214,7 +251,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Act: 4文字入力する
@@ -238,7 +279,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Act: 1文字目を入力する
@@ -262,7 +307,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Act: 全文字を削除する
@@ -285,7 +334,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Act: onChangeイベントで直接値を設定する
@@ -309,7 +362,11 @@ describe("FilterArea", () => {
     };
 
     // Act: コンポーネントをレンダリングする
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
     // Assert: プロパティで渡された値が表示される
@@ -329,7 +386,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: mockOnOpenTagSelection,
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const tagFilter = screen.getByText("タグ").closest("button");
 
     // Act: タグフィルターをクリックする
@@ -354,7 +415,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: mockOnOpenDateSelection,
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
     const dateFilter = screen.getByText("日付").closest("button");
 
     // Act: 日付フィルターをクリックする
@@ -378,7 +443,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Act: タグフィルターボタンを取得する
     const tagButton = screen.getByText("タグ").closest("button");
@@ -399,7 +468,11 @@ describe("FilterArea", () => {
       onOpenTagSelection: vi.fn(),
       onOpenDateSelection: vi.fn(),
     };
-    render(<FilterArea {...props} />);
+    render(
+      <I18nTestProvider>
+        <FilterArea {...props} />
+      </I18nTestProvider>
+    );
 
     // Act: 日付フィルターボタンを取得する
     const dateButton = screen.getByText("日付").closest("button");

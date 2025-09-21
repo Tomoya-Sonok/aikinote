@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ChangeEvent, FC } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./SearchInput.module.css";
 
 interface SearchInputProps {
@@ -11,20 +12,22 @@ interface SearchInputProps {
 export const SearchInput: FC<SearchInputProps> = ({
   value,
   onChange,
-  placeholder = "フリーワードで絞り込む",
+  placeholder,
 }) => {
+  const t = useTranslations();
+  const defaultPlaceholder = placeholder || t("components.searchPlaceholder");
   return (
     <div className={styles.searchBox}>
       <Image
         src="/icons/search-icon.svg"
-        alt="検索"
+        alt={t("components.searchIcon")}
         width={13}
         height={14}
         className={styles.searchIcon}
       />
       <input
         type="text"
-        placeholder={placeholder}
+        placeholder={defaultPlaceholder}
         value={value}
         onChange={onChange}
         className={styles.searchInput}

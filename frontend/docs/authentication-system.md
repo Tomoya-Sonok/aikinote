@@ -497,18 +497,6 @@ console.log("JWT Payload:", payload);
 
 ## 📊 認証フローの監視
 
-### ログ出力箇所
-```typescript
-// ログイン成功
-console.log("ログイン成功:", { userId: user.id, email: user.email });
-
-// API認証
-console.log("JWT検証成功:", { userId: payload.userId });
-
-// 認証エラー
-console.error("認証エラー:", error.message);
-```
-
 ### メトリクス
 - **ログイン成功率**: Supabase Dashboard
 - **API認証エラー**: Honoサーバーログ

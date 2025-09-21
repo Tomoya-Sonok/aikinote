@@ -93,6 +93,22 @@ export function createValidationErrorResponse(
 }
 
 /**
+ * 400 Bad Request レスポンスを作成する
+ */
+export function createBadRequestResponse(
+  message: string = "リクエストの形式が正しくありません",
+  options: { details?: Record<string, unknown> } = {}
+): NextResponse {
+  const { details } = options;
+
+  return createErrorResponse(API_ERROR_CODES.BAD_REQUEST, {
+    status: 400,
+    message,
+    details,
+  });
+}
+
+/**
  * 認証エラーレスポンスを作成する
  */
 export function createUnauthorizedResponse(

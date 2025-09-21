@@ -1,0 +1,1 @@
+export { EmailVerificationWaitingForm } from "./EmailVerificationWaitingForm";

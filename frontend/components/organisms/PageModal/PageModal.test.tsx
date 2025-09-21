@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PageModal } from "./PageModal";
+import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
 
 // useAuth をモック
 vi.mock("@/lib/hooks/useAuth", () => ({
@@ -71,13 +72,15 @@ describe("PageModal", () => {
 
     // Act: モーダルをレンダリングする
     render(
-      <PageModal
-        isOpen={isOpen}
-        onClose={mockOnClose}
-        onSubmit={mockOnSubmit}
-        modalTitle="テストモーダル"
-        actionButtonText="実行"
-      />,
+      <I18nTestProvider>
+        <PageModal
+          isOpen={isOpen}
+          onClose={mockOnClose}
+          onSubmit={mockOnSubmit}
+          modalTitle="テストモーダル"
+          actionButtonText="実行"
+        />
+      </I18nTestProvider>
     );
 
     // Assert: モーダルが表示されない
@@ -92,13 +95,15 @@ describe("PageModal", () => {
 
     // Act: モーダルをレンダリングする
     render(
-      <PageModal
-        isOpen={isOpen}
-        onClose={mockOnClose}
-        onSubmit={mockOnSubmit}
-        modalTitle="カスタムモーダルタイトル"
-        actionButtonText="実行"
-      />,
+      <I18nTestProvider>
+        <PageModal
+          isOpen={isOpen}
+          onClose={mockOnClose}
+          onSubmit={mockOnSubmit}
+          modalTitle="カスタムモーダルタイトル"
+          actionButtonText="実行"
+        />
+      </I18nTestProvider>
     );
 
     // Assert: カスタムタイトルが表示される
@@ -113,13 +118,15 @@ describe("PageModal", () => {
 
     // Act: モーダルをレンダリングする
     render(
-      <PageModal
-        isOpen={isOpen}
-        onClose={mockOnClose}
-        onSubmit={mockOnSubmit}
-        modalTitle="テストモーダル"
-        actionButtonText="カスタム実行"
-      />,
+      <I18nTestProvider>
+        <PageModal
+          isOpen={isOpen}
+          onClose={mockOnClose}
+          onSubmit={mockOnSubmit}
+          modalTitle="テストモーダル"
+          actionButtonText="カスタム実行"
+        />
+      </I18nTestProvider>
     );
 
     // Assert: カスタムアクションボタンテキストが表示される
@@ -134,13 +141,15 @@ describe("PageModal", () => {
     const isOpen = true;
 
     render(
-      <PageModal
-        isOpen={isOpen}
-        onClose={mockOnClose}
-        onSubmit={mockOnSubmit}
-        modalTitle="テストモーダル"
-        actionButtonText="実行"
-      />,
+      <I18nTestProvider>
+        <PageModal
+          isOpen={isOpen}
+          onClose={mockOnClose}
+          onSubmit={mockOnSubmit}
+          modalTitle="テストモーダル"
+          actionButtonText="実行"
+        />
+      </I18nTestProvider>
     );
 
     const cancelButton = screen.getByText("キャンセル");

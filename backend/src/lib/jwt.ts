@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET =
+	process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
 export interface JWTPayload {
 	userId: string;
@@ -9,7 +10,10 @@ export interface JWTPayload {
 	exp?: number;
 }
 
-export function generateToken(payload: { userId: string; email?: string }): string {
+export function generateToken(payload: {
+	userId: string;
+	email?: string;
+}): string {
 	return jwt.sign(payload, JWT_SECRET, {
 		expiresIn: "24h",
 	});
@@ -17,16 +21,9 @@ export function generateToken(payload: { userId: string; email?: string }): stri
 
 export function verifyToken(token: string): JWTPayload {
 	try {
-		console.log("JWT検証開始:", {
-			tokenLength: token.length,
-			secretSet: !!JWT_SECRET,
-			secretLength: JWT_SECRET.length
-		});
 		const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-		console.log("JWT検証成功:", { userId: decoded.userId });
 		return decoded;
 	} catch (error) {
-		console.error("JWT検証エラー:", error);
 		throw new Error("Invalid or expired token");
 	}
 }
