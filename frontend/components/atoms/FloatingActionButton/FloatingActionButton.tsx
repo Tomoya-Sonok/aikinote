@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./FloatingActionButton.module.css";
 
 interface FloatingActionButtonProps {
@@ -9,18 +10,20 @@ interface FloatingActionButtonProps {
 
 export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
   onClick,
-  label = "ページ作成",
+  label,
 }) => {
+  const t = useTranslations();
+  const defaultLabel = label || t("components.createPage");
   return (
     <button className={styles.fab} onClick={onClick} type="button">
       <Image
         src="/icons/file-edit-icon-new.svg"
-        alt="新規作成"
+        alt={t("components.newCreate")}
         width={32}
         height={33}
         className={styles.icon}
       />
-      <span className={styles.label}>{label}</span>
+      <span className={styles.label}>{defaultLabel}</span>
     </button>
   );
 };

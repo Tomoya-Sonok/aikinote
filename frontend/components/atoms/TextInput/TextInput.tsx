@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from "react";
 import { forwardRef, useId } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./TextInput.module.css";
 
 interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -10,6 +11,7 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 	({ label, required = false, error, className, ...props }, ref) => {
+		const t = useTranslations();
 		const inputId = useId();
 		const errorId = useId();
 
@@ -18,7 +20,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
 				{label && (
 					<label htmlFor={inputId} className={styles.label}>
 						{label}
-						{required && <span className={styles.required}>必須</span>}
+						{required && <span className={styles.required}>{t("components.required")}</span>}
 					</label>
 				)}
 				<input

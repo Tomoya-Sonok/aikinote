@@ -1,5 +1,8 @@
+"use client";
+
 import type { FC } from "react";
 import { SettingItem } from "@/components/atoms/SettingItem/SettingItem";
+import { useTranslations } from "next-intl";
 import styles from "./SettingsMenu.module.css";
 
 interface SettingsMenuProps {
@@ -17,13 +20,19 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({
 	onLanguageClick,
 	className = "",
 }) => {
+	const t = useTranslations();
+
 	return (
 		<div className={`${styles.menu} ${className}`}>
 			{/* 初期リリース時は「公開範囲」をスコープアウト */}
 			{/* <SettingItem onClick={onPublicityClick}>公開範囲</SettingItem> */}
-			<SettingItem onClick={onEmailClick}>メール</SettingItem>
-			<SettingItem onClick={onTextSizeClick}>文字サイズ</SettingItem>
-			<SettingItem onClick={onLanguageClick}>言語 / Language</SettingItem>
+			<SettingItem onClick={onEmailClick}>{t("settings.email")}</SettingItem>
+			<SettingItem
+				onClick={() => (window.location.href = "/settings/font-size")}
+			>
+				{t("fontSize.title")}
+			</SettingItem>
+			<SettingItem onClick={onLanguageClick}>{t("language.label")}</SettingItem>
 		</div>
 	);
 };

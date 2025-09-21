@@ -8,7 +8,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   opacity: 1;
   transition: opacity 0.3s ease-out;
 }
@@ -76,4 +76,53 @@
 
 .section {
   margin-bottom: 16px;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0 0 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 16px;
+}
+
+.cancelButton {
+  background-color: #c9c9c9;
+  color: #000000;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 82px;
+  font-weight: 400;
+  flex: 1;
+}
+
+.cancelButton:hover {
+  background-color: #b5b5b5;
+}
+
+.confirmButton {
+  background-color: #838383;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 0 16px;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+  height: 32px;
+  min-width: 53px;
+  font-weight: 400;
+  flex: 1;
+}
+
+.confirmButton:hover {
+  background-color: #6a6a6a;
 }

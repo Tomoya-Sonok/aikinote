@@ -1,0 +1,96 @@
+.container {
+	padding: 20px;
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.settingArea {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.languageOptions {
+	display: flex;
+	gap: 12px;
+}
+
+.languageOption {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border: 2px solid var(--aikinote-border);
+	border-radius: 8px;
+	background: var(--aikinote-bg-secondary);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	min-height: 60px;
+}
+
+.languageOption:hover {
+	border-color: var(--aikinote-primary);
+	background: var(--aikinote-bg-hover);
+}
+
+.languageOptionActive {
+	border-color: #838383;
+	background: #838383;
+}
+
+.languageOptionActive:hover {
+	border-color: #6a6a6a;
+	background: #6a6a6a;
+}
+
+.languageLabel {
+	font-size: 18px;
+	font-weight: 500;
+	color: var(--aikinote-text-primary);
+}
+
+.languageOptionActive .languageLabel {
+	color: #ffffff;
+	font-weight: 600;
+}
+
+.activeIndicator {
+	color: #ffffff;
+	font-size: 22px;
+	font-weight: bold;
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 50%;
+	width: 28px;
+	height: 28px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.actions {
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+	.container {
+		padding: 16px;
+	}
+
+	.languageOption {
+		padding: 14px 16px;
+		min-height: 56px;
+	}
+
+	.languageLabel {
+		font-size: 16px;
+	}
+
+	.activeIndicator {
+		font-size: 18px;
+		width: 24px;
+		height: 24px;
+	}
+}

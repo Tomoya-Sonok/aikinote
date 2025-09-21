@@ -2,6 +2,7 @@
 
 import type { FC } from "react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { MenuSection } from "@/components/atoms/MenuSection/MenuSection";
 import { OtherMenu } from "@/components/molecules/OtherMenu/OtherMenu";
 import { ProfileCard } from "@/components/molecules/ProfileCard/ProfileCard";
@@ -31,6 +32,7 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 	user,
 	className = "",
 }) => {
+	const t = useTranslations();
 	const { signOutUser } = useAuth();
 	const [currentUser, setCurrentUser] = useState(user);
 
@@ -46,12 +48,8 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 		} catch (error) {
 			console.error("ログアウトエラー:", error);
 			// エラーが発生した場合もユーザーに分かるようにアラートを表示
-			alert("ログアウトに失敗しました。再度お試しください。");
+			alert(t("mypageContent.logoutFailed"));
 		}
-	};
-
-	const handleTextSizeClick = () => {
-		window.location.href = "/settings/font-size";
 	};
 
 	const handleSettingClick = (settingType: string) => {
@@ -60,26 +58,26 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 
 	return (
 		<div className={`${styles.content} ${className}`}>
-			<MenuSection title="プロフィール">
+			<MenuSection title={t("mypageContent.profileSection")}>
 				<ProfileCard
 					username={currentUser.username}
-					dojoStyleName={currentUser.dojo_style_name || "未入力"}
-					trainingStartDate={currentUser.training_start_date || "未入力"}
+					dojoStyleName={currentUser.dojo_style_name || t("mypageContent.notEntered")}
+					trainingStartDate={currentUser.training_start_date || t("mypageContent.notEntered")}
 					profileImageUrl={currentUser.profile_image_url}
 					onEditClick={handleEditProfile}
 				/>
 			</MenuSection>
 
-			<MenuSection title="設定">
+			<MenuSection title={t("mypageContent.settingsSection")}>
 				<SettingsMenu
 					onPublicityClick={() => handleSettingClick("公開範囲")}
 					onEmailClick={() => handleSettingClick("メール")}
-					onTextSizeClick={handleTextSizeClick}
+					onTextSizeClick={() => handleSettingClick("文字サイズ")}
 					onLanguageClick={() => handleSettingClick("言語")}
 				/>
 			</MenuSection>
 
-			<MenuSection title="その他">
+			<MenuSection title={t("mypageContent.otherSection")}>
 				<OtherMenu
 					onHelpClick={() => handleSettingClick("ヘルプ")}
 					onLogoutClick={handleLogout}

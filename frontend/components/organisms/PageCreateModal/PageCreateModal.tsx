@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
 interface PageCreateModalProps {
@@ -21,6 +22,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
   onClose,
   onSave,
 }) => {
+  const t = useTranslations();
   const handleSubmit = (formData: PageFormData) => {
     onSave({
       title: formData.title,
@@ -37,8 +39,8 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      modalTitle="ページ作成"
-      actionButtonText="保存"
+      modalTitle={t("pageCreate.title")}
+      actionButtonText={t("pageCreate.save")}
       shouldCreateInitialTags={true}
     />
   );

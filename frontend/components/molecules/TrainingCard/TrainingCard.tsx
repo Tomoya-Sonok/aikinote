@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "../../atoms/Button/Button";
 import { Tag } from "../../atoms/Tag/Tag";
 import styles from "./TrainingCard.module.css";
@@ -24,6 +25,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
   onDelete,
   onClick,
 }) => {
+  const t = useTranslations();
   const handleEdit = () => {
     onEdit?.();
   };
@@ -48,7 +50,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
             <Button variant="icon" onClick={handleEdit}>
               <Image
                 src="/icons/edit-icon.svg"
-                alt="編集"
+                alt={t("trainingCard.edit")}
                 width={13}
                 height={13}
               />
@@ -58,7 +60,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
             <Button variant="icon" onClick={handleDelete}>
               <Image
                 src="/icons/trash-icon.svg"
-                alt="削除"
+                alt={t("trainingCard.delete")}
                 width={13}
                 height={15}
               />
@@ -74,7 +76,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
       </div>
 
       <p className={styles.content}>{content}</p>
-      <div className={styles.date}>作成日: {date}</div>
+      <div className={styles.date}>{t("trainingCard.createdDate")} {date}</div>
     </>
   );
 

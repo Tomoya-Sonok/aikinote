@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/atoms/Button/Button";
 import { ProfileImage } from "@/components/atoms/ProfileImage/ProfileImage";
 import styles from "./ProfileCard.module.css";
@@ -13,18 +14,20 @@ interface ProfileCardProps {
 
 export const ProfileCard: FC<ProfileCardProps> = ({
 	username,
-	dojoStyleName = "未入力",
-	trainingStartDate = "未入力",
+	dojoStyleName,
+	trainingStartDate,
 	profileImageUrl,
 	onEditClick,
 }) => {
+	const t = useTranslations();
+	const defaultNotEntered = t("profile.notEntered");
 	return (
 		<div>
 			<div className={styles.profileSection}>
 				<ProfileImage
 					src={profileImageUrl}
 					size="small"
-					alt={`${username}のプロフィール画像`}
+					alt={`${username}${t("profile.profileImage")}`}
 				/>
 				<div
 					className={
@@ -33,20 +36,20 @@ export const ProfileCard: FC<ProfileCardProps> = ({
 				>
 					<h1 className={styles.username}>{username}</h1>
 					<Button variant="primary" size="small" onClick={onEditClick}>
-						編集する
+						{t("profile.edit")}
 					</Button>
 				</div>
 			</div>
 
 			<div className={styles.detailsSection}>
 				<div className={styles.detail}>
-					<span className={styles.label}>現在所属している道場（流派）</span>
-					<span className={styles.value}>{dojoStyleName}</span>
+					<span className={styles.label}>{t("profile.currentDojo")}</span>
+					<span className={styles.value}>{dojoStyleName || defaultNotEntered}</span>
 				</div>
 
 				<div className={styles.detail}>
-					<span className={styles.label}>合気道を始めたのはいつ？</span>
-					<span className={styles.value}>{trainingStartDate}</span>
+					<span className={styles.label}>{t("profile.aikidoStartDate")}</span>
+					<span className={styles.value}>{trainingStartDate || defaultNotEntered}</span>
 				</div>
 			</div>
 		</div>

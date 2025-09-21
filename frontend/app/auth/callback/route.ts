@@ -40,70 +40,56 @@ export async function GET(request: NextRequest) {
 					new URL("/login?error=auth_error", requestUrl.origin),
 				);
 			}
-
-			console.log("OAuth認証成功:", data.user?.email);
-
 			// 新規ユーザーの場合、データベースにユーザー情報を作成
-			if (data.user && data.user.email) {
+			if (data?.user?.email) {
 				try {
 					const serviceSupabase = getServiceRoleSupabase();
 
 					// ユーザーが既に存在するかチェック（直接データベースアクセス）
-					console.log("ユーザー存在チェック開始:", data.user.id);
-					const { data: existingUser, error: selectError } = await serviceSupabase
-						.from("User")
-						.select("id, email, username")
-						.eq("id", data.user.id)
-						.maybeSingle();
+					const { data: existingUser, error: selectError } =
+						await serviceSupabase
+							.from("User")
+							.select("id, email, username")
+							.eq("id", data.user.id)
+							.maybeSingle();
 
 					if (selectError) {
 						console.error("ユーザー存在チェックエラー:", selectError);
 						// エラーがあってもリダイレクトは続行
 					} else if (!existingUser) {
 						// ユーザーが存在しない場合、新規作成
-						console.log("新規ユーザーを作成します:", data.user.email);
 
 						// usernameを生成 (emailのローカル部分を使用)
 						const username = data.user.email.split("@")[0];
 						const verificationToken = generateVerificationToken();
 
-						const { data: insertedUser, error: insertError } = await serviceSupabase
-							.from("User")
-							.insert({
-								id: data.user.id,
-								email: data.user.email,
-								username: username,
-								profile_image_url: null,
-								dojo_id: null,
-								training_start_date: null,
-								publicity_setting: "private",
-								language: "ja",
-								is_email_verified: true, // OAuth認証の場合は既にメール確認済み
-								verification_token: verificationToken,
-								password_hash: "",
-								created_at: new Date().toISOString(),
-								updated_at: new Date().toISOString(),
-							})
-							.select("id, email, username")
-							.single();
+						const { data: insertedUser, error: insertError } =
+							await serviceSupabase
+								.from("User")
+								.insert({
+									id: data.user.id,
+									email: data.user.email,
+									username: username,
+									profile_image_url: null,
+									dojo_id: null,
+									training_start_date: null,
+									publicity_setting: "private",
+									language: "ja",
+									is_email_verified: true, // OAuth認証の場合は既にメール確認済み
+									verification_token: verificationToken,
+									password_hash: "",
+									created_at: new Date().toISOString(),
+									updated_at: new Date().toISOString(),
+								})
+								.select("id, email, username")
+								.single();
 
 						if (insertError) {
 							console.error("ユーザー作成エラー:", insertError);
 							// エラーがあってもリダイレクトは続行
 						} else {
-							console.log("ユーザー作成成功:", insertedUser);
-
-
 							// ユーザータグ初期化（エラーが発生してもリダイレクトは続行）
-							try {
-								const tagResult = await initializeUserTagsIfNeeded(data.user.id);
-								console.log("ユーザータグ初期化:", {
-									success: tagResult.success,
-									count: tagResult.data?.length,
-								});
-							} catch (tagError) {
-								console.error("ユーザータグ初期化エラー:", tagError);
-							}
+							await initializeUserTagsIfNeeded(data.user.id);
 						}
 					} else {
 						console.log("ユーザーは既に存在します:", data.user.email);

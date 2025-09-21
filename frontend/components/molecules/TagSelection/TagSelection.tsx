@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslations } from "next-intl";
 import { Tag } from "@/components/atoms/Tag/Tag";
 import styles from "./TagSelection.module.css";
 
@@ -19,6 +20,7 @@ export const TagSelection: FC<TagSelectionProps> = ({
   onAddNew,
   showAddButton = true,
 }) => {
+  const t = useTranslations();
   return (
     <div className={styles.container}>
       <div className={styles.titleButtonWrapper}>
@@ -30,7 +32,7 @@ export const TagSelection: FC<TagSelectionProps> = ({
               className={styles.addButton}
               onClick={onAddNew}
             >
-              ＋追加
+              {t("tagSelection.add")}
             </button>
           )}
         </div>
