@@ -3,17 +3,27 @@
     <h1>AikiNote</h1>
 </div>
 
-
-
-
-<!-- TODO: Add screenshots to briefly understand how to use aikinote  -->
-
 [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=Open&message=in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/Tomoya-Sonok/aikinote)
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Tomoya-Sonok/aikinote/main_ci.yml?branch=main)](https://github.com/Tomoya-Sonok/aikinote/actions)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/pulse)
 [![GitHub last commit](https://img.shields.io/github/last-commit/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/commits/main)
 [![GitHub](https://img.shields.io/github/license/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/blob/main/LICENSE)
+
+
+<img width="300" height="647" alt="Screenshot 2025-09-22 at 14 57 15-portrait" src="https://github.com/user-attachments/assets/2b79fd6f-5a91-4957-bd9f-151b963ed94c" />
+
+<img width="300" height="647" alt="Screenshot 2025-09-22 at 15 01 45-portrait" src="https://github.com/user-attachments/assets/c4a59c7c-d230-4a0c-8a95-4c21b531e863" />
+
+<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 40 53-portrait" src="https://github.com/user-attachments/assets/7be119dd-cce5-4811-a7d4-557327807839" />
+
+
+
+<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 32 45-portrait" src="https://github.com/user-attachments/assets/6803f562-4845-42fe-96d2-df7e26486e8b" />
+
+<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 27 03-portrait" src="https://github.com/user-attachments/assets/6abfc04f-5f73-4898-9a68-ec9c4cea4d46" />
+
+<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 43 47-portrait" src="https://github.com/user-attachments/assets/6be727d9-1061-456e-8923-eef6748373f5" />
 
 ## About
 
@@ -38,7 +48,7 @@
   - アプリ起動後、ワンタップですぐに稽古記録が可能。
   - 相半身/逆半身や◯◯手取りなどの情報は、都度入力する必要はなくタグとして選択するのみでよい。重要な学んだことの振り返りの入力に集中できる。
   - タグやフリーワード、記録日で検索して、効率よく過去の稽古記録を参照・閲覧することができる。
-- みんなで（初期リリースには含めず、後発で実装・追加予定）
+- みんなで（**初期リリースには含めず、後発で実装・追加予定**）
   - 異なる流派や他道場生と合気道の技の考察や意見交換を通して交流できるSNS機能
   - 自分の投稿内容の公開範囲をマイページから変更すると、同じ流派（所属道場）のユーザーのみに向けた発信もできる
 
@@ -49,7 +59,7 @@
   - Quickly log your training session with just one tap after launching the app.
   - No need to type in details like ai-hanmi / gyaku-hanmi or katate-dori—just select them as tags so you can focus on recording what you’ve truly learned.
   - Easily browse and revisit past entries using tags, free-text search, or training dates.
-- Social Mode (Coming in future updates)
+- Social Mode (**Coming in future updates**)
   - A social feature to connect with practitioners from different styles and dojos, allowing thoughtful exchange and discussion of Aikido techniques.
   - You can adjust the visibility of your posts from your profile page—for example, limit them to users from your own style or dojo.
 
