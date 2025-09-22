@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { FontSizeProvider } from "@/components/providers/FontSizeProvider";
+import { LocaleInitializer } from "@/components/providers/LocaleInitializer";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { routing } from "@/lib/i18n/routing";
 
@@ -23,6 +24,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <LocaleInitializer />
       <FontSizeProvider>
         <ToastProvider>
           <main

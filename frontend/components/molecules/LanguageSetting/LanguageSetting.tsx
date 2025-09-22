@@ -2,34 +2,34 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
+import { useState } from "react";
 import { Button } from "@/components/atoms/Button/Button";
-import { usePathname, useRouter } from "@/lib/i18n/routing";
+import { useLanguageStore, type Language, getLanguageOptions } from "@/stores/languageStore";
 import styles from "./LanguageSetting.module.css";
 
-type Language = "ja" | "en";
 
 interface LanguageSettingProps {
   onSave?: () => void;
   className?: string;
 }
 
-const getLanguageOptions = (): Array<{ value: Language; label: string }> => {
-  return [
-    { value: "ja", label: "日本語" },
-    { value: "en", label: "English" },
-  ];
-};
 
 export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
-  const locale = useLocale() as Language;
-  const router = useRouter();
-  const pathname = usePathname();
+  const currentLocale = useLocale() as Language;
+  const { language, setLanguage } = useLanguageStore();
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(currentLocale);
   const t = useTranslations();
 
   const languageOptions = getLanguageOptions();
 
   const handleLanguageChange = (targetLanguage: Language) => {
-    router.push(pathname, { locale: targetLanguage });
+    setSelectedLanguage(targetLanguage);
+  };
+
+  const handleSave = () => {
+    // zustandストアを更新
+    setLanguage(selectedLanguage);
+    onSave?.();
   };
 
   return (
@@ -42,7 +42,7 @@ export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
               key={option.value}
               type="button"
               className={`${styles.languageOption} ${
-                locale === option.value ? styles.languageOptionActive : ""
+                selectedLanguage === option.value ? styles.languageOptionActive : ""
               }`}
               onClick={() => handleLanguageChange(option.value)}
             >
@@ -51,13 +51,11 @@ export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
           ))}
         </div>
 
-        {onSave && (
-          <div className={styles.actions}>
-            <Button variant="primary" onClick={onSave}>
-              {t("common.save")}
-            </Button>
-          </div>
-        )}
+        <div className={styles.actions}>
+          <Button variant="primary" onClick={handleSave}>
+            {t("common.save")}
+          </Button>
+        </div>
       </div>
     </div>
   );

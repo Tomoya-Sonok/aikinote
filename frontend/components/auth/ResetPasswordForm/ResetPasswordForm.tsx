@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Loader } from "@/components/atoms/Loader";
@@ -28,6 +29,7 @@ export function ResetPasswordForm({
   const router = useRouter();
   const passwordId = useId();
   const confirmPasswordId = useId();
+  const t = useTranslations();
 
   const {
     register,
@@ -58,7 +60,7 @@ export function ResetPasswordForm({
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <title>パスワード変更完了</title>
+              <title>{t("auth.passwordChangeCompleteIcon")}</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -68,17 +70,17 @@ export function ResetPasswordForm({
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            パスワード変更完了
+            {t("auth.passwordChangeComplete")}
           </h2>
           <p className="text-gray-600 mb-6">
-            パスワードが正常に変更されました。新しいパスワードでログインしてください。
+            {t("auth.passwordChangeSuccess")}
           </p>
           <button
             type="button"
             onClick={() => router.push("/login")}
             className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
-            ログインページへ
+            {t("auth.goToLogin")}
           </button>
         </div>
       </div>
@@ -88,10 +90,10 @@ export function ResetPasswordForm({
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
-        新しいパスワードを設定
+        {t("auth.setNewPasswordTitle")}
       </h2>
       <p className="text-center text-gray-600 mb-6">
-        新しいパスワードを入力してください。
+        {t("auth.enterNewPassword")}
       </p>
 
       {error && (
@@ -106,7 +108,7 @@ export function ResetPasswordForm({
             htmlFor={passwordId}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            新しいパスワード
+            {t("auth.newPassword")}
           </label>
           <div className="relative">
             <input
@@ -114,7 +116,7 @@ export function ResetPasswordForm({
               type={showPassword ? "text" : "password"}
               id={passwordId}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="新しいパスワードを入力"
+              placeholder={t("auth.newPasswordPlaceholder")}
               onFocus={clearError}
             />
             <button
@@ -122,7 +124,7 @@ export function ResetPasswordForm({
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
-              {showPassword ? "隠す" : "表示"}
+              {showPassword ? t("auth.hide") : t("auth.show")}
             </button>
           </div>
           {errors.password && (
@@ -131,7 +133,7 @@ export function ResetPasswordForm({
             </p>
           )}
           <p className="mt-1 text-xs text-gray-500">
-            8〜128文字、大文字・小文字・数字・記号のうち3種類以上を含む
+            {t("auth.passwordRequirements")}
           </p>
         </div>
 
@@ -140,7 +142,7 @@ export function ResetPasswordForm({
             htmlFor={confirmPasswordId}
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            パスワード確認
+            {t("auth.confirmPassword")}
           </label>
           <div className="relative">
             <input
@@ -148,7 +150,7 @@ export function ResetPasswordForm({
               type={showConfirmPassword ? "text" : "password"}
               id={confirmPasswordId}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="パスワードを再入力"
+              placeholder={t("auth.confirmPasswordPlaceholder")}
               onFocus={clearError}
             />
             <button
@@ -156,7 +158,7 @@ export function ResetPasswordForm({
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
-              {showConfirmPassword ? "隠す" : "表示"}
+              {showConfirmPassword ? t("auth.hide") : t("auth.show")}
             </button>
           </div>
           {errors.confirmPassword && (
@@ -172,9 +174,9 @@ export function ResetPasswordForm({
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isProcessing ? (
-            <Loader size="small" text="変更中..." />
+            <Loader size="small" text={t("auth.changing")} />
           ) : (
-            "パスワードを変更"
+            t("auth.changePassword")
           )}
         </button>
       </form>
@@ -184,7 +186,7 @@ export function ResetPasswordForm({
           href="/login"
           className="text-sm text-blue-600 hover:text-blue-500"
         >
-          ログインページに戻る
+          {t("auth.goToLogin")}
         </Link>
       </div>
     </div>

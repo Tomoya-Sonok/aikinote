@@ -1,6 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { SettingItem } from "@/components/atoms/SettingItem/SettingItem";
 import styles from "./SettingsMenu.module.css";
@@ -21,6 +22,8 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({
   className = "",
 }) => {
   const t = useTranslations();
+  const router = useRouter();
+  const locale = useLocale();
 
   return (
     <div className={`${styles.menu} ${className}`}>
@@ -28,11 +31,15 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({
       {/* <SettingItem onClick={onPublicityClick}>公開範囲</SettingItem> */}
       <SettingItem onClick={onEmailClick}>{t("settings.email")}</SettingItem>
       <SettingItem
-        onClick={() => (window.location.href = "/settings/font-size")}
+        onClick={() => router.push(`/${locale}/settings/font-size`)}
       >
         {t("fontSize.title")}
       </SettingItem>
-      <SettingItem onClick={onLanguageClick}>{t("language.label")}</SettingItem>
+      <SettingItem
+        onClick={() => router.push(`/${locale}/settings/language`)}
+      >
+        {t("language.label")}
+      </SettingItem>
     </div>
   );
 };
