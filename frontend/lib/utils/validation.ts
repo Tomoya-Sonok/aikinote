@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { getTranslations } from "next-intl/server";
+import type { AbstractIntlMessages } from "next-intl";
+
+// Validation message helper function
+type TranslationFunction = (key: string) => string;
 
 // WHATWG標準のメールアドレス正規表現
 const emailRegex =
@@ -22,89 +27,157 @@ const passwordValidation = (password: string) => {
   return typeCount >= 3;
 };
 
-// ステップ1: メールアドレス・パスワード
-export const emailPasswordSchema = z.object({
+// Create validation schemas with i18n support
+export const createEmailPasswordSchema = (t: TranslationFunction) => z.object({
   email: z
     .string()
-    .email("有効なメールアドレスを入力してください")
-    .regex(emailRegex, "メールアドレスの形式が正しくありません"),
+    .email(t("validation.invalidEmail"))
+    .regex(emailRegex, t("validation.invalidEmailFormat")),
   password: z
     .string()
-    .min(8, "パスワードは8文字以上である必要があります")
-    .max(128, "パスワードは128文字以下である必要があります")
+    .min(8, t("validation.passwordMinLength"))
+    .max(128, t("validation.passwordMaxLength"))
     .refine(passwordValidation, {
-      message:
-        "パスワードは大文字、小文字、数字、記号のうち3種類以上を含む必要があります",
+      message: t("validation.passwordComplexity"),
     }),
 });
 
-// ステップ2: ユーザー名
-export const usernameSchema = z.object({
+// Legacy schema for backward compatibility
+export const emailPasswordSchema = createEmailPasswordSchema((key) => {
+  // Default Japanese messages for legacy support
+  const messages: Record<string, string> = {
+    "validation.invalidEmail": "有効なメールアドレスを入力してください",
+    "validation.invalidEmailFormat": "メールアドレスの形式が正しくありません",
+    "validation.passwordMinLength": "パスワードは8文字以上である必要があります",
+    "validation.passwordMaxLength": "パスワードは128文字以下である必要があります",
+    "validation.passwordComplexity": "パスワードは大文字、小文字、数字、記号のうち3種類以上を含む必要があります",
+  };
+  return messages[key] || key;
+});
+
+// Username schema with i18n support
+export const createUsernameSchema = (t: TranslationFunction) => z.object({
   username: z
     .string()
-    .min(1, "ユーザー名を入力してください")
-    .max(20, "ユーザー名は20文字以下である必要があります")
+    .min(1, t("validation.usernameRequired"))
+    .max(20, t("validation.usernameMaxLength"))
     .regex(
       /^[a-zA-Z0-9_-]+$/,
-      "ユーザー名は英数字、アンダースコア、ハイフンのみ使用できます",
+      t("validation.usernameFormat"),
     ),
 });
 
-// 完全なサインアップスキーマ（API用）
-export const signUpSchema = z.object({
+// Legacy schema for backward compatibility
+export const usernameSchema = createUsernameSchema((key) => {
+  const messages: Record<string, string> = {
+    "validation.usernameRequired": "ユーザー名を入力してください",
+    "validation.usernameMaxLength": "ユーザー名は20文字以下である必要があります",
+    "validation.usernameFormat": "ユーザー名は英数字、アンダースコア、ハイフンのみ使用できます",
+  };
+  return messages[key] || key;
+});
+
+// Complete signup schema with i18n support
+export const createSignUpSchema = (t: TranslationFunction) => z.object({
   email: z
     .string()
-    .email("有効なメールアドレスを入力してください")
-    .regex(emailRegex, "メールアドレスの形式が正しくありません"),
+    .email(t("validation.invalidEmail"))
+    .regex(emailRegex, t("validation.invalidEmailFormat")),
   password: z
     .string()
-    .min(8, "パスワードは8文字以上である必要があります")
-    .max(128, "パスワードは128文字以下である必要があります")
+    .min(8, t("validation.passwordMinLength"))
+    .max(128, t("validation.passwordMaxLength"))
     .refine(passwordValidation, {
-      message:
-        "パスワードは大文字、小文字、数字、記号のうち3種類以上を含む必要があります",
+      message: t("validation.passwordComplexity"),
     }),
   username: z
     .string()
-    .min(1, "ユーザー名を入力してください")
-    .max(20, "ユーザー名は20文字以下である必要があります")
+    .min(1, t("validation.usernameRequired"))
+    .max(20, t("validation.usernameMaxLength"))
     .regex(
       /^[a-zA-Z0-9_-]+$/,
-      "ユーザー名は英数字、アンダースコア、ハイフンのみ使用できます",
+      t("validation.usernameFormat"),
     ),
 });
 
-export const signInSchema = z.object({
-  email: z
-    .string()
-    .email("有効なメールアドレスを入力してください")
-    .regex(emailRegex, "メールアドレスの形式が正しくありません"),
-  password: z.string().min(1, "パスワードを入力してください"),
+// Legacy schema
+export const signUpSchema = createSignUpSchema((key) => {
+  const messages: Record<string, string> = {
+    "validation.invalidEmail": "有効なメールアドレスを入力してください",
+    "validation.invalidEmailFormat": "メールアドレスの形式が正しくありません",
+    "validation.passwordMinLength": "パスワードは8文字以上である必要があります",
+    "validation.passwordMaxLength": "パスワードは128文字以下である必要があります",
+    "validation.passwordComplexity": "パスワードは大文字、小文字、数字、記号のうち3種類以上を含む必要があります",
+    "validation.usernameRequired": "ユーザー名を入力してください",
+    "validation.usernameMaxLength": "ユーザー名は20文字以下である必要があります",
+    "validation.usernameFormat": "ユーザー名は英数字、アンダースコア、ハイフンのみ使用できます",
+  };
+  return messages[key] || key;
 });
 
-export const resetPasswordSchema = z.object({
+// Sign in schema with i18n support
+export const createSignInSchema = (t: TranslationFunction) => z.object({
   email: z
     .string()
-    .email("有効なメールアドレスを入力してください")
-    .regex(emailRegex, "メールアドレスの形式が正しくありません"),
+    .email(t("validation.invalidEmail"))
+    .regex(emailRegex, t("validation.invalidEmailFormat")),
+  password: z.string().min(1, t("validation.passwordRequired")),
 });
 
-export const newPasswordSchema = z
+// Legacy schema
+export const signInSchema = createSignInSchema((key) => {
+  const messages: Record<string, string> = {
+    "validation.invalidEmail": "有効なメールアドレスを入力してください",
+    "validation.invalidEmailFormat": "メールアドレスの形式が正しくありません",
+    "validation.passwordRequired": "パスワードを入力してください",
+  };
+  return messages[key] || key;
+});
+
+// Reset password schema with i18n support
+export const createResetPasswordSchema = (t: TranslationFunction) => z.object({
+  email: z
+    .string()
+    .email(t("validation.invalidEmail"))
+    .regex(emailRegex, t("validation.invalidEmailFormat")),
+});
+
+// Legacy schema
+export const resetPasswordSchema = createResetPasswordSchema((key) => {
+  const messages: Record<string, string> = {
+    "validation.invalidEmail": "有効なメールアドレスを入力してください",
+    "validation.invalidEmailFormat": "メールアドレスの形式が正しくありません",
+  };
+  return messages[key] || key;
+});
+
+// New password schema with i18n support
+export const createNewPasswordSchema = (t: TranslationFunction) => z
   .object({
     password: z
       .string()
-      .min(8, "パスワードは8文字以上である必要があります")
-      .max(128, "パスワードは128文字以下である必要があります")
+      .min(8, t("validation.passwordMinLength"))
+      .max(128, t("validation.passwordMaxLength"))
       .refine(passwordValidation, {
-        message:
-          "パスワードは大文字、小文字、数字、記号のうち3種類以上を含む必要があります",
+        message: t("validation.passwordComplexity"),
       }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "パスワードが一致しません",
+    message: t("validation.passwordMismatch"),
     path: ["confirmPassword"],
   });
+
+// Legacy schema
+export const newPasswordSchema = createNewPasswordSchema((key) => {
+  const messages: Record<string, string> = {
+    "validation.passwordMinLength": "パスワードは8文字以上である必要があります",
+    "validation.passwordMaxLength": "パスワードは128文字以下である必要があります",
+    "validation.passwordComplexity": "パスワードは大文字、小文字、数字、記号のうち3種類以上を含む必要があります",
+    "validation.passwordMismatch": "パスワードが一致しません",
+  };
+  return messages[key] || key;
+});
 
 export type EmailPasswordFormData = z.infer<typeof emailPasswordSchema>;
 export type UsernameFormData = z.infer<typeof usernameSchema>;

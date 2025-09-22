@@ -6,13 +6,19 @@ export type Language = "ja" | "en";
 export interface LanguageState {
   language: Language;
   setLanguage: (language: Language) => void;
+  getNavigationPath: (basePath: string) => string;
 }
 
 export const useLanguageStore = create<LanguageState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       language: "ja", // デフォルトは日本語
       setLanguage: (language) => set({ language }),
+      getNavigationPath: (basePath: string) => {
+        const { language } = get();
+        // 日本語の場合はプリフィックスなし、英語の場合は /en プリフィックス
+        return language === "ja" ? basePath : `/en${basePath}`;
+      },
     }),
     {
       name: "aikinote-language", // localStorage key

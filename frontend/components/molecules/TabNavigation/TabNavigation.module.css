@@ -1,48 +1,65 @@
 .tabContainer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  background: var(--aikinote-white);
-  border-top: 1px solid #e5e7eb;
-  z-index: 100;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	background: var(--aikinote-white);
+	border-top: 1px solid #e5e7eb;
+	z-index: 100;
 }
 
 .tab {
-  flex: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  border: none;
-  background: var(--aikinote-white);
-  padding: 0;
+	flex: 1;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	border: none;
+	background: var(--aikinote-white);
+	padding: 0;
 }
 
 .tab.active {
-  background: var(--aikinote-white);
-  box-shadow: inset 0px -105px 4px 0px rgba(0, 0, 0, 0.1);
-  border-bottom: 3px solid var(--aikinote-black);
+	background: var(--aikinote-white);
+}
+
+.tab.active .tabContent {
+	background: var(--aikinote-gray);
+	border-radius: 40px;
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.tab.active .icon {
+	filter: brightness(0) invert(1);
+}
+
+.tab.active .label {
+	color: var(--aikinote-white);
+	font-weight: 600;
 }
 
 .tabContent {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 16px 16px;
-  gap: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 8px 16px 8px;
+	gap: 4px;
+	margin: 4px 8px;
+	transition: all 0.2s ease;
 }
 
 .icon {
-  width: 32px;
-  height: 32px;
+	width: 32px;
+	height: 32px;
+	transition: filter 0.2s ease;
 }
 
 .label {
-  font-family: var(--font-zen-old-mincho);
-  font-size: var(--font-size-xs);
-  font-weight: 400;
-  line-height: 1.4;
-  color: var(--aikinote-black);
-  text-align: center;
+	font-family: var(--font-zen-old-mincho);
+	font-size: var(--font-size-xs);
+	font-weight: 400;
+	line-height: 1.4;
+	color: var(--aikinote-black);
+	text-align: center;
+	transition: all 0.2s ease;
 }

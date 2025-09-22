@@ -43,7 +43,7 @@ frontend/
 
 ### 翻訳ファイルの場所
 
-翻訳ファイルは `frontend/messages/` ディレクトリに配置：
+翻訳ファイルは `frontend/translations/` ディレクトリに配置：
 - `ja.json`: 日本語翻訳
 - `en.json`: 英語翻訳
 
@@ -100,7 +100,7 @@ frontend/
 
 ##### ja.json（日本語）の更新
 ```bash
-# frontend/messages/ja.json
+# frontend/translations/ja.json
 {
   "existing": "既存の翻訳...",
   "profile": {
@@ -116,7 +116,7 @@ frontend/
 
 ##### en.json（英語）の更新
 ```bash
-# frontend/messages/en.json
+# frontend/translations/en.json
 {
   "existing": "Existing translations...",
   "profile": {
@@ -158,8 +158,8 @@ export function ProfileComponent() {
 JSONファイルの構文エラーをチェック：
 ```bash
 # JSONファイルの構文確認
-cat frontend/messages/ja.json | jq .
-cat frontend/messages/en.json | jq .
+cat frontend/translations/ja.json | jq .
+cat frontend/translations/en.json | jq .
 ```
 
 #### 2. キーの整合性チェック
@@ -167,8 +167,8 @@ cat frontend/messages/en.json | jq .
 翻訳キーが両言語で一致しているかチェック：
 ```bash
 # キー一覧の抽出と比較
-jq -r 'paths(scalars) as $p | $p | join(".")' frontend/messages/ja.json | sort > ja_keys.txt
-jq -r 'paths(scalars) as $p | $p | join(".")' frontend/messages/en.json | sort > en_keys.txt
+jq -r 'paths(scalars) as $p | $p | join(".")' frontend/translations/ja.json | sort > ja_keys.txt
+jq -r 'paths(scalars) as $p | $p | join(".")' frontend/translations/en.json | sort > en_keys.txt
 diff ja_keys.txt en_keys.txt
 ```
 
@@ -198,7 +198,7 @@ export const routing = defineRouting({
 新しい言語の翻訳ファイルを作成：
 ```bash
 # 韓国語翻訳ファイルの作成
-cp frontend/messages/en.json frontend/messages/ko.json
+cp frontend/translations/en.json frontend/translations/ko.json
 # その後、ko.jsonを韓国語に翻訳
 ```
 
