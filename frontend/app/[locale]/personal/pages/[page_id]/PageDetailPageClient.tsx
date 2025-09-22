@@ -1,8 +1,8 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { useTranslations, useLocale } from "next-intl";
 import { Loader } from "@/components/atoms/Loader";
 import { Tag } from "@/components/atoms/Tag/Tag";
 import {

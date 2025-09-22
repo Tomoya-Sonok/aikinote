@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ルーティング設定をテストするための簡単なテスト
 const testRoutingConfig = {
@@ -63,11 +63,17 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("enプレフィックス付きのパスは英語として処理される", () => {
       // Arrange: 英語プレフィックス付きのパス例を準備する
-      const pathsWithEnPrefix = ["/en/signup", "/en/login", "/en/mypage", "/en/settings"];
+      const pathsWithEnPrefix = [
+        "/en/signup",
+        "/en/login",
+        "/en/mypage",
+        "/en/settings",
+      ];
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
-      const isEnglishSupported = testRoutingConfig.locales.includes(expectedLocale);
+      const isEnglishSupported =
+        testRoutingConfig.locales.includes(expectedLocale);
 
       // Assert: 英語ロケールがサポートされている
       expect(isEnglishSupported).toBe(true);
@@ -77,7 +83,8 @@ describe("ミドルウェアルーティング動作テスト", () => {
   describe("自動ロケール検出無効化の効果", () => {
     it("ブラウザ言語設定による自動リダイレクトが無効化されている", () => {
       // Arrange: ロケール検出無効化設定を確認する
-      const isLocaleDetectionDisabled = testRoutingConfig.localeDetection === false;
+      const isLocaleDetectionDisabled =
+        testRoutingConfig.localeDetection === false;
 
       // Act: ロケール検出設定を取得する
       const actualLocaleDetection = testRoutingConfig.localeDetection;
@@ -89,8 +96,10 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("URLパスのみで言語が決定される設定になっている", () => {
       // Arrange: URLパス決定用の設定を確認する
-      const isLocalePrefixAsNeeded = testRoutingConfig.localePrefix === "as-needed";
-      const isLocaleDetectionDisabled = testRoutingConfig.localeDetection === false;
+      const isLocalePrefixAsNeeded =
+        testRoutingConfig.localePrefix === "as-needed";
+      const isLocaleDetectionDisabled =
+        testRoutingConfig.localeDetection === false;
 
       // Act: 設定値を取得する
       const actualLocalePrefix = testRoutingConfig.localePrefix;
@@ -123,7 +132,8 @@ describe("ミドルウェアルーティング動作テスト", () => {
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
-      const isEnglishSupported = testRoutingConfig.locales.includes(expectedLocale);
+      const isEnglishSupported =
+        testRoutingConfig.locales.includes(expectedLocale);
 
       // Assert: 英語ロケールがサポートされているため英語で表示される
       expect(isEnglishSupported).toBe(true);
@@ -147,7 +157,8 @@ describe("ミドルウェアルーティング動作テスト", () => {
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
-      const isEnglishSupported = testRoutingConfig.locales.includes(expectedLocale);
+      const isEnglishSupported =
+        testRoutingConfig.locales.includes(expectedLocale);
 
       // Assert: 英語ロケールがサポートされているため英語で表示される
       expect(isEnglishSupported).toBe(true);
@@ -157,7 +168,8 @@ describe("ミドルウェアルーティング動作テスト", () => {
   describe("不要なリダイレクト防止の仕様", () => {
     it("前回英語ページアクセス後も日本語ページは自動リダイレクトされない", () => {
       // Arrange: ロケール検出無効化設定を確認する
-      const isLocaleDetectionDisabled = testRoutingConfig.localeDetection === false;
+      const isLocaleDetectionDisabled =
+        testRoutingConfig.localeDetection === false;
 
       // Act: ロケール検出設定を取得する
       const actualLocaleDetection = testRoutingConfig.localeDetection;
@@ -169,7 +181,8 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("ブラウザのAccept-Languageヘッダーは無視される", () => {
       // Arrange: ロケール検出無効化設定を確認する
-      const isLocaleDetectionDisabled = testRoutingConfig.localeDetection === false;
+      const isLocaleDetectionDisabled =
+        testRoutingConfig.localeDetection === false;
 
       // Act: ロケール検出設定を取得する
       const actualLocaleDetection = testRoutingConfig.localeDetection;

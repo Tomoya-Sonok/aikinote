@@ -2,11 +2,11 @@
  * useAuth hook のテスト
  * セッション監視機能の復活に関する重要な動作をテスト
  */
-import { renderHook, waitFor, act } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
-import { useAuth } from "./useAuth";
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import * as supabaseClient from "@/lib/supabase/client";
 import * as userApi from "@/lib/utils/user-api";
+import { useAuth } from "./useAuth";
 
 // useRouterをモック
 vi.mock("next/navigation", () => ({
@@ -58,7 +58,7 @@ describe("useAuth hook - セッション監視機能", () => {
     // onAuthStateChangeが呼び出されることを確認
     expect(mockSupabaseClient.auth.onAuthStateChange).toHaveBeenCalledTimes(1);
     expect(mockSupabaseClient.auth.onAuthStateChange).toHaveBeenCalledWith(
-      expect.any(Function)
+      expect.any(Function),
     );
   });
 
@@ -105,7 +105,7 @@ describe("useAuth hook - セッション監視機能", () => {
 
   it("認証状態変更中にエラーが発生した場合の処理", async () => {
     (userApi.fetchUserProfile as Mock).mockRejectedValue(
-      new Error("ネットワークエラー")
+      new Error("ネットワークエラー"),
     );
 
     let authStateChangeCallback: Function;
@@ -155,9 +155,9 @@ describe("useAuth hook - セッション監視機能", () => {
         new Promise((resolve) =>
           setTimeout(
             () => resolve({ data: { session: null }, error: null }),
-            100
-          )
-        )
+            100,
+          ),
+        ),
     );
 
     const { result } = renderHook(() => useAuth());

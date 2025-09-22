@@ -1,167 +1,167 @@
 .content {
-	background: white;
-	border-radius: 24px;
-	padding: 32px 24px;
-	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
+  background: white;
+  border-radius: 24px;
+  padding: 32px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .imageSection {
-	display: flex;
-	gap: 24px;
-	align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
 }
 
 .profileImageContainer {
-	position: relative;
+  position: relative;
 }
 
 .profileImage {
-	width: 72px;
-	height: 72px;
-	border-radius: 50%;
-	background: #d1d5db;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	overflow: hidden;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .editIcon {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	width: 24px;
-	height: 24px;
-	background: white;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
 .imageUpload {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .uploadText {
-	font-size: var(--font-size-xs);
-	color: #374151;
-	line-height: 1.5;
+  font-size: var(--font-size-xs);
+  color: #374151;
+  line-height: 1.5;
 }
 
 .fileInfoContainer {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
 }
 
 .fileInfo {
-	font-size: var(--font-size-xs);
-	color: #6b7280;
-	border-bottom: 1px solid #9a9a9a;
-	display: inline-block;
-	padding-bottom: 8px;
-	min-width: 180px;
+  font-size: var(--font-size-xs);
+  color: #6b7280;
+  border-bottom: 1px solid #9a9a9a;
+  display: inline-block;
+  padding-bottom: 8px;
+  min-width: 180px;
 }
 
 .deleteButton {
-	width: 16px;
-	height: 16px;
-	background: #f3f4f6;
-	border-radius: 8px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	border: none;
-	font-size: var(--font-size-base);
+  width: 16px;
+  height: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  font-size: var(--font-size-base);
 }
 
 .fileInput {
-	display: none;
+  display: none;
 }
 
 .formSection {
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .formGroup {
-	position: relative;
+  position: relative;
 }
 
 .label {
-	display: block;
-	font-size: var(--font-size-sm);
-	font-weight: 500;
-	color: #374151;
-	margin-bottom: 8px;
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
 }
 
 .inputField {
-	width: 100%;
-	height: 30px;
-	background-color: #efecec;
-	border: none;
-	border-radius: 24px;
-	padding: 5px 9px;
-	font-family: "Zen Old Mincho", serif;
-	font-size: var(--font-size-sm);
-	color: #707070;
-	outline: none;
+  width: 100%;
+  height: 30px;
+  background-color: #efecec;
+  border: none;
+  border-radius: 24px;
+  padding: 5px 9px;
+  font-family: "Zen Old Mincho", serif;
+  font-size: var(--font-size-sm);
+  color: #707070;
+  outline: none;
 }
 
 .inputField::placeholder {
-	color: #707070;
+  color: #707070;
 }
 
 .inputField:focus {
-	box-shadow: 0 0 0 2px #838383;
+  box-shadow: 0 0 0 2px #838383;
 }
 
 .inputField.error {
-	box-shadow: 0 0 0 2px #fd4545;
+  box-shadow: 0 0 0 2px #fd4545;
 }
 
 .required {
-	color: #ff0000;
-	font-size: var(--font-size-xs);
-	padding-left: 4px;
+  color: #ff0000;
+  font-size: var(--font-size-xs);
+  padding-left: 4px;
 }
 
 .actions {
-	display: flex;
-	gap: 16px;
-	justify-content: center;
-	margin-top: 12px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 12px;
 }
 
 .cancelButton,
 .saveButton {
-	padding: 12px 32px;
-	border-radius: 24px;
-	font-size: var(--font-size-base);
-	font-weight: 500;
-	border: none;
-	cursor: pointer;
-	min-width: 120px;
+  padding: 12px 32px;
+  border-radius: 24px;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  min-width: 120px;
 }
 
 .cancelButton {
-	background: #d1d5db;
-	color: #374151;
+  background: #d1d5db;
+  color: #374151;
 }
 
 .saveButton {
-	background: #6b7280;
-	color: white;
+  background: #6b7280;
+  color: white;
 }

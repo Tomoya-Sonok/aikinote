@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DatePickerModal } from "./DatePickerModal";
 import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
+import { DatePickerModal } from "./DatePickerModal";
 import styles from "./DatePickerModal.module.css";
 
 describe("DatePickerModal", () => {
@@ -323,7 +323,9 @@ describe("DatePickerModal", () => {
     );
 
     // Assert: 今日の日付がtoday状態で表示される
-    const todayButton = screen.getByRole("button", { name: todayDate.toString() });
+    const todayButton = screen.getByRole("button", {
+      name: todayDate.toString(),
+    });
     expect(todayButton).toHaveClass(styles.today);
   });
 });

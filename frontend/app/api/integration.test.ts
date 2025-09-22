@@ -2,12 +2,13 @@
  * API統合テスト
  * 全APIエンドポイントでレスポンス形式が統一されているかテスト
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ApiResponse } from "@/lib/types/api";
+import { POST as verifyEmailAPI } from "./auth/verify-email/route";
 import { GET as getUserAPI } from "./user/[userId]/route";
 import { POST as createUserAPI } from "./users/route";
-import { POST as verifyEmailAPI } from "./auth/verify-email/route";
-import type { ApiResponse } from "@/lib/types/api";
 
 // Supabaseクライアントのモック
 const mockServerSupabase = {
@@ -34,7 +35,9 @@ vi.mock("@/lib/supabase/server", () => ({
 
 // その他の依存関係をモック
 vi.mock("@/lib/server/tag", () => ({
-  initializeUserTagsIfNeeded: vi.fn().mockResolvedValue({ success: true, data: [] }),
+  initializeUserTagsIfNeeded: vi
+    .fn()
+    .mockResolvedValue({ success: true, data: [] }),
 }));
 
 vi.mock("@/lib/utils/auth-server", () => ({
@@ -82,8 +85,12 @@ describe("API Integration Tests - Response Format Consistency", () => {
         select: mockSelect,
       });
 
-      const request = new NextRequest("http://localhost:3000/api/user/user-123");
-      const response = await getUserAPI(request, { params: { userId: "user-123" } });
+      const request = new NextRequest(
+        "http://localhost:3000/api/user/user-123",
+      );
+      const response = await getUserAPI(request, {
+        params: { userId: "user-123" },
+      });
 
       expect(response.status).toBe(200);
 
@@ -95,33 +102,41 @@ describe("API Integration Tests - Response Format Consistency", () => {
       expect(responseData).toHaveProperty("timestamp");
     });
 
-    it.todo("GET /api/user/[userId] - エラーレスポンスが統一形式である", async () => {
-      // Note: この実装では外部originでもセッションなしの場合は内部APIコールとして許可される
-      // テストでは 403 を期待するが、実装では Service Role でアクセス可能なため 200 が返る
-      // セッションなしをモック
-      mockServerSupabase.auth.getSession.mockResolvedValue({
-        data: { session: null },
-        error: null,
-      });
+    it.todo(
+      "GET /api/user/[userId] - エラーレスポンスが統一形式である",
+      async () => {
+        // Note: この実装では外部originでもセッションなしの場合は内部APIコールとして許可される
+        // テストでは 403 を期待するが、実装では Service Role でアクセス可能なため 200 が返る
+        // セッションなしをモック
+        mockServerSupabase.auth.getSession.mockResolvedValue({
+          data: { session: null },
+          error: null,
+        });
 
-      const request = new NextRequest("http://localhost:3000/api/user/user-123", {
-        headers: {
-          origin: "https://malicious-site.com",
-          host: "localhost:3000",
-        },
-      });
+        const request = new NextRequest(
+          "http://localhost:3000/api/user/user-123",
+          {
+            headers: {
+              origin: "https://malicious-site.com",
+              host: "localhost:3000",
+            },
+          },
+        );
 
-      const response = await getUserAPI(request, { params: { userId: "user-123" } });
+        const response = await getUserAPI(request, {
+          params: { userId: "user-123" },
+        });
 
-      expect(response.status).toBe(403);
+        expect(response.status).toBe(403);
 
-      // レスポンス形式の確認
-      const responseData: ApiResponse = await response.json();
-      expect(responseData).toHaveProperty("success", false);
-      expect(responseData).toHaveProperty("error");
-      expect(responseData).toHaveProperty("code");
-      expect(responseData).toHaveProperty("timestamp");
-    });
+        // レスポンス形式の確認
+        const responseData: ApiResponse = await response.json();
+        expect(responseData).toHaveProperty("success", false);
+        expect(responseData).toHaveProperty("error");
+        expect(responseData).toHaveProperty("code");
+        expect(responseData).toHaveProperty("timestamp");
+      },
+    );
 
     it("POST /api/users - 成功レスポンスが統一形式である", async () => {
       const mockInsertedUser = {
@@ -208,32 +223,35 @@ describe("API Integration Tests - Response Format Consistency", () => {
       expect(mockServiceSupabase.auth.admin.deleteUser).not.toHaveBeenCalled();
     });
 
-    it.todo("POST /api/users - バリデーションエラーレスポンスが統一形式である", async () => {
-      // Note: 現在の実装ではバリデーションエラーレスポンスに `code` フィールドが含まれていない
-      // `createValidationErrorResponse` を使用していないため、標準形式と異なる
-      const request = new NextRequest("http://localhost:3000/api/users", {
-        method: "POST",
-        body: JSON.stringify({
-          // 必須フィールドが不足
-          email: "test@example.com",
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    it.todo(
+      "POST /api/users - バリデーションエラーレスポンスが統一形式である",
+      async () => {
+        // Note: 現在の実装ではバリデーションエラーレスポンスに `code` フィールドが含まれていない
+        // `createValidationErrorResponse` を使用していないため、標準形式と異なる
+        const request = new NextRequest("http://localhost:3000/api/users", {
+          method: "POST",
+          body: JSON.stringify({
+            // 必須フィールドが不足
+            email: "test@example.com",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-      const response = await createUserAPI(request);
+        const response = await createUserAPI(request);
 
-      expect(response.status).toBe(400);
+        expect(response.status).toBe(400);
 
-      // レスポンス形式の確認
-      const responseData: ApiResponse = await response.json();
-      expect(responseData).toHaveProperty("success", false);
-      expect(responseData).toHaveProperty("error");
-      expect(responseData).toHaveProperty("details");
-      expect(responseData).toHaveProperty("code");
-      expect(responseData).toHaveProperty("timestamp");
-    });
+        // レスポンス形式の確認
+        const responseData: ApiResponse = await response.json();
+        expect(responseData).toHaveProperty("success", false);
+        expect(responseData).toHaveProperty("error");
+        expect(responseData).toHaveProperty("details");
+        expect(responseData).toHaveProperty("code");
+        expect(responseData).toHaveProperty("timestamp");
+      },
+    );
 
     it("POST /api/auth/verify-email - 成功レスポンスが統一形式である", async () => {
       const mockUser = {
@@ -270,7 +288,7 @@ describe("API Integration Tests - Response Format Consistency", () => {
         "http://localhost:3000/api/auth/verify-email?token=test-token",
         {
           method: "POST",
-        }
+        },
       );
 
       const response = await verifyEmailAPI(request);
@@ -284,45 +302,54 @@ describe("API Integration Tests - Response Format Consistency", () => {
       expect(responseData).toHaveProperty("timestamp");
     });
 
-    it.todo("POST /api/auth/verify-email - バリデーションエラーレスポンスが統一形式である", async () => {
-      // Note: 現在の実装ではバリデーションエラーレスポンスに `code` フィールドが含まれていない
-      // `createValidationErrorResponse` を使用していないため、標準形式と異なる
-      const request = new NextRequest(
-        "http://localhost:3000/api/auth/verify-email", // tokenパラメータなし
-        {
-          method: "POST",
-        }
-      );
+    it.todo(
+      "POST /api/auth/verify-email - バリデーションエラーレスポンスが統一形式である",
+      async () => {
+        // Note: 現在の実装ではバリデーションエラーレスポンスに `code` フィールドが含まれていない
+        // `createValidationErrorResponse` を使用していないため、標準形式と異なる
+        const request = new NextRequest(
+          "http://localhost:3000/api/auth/verify-email", // tokenパラメータなし
+          {
+            method: "POST",
+          },
+        );
 
-      const response = await verifyEmailAPI(request);
+        const response = await verifyEmailAPI(request);
 
-      expect(response.status).toBe(400);
+        expect(response.status).toBe(400);
 
-      // レスポンス形式の確認
-      const responseData: ApiResponse = await response.json();
-      expect(responseData).toHaveProperty("success", false);
-      expect(responseData).toHaveProperty("error");
-      expect(responseData).toHaveProperty("code");
-      expect(responseData).toHaveProperty("timestamp");
-    });
+        // レスポンス形式の確認
+        const responseData: ApiResponse = await response.json();
+        expect(responseData).toHaveProperty("success", false);
+        expect(responseData).toHaveProperty("error");
+        expect(responseData).toHaveProperty("code");
+        expect(responseData).toHaveProperty("timestamp");
+      },
+    );
   });
 
   describe("HTTPステータスコードの一貫性", () => {
     it("バリデーションエラーは常に 400 を返す", async () => {
       // ユーザー作成のバリデーションエラー
-      const userCreateRequest = new NextRequest("http://localhost:3000/api/users", {
-        method: "POST",
-        body: JSON.stringify({}),
-        headers: { "Content-Type": "application/json" },
-      });
+      const userCreateRequest = new NextRequest(
+        "http://localhost:3000/api/users",
+        {
+          method: "POST",
+          body: JSON.stringify({}),
+          headers: { "Content-Type": "application/json" },
+        },
+      );
 
       const userCreateResponse = await createUserAPI(userCreateRequest);
       expect(userCreateResponse.status).toBe(400);
 
       // メール認証のバリデーションエラー
-      const verifyEmailRequest = new NextRequest("http://localhost:3000/api/auth/verify-email", {
-        method: "POST",
-      });
+      const verifyEmailRequest = new NextRequest(
+        "http://localhost:3000/api/auth/verify-email",
+        {
+          method: "POST",
+        },
+      );
 
       const verifyEmailResponse = await verifyEmailAPI(verifyEmailRequest);
       expect(verifyEmailResponse.status).toBe(400);
@@ -336,14 +363,19 @@ describe("API Integration Tests - Response Format Consistency", () => {
         error: null,
       });
 
-      const request = new NextRequest("http://localhost:3000/api/user/user-123", {
-        headers: {
-          origin: "https://external-site.com",
-          host: "localhost:3000",
+      const request = new NextRequest(
+        "http://localhost:3000/api/user/user-123",
+        {
+          headers: {
+            origin: "https://external-site.com",
+            host: "localhost:3000",
+          },
         },
-      });
+      );
 
-      const response = await getUserAPI(request, { params: { userId: "user-123" } });
+      const response = await getUserAPI(request, {
+        params: { userId: "user-123" },
+      });
       expect(response.status).toBe(403);
     });
 
@@ -370,8 +402,12 @@ describe("API Integration Tests - Response Format Consistency", () => {
         select: mockSelect,
       });
 
-      const request = new NextRequest("http://localhost:3000/api/user/nonexistent");
-      const response = await getUserAPI(request, { params: { userId: "nonexistent" } });
+      const request = new NextRequest(
+        "http://localhost:3000/api/user/nonexistent",
+      );
+      const response = await getUserAPI(request, {
+        params: { userId: "nonexistent" },
+      });
 
       expect(response.status).toBe(404);
     });
@@ -381,9 +417,12 @@ describe("API Integration Tests - Response Format Consistency", () => {
     it.todo("日本語のエラーメッセージが返される", async () => {
       // Note: 現在のエラーレスポンスでは `error` フィールドにエラーコード文字列が設定されており、
       // 日本語メッセージは `message` フィールドに入っている
-      const request = new NextRequest("http://localhost:3000/api/auth/verify-email", {
-        method: "POST",
-      });
+      const request = new NextRequest(
+        "http://localhost:3000/api/auth/verify-email",
+        {
+          method: "POST",
+        },
+      );
 
       const response = await verifyEmailAPI(request);
       const responseData: ApiResponse = await response.json();
@@ -419,13 +458,19 @@ describe("API Integration Tests - Response Format Consistency", () => {
         select: mockSelect,
       });
 
-      const request = new NextRequest("http://localhost:3000/api/user/user-123");
-      const response = await getUserAPI(request, { params: { userId: "user-123" } });
+      const request = new NextRequest(
+        "http://localhost:3000/api/user/user-123",
+      );
+      const response = await getUserAPI(request, {
+        params: { userId: "user-123" },
+      });
 
       const responseData: ApiResponse = await response.json();
 
       expect(responseData.timestamp).toBeDefined();
-      expect(new Date(responseData.timestamp!).toISOString()).toBe(responseData.timestamp);
+      expect(new Date(responseData.timestamp!).toISOString()).toBe(
+        responseData.timestamp,
+      );
     });
   });
 });

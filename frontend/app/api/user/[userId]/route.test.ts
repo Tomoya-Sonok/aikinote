@@ -2,8 +2,9 @@
  * /api/user/[userId] APIルートのテスト
  * Service Role使用最適化と権限チェックのテスト
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
 // Supabaseクライアントのモック
@@ -191,7 +192,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
       select: mockSelect,
     });
 
-    const request = new NextRequest("http://localhost:3000/api/user/nonexistent-user");
+    const request = new NextRequest(
+      "http://localhost:3000/api/user/nonexistent-user",
+    );
     const response = await GET(request, { params: { userId } });
 
     expect(response.status).toBe(404);
@@ -274,7 +277,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     const userId = "user-123";
 
     // セッション取得でエラーをシミュレート
-    mockServerSupabase.auth.getSession.mockRejectedValue(new Error("Unexpected error"));
+    mockServerSupabase.auth.getSession.mockRejectedValue(
+      new Error("Unexpected error"),
+    );
 
     const request = new NextRequest("http://localhost:3000/api/user/user-123");
     const response = await GET(request, { params: { userId } });
@@ -317,7 +322,7 @@ describe("/api/user/[userId] GET エンドポイント", () => {
 
     // セキュリティを考慮して必要なフィールドのみ選択
     expect(mockSelect).toHaveBeenCalledWith(
-      "id, email, username, profile_image_url, dojo_style_name, is_email_verified"
+      "id, email, username, profile_image_url, dojo_style_name, is_email_verified",
     );
   });
 });

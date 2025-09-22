@@ -1,5 +1,5 @@
-import type { FC } from "react";
 import { useTranslations } from "next-intl";
+import type { FC } from "react";
 import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
 interface PageCreateModalProps {

@@ -57,7 +57,9 @@ export function EmailVerificationForm({
                 <span className={styles.stepText}>ステップ 3/4</span>
               </div>
               <div className={styles.progressContainer}>
-                <div className={`${styles.progressBar} ${styles.progressStep3}`} />
+                <div
+                  className={`${styles.progressBar} ${styles.progressStep3}`}
+                />
               </div>
             </div>
             <div className={styles.stepDots}>
@@ -89,7 +91,9 @@ export function EmailVerificationForm({
                 <span className={styles.stepText}>ステップ 4/4</span>
               </div>
               <div className={styles.progressContainer}>
-                <div className={`${styles.progressBar} ${styles.progressStep4}`} />
+                <div
+                  className={`${styles.progressBar} ${styles.progressStep4}`}
+                />
               </div>
             </div>
             <div className={styles.stepDots}>
@@ -131,7 +135,9 @@ export function EmailVerificationForm({
               <span className={styles.stepText}>ステップ 3/4</span>
             </div>
             <div className={styles.progressContainer}>
-              <div className={`${styles.progressBar} ${styles.progressStep3}`} />
+              <div
+                className={`${styles.progressBar} ${styles.progressStep3}`}
+              />
             </div>
           </div>
           <div className={styles.stepDots}>
@@ -158,10 +164,16 @@ export function EmailVerificationForm({
         </div>
 
         <div className={styles.buttonContainer}>
-          <Link href="/signup" className={`${styles.button} ${styles.primaryButton}`}>
+          <Link
+            href="/signup"
+            className={`${styles.button} ${styles.primaryButton}`}
+          >
             新規登録をやり直す
           </Link>
-          <Link href="/login" className={`${styles.button} ${styles.secondaryButton}`}>
+          <Link
+            href="/login"
+            className={`${styles.button} ${styles.secondaryButton}`}
+          >
             ログインページへ
           </Link>
         </div>

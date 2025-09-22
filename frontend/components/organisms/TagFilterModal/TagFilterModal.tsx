@@ -1,7 +1,6 @@
-import type { FC } from "react";
-import { useMemo, useState } from "react";
-import React from "react";
 import { useTranslations } from "next-intl";
+import type { FC } from "react";
+import React, { useMemo, useState } from "react";
 import { TagSelection } from "@/components/molecules/TagSelection/TagSelection";
 import styles from "./TagFilterModal.module.css";
 
@@ -29,7 +28,8 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
   title,
 }) => {
   const t = useTranslations();
-  const [tempSelectedTags, setTempSelectedTags] = useState<string[]>(selectedTags);
+  const [tempSelectedTags, setTempSelectedTags] =
+    useState<string[]>(selectedTags);
 
   // モーダルが開いたときに現在の選択タグを一時選択に設定
   React.useEffect(() => {
@@ -56,9 +56,9 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
   }
 
   const handleTempTagToggle = (tagName: string) => {
-    setTempSelectedTags(prev => {
+    setTempSelectedTags((prev) => {
       if (prev.includes(tagName)) {
-        return prev.filter(tag => tag !== tagName);
+        return prev.filter((tag) => tag !== tagName);
       } else {
         return [...prev, tagName];
       }

@@ -1,5 +1,5 @@
-import type { FC } from "react";
 import { useTranslations } from "next-intl";
+import type { FC } from "react";
 import { Tag } from "@/components/atoms/Tag/Tag";
 import styles from "./TagSelection.module.css";
 

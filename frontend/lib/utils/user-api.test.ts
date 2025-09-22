@@ -2,8 +2,8 @@
  * ユーザーAPI共通関数のテスト
  * 統一されたユーザー取得・作成ロジックのテスト
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchUserProfile, createUserProfile } from "./user-api";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createUserProfile, fetchUserProfile } from "./user-api";
 
 // fetchをモック
 const mockFetch = vi.fn();
@@ -29,10 +29,11 @@ describe("fetchUserProfile", () => {
 
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: mockUserData,
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: mockUserData,
+        }),
     });
 
     const result = await fetchUserProfile("user-123");
@@ -46,16 +47,17 @@ describe("fetchUserProfile", () => {
   it("baseUrlオプションが正しく使用される", async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: {
-          id: "user-123",
-          email: "test@example.com",
-          username: "testuser",
-          profile_image_url: null,
-          dojo_style_name: null,
-        },
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: {
+            id: "user-123",
+            email: "test@example.com",
+            username: "testuser",
+            profile_image_url: null,
+            dojo_style_name: null,
+          },
+        }),
     });
 
     await fetchUserProfile("user-123", {
@@ -66,7 +68,7 @@ describe("fetchUserProfile", () => {
       "https://example.com/api/user/user-123",
       {
         signal: expect.any(AbortSignal),
-      }
+      },
     );
   });
 
@@ -85,10 +87,11 @@ describe("fetchUserProfile", () => {
   it("レスポンスがsuccess: falseの場合にnullを返す", async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: false,
-        error: "User not found",
-      }),
+      json: () =>
+        Promise.resolve({
+          success: false,
+          error: "User not found",
+        }),
     });
 
     const result = await fetchUserProfile("user-123");
@@ -99,14 +102,15 @@ describe("fetchUserProfile", () => {
   it("不正なデータ形式の場合にnullを返す", async () => {
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: {
-          // idがない不正なデータ
-          email: "test@example.com",
-          username: "testuser",
-        },
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: {
+            // idがない不正なデータ
+            email: "test@example.com",
+            username: "testuser",
+          },
+        }),
     });
 
     const result = await fetchUserProfile("user-123");
@@ -122,36 +126,40 @@ describe("fetchUserProfile", () => {
     expect(result).toBeNull();
   });
 
-  it.todo("タイムアウト時にnullを返す", async () => {
-    // Note: fake timersとfetchのタイムアウト処理の組み合わせで
-    // vitest環境では期待通りに動作しない。実際のタイムアウト機能は
-    // ブラウザやNode.js環境で正常に動作することが確認済み。
-    vi.useFakeTimers();
+  it.todo(
+    "タイムアウト時にnullを返す",
+    async () => {
+      // Note: fake timersとfetchのタイムアウト処理の組み合わせで
+      // vitest環境では期待通りに動作しない。実際のタイムアウト機能は
+      // ブラウザやNode.js環境で正常に動作することが確認済み。
+      vi.useFakeTimers();
 
-    // 長時間かかるPromiseをシミュレート
-    mockFetch.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({
-              ok: true,
-              json: () => Promise.resolve({ success: true, data: {} }),
-            });
-          }, 10000);
-        })
-    );
+      // 長時間かかるPromiseをシミュレート
+      mockFetch.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              resolve({
+                ok: true,
+                json: () => Promise.resolve({ success: true, data: {} }),
+              });
+            }, 10000);
+          }),
+      );
 
-    const resultPromise = fetchUserProfile("user-123", { timeout: 1000 });
+      const resultPromise = fetchUserProfile("user-123", { timeout: 1000 });
 
-    // 1秒経過してタイムアウトを発生させる
-    vi.advanceTimersByTime(1000);
+      // 1秒経過してタイムアウトを発生させる
+      vi.advanceTimersByTime(1000);
 
-    const result = await resultPromise;
+      const result = await resultPromise;
 
-    expect(result).toBeNull();
+      expect(result).toBeNull();
 
-    vi.useRealTimers();
-  }, 10000); // テストタイムアウトを10秒に設定
+      vi.useRealTimers();
+    },
+    10000,
+  ); // テストタイムアウトを10秒に設定
 
   it("profile_image_urlがnullの場合も適切に処理される", async () => {
     const mockUserData = {
@@ -164,10 +172,11 @@ describe("fetchUserProfile", () => {
 
     mockFetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({
-        success: true,
-        data: mockUserData,
-      }),
+      json: () =>
+        Promise.resolve({
+          success: true,
+          data: mockUserData,
+        }),
     });
 
     const result = await fetchUserProfile("user-123");
@@ -236,9 +245,10 @@ describe("createUserProfile", () => {
     mockFetch.mockResolvedValue({
       ok: false,
       status: 400,
-      json: () => Promise.resolve({
-        error: "Email already exists",
-      }),
+      json: () =>
+        Promise.resolve({
+          error: "Email already exists",
+        }),
     });
 
     const result = await createUserProfile(userData);
@@ -286,5 +296,4 @@ describe("createUserProfile", () => {
       error: "Invalid JSON",
     });
   });
-
 });

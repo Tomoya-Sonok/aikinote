@@ -35,13 +35,8 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const {
-    signUp,
-    signInWithGoogle,
-    isProcessing,
-    error,
-    clearError,
-  } = useAuth();
+  const { signUp, signInWithGoogle, isProcessing, error, clearError } =
+    useAuth();
 
   const emailPasswordForm = useForm<EmailPasswordFormData>({
     resolver: zodResolver(emailPasswordSchema),
@@ -104,7 +99,9 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
               <span className={styles.stepText}>ステップ 1/4</span>
             </div>
             <div className={styles.progressContainer}>
-              <div className={`${styles.progressBar} ${styles.progressStep1}`} />
+              <div
+                className={`${styles.progressBar} ${styles.progressStep1}`}
+              />
             </div>
           </div>
           <div className={styles.stepDots}>
@@ -162,7 +159,9 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
                   type={showPassword ? "text" : "password"}
                   id={passwordId}
                   className={`${styles.inputField} ${
-                    emailPasswordForm.formState.errors.password ? styles.error : ""
+                    emailPasswordForm.formState.errors.password
+                      ? styles.error
+                      : ""
                   }`}
                   placeholder="Password123!"
                 />
@@ -181,7 +180,8 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
               )}
               <p className={styles.helpText}>
                 ◆ 8文字以上
-                <br />◆ 半角アルファベットの大文字・小文字・数字・記号のうち3種類以上を含む
+                <br />◆
+                半角アルファベットの大文字・小文字・数字・記号のうち3種類以上を含む
               </p>
             </div>
 
@@ -254,7 +254,9 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
               <span className={styles.stepText}>ステップ 2/4</span>
             </div>
             <div className={styles.progressContainer}>
-              <div className={`${styles.progressBar} ${styles.progressStep2}`} />
+              <div
+                className={`${styles.progressBar} ${styles.progressStep2}`}
+              />
             </div>
           </div>
           <div className={styles.stepDots}>
@@ -292,7 +294,9 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
                   {usernameForm.formState.errors.username.message}
                 </p>
               )}
-              <p className={styles.helpText}>※ ユーザー名は後から変更可能です</p>
+              <p className={styles.helpText}>
+                ※ ユーザー名は後から変更可能です
+              </p>
             </div>
 
             <div className={styles.buttonContainer}>
@@ -308,7 +312,11 @@ export function SignUpPageClient({ onSuccess }: SignUpPageClientProps) {
                 disabled={isProcessing}
                 className={`${styles.button} ${styles.primaryButton}`}
               >
-                {isProcessing ? <Loader size="small" text="作成中..." /> : "次へ進む"}
+                {isProcessing ? (
+                  <Loader size="small" text="作成中..." />
+                ) : (
+                  "次へ進む"
+                )}
               </button>
             </div>
           </form>

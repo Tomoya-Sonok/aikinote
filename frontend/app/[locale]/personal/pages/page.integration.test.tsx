@@ -1,8 +1,8 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createPage, getPages, getTags } from "@/lib/api/client";
-import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
 import { I18nTestProvider } from "../../../../test-utils/i18n-test-provider";
+import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
 
 // useAuth をモック
 vi.mock("@/lib/hooks/useAuth", () => ({
@@ -163,7 +163,7 @@ describe("PersonalPagesPage - クライアントサイドフィルタリング�
     render(
       <I18nTestProvider>
         <PersonalPagesPageClient />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert

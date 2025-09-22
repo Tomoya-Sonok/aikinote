@@ -17,7 +17,7 @@ export function ChevronLeft({ size = 24, ...props }: ChevronLeftProps) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="m15 18-6-6 6-6"/>
+      <path d="m15 18-6-6 6-6" />
     </svg>
   );
 }

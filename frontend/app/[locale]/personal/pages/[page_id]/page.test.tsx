@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import type { PageEditModalProps } from "@/components/organisms/PageEditModal/PageEditModal";
 import { getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { PageDetailPageClient } from "./PageDetailPageClient";
 import { I18nTestProvider } from "../../../../../test-utils/i18n-test-provider";
+import { PageDetailPageClient } from "./PageDetailPageClient";
 
 // モック設定
 vi.mock("next/navigation", () => ({
@@ -123,7 +123,11 @@ describe("ページ詳細画面", () => {
     it("ページ詳細が正常に表示されること", async () => {
       // Arrange
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
 
       // Act & Assert
@@ -144,7 +148,11 @@ describe("ページ詳細画面", () => {
 
       // Act
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
 
       // Assert
@@ -157,7 +165,11 @@ describe("ページ詳細画面", () => {
 
       // Act
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
 
       // Assert
@@ -173,7 +185,11 @@ describe("ページ詳細画面", () => {
     it("編集ボタンをクリックすると、ページ編集モーダルが表示されること", async () => {
       // Arrange
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
@@ -190,7 +206,11 @@ describe("ページ詳細画面", () => {
     it("モーダルに渡される初期データが正しいこと", async () => {
       // Arrange
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
@@ -236,7 +256,11 @@ describe("ページ詳細画面", () => {
       mockUpdatePage.mockResolvedValue(updatedPageData);
 
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
@@ -266,7 +290,11 @@ describe("ページ詳細画面", () => {
     it("ページ更新APIの呼び出しが正しいパラメータで行われること", async () => {
       // Arrange
       await act(async () => {
-        render(<I18nTestProvider><PageDetailPageClient /></I18nTestProvider>);
+        render(
+          <I18nTestProvider>
+            <PageDetailPageClient />
+          </I18nTestProvider>,
+        );
       });
       await waitFor(() => {
         expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();

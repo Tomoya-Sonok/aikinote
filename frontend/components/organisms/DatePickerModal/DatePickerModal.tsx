@@ -1,7 +1,6 @@
-import type { FC } from "react";
-import { useState, useMemo } from "react";
-import React from "react";
 import { useTranslations } from "next-intl";
+import type { FC } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./DatePickerModal.module.css";
 
 interface DatePickerModalProps {
@@ -20,8 +19,12 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   title,
 }) => {
   const t = useTranslations();
-  const [currentMonth, setCurrentMonth] = useState(() => selectedDate || new Date());
-  const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(selectedDate || null);
+  const [currentMonth, setCurrentMonth] = useState(
+    () => selectedDate || new Date(),
+  );
+  const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(
+    selectedDate || null,
+  );
 
   // モーダルが開いたときに現在の選択日付を一時選択に設定
   React.useEffect(() => {
@@ -31,7 +34,14 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   }, [isOpen, selectedDate]);
   const today = new Date();
 
-  const { year, month, daysInMonth, firstDayOfWeek, prevMonthDays, nextMonthDays } = useMemo(() => {
+  const {
+    year,
+    month,
+    daysInMonth,
+    firstDayOfWeek,
+    prevMonthDays,
+    nextMonthDays,
+  } = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -51,8 +61,18 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   }, [currentMonth]);
 
   const monthNames = [
-    "1月", "2月", "3月", "4月", "5月", "6月",
-    "7月", "8月", "9月", "10月", "11月", "12月"
+    "1月",
+    "2月",
+    "3月",
+    "4月",
+    "5月",
+    "6月",
+    "7月",
+    "8月",
+    "9月",
+    "10月",
+    "11月",
+    "12月",
   ];
 
   const dayNames = ["日", "月", "火", "水", "木", "金", "土"];
@@ -74,7 +94,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   };
 
   const navigateMonth = (direction: "prev" | "next") => {
-    setCurrentMonth(prev => {
+    setCurrentMonth((prev) => {
       const newMonth = new Date(prev);
       if (direction === "prev") {
         newMonth.setMonth(newMonth.getMonth() - 1);
@@ -87,9 +107,9 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
 
   const handleDateClick = (day: number, isCurrentMonth: boolean = true) => {
     if (!isCurrentMonth) {
-      const newDate = isCurrentMonth ?
-        new Date(year, month, day) :
-        new Date(year, month + (day > 15 ? -1 : 1), day);
+      const newDate = isCurrentMonth
+        ? new Date(year, month, day)
+        : new Date(year, month + (day > 15 ? -1 : 1), day);
       setTempSelectedDate(newDate);
       return;
     }
@@ -97,10 +117,12 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
     const newDate = new Date(year, month, day);
 
     // 既に選択されている日付をタップした場合は未選択にする
-    if (tempSelectedDate &&
-        tempSelectedDate.getFullYear() === newDate.getFullYear() &&
-        tempSelectedDate.getMonth() === newDate.getMonth() &&
-        tempSelectedDate.getDate() === newDate.getDate()) {
+    if (
+      tempSelectedDate &&
+      tempSelectedDate.getFullYear() === newDate.getFullYear() &&
+      tempSelectedDate.getMonth() === newDate.getMonth() &&
+      tempSelectedDate.getDate() === newDate.getDate()
+    ) {
       setTempSelectedDate(null);
     } else {
       setTempSelectedDate(newDate);
@@ -108,16 +130,20 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   };
 
   const isToday = (day: number) => {
-    return today.getFullYear() === year &&
-           today.getMonth() === month &&
-           today.getDate() === day;
+    return (
+      today.getFullYear() === year &&
+      today.getMonth() === month &&
+      today.getDate() === day
+    );
   };
 
   const isSelected = (day: number) => {
     if (!tempSelectedDate) return false;
-    return tempSelectedDate.getFullYear() === year &&
-           tempSelectedDate.getMonth() === month &&
-           tempSelectedDate.getDate() === day;
+    return (
+      tempSelectedDate.getFullYear() === year &&
+      tempSelectedDate.getMonth() === month &&
+      tempSelectedDate.getDate() === day
+    );
   };
 
   const handleConfirm = () => {
@@ -147,7 +173,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           }}
         >
           {day}
-        </button>
+        </button>,
       );
     }
 
@@ -163,7 +189,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           onClick={() => handleDateClick(day)}
         >
           {day}
-        </button>
+        </button>,
       );
     }
 
@@ -181,7 +207,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           }}
         >
           {day}
-        </button>
+        </button>,
       );
     }
 
@@ -234,15 +260,13 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
 
           <div className={styles.calendar}>
             <div className={styles.weekHeader}>
-              {dayNames.map(day => (
+              {dayNames.map((day) => (
                 <div key={day} className={styles.weekDay}>
                   {day}
                 </div>
               ))}
             </div>
-            <div className={styles.daysGrid}>
-              {renderCalendarDays()}
-            </div>
+            <div className={styles.daysGrid}>{renderCalendarDays()}</div>
           </div>
 
           {/* Action Buttons */}

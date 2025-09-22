@@ -91,7 +91,14 @@ export const WithManySelectedTags: Story = {
   args: {
     isOpen: true,
     tags: mockTags,
-    selectedTags: ["基本練習", "応用練習", "前受け身", "後ろ受け身", "四方投げ", "小手返し"],
+    selectedTags: [
+      "基本練習",
+      "応用練習",
+      "前受け身",
+      "後ろ受け身",
+      "四方投げ",
+      "小手返し",
+    ],
     onClose: () => console.log("Modal closed"),
     onTagsConfirm: (tags) => console.log("Tags confirmed:", tags),
     title: "タグで絞り込み",
