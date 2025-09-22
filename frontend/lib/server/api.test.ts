@@ -127,7 +127,6 @@ describe("API Layer", () => {
           username: "testuser",
           email: "test@example.com",
           profile_image_url: null,
-          dojo_id: null,
           training_start_date: null,
           publicity_setting: "public",
           language: "ja",

@@ -189,15 +189,15 @@ describe("createUserProfile", () => {
 
   it("正常にユーザープロフィールを作成できる", async () => {
     const userData = {
-      id: "user-123",
       email: "test@example.com",
+      password: "password123",
       username: "testuser",
-      dojo_id: "dojo-1",
     };
 
     const mockResponse = {
       success: true,
       data: { id: "user-123", username: "testuser" },
+      message: "登録成功",
     };
 
     mockFetch.mockResolvedValue({
@@ -212,42 +212,24 @@ describe("createUserProfile", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData),
+      body: JSON.stringify({
+        email: "test@example.com",
+        password: "password123",
+        username: "testuser",
+      }),
     });
 
     expect(result).toEqual({
       success: true,
       data: { id: "user-123", username: "testuser" },
-    });
-  });
-
-  it("dojo_idがundefinedの場合も適切に処理される", async () => {
-    const userData = {
-      id: "user-123",
-      email: "test@example.com",
-      username: "testuser",
-    };
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ success: true, data: {} }),
-    });
-
-    await createUserProfile(userData);
-
-    expect(mockFetch).toHaveBeenCalledWith("/api/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
+      message: "登録成功",
     });
   });
 
   it("APIエラー時に適切なエラーを返す", async () => {
     const userData = {
-      id: "user-123",
       email: "test@example.com",
+      password: "password123",
       username: "testuser",
     };
 
@@ -269,8 +251,8 @@ describe("createUserProfile", () => {
 
   it("ネットワークエラー時に適切なエラーを返す", async () => {
     const userData = {
-      id: "user-123",
       email: "test@example.com",
+      password: "password123",
       username: "testuser",
     };
 
@@ -286,8 +268,8 @@ describe("createUserProfile", () => {
 
   it("JSONパースエラー時に適切なエラーを返す", async () => {
     const userData = {
-      id: "user-123",
       email: "test@example.com",
+      password: "password123",
       username: "testuser",
     };
 
@@ -305,27 +287,4 @@ describe("createUserProfile", () => {
     });
   });
 
-  it("dojo_idがnullの場合も適切に処理される", async () => {
-    const userData = {
-      id: "user-123",
-      email: "test@example.com",
-      username: "testuser",
-      dojo_id: null,
-    };
-
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ success: true, data: {} }),
-    });
-
-    await createUserProfile(userData);
-
-    expect(mockFetch).toHaveBeenCalledWith("/api/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
-  });
 });

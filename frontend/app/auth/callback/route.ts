@@ -71,7 +71,6 @@ export async function GET(request: NextRequest) {
 									email: data.user.email,
 									username: username,
 									profile_image_url: null,
-									dojo_id: null,
 									training_start_date: null,
 									publicity_setting: "private",
 									language: "ja",

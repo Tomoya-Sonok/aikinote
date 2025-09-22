@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { FC } from "react";
 import { useState } from "react";
 import { NavigationDrawer } from "@/components/molecules/NavigationDrawer";
+import { DefaultProfileIcon } from "@/components/atoms/icons/DefaultProfileIcon";
 import type { UserSession } from "@/lib/auth";
 import styles from "./DefaultHeader.module.css";
 
@@ -15,8 +16,6 @@ interface DefaultHeaderProps {
 	settingsHref?: string;
 }
 
-const FALLBACK_AVATAR_LABEL = "?";
-
 export const DefaultHeader: FC<DefaultHeaderProps> = ({
 	user,
 	showUserSection = true,
@@ -24,9 +23,6 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 	settingsHref = "/settings",
 }) => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-	const avatarLabel =
-		user?.username?.[0]?.toUpperCase() ?? FALLBACK_AVATAR_LABEL;
 
 	const handleSettingsClick = () => {
 		setIsDrawerOpen(true);
@@ -77,9 +73,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 								unoptimized
 							/>
 						) : (
-							<div className={styles.avatarFallback} aria-hidden="true">
-								{avatarLabel}
-							</div>
+							<DefaultProfileIcon size={40} className={styles.avatarFallback} />
 						)}
 						<div className={styles.userInfo}>
 							<span className={styles.userName}>{user.username}</span>

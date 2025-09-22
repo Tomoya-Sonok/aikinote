@@ -112,18 +112,21 @@ export async function fetchUserProfile(
  * ユーザー作成のための共通関数
  */
 export async function createUserProfile(userData: {
-	id: string;
 	email: string;
+	password: string;
 	username: string;
-	dojo_id?: string | null;
-}): Promise<{ success: boolean; data?: any; error?: string }> {
+}): Promise<{ success: boolean; data?: any; message?: string; error?: string }> {
 	try {
 		const response = await fetch("/api/users", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(userData),
+			body: JSON.stringify({
+				email: userData.email,
+				password: userData.password,
+				username: userData.username,
+			}),
 		});
 
 		const result: ApiResponse = await response.json();
@@ -135,7 +138,11 @@ export async function createUserProfile(userData: {
 			};
 		}
 
-		return { success: true, data: result.data };
+		return {
+			success: true,
+			data: result.data,
+			message: result.message,
+		};
 	} catch (error) {
 		return {
 			success: false,

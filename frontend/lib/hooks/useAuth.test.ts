@@ -185,18 +185,10 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
   });
 
   it("サインアップ時に共通のcreateUserProfile関数を使用する", async () => {
-    const mockAuthData = {
-      user: { id: "user-123", email: "test@example.com" },
-    };
-
-    mockSupabaseClient.auth.signUp.mockResolvedValue({
-      data: mockAuthData,
-      error: null,
-    });
-
     (userApi.createUserProfile as Mock).mockResolvedValue({
       success: true,
       data: { id: "user-123", username: "testuser" },
+      message: "登録成功",
     });
 
     const { result } = renderHook(() => useAuth());
@@ -206,16 +198,16 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
         email: "test@example.com",
         password: "password123",
         username: "testuser",
-        dojoId: "dojo-1",
       });
     });
 
     expect(userApi.createUserProfile).toHaveBeenCalledWith({
-      id: "user-123",
       email: "test@example.com",
+      password: "password123",
       username: "testuser",
-      dojo_id: "dojo-1",
     });
+
+    expect(mockSupabaseClient.auth.signUp).not.toHaveBeenCalled();
   });
 
   it("セッション適用時に共通のfetchUserProfile関数を使用する", async () => {

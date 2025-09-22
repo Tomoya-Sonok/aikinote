@@ -6,7 +6,6 @@ const MOCK_USER = {
   username: "テストユーザー",
   email: "test@example.com",
   profile_image_url: null,
-  dojo_id: "mock-dojo-456",
   training_start_date: "2023-01-01",
   publicity_setting: "private",
   language: "ja",
