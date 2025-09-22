@@ -67,19 +67,23 @@
 
 | Category     | Technology Stack                                                                                                                                                                                                                                                                                                                                |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend** | ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white) ![CSS Modules](https://img.shields.io/badge/CSS_Modules-000000?style=for-the-badge&logo=css-modules&logoColor=white) |
-| **Backend**  | ![Hono.js](https://img.shields.io/badge/Hono.js-E36002?style=for-the-badge&logo=hono&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)                                                                                                                         |
-| **Database** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)                                                                                                                                                                                                                                     |
-| **Infra**    | ![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)                        |
+| **Frontend** | Next.js 14 (App Router) / React 18 / TypeScript / CSS Modules / next-intl / React Hook Form / Zustand |
+| **Backend**  | Hono (Node.js 20) / TypeScript / Zod / JSON Web Token / Supabase JavaScript SDK |
+| **Database & Auth** | Supabase (PostgreSQL, Auth, Row Level Security) |
+| **Storage & Messaging** | Amazon S3 / CloudFront / Resend |
+| **Infrastructure** | AWS ECS Fargate / Application Load Balancer / Elastic Container Registry / AWS Systems Manager Parameter Store / CloudWatch Logs / Terraform |
+| **Tooling & Testing** | pnpm Workspaces / Docker & Docker Compose / Vitest / Testing Library / Storybook / MSW / Biome |
 
 ## Setup
 
 ### 0. Prerequisites
 
-- **Node.js** (v18 or later)
-- **pnpm** (v8 or later)
+- **Node.js** 20.11.1
+- **pnpm** 8.15.4
 - **Docker** and **Docker Compose**
-- **Supabase account** (for database and authentication)
+- **Supabase account** 
+- **AWS account**
+- **Resend account**
 
 ### 1. Clone the repository
 
@@ -90,42 +94,58 @@ cd aikinote
 
 ### 2. Environment setup
 
-Copy the environment template and configure your Supabase credentials:
+Copy the environment template and configure your environment values:
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Edit `.env.local` with your Supabase project details:
+Edit the root-level `.env.local`. Both the frontend and backend load this file when running locally or via Docker:
 
 ```env
+# Supabase (required)
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_URL=your-supabase-project-url
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+
+# App & API endpoints
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:8787
+NEXT_PUBLIC_IS_DOCKER=false
+
+# Authentication / security
+JWT_SECRET=your_jwt_secret_key
+
+# Email (Resend)
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+
+# AWS S3 / CloudFront (profile images)
+AWS_REGION=ap-northeast-1
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_S3_BUCKET_NAME=your_s3_bucket_name
+CLOUDFRONT_DOMAIN=your_cloudfront_domain
 ```
+
+> ⚠️  Please note that you cannot use the profile picture upload and email sending functions without configuring the necessary values for AWS and Resend.
 
 ### 3. Install dependencies
 
 ```bash
-# Frontend
-cd frontend
-pnpm install
-
-# Backend
-cd ../backend
 pnpm install
 ```
 
 ### 4. Run the development servers
 
-Start both frontend and backend services with a single command:
+Start both frontend and backend services with Docker (reads `.env.local` automatically):
 
 ```bash
 docker-compose up
 ```
 
-> **Note**: Alternatively, you can run each service individually by executing `pnpm dev` in the `frontend/` and `backend/` directories respectively.
+> **Note**: If you prefer running them without Docker, open two terminals and run `pnpm --filter backend dev` and `pnpm --filter frontend dev`. Both commands rely on the root `.env.local`.
 
 ### 5. Access the application
 
