@@ -3,8 +3,8 @@ import {
   getServerSupabase,
   getServiceRoleSupabase,
 } from "@/lib/supabase/server";
-import { fetchUserProfile } from "@/lib/utils/user-api";
 import { getApiBaseUrl } from "@/lib/utils/env";
+import { fetchUserProfile } from "@/lib/utils/user-api";
 
 export async function getCurrentUser(): Promise<UserSession | null> {
   const supabase = getServerSupabase();

@@ -50,7 +50,8 @@ export const API_ERROR_CODES = {
   SERVICE_UNAVAILABLE: "SERVICE_UNAVAILABLE",
 } as const;
 
-export type ApiErrorCode = typeof API_ERROR_CODES[keyof typeof API_ERROR_CODES];
+export type ApiErrorCode =
+  (typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES];
 
 /**
  * 標準化されたエラーメッセージ

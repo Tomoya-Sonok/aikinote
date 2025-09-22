@@ -1,179 +1,179 @@
 .container {
-	background: white;
-	border-radius: 24px;
-	padding: 32px 24px;
-	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-	display: flex;
-	flex-direction: column;
-	gap: 24px;
+  background: white;
+  border-radius: 24px;
+  padding: 32px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .title {
-	font-size: var(--font-size-xl);
-	font-weight: 500;
-	margin-bottom: 8px;
-	color: var(--aikinote-black);
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--aikinote-black);
 }
 
 .description {
-	font-size: var(--font-size-sm);
-	line-height: 1.6;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
 }
 
 .settingArea {
-	display: flex;
-	flex-direction: column;
-	gap: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 /* プレビューエリア */
 .preview {
-	padding: 24px;
-	border: 2px solid var(--border-color);
-	border-radius: 12px;
-	background: var(--aikinote-white);
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	transition: all 0.3s ease;
+  padding: 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--aikinote-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .previewText {
-	margin-bottom: 16px;
-	line-height: 1.7;
-	color: var(--aikinote-black);
-	font-size: var(--current-font-size);
+  margin-bottom: 16px;
+  line-height: 1.7;
+  color: var(--aikinote-black);
+  font-size: var(--current-font-size);
 }
 
 /* スライダーコンテナ */
 .sliderContainer {
-	position: relative;
+  position: relative;
 }
 
 /* Radix UI Slider スタイル */
 .sliderRoot {
-	position: relative;
-	display: flex;
-	align-items: center;
-	user-select: none;
-	touch-action: none;
-	width: 100%;
-	height: 20px;
-	cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  touch-action: none;
+  width: 100%;
+  height: 20px;
+  cursor: pointer;
 }
 
 .sliderTrack {
-	background-color: var(--aikinote-gray);
-	position: relative;
-	flex-grow: 1;
-	border-radius: 9999px;
-	height: 4px;
+  background-color: var(--aikinote-gray);
+  position: relative;
+  flex-grow: 1;
+  border-radius: 9999px;
+  height: 4px;
 }
 
 .sliderRange {
-	position: absolute;
-	background-color: var(--aikinote-gray);
-	border-radius: 9999px;
-	height: 100%;
+  position: absolute;
+  background-color: var(--aikinote-gray);
+  border-radius: 9999px;
+  height: 100%;
 }
 
 .sliderThumb {
-	display: block;
-	width: 24px;
-	height: 24px;
-	background-color: var(--aikinote-white);
-	border: 3px solid var(--aikinote-black);
-	border-radius: 50%;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-	cursor: grab;
-	transition: all 0.2s ease;
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-color: var(--aikinote-white);
+  border: 3px solid var(--aikinote-black);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: grab;
+  transition: all 0.2s ease;
 }
 
 .sliderThumb:hover {
-	transform: scale(1.1);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sliderThumb:active {
-	cursor: grabbing;
-	transform: scale(1.05);
+  cursor: grabbing;
+  transform: scale(1.05);
 }
 
 /* ラベル */
 .labels {
-	display: flex;
-	justify-content: space-between;
-	margin-top: 16px;
-	padding: 0 12px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 0 12px;
 }
 
 .label {
-	background: none;
-	border: none;
-	font-size: var(--font-size-base);
-	font-family: var(--font-zen-old-mincho);
-	color: var(--aikinote-text-light);
-	cursor: pointer;
-	padding: 8px 12px;
-	border-radius: 8px;
-	transition: all 0.2s ease;
-	min-width: 48px;
-	min-height: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  background: none;
+  border: none;
+  font-size: var(--font-size-base);
+  font-family: var(--font-zen-old-mincho);
+  color: var(--aikinote-text-light);
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .label:hover {
-	background-color: var(--background-light);
-	color: var(--aikinote-black);
-	transform: translateY(-1px);
+  background-color: var(--background-light);
+  color: var(--aikinote-black);
+  transform: translateY(-1px);
 }
 
 .labelActive {
-	color: var(--aikinote-black);
-	font-weight: 600;
-	background-color: var(--background-light);
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	outline: 2px solid var(--aikinote-gray);
-	outline-offset: 2px;
+  color: var(--aikinote-black);
+  font-weight: 600;
+  background-color: var(--background-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  outline: 2px solid var(--aikinote-gray);
+  outline-offset: 2px;
 }
 
 /* アクション */
 .actions {
-	display: flex;
-	justify-content: center;
-	margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-	.settingArea {
-		gap: 24px;
-	}
+  .settingArea {
+    gap: 24px;
+  }
 
-	.preview {
-		padding: 16px;
-	}
+  .preview {
+    padding: 16px;
+  }
 
-	.sliderContainer {
-		padding: 24px 0;
-	}
+  .sliderContainer {
+    padding: 24px 0;
+  }
 }
 
 /* 高コントラストモード対応 */
 @media (prefers-contrast: high) {
-	.sliderTrack {
-		background-color: #000000;
-	}
+  .sliderTrack {
+    background-color: #000000;
+  }
 
-	.sliderThumb {
-		border-width: 4px;
-	}
+  .sliderThumb {
+    border-width: 4px;
+  }
 
-	.label {
-		border: 1px solid var(--aikinote-gray);
-	}
+  .label {
+    border: 1px solid var(--aikinote-gray);
+  }
 
-	.labelActive {
-		border: 2px solid var(--aikinote-black);
-	}
+  .labelActive {
+    border: 2px solid var(--aikinote-black);
+  }
 }

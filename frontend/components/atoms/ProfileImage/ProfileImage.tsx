@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { FC } from "react";
 import { useTranslations } from "next-intl";
+import type { FC } from "react";
 import { DefaultProfileIcon } from "@/components/atoms/icons/DefaultProfileIcon";
 import styles from "./ProfileImage.module.css";
 

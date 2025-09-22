@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { TagFilterModal } from "./TagFilterModal";
 import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
+import { TagFilterModal } from "./TagFilterModal";
 
 // TagSelectionをモック
 vi.mock("@/components/molecules/TagSelection/TagSelection", () => ({

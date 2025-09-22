@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { locales, defaultLocale, type Locale } from "./config";
+import { defaultLocale, type Locale, locales } from "./config";
 
 describe("i18n設定値テスト", () => {
   describe("サポートされるロケール定義", () => {
@@ -66,7 +66,9 @@ describe("i18n設定値テスト", () => {
       const supportedLocales = locales;
 
       // Act: デフォルトロケールがサポートロケールに含まれているか確認する
-      const isDefaultLocaleSupported = supportedLocales.includes(configuredDefaultLocale);
+      const isDefaultLocaleSupported = supportedLocales.includes(
+        configuredDefaultLocale,
+      );
 
       // Assert: デフォルトロケールがサポートされるロケールに含まれている
       expect(isDefaultLocaleSupported).toBe(true);
@@ -93,7 +95,8 @@ describe("i18n設定値テスト", () => {
       const configuredDefaultLocale: Locale = defaultLocale;
 
       // Act: デフォルトロケールの型が正しいか確認する
-      const isDefaultLocaleTypeValid = typeof configuredDefaultLocale === "string";
+      const isDefaultLocaleTypeValid =
+        typeof configuredDefaultLocale === "string";
 
       // Assert: デフォルトロケールがLocale型として有効である
       expect(isDefaultLocaleTypeValid).toBe(true);
@@ -119,7 +122,9 @@ describe("i18n設定値テスト", () => {
       const expectedLocaleForEnPrefix = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
-      const isEnglishLocaleSupported = locales.includes(expectedLocaleForEnPrefix);
+      const isEnglishLocaleSupported = locales.includes(
+        expectedLocaleForEnPrefix,
+      );
 
       // Assert: enプレフィックス用の英語ロケールがサポートされている
       expect(isEnglishLocaleSupported).toBe(true);

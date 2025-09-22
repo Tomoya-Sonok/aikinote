@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { FC } from "react";
 import { useTranslations } from "next-intl";
+import type { FC } from "react";
 import { Button } from "../../atoms/Button/Button";
 import { Tag } from "../../atoms/Tag/Tag";
 import styles from "./TrainingCard.module.css";
@@ -76,7 +76,9 @@ export const TrainingCard: FC<TrainingCardProps> = ({
       </div>
 
       <p className={styles.content}>{content}</p>
-      <div className={styles.date}>{t("trainingCard.createdDate")} {date}</div>
+      <div className={styles.date}>
+        {t("trainingCard.createdDate")} {date}
+      </div>
     </>
   );
 

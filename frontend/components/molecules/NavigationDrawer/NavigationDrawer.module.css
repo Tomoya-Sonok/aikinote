@@ -41,9 +41,11 @@
   justify-content: space-between;
   padding: 20px 24px 16px;
   border-bottom: 1px solid var(--aikinote-bg);
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     var(--aikinote-white) 0%,
-    rgba(239, 236, 236, 0.3) 100%);
+    rgba(239, 236, 236, 0.3) 100%
+  );
 }
 
 .title {

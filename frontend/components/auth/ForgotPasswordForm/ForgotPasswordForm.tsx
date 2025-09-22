@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslations } from "next-intl";
 import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
@@ -64,15 +64,11 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             {t("auth.emailSent")}
           </h2>
-          <p className="text-gray-600 mb-2">
-            {t("auth.passwordResetSent")}
-          </p>
+          <p className="text-gray-600 mb-2">{t("auth.passwordResetSent")}</p>
           <p className="text-sm text-gray-500 mb-6">
             {t("auth.checkEmail")} {getValues("email")}
           </p>
-          <p className="text-sm text-gray-500 mb-6">
-            {t("auth.checkSpam")}
-          </p>
+          <p className="text-sm text-gray-500 mb-6">{t("auth.checkSpam")}</p>
           <div className="space-y-3">
             <Link
               href="/login"

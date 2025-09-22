@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { ChangeEvent, FC } from "react";
 import { useTranslations } from "next-intl";
+import type { ChangeEvent, FC } from "react";
 import styles from "./SearchInput.module.css";
 
 interface SearchInputProps {

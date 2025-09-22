@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { PageModal } from "./PageModal";
 import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
+import { PageModal } from "./PageModal";
 
 // useAuth をモック
 vi.mock("@/lib/hooks/useAuth", () => ({
@@ -80,7 +80,7 @@ describe("PageModal", () => {
           modalTitle="テストモーダル"
           actionButtonText="実行"
         />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: モーダルが表示されない
@@ -103,7 +103,7 @@ describe("PageModal", () => {
           modalTitle="カスタムモーダルタイトル"
           actionButtonText="実行"
         />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: カスタムタイトルが表示される
@@ -126,7 +126,7 @@ describe("PageModal", () => {
           modalTitle="テストモーダル"
           actionButtonText="カスタム実行"
         />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: カスタムアクションボタンテキストが表示される
@@ -149,7 +149,7 @@ describe("PageModal", () => {
           modalTitle="テストモーダル"
           actionButtonText="実行"
         />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     const cancelButton = screen.getByText("キャンセル");

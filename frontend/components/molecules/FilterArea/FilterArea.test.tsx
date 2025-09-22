@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { FilterArea } from "./FilterArea";
 import { I18nTestProvider } from "../../../test-utils/i18n-test-provider";
+import { FilterArea } from "./FilterArea";
 
 describe("FilterArea", () => {
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: 検索入力フィールドが表示される
@@ -52,7 +52,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: タグフィルターが表示される
@@ -76,7 +76,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: 日付フィルターが表示される
@@ -100,7 +100,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: タグフィルターに「指定なし」が表示される
@@ -126,7 +126,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: 選択されたタグがカンマ区切りで表示される
@@ -151,7 +151,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Assert: 選択された日付が表示される
@@ -176,7 +176,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -201,7 +201,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -226,7 +226,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -254,7 +254,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -282,7 +282,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -310,7 +310,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -337,7 +337,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -365,7 +365,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const searchInput = screen.getByPlaceholderText("フリーワードで絞り込む");
 
@@ -389,7 +389,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const tagFilter = screen.getByText("タグ").closest("button");
 
@@ -418,7 +418,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
     const dateFilter = screen.getByText("日付").closest("button");
 
@@ -446,7 +446,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Act: タグフィルターボタンを取得する
@@ -471,7 +471,7 @@ describe("FilterArea", () => {
     render(
       <I18nTestProvider>
         <FilterArea {...props} />
-      </I18nTestProvider>
+      </I18nTestProvider>,
     );
 
     // Act: 日付フィルターボタンを取得する

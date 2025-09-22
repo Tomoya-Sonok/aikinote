@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 
 // テスト用のルーティング設定を直接定義
 const testRoutingConfig = {
-  locales: ['ja', 'en'],
-  defaultLocale: 'ja',
-  localePrefix: 'as-needed',
+  locales: ["ja", "en"],
+  defaultLocale: "ja",
+  localePrefix: "as-needed",
   localeDetection: false,
 };
 
@@ -91,7 +91,8 @@ describe("i18nルーティング設定", () => {
       const pathWithEnPrefix = "/en/signup";
 
       // Act: サポートされるロケールに英語が含まれているか確認する
-      const isEnglishSupported = testRoutingConfig.locales.includes(englishLocale);
+      const isEnglishSupported =
+        testRoutingConfig.locales.includes(englishLocale);
 
       // Assert: 英語ロケールがサポートされている
       expect(isEnglishSupported).toBe(true);
@@ -115,7 +116,8 @@ describe("i18nルーティング設定", () => {
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
-      const isEnglishSupported = testRoutingConfig.locales.includes(expectedLocale);
+      const isEnglishSupported =
+        testRoutingConfig.locales.includes(expectedLocale);
 
       // Assert: 英語ロケールがサポートされているため英語で表示される
       expect(isEnglishSupported).toBe(true);
@@ -139,7 +141,8 @@ describe("i18nルーティング設定", () => {
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
-      const isEnglishSupported = testRoutingConfig.locales.includes(expectedLocale);
+      const isEnglishSupported =
+        testRoutingConfig.locales.includes(expectedLocale);
 
       // Assert: 英語ロケールがサポートされているため英語で表示される
       expect(isEnglishSupported).toBe(true);
@@ -149,7 +152,8 @@ describe("i18nルーティング設定", () => {
   describe("リダイレクト動作の仕様", () => {
     it("前回英語ページにアクセスしていても日本語ページは日本語のままである", () => {
       // Arrange: ロケール検出が無効化されている設定を確認する
-      const isLocaleDetectionDisabled = testRoutingConfig.localeDetection === false;
+      const isLocaleDetectionDisabled =
+        testRoutingConfig.localeDetection === false;
 
       // Act: ロケール検出設定を取得する
       const actualLocaleDetection = testRoutingConfig.localeDetection;
@@ -161,8 +165,10 @@ describe("i18nルーティング設定", () => {
 
     it("URLパスのみで言語が決定される", () => {
       // Arrange: ロケール検出無効化とas-needed設定を準備する
-      const isLocaleDetectionDisabled = testRoutingConfig.localeDetection === false;
-      const isLocalePrefixAsNeeded = testRoutingConfig.localePrefix === "as-needed";
+      const isLocaleDetectionDisabled =
+        testRoutingConfig.localeDetection === false;
+      const isLocalePrefixAsNeeded =
+        testRoutingConfig.localePrefix === "as-needed";
 
       // Act: 設定値を取得する
       const actualLocaleDetection = testRoutingConfig.localeDetection;

@@ -35,7 +35,7 @@ export function getBaseUrl(): string {
 
   // フォールバック（本来は設定すべき）
   console.warn(
-    "ベースURLが設定されていません。NEXT_PUBLIC_APP_URL環境変数を設定してください。"
+    "ベースURLが設定されていません。NEXT_PUBLIC_APP_URL環境変数を設定してください。",
   );
   return "http://localhost:3000";
 }
@@ -93,7 +93,9 @@ export function validateEnvironmentVariables(): {
     }
 
     if (!process.env.RESEND_API_KEY) {
-      errors.push("RESEND_API_KEY が設定されていません（メール送信機能が利用できません）");
+      errors.push(
+        "RESEND_API_KEY が設定されていません（メール送信機能が利用できません）",
+      );
     }
   }
 

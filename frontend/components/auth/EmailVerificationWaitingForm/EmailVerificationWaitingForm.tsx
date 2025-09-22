@@ -18,7 +18,9 @@ export function EmailVerificationWaitingForm() {
               <span className={styles.stepText}>ステップ 3/4</span>
             </div>
             <div className={styles.progressContainer}>
-              <div className={`${styles.progressBar} ${styles.progressStep3}`} />
+              <div
+                className={`${styles.progressBar} ${styles.progressStep3}`}
+              />
             </div>
           </div>
           <div className={styles.stepDots}>

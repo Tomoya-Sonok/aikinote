@@ -6,32 +6,32 @@ import { buildMetadata } from "@/lib/metadata";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
-	params: { locale },
+  params: { locale },
 }: {
-	params: { locale: string };
+  params: { locale: string };
 }): Promise<Metadata> {
-	const t = await getTranslations({ locale, namespace: "auth" });
-	return buildMetadata({
-		title: t("passwordReset"),
-		description: t("passwordResetDescription"),
-	});
+  const t = await getTranslations({ locale, namespace: "auth" });
+  return buildMetadata({
+    title: t("passwordReset"),
+    description: t("passwordResetDescription"),
+  });
 }
 
 export default async function ForgotPasswordPage({
-	params: { locale },
+  params: { locale },
 }: {
-	params: { locale: string };
+  params: { locale: string };
 }) {
-	const t = await getTranslations({ locale, namespace: "auth" });
+  const t = await getTranslations({ locale, namespace: "auth" });
 
-	return (
-		<MinimalLayout headerTitle={t("passwordResetTitle")} backHref="/login">
-			<div className={styles.container}>
-				<h1 className={styles.title}>{t("passwordResetTitle")}</h1>
-				<div className={styles.formCard}>
-					<ForgotPasswordForm />
-				</div>
-			</div>
-		</MinimalLayout>
-	);
+  return (
+    <MinimalLayout headerTitle={t("passwordResetTitle")} backHref="/login">
+      <div className={styles.container}>
+        <h1 className={styles.title}>{t("passwordResetTitle")}</h1>
+        <div className={styles.formCard}>
+          <ForgotPasswordForm />
+        </div>
+      </div>
+    </MinimalLayout>
+  );
 }

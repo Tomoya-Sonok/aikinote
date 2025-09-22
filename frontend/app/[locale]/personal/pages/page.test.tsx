@@ -3,8 +3,8 @@ import { useRouter } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getPages, getTags } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
 import { I18nTestProvider } from "../../../../test-utils/i18n-test-provider";
+import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
 
 // モック設定
 vi.mock("next/navigation", () => ({
@@ -178,7 +178,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -202,7 +206,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -229,7 +237,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -257,7 +269,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -278,7 +294,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -305,7 +325,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -359,7 +383,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -398,7 +426,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -420,7 +452,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -451,7 +487,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -490,7 +530,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert
@@ -537,7 +581,11 @@ describe("ページ一覧画面", () => {
 
     // Act
     await act(async () => {
-      render(<I18nTestProvider><PersonalPagesPageClient /></I18nTestProvider>);
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
     });
 
     // Assert

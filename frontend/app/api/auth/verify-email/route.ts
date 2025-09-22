@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
-import { isTokenExpired } from "@/lib/utils/auth-server";
 import {
+  createInternalServerErrorResponse,
   createSuccessResponse,
   createValidationErrorResponse,
-  createInternalServerErrorResponse,
   handleApiError,
 } from "@/lib/utils/api-response";
+import { isTokenExpired } from "@/lib/utils/auth-server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,18 +27,23 @@ export async function POST(request: NextRequest) {
       .maybeSingle(); // singleの代わりにmaybeSingleを使用
 
     if (findError || !user) {
-      console.error("verify-email: ユーザー取得エラー", { findError, token: `${token.slice(0, 8)}...` });
+      console.error("verify-email: ユーザー取得エラー", {
+        findError,
+        token: `${token.slice(0, 8)}...`,
+      });
       return createValidationErrorResponse("無効な認証トークンです");
     }
 
     if (user.is_email_verified) {
       return createSuccessResponse(null, {
-        message: "このアカウントは既に認証済みです"
+        message: "このアカウントは既に認証済みです",
       });
     }
 
     if (isTokenExpired(new Date(user.created_at))) {
-      return createValidationErrorResponse("認証トークンの有効期限が切れています");
+      return createValidationErrorResponse(
+        "認証トークンの有効期限が切れています",
+      );
     }
 
     const { error: updateError } = await supabase
@@ -63,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     return createSuccessResponse(null, {
-      message: "メールアドレスの認証が完了しました"
+      message: "メールアドレスの認証が完了しました",
     });
   } catch (error) {
     return handleApiError(error, "POST /api/auth/verify-email");

@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useTranslations } from "next-intl";
 import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { type SignInFormData, signInSchema } from "@/lib/utils/validation";

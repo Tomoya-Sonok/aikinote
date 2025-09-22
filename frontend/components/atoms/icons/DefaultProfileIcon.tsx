@@ -4,7 +4,10 @@ interface DefaultProfileIconProps extends ComponentPropsWithoutRef<"svg"> {
   size?: number;
 }
 
-export function DefaultProfileIcon({ size = 120, ...props }: DefaultProfileIconProps) {
+export function DefaultProfileIcon({
+  size = 120,
+  ...props
+}: DefaultProfileIconProps) {
   return (
     <svg
       width={size}
@@ -14,9 +17,9 @@ export function DefaultProfileIcon({ size = 120, ...props }: DefaultProfileIconP
       xmlns="http://www.w3.org/2000/svg"
       {...props}
     >
-      <circle cx="60" cy="60" r="60" fill="#E5E7EB"/>
-      <circle cx="60" cy="45" r="20" fill="#9CA3AF"/>
-      <path d="M20 100C20 80 35 65 60 65C85 65 100 80 100 100" fill="#9CA3AF"/>
+      <circle cx="60" cy="60" r="60" fill="#E5E7EB" />
+      <circle cx="60" cy="45" r="20" fill="#9CA3AF" />
+      <path d="M20 100C20 80 35 65 60 65C85 65 100 80 100 100" fill="#9CA3AF" />
     </svg>
   );
 }

@@ -2,8 +2,9 @@
  * OAuth認証コールバック処理のテスト
  * 直接データベースアクセスロジックのテスト
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
 // @supabase/ssrのモック
@@ -92,7 +93,9 @@ describe("OAuth認証コールバック処理", () => {
       data: [],
     });
 
-    const request = new NextRequest("http://localhost:3000/auth/callback?code=auth_code");
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
 
     const response = await GET(request);
 
@@ -117,7 +120,9 @@ describe("OAuth認証コールバック処理", () => {
 
     // リダイレクトが正しく行われることを確認
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/personal/pages");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/personal/pages",
+    );
   });
 
   it("既存ユーザーの場合はユーザー作成をスキップする", async () => {
@@ -154,7 +159,9 @@ describe("OAuth認証コールバック処理", () => {
       select: mockSelect,
     });
 
-    const request = new NextRequest("http://localhost:3000/auth/callback?code=auth_code");
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
 
     const response = await GET(request);
 
@@ -167,7 +174,9 @@ describe("OAuth認証コールバック処理", () => {
 
     // リダイレクトが正しく行われることを確認
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/personal/pages");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/personal/pages",
+    );
   });
 
   it("ユーザー作成エラー時もリダイレクトを継続する", async () => {
@@ -209,7 +218,9 @@ describe("OAuth認証コールバック処理", () => {
       insert: mockInsert,
     });
 
-    const request = new NextRequest("http://localhost:3000/auth/callback?code=auth_code");
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
 
     const response = await GET(request);
 
@@ -218,7 +229,9 @@ describe("OAuth認証コールバック処理", () => {
 
     // エラーがあってもリダイレクトは継続される
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/personal/pages");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/personal/pages",
+    );
   });
 
   it("認証コード交換エラー時にログインページへリダイレクト", async () => {
@@ -228,7 +241,9 @@ describe("OAuth認証コールバック処理", () => {
       error: { message: "Invalid authorization code" },
     });
 
-    const request = new NextRequest("http://localhost:3000/auth/callback?code=invalid_code");
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=invalid_code",
+    );
 
     const response = await GET(request);
 
@@ -237,7 +252,9 @@ describe("OAuth認証コールバック処理", () => {
 
     // エラーページへリダイレクト
     expect(response.status).toBe(307); // Note: Next.js 14+ では内部的に307が使用される
-    expect(response.headers.get("location")).toBe("http://localhost:3000/login?error=auth_error");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/login?error=auth_error",
+    );
   });
 
   it("認証コードがない場合にログインページへリダイレクト", async () => {
@@ -246,12 +263,16 @@ describe("OAuth認証コールバック処理", () => {
     const response = await GET(request);
 
     // 認証処理は行われない
-    expect(mockSupabaseClient.auth.exchangeCodeForSession).not.toHaveBeenCalled();
+    expect(
+      mockSupabaseClient.auth.exchangeCodeForSession,
+    ).not.toHaveBeenCalled();
     expect(mockServiceSupabase.from).not.toHaveBeenCalled();
 
     // ログインページへリダイレクト
     expect(response.status).toBe(307); // Note: Next.js 14+ では内部的に307が使用される
-    expect(response.headers.get("location")).toBe("http://localhost:3000/login");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/login",
+    );
   });
 
   it("ユーザー存在チェックでエラーが発生してもリダイレクトを継続する", async () => {
@@ -282,7 +303,9 @@ describe("OAuth認証コールバック処理", () => {
       select: mockSelect,
     });
 
-    const request = new NextRequest("http://localhost:3000/auth/callback?code=auth_code");
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
 
     const response = await GET(request);
 
@@ -291,7 +314,9 @@ describe("OAuth認証コールバック処理", () => {
 
     // エラーがあってもリダイレクトは継続される
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("http://localhost:3000/personal/pages");
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/personal/pages",
+    );
   });
 
   it("emailのローカル部分からusernameが正しく生成される", async () => {
@@ -340,7 +365,9 @@ describe("OAuth認証コールバック処理", () => {
         insert: mockInsert,
       });
 
-      const request = new NextRequest("http://localhost:3000/auth/callback?code=auth_code");
+      const request = new NextRequest(
+        "http://localhost:3000/auth/callback?code=auth_code",
+      );
 
       await GET(request);
 

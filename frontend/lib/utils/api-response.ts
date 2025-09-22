@@ -5,14 +5,11 @@
 
 import { NextResponse } from "next/server";
 import type {
-  ApiSuccessResponse,
-  ApiErrorResponse,
   ApiErrorCode,
+  ApiErrorResponse,
+  ApiSuccessResponse,
 } from "@/lib/types/api";
-import {
-  API_ERROR_CODES,
-  API_ERROR_MESSAGES,
-} from "@/lib/types/api";
+import { API_ERROR_CODES, API_ERROR_MESSAGES } from "@/lib/types/api";
 
 /**
  * 成功レスポンスを作成する
@@ -22,7 +19,7 @@ export function createSuccessResponse<T>(
   options: {
     message?: string;
     status?: number;
-  } = {}
+  } = {},
 ): NextResponse {
   const { message, status = 200 } = options;
 
@@ -46,7 +43,7 @@ export function createErrorResponse(
     code?: ApiErrorCode;
     status?: number;
     message?: string;
-  } = {}
+  } = {},
 ): NextResponse {
   const { details, code, message } = options;
 
@@ -81,7 +78,7 @@ export function createErrorResponse(
  */
 export function createValidationErrorResponse(
   errors: Record<string, string[]> | string,
-  message: string = "入力内容に誤りがあります"
+  message: string = "入力内容に誤りがあります",
 ): NextResponse {
   const details = typeof errors === "string" ? { general: [errors] } : errors;
 
@@ -97,7 +94,7 @@ export function createValidationErrorResponse(
  */
 export function createBadRequestResponse(
   message: string = "リクエストの形式が正しくありません",
-  options: { details?: Record<string, unknown> } = {}
+  options: { details?: Record<string, unknown> } = {},
 ): NextResponse {
   const { details } = options;
 
@@ -112,7 +109,7 @@ export function createBadRequestResponse(
  * 認証エラーレスポンスを作成する
  */
 export function createUnauthorizedResponse(
-  message: string = "認証が必要です"
+  message: string = "認証が必要です",
 ): NextResponse {
   return createErrorResponse(API_ERROR_CODES.UNAUTHORIZED, {
     status: 401,
@@ -124,7 +121,7 @@ export function createUnauthorizedResponse(
  * 権限エラーレスポンスを作成する
  */
 export function createForbiddenResponse(
-  message: string = "このリソースへのアクセス権限がありません"
+  message: string = "このリソースへのアクセス権限がありません",
 ): NextResponse {
   return createErrorResponse(API_ERROR_CODES.FORBIDDEN, {
     status: 403,
@@ -136,7 +133,7 @@ export function createForbiddenResponse(
  * Not Foundエラーレスポンスを作成する
  */
 export function createNotFoundResponse(
-  message: string = "指定されたリソースが見つかりません"
+  message: string = "指定されたリソースが見つかりません",
 ): NextResponse {
   return createErrorResponse(API_ERROR_CODES.NOT_FOUND, {
     status: 404,
@@ -149,14 +146,16 @@ export function createNotFoundResponse(
  */
 export function createInternalServerErrorResponse(
   error?: Error | string,
-  includeDetails: boolean = process.env.NODE_ENV === "development"
+  includeDetails: boolean = process.env.NODE_ENV === "development",
 ): NextResponse {
-  const details = includeDetails && error
-    ? {
-        message: typeof error === "string" ? error : error.message,
-        ...(typeof error === "object" && error.stack && { stack: error.stack }),
-      }
-    : undefined;
+  const details =
+    includeDetails && error
+      ? {
+          message: typeof error === "string" ? error : error.message,
+          ...(typeof error === "object" &&
+            error.stack && { stack: error.stack }),
+        }
+      : undefined;
 
   return createErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR, {
     status: 500,
@@ -193,10 +192,7 @@ function getHttpStatusFromErrorCode(code: ApiErrorCode): number {
  * エラーオブジェクトから適切なAPIエラーレスポンスを作成する
  * try-catch文で使用することを想定
  */
-export function handleApiError(
-  error: unknown,
-  context?: string
-): NextResponse {
+export function handleApiError(error: unknown, context?: string): NextResponse {
   console.error(`API Error${context ? ` in ${context}` : ""}:`, error);
 
   if (error instanceof Error) {
@@ -204,13 +200,22 @@ export function handleApiError(
     if (error.message.includes("認証") || error.message.includes("auth")) {
       return createUnauthorizedResponse(error.message);
     }
-    if (error.message.includes("権限") || error.message.includes("permission")) {
+    if (
+      error.message.includes("権限") ||
+      error.message.includes("permission")
+    ) {
       return createForbiddenResponse(error.message);
     }
-    if (error.message.includes("見つかりません") || error.message.includes("not found")) {
+    if (
+      error.message.includes("見つかりません") ||
+      error.message.includes("not found")
+    ) {
       return createNotFoundResponse(error.message);
     }
-    if (error.message.includes("バリデーション") || error.message.includes("validation")) {
+    if (
+      error.message.includes("バリデーション") ||
+      error.message.includes("validation")
+    ) {
       return createValidationErrorResponse(error.message);
     }
   }

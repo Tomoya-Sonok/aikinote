@@ -2,18 +2,18 @@
  * API レスポンス作成ヘルパー関数のテスト
  * 統一されたエラーレスポンス形式のテスト
  */
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { API_ERROR_CODES } from "@/lib/types/api";
 import {
-  createSuccessResponse,
   createErrorResponse,
-  createValidationErrorResponse,
-  createUnauthorizedResponse,
   createForbiddenResponse,
-  createNotFoundResponse,
   createInternalServerErrorResponse,
+  createNotFoundResponse,
+  createSuccessResponse,
+  createUnauthorizedResponse,
+  createValidationErrorResponse,
   handleApiError,
 } from "./api-response";
-import { API_ERROR_CODES } from "@/lib/types/api";
 
 // 時間のモック
 const mockDate = new Date("2024-01-01T00:00:00.000Z");
@@ -72,7 +72,9 @@ describe("API Response Helper Functions", () => {
 
   describe("createValidationErrorResponse", () => {
     it("文字列エラーでバリデーションエラーレスポンスを作成する", () => {
-      const response = createValidationErrorResponse("必須項目が不足しています");
+      const response = createValidationErrorResponse(
+        "必須項目が不足しています",
+      );
       expect(response.status).toBe(400);
     });
 
@@ -86,7 +88,10 @@ describe("API Response Helper Functions", () => {
     });
 
     it("カスタムメッセージ付きのバリデーションエラーレスポンスを作成する", () => {
-      const response = createValidationErrorResponse("エラー", "カスタムメッセージ");
+      const response = createValidationErrorResponse(
+        "エラー",
+        "カスタムメッセージ",
+      );
       expect(response.status).toBe(400);
     });
   });
@@ -193,12 +198,17 @@ describe("API Response Helper Functions", () => {
     });
 
     it("コンテキスト情報を含めてログ出力する", () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const error = new Error("テストエラー");
 
       handleApiError(error, "test context");
 
-      expect(consoleSpy).toHaveBeenCalledWith("API Error in test context:", error);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "API Error in test context:",
+        error,
+      );
 
       consoleSpy.mockRestore();
     });
@@ -236,7 +246,9 @@ describe("API Response Helper Functions", () => {
     });
 
     it("INTERNAL_SERVER_ERROR は 500 を返す", () => {
-      const response = createErrorResponse(API_ERROR_CODES.INTERNAL_SERVER_ERROR);
+      const response = createErrorResponse(
+        API_ERROR_CODES.INTERNAL_SERVER_ERROR,
+      );
       expect(response.status).toBe(500);
     });
 

@@ -32,7 +32,9 @@ export async function sendVerificationEmail({
   );
   console.log("==========================================");
 
-  const verificationUrl = getExternalUrl(`/verify-email?token=${verificationToken}`);
+  const verificationUrl = getExternalUrl(
+    `/verify-email?token=${verificationToken}`,
+  );
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {

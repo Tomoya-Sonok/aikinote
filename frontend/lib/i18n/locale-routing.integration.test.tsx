@@ -1,30 +1,33 @@
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // テスト用の翻訳メッセージを直接定義
 const jaMessages = {
-  "auth": {
-    "signup": "アカウント作成",
-    "login": "ログイン",
-    "email": "メールアドレス",
-    "password": "パスワード"
-  }
+  auth: {
+    signup: "アカウント作成",
+    login: "ログイン",
+    email: "メールアドレス",
+    password: "パスワード",
+  },
 };
 
 const enMessages = {
-  "auth": {
-    "signup": "Sign Up",
-    "login": "Login",
-    "email": "Email Address",
-    "password": "Password"
-  }
+  auth: {
+    signup: "Sign Up",
+    login: "Login",
+    email: "Email Address",
+    password: "Password",
+  },
 };
 
 // テスト用のシンプルなページコンポーネント
 const TestSignupPage = ({ locale }: { locale: string }) => {
   return (
-    <NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : enMessages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={locale === "ja" ? jaMessages : enMessages}
+    >
       <TestSignupPageContent />
     </NextIntlClientProvider>
   );
@@ -44,7 +47,10 @@ const TestSignupPageContent = () => {
 
 const TestLoginPage = ({ locale }: { locale: string }) => {
   return (
-    <NextIntlClientProvider locale={locale} messages={locale === "ja" ? jaMessages : enMessages}>
+    <NextIntlClientProvider
+      locale={locale}
+      messages={locale === "ja" ? jaMessages : enMessages}
+    >
       <TestLoginPageContent />
     </NextIntlClientProvider>
   );
@@ -155,7 +161,9 @@ describe("ロケールルーティング統合テスト", () => {
       const englishLocale = "en";
 
       // Act: 日本語ロケールでレンダリングする
-      const { unmount: unmountJa } = render(<TestLoginPage locale={japaneseLocale} />);
+      const { unmount: unmountJa } = render(
+        <TestLoginPage locale={japaneseLocale} />,
+      );
 
       // Assert: 日本語で表示される
       expect(screen.getByText("ログイン")).toBeInTheDocument();

@@ -1,22 +1,22 @@
+import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { notFound } from 'next/navigation';
-import { routing } from '@/lib/i18n/routing';
-import { ToastProvider } from "@/contexts/ToastContext";
 import { FontSizeProvider } from "@/components/providers/FontSizeProvider";
+import { ToastProvider } from "@/contexts/ToastContext";
+import { routing } from "@/lib/i18n/routing";
 
 interface LocaleLayoutProps {
-  children: React.ReactNode
-  params: { locale: string }
+  children: React.ReactNode;
+  params: { locale: string };
 }
 
 export default async function LocaleLayout({
   children,
-  params: { locale }
+  params: { locale },
 }: LocaleLayoutProps) {
   // 有効なロケールかチェック
   if (!routing.locales.includes(locale as any)) {
-    notFound()
+    notFound();
   }
 
   const messages = await getMessages({ locale });
@@ -37,5 +37,5 @@ export default async function LocaleLayout({
 }
 
 export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }))
+  return routing.locales.map((locale) => ({ locale }));
 }
