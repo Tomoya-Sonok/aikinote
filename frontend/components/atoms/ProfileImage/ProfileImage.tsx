@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { FC } from "react";
 import { useTranslations } from "next-intl";
+import { DefaultProfileIcon } from "@/components/atoms/icons/DefaultProfileIcon";
 import styles from "./ProfileImage.module.css";
 
 interface ProfileImageProps {
@@ -18,18 +19,21 @@ export const ProfileImage: FC<ProfileImageProps> = ({
 }) => {
   const t = useTranslations();
   const defaultAlt = alt || t("components.profileImage");
-  const imageSrc = src || "/mypage/assets/default-profile-image.svg";
 
   return (
     <div className={`${styles.container} ${styles[size]} ${className}`}>
-      <Image
-        src={imageSrc}
-        alt={defaultAlt}
-        fill
-        unoptimized
-        className={styles.image}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      />
+      {src ? (
+        <Image
+          src={src}
+          alt={defaultAlt}
+          fill
+          unoptimized
+          className={styles.image}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+      ) : (
+        <DefaultProfileIcon size={120} className={styles.image} />
+      )}
     </div>
   );
 };

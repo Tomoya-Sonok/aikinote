@@ -20,6 +20,7 @@ const mockServiceSupabase = {
   from: vi.fn(),
   auth: {
     admin: {
+      createUser: vi.fn(),
       deleteUser: vi.fn(),
       updateUserById: vi.fn(),
     },
@@ -38,6 +39,7 @@ vi.mock("@/lib/server/tag", () => ({
 
 vi.mock("@/lib/utils/auth-server", () => ({
   generateVerificationToken: vi.fn().mockReturnValue("test-token"),
+  hashPassword: vi.fn().mockResolvedValue("hashed-password"),
   isTokenExpired: vi.fn().mockReturnValue(false),
 }));
 
@@ -57,7 +59,6 @@ describe("API Integration Tests - Response Format Consistency", () => {
         email: "test@example.com",
         username: "testuser",
         profile_image_url: null,
-        dojo_id: null,
         is_email_verified: true,
       };
 
@@ -129,25 +130,51 @@ describe("API Integration Tests - Response Format Consistency", () => {
         username: "testuser",
       };
 
-      // ユーザー作成成功をモック
-      const mockInsert = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: mockInsertedUser,
-            error: null,
-          }),
-        }),
+      const emailMaybeSingle = vi.fn().mockResolvedValue({
+        data: null,
+        error: null,
+      });
+      const usernameMaybeSingle = vi.fn().mockResolvedValue({
+        data: null,
+        error: null,
+      });
+      const insertSingle = vi.fn().mockResolvedValue({
+        data: mockInsertedUser,
+        error: null,
       });
 
-      mockServiceSupabase.from.mockReturnValue({
-        insert: mockInsert,
+      mockServiceSupabase.from
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: emailMaybeSingle,
+            }),
+          }),
+        })
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: usernameMaybeSingle,
+            }),
+          }),
+        })
+        .mockReturnValueOnce({
+          insert: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              single: insertSingle,
+            }),
+          }),
+        });
+
+      mockServiceSupabase.auth.admin.createUser.mockResolvedValue({
+        data: { user: { id: "user-123" } },
+        error: null,
       });
 
       const requestBody = {
-        id: "user-123",
         email: "test@example.com",
+        password: "password123",
         username: "testuser",
-        dojo_id: null,
       };
 
       const request = new NextRequest("http://localhost:3000/api/users", {
@@ -168,6 +195,17 @@ describe("API Integration Tests - Response Format Consistency", () => {
       expect(responseData).toHaveProperty("data");
       expect(responseData).toHaveProperty("message");
       expect(responseData).toHaveProperty("timestamp");
+
+      expect(mockServiceSupabase.auth.admin.createUser).toHaveBeenCalledWith({
+        email: "test@example.com",
+        password: "password123",
+        email_confirm: false,
+        user_metadata: {
+          username: "testuser",
+        },
+      });
+
+      expect(mockServiceSupabase.auth.admin.deleteUser).not.toHaveBeenCalled();
     });
 
     it.todo("POST /api/users - バリデーションエラーレスポンスが統一形式である", async () => {

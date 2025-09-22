@@ -136,35 +136,22 @@ export function useAuth() {
 		setError(null);
 
 		try {
-			const { data: authData, error } = await supabase.auth.signUp({
-				email: data.email,
-				password: data.password,
-				options: {
-					data: {
-						username: data.username,
-						dojo_id: data.dojoId || null,
-					},
-				},
-			});
-
-			if (error) {
-				throw new Error(error.message || "新規登録に失敗しました");
-			}
-
-			if (authData?.user) {
 				const userResult = await createUserProfile({
-					id: authData.user.id,
 					email: data.email,
+					password: data.password,
 					username: data.username,
-					dojo_id: data.dojoId || null,
 				});
 
-				if (!userResult.success) {
-					throw new Error(userResult.error || "ユーザー情報の初期化に失敗しました");
-				}
+			if (!userResult.success) {
+				throw new Error(userResult.error || "新規登録に失敗しました");
 			}
 
-			return { message: "新規登録が完了しました", userId: authData?.user?.id };
+			return {
+				message:
+					userResult.message ||
+					"新規登録が完了しました。認証メールを確認してください。",
+				userId: userResult.data?.id,
+			};
 		} catch (err) {
 			const errorMessage =
 				err instanceof Error ? err.message : "新規登録に失敗しました";

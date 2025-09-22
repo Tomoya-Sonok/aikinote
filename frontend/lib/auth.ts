@@ -5,7 +5,6 @@ export type SignUpCredentials = {
 	email: string;
 	password: string;
 	username: string;
-	dojoId?: string;
 };
 
 export type SignInCredentials = {
@@ -31,7 +30,6 @@ export async function signUp(credentials: SignUpCredentials) {
 		options: {
 			data: {
 				username: credentials.username,
-				dojo_id: credentials.dojoId || null, // 今は使ってないが将来のために保存
 			},
 		},
 	});
@@ -47,7 +45,6 @@ export async function signUp(credentials: SignUpCredentials) {
 			email: credentials.email,
 			username: credentials.username,
 			profile_image_url: null,
-			dojo_id: credentials.dojoId || null, // 今は使ってないが将来のために保存
 			training_start_date: null,
 			publicity_setting: "private",
 			language: "ja",

@@ -16,7 +16,6 @@ type User = {
   username: string;
   email: string;
   profile_image_url: string | null;
-  dojo_id: string | null;
   training_start_date: string | null;
   publicity_setting: string;
   language: string;
