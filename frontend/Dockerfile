@@ -4,16 +4,18 @@ FROM node:20.11.1-alpine AS development
 WORKDIR /app
 
 # フォント関連のパッケージをインストール
-RUN apk add --no-cache fontconfig
+RUN apk add --no-cache fontconfig ca-certificates curl
 
 # 特定バージョンのpnpmをインストール（.mise.tomlと一致させる）
 RUN npm install -g pnpm@8.15.4
 
+# package.jsonとpnpm-lock.yamlをコピー
 COPY package.json pnpm-lock.yaml* ./
 
-# pnpmを使用してパッケージをインストール
+# 依存関係をインストール
 RUN pnpm install
 
+# ソースコードをコピー
 COPY . .
 
 # 開発サーバーを起動
@@ -25,7 +27,7 @@ FROM node:20.11.1-alpine AS production
 WORKDIR /app
 
 # フォント関連のパッケージをインストール
-RUN apk add --no-cache fontconfig
+RUN apk add --no-cache fontconfig ca-certificates curl
 
 # 特定バージョンのpnpmをインストール（.mise.tomlと一致させる）
 RUN npm install -g pnpm@8.15.4
