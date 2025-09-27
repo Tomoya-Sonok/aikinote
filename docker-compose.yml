@@ -17,13 +17,8 @@ services:
       - NEXT_PUBLIC_IS_DOCKER=true
     command:
       - pnpm
-      - exec
-      - next
+      - run
       - dev
-      - --hostname
-      - 0.0.0.0
-      - --port
-      - "3000"
 
   backend:
     build:
