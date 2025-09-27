@@ -7,6 +7,16 @@ import { routing } from "./lib/i18n/routing";
 const handleI18nRouting = createIntlMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
+  if (process.env.SKIP_MIDDLEWARE === "true") {
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
+  if (process.env.NODE_ENV === "development") {
+    console.log("[middleware] start", request.nextUrl.pathname);
+  }
   // 認証コールバックパスはi18nルーティングを除外
   if (request.nextUrl.pathname.startsWith("/auth/")) {
     // 認証関連のパスは直接処理
@@ -44,7 +54,13 @@ export async function middleware(request: NextRequest) {
       });
 
       // セッションを取得してCookieを同期
-      await supabase.auth.getSession();
+      try {
+        await supabase.auth.getSession();
+      } finally {
+        if (process.env.NODE_ENV === "development") {
+          console.log("[middleware] auth callback getSession done");
+        }
+      }
     }
 
     return response;
@@ -120,6 +136,10 @@ export async function middleware(request: NextRequest) {
   const {
     data: { session },
   } = await supabase.auth.getSession();
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[middleware] main getSession done");
+  }
 
   // セッション情報をログ出力（デバッグ用）
   if (process.env.NODE_ENV === "development") {

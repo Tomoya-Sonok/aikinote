@@ -7,6 +7,7 @@ import { getApiBaseUrl } from "@/lib/utils/env";
 import { fetchUserProfile } from "@/lib/utils/user-api";
 
 export async function getCurrentUser(): Promise<UserSession | null> {
+  console.log("🐾 getCurrentUser: start");
   const supabase = getServerSupabase();
 
   try {
@@ -14,6 +15,11 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       data: { session },
       error,
     } = await supabase.auth.getSession();
+    console.log("🐾 getCurrentUser: getSession done", {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      error: error?.message,
+    });
 
     // デバッグ用ログ
     if (process.env.NODE_ENV === "development") {
@@ -38,7 +44,14 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     // 共通のプロフィール取得関数を使用
     try {
       const baseUrl = getApiBaseUrl();
+      console.log("🐾 getCurrentUser: call fetchUserProfile", {
+        userId: session.user.id,
+        baseUrl,
+      });
       const userProfile = await fetchUserProfile(session.user.id, { baseUrl });
+      console.log("🐾 getCurrentUser: fetchUserProfile result", {
+        hasProfile: !!userProfile,
+      });
 
       if (!userProfile) {
         console.error("Profile fetch failed in getCurrentUser");
