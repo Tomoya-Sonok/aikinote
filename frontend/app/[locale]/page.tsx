@@ -58,7 +58,7 @@ export default async function RootPage({ params: { locale } }: RootPageProps) {
 							style={{
 								padding: "12px 24px",
 								backgroundColor: "var(--aikinote-primary)",
-								color: "white",
+								color: "var(--aikinote-primary)",
 								borderRadius: "8px",
 								textDecoration: "none",
 							}}

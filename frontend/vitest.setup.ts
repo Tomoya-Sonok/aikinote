@@ -24,6 +24,27 @@ vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
+vi.mock("next-intl/navigation", () => {
+  const redirect = vi.fn();
+  const usePathname = vi.fn(() => "/");
+  const useRouter = vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+  }));
+  const Link = ({ children }: { children?: unknown }) => children ?? null;
+
+  return {
+    createNavigation: () => ({
+      Link,
+      redirect,
+      usePathname,
+      useRouter,
+    }),
+  };
+});
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_API_URL = "http://localhost:8787";
 process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";

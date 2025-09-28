@@ -4,6 +4,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 import { generateVerificationToken } from "@/lib/utils/auth-server";
+import { routing } from "@/lib/i18n/routing";
+
+const buildLocalizedUrl = (
+  origin: string,
+  locale: string,
+  pathWithLeadingSlash: string,
+) => {
+  const localePrefix =
+    locale === routing.defaultLocale ? "" : `/${locale}`;
+  return new URL(`${localePrefix}${pathWithLeadingSlash}`, origin);
+};
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -11,6 +22,10 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = cookies();
+    const localeFromCookie = cookieStore.get("NEXT_LOCALE")?.value;
+    const locale = localeFromCookie ?? routing.defaultLocale;
+    const buildUrl = (pathWithLeadingSlash: string) =>
+      buildLocalizedUrl(requestUrl.origin, locale, pathWithLeadingSlash);
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,9 +51,7 @@ export async function GET(request: NextRequest) {
 
       if (error) {
         console.error("認証コード交換エラー:", error);
-        return NextResponse.redirect(
-          new URL("/login?error=auth_error", requestUrl.origin),
-        );
+        return NextResponse.redirect(buildUrl("/login?error=auth_error"));
       }
       // 新規ユーザーの場合、データベースにユーザー情報を作成
       if (data?.user?.email) {
@@ -63,7 +76,7 @@ export async function GET(request: NextRequest) {
             const username = data.user.email.split("@")[0];
             const verificationToken = generateVerificationToken();
 
-            const { data: insertedUser, error: insertError } =
+            const { error: insertError } =
               await serviceSupabase
                 .from("User")
                 .insert({
@@ -100,17 +113,15 @@ export async function GET(request: NextRequest) {
       }
 
       // 認証成功時は元のリダイレクト先にリダイレクト
-      return NextResponse.redirect(
-        new URL("/personal/pages", requestUrl.origin),
-      );
+      return NextResponse.redirect(buildUrl("/personal/pages"));
     } catch (error) {
       console.error("認証処理エラー:", error);
-      return NextResponse.redirect(
-        new URL("/login?error=auth_error", requestUrl.origin),
-      );
+      return NextResponse.redirect(buildUrl("/login?error=auth_error"));
     }
   }
 
   // コードがない場合はログインページにリダイレクト
-  return NextResponse.redirect(new URL("/login", requestUrl.origin));
+  const locale = cookies().get("NEXT_LOCALE")?.value ?? routing.defaultLocale;
+  const fallbackUrl = buildLocalizedUrl(requestUrl.origin, locale, "/login");
+  return NextResponse.redirect(fallbackUrl);
 }

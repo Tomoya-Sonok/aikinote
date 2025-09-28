@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MenuSection } from "@/components/atoms/MenuSection/MenuSection";
 import { OtherMenu } from "@/components/molecules/OtherMenu/OtherMenu";
 import { ProfileCard } from "@/components/molecules/ProfileCard/ProfileCard";
@@ -33,11 +34,13 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   className = "",
 }) => {
   const t = useTranslations();
+  const locale = useLocale();
+  const router = useRouter();
   const { signOutUser } = useAuth();
   const [currentUser, setCurrentUser] = useState(user);
 
   const handleEditProfile = () => {
-    window.location.href = "/profile/edit";
+    router.push(`/${locale}/profile/edit`);
   };
 
   const handleLogout = async () => {

@@ -29,13 +29,6 @@ const nextConfig = {
 	output: "standalone",
 	trailingSlash: false,
 
-	// 実験的機能の設定
-	experimental: {
-		forceSwcTransforms: true,
-		// プリレンダリングを完全に無効化
-		ppr: false,
-	},
-
 	// フォント最適化の設定（Docker環境での問題を回避）
 	optimizeFonts: true,
 

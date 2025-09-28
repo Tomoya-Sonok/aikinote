@@ -1,19 +1,19 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "@/components/atoms/Loader";
 import { EmailVerificationWaitingForm } from "@/components/auth/EmailVerificationWaitingForm";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import {
-	type EmailPasswordFormData,
 	createEmailPasswordSchema,
-	type UsernameFormData,
 	createUsernameSchema,
+	type EmailPasswordFormData,
+	type UsernameFormData,
 } from "@/lib/utils/validation";
 import styles from "./page.module.css";
 
@@ -30,6 +30,7 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 	const emailId = useId();
 	const passwordId = useId();
 	const t = useTranslations();
+	const resolvedLocale = locale ?? "ja";
 
 	const [emailPasswordData, setEmailPasswordData] = useState<{
 		email: string;
@@ -233,7 +234,10 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 						<div className={styles.loginPrompt}>
 							<span className={styles.loginPromptText}>
 								{t("auth.alreadyHaveAccount")}{" "}
-								<Link href={`/${locale}/login`} className={styles.loginLink}>
+								<Link
+									href={`/${resolvedLocale}/login`}
+									className={styles.loginLink}
+								>
 									{t("auth.login")}
 								</Link>
 							</span>
@@ -323,7 +327,10 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 					<div className={styles.loginPrompt}>
 						<span className={styles.loginPromptText}>
 							{t("auth.alreadyHaveAccount")}{" "}
-							<Link href="/login" className={styles.loginLink}>
+							<Link
+								href={`/${resolvedLocale}/login`}
+								className={styles.loginLink}
+							>
 								{t("auth.login")}
 							</Link>
 						</span>

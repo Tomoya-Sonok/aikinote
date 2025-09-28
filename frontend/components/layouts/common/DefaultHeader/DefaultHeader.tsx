@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { DefaultProfileIcon } from "@/components/atoms/icons/DefaultProfileIcon";
@@ -9,7 +10,6 @@ import { NavigationDrawer } from "@/components/molecules/NavigationDrawer";
 import type { UserSession } from "@/lib/auth";
 import { useTooltipVisibility } from "@/lib/hooks/useTooltipVisibility";
 import styles from "./DefaultHeader.module.css";
-import { useLocale } from "next-intl";
 
 interface DefaultHeaderProps {
 	user: UserSession | null;
@@ -23,7 +23,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 	user,
 	showUserSection = true,
 	showSettings = true,
-	settingsHref = "/settings",
+	settingsHref: _settingsHref = "/settings",
 	showTooltip = false,
 }) => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -31,6 +31,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 	const tooltipId = "font-size-tooltip";
 	const isTooltipVisible = showTooltip && shouldShowTooltip;
 	const locale = useLocale();
+	const t = useTranslations();
 
 	const handleSettingsClick = () => {
 		hideTooltip();
@@ -87,9 +88,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 		};
 	}, [hideTooltip, isTooltipVisible]);
 
+	const homeHref = `/${locale}`;
+
 	return (
 		<header className={styles.header}>
-			<Link href="/" className={styles.logoLink} aria-label="ホームに移動">
+			<Link href={homeHref} className={styles.logoLink} aria-label="ホームに移動">
 				<Image
 					src="/images/aikinote_logo.png"
 					alt="AikiNote"
@@ -143,19 +146,20 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 								className={styles.settingsIcon}
 							/>
 						</button>
-						{isTooltipVisible && (
-							<div
-								id={tooltipId}
-								role="tooltip"
-								className={styles.fontSizeTooltip}
-								onClick={(event) => {
-									event.stopPropagation();
-									hideTooltip();
-								}}
-							>
-								文字サイズは設定から変更可能です
-							</div>
-						)}
+					{isTooltipVisible && (
+						<button
+							type="button"
+							id={tooltipId}
+							className={styles.fontSizeTooltip}
+							onClick={(event) => {
+								event.stopPropagation();
+								hideTooltip();
+							}}
+							aria-label={t("navigation.fontSizeTooltip")}
+						>
+							{t("navigation.fontSizeTooltip")}
+						</button>
+					)}
 					</div>
 				)}
 			</div>

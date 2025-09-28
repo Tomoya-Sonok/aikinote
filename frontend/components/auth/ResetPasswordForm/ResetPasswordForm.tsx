@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Loader } from "@/components/atoms/Loader";
@@ -27,9 +27,11 @@ export function ResetPasswordForm({
   const [isSuccess, setIsSuccess] = useState(false);
   const { resetPassword, isProcessing, error, clearError } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
   const passwordId = useId();
   const confirmPasswordId = useId();
   const t = useTranslations();
+  const loginHref = `/${locale}/login`;
 
   const {
     register,
@@ -77,7 +79,7 @@ export function ResetPasswordForm({
           </p>
           <button
             type="button"
-            onClick={() => router.push("/login")}
+            onClick={() => router.push(loginHref)}
             className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
             {t("auth.goToLogin")}
@@ -183,7 +185,7 @@ export function ResetPasswordForm({
 
       <div className="mt-6 text-center">
         <Link
-          href="/login"
+          href={loginHref}
           className="text-sm text-blue-600 hover:text-blue-500"
         >
           {t("auth.goToLogin")}

@@ -2,10 +2,10 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
-import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import { getExternalUrl } from "@/lib/utils/env";
 import { createUserProfile, fetchUserProfile } from "@/lib/utils/user-api";
 import type {
@@ -26,6 +26,7 @@ export function useAuth() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const locale = useLocale();
   const supabase = useMemo(() => {
     return getClientSupabase();
   }, []);
@@ -182,7 +183,7 @@ export function useAuth() {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // ログイン成功後のリダイレクト
-      router.push("/personal/pages");
+      router.push(`/${locale}/personal/pages`);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "ログインに失敗しました";

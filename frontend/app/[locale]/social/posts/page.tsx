@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DefaultLayout } from "@/components/layouts/DefaultLayout";
@@ -5,37 +6,46 @@ import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
-export default async function SocialPostsPage() {
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale, namespace: "socialPosts" });
+
+  return buildMetadata({
+    title: t("title"),
+    description: t("description"),
+  });
+}
+
+export default async function SocialPostsPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  const t = await getTranslations({ locale, namespace: "socialPosts" });
+  const loginPath = `/${locale}/login`;
+
   const user = await getCurrentUser();
-  const t = await getTranslations();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginPath);
   }
 
   return (
     <DefaultLayout>
       <div className={styles.container}>
         <div className={styles.content}>
-          <h1>{t("socialPosts.title")}</h1>
-          <p className={styles.description}>
-            {t("socialPosts.description")}
-          </p>
+          <h1>{t("title")}</h1>
+          <p className={styles.description}>{t("description")}</p>
           <p className={styles.notice}>
-            {t("socialPosts.comingSoon")}
+            {t("comingSoon")}
             <br />
-            {t("socialPosts.notification")}
+            {t("notification")}
           </p>
         </div>
       </div>
     </DefaultLayout>
   );
-}
-
-export async function generateMetadata() {
-  const t = await getTranslations();
-  return buildMetadata({
-    title: t("socialPosts.title"),
-    description: t("socialPosts.description"),
-  });
 }
