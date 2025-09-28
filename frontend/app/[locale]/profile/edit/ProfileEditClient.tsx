@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { type FC, useEffect, useState } from "react";
 import { ZodError } from "zod";
 import { Button } from "@/components/atoms/Button/Button";
@@ -11,7 +11,6 @@ import { Loader } from "@/components/atoms/Loader/Loader";
 import type { UserProfile } from "@/components/organisms/MyPageContent/MyPageContent";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { getClientSupabase } from "@/lib/supabase/client";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEditClient.module.css";
 
@@ -27,6 +26,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
 }) => {
   const t = useTranslations();
   const router = useRouter();
+  const locale = useLocale();
   const { showToast } = useToast();
   const { refreshUser } = useAuth();
   const [user, setUser] = useState<UserProfile>(initialUser);
@@ -101,7 +101,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
 
       showToast(t("profileEdit.updateSuccess"), "success");
 
-      router.push("/mypage");
+      router.push(`/${locale}/mypage`);
     } catch (error) {
       console.error("プロフィール更新エラー:", error);
       showToast(
@@ -118,7 +118,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
-    router.push("/mypage");
+    router.push(`/${locale}/mypage`);
   };
 
   const [formData, setFormData] = useState({
@@ -317,6 +317,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
                 />
               ) : (
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af">
+                  <title>{t("profileEdit.profileImageAlt")}</title>
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                 </svg>
               )}

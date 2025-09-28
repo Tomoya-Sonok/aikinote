@@ -33,12 +33,6 @@
 	"settings": {
 		"email": "メール"
 	},
-	"auth": {
-		"login": "ログイン",
-		"signup": "新規登録",
-		"title": "練習の記録を始めましょう",
-		"description": "合気道の練習を記録し、共有するアプリケーション"
-	},
 	"profile": {
 		"edit": "編集する",
 		"notEntered": "未入力",
@@ -76,11 +70,14 @@
 		"email": "メール",
 		"fontSize": "文字サイズ",
 		"language": "言語 / Language",
-		"close": "設定を閉じる"
+		"close": "設定を閉じる",
+		"fontSizeTooltip": "文字サイズは設定から変更可能です"
 	},
 	"auth": {
 		"login": "ログイン",
 		"signup": "新規登録",
+		"title": "練習の記録を始めましょう",
+		"description": "合気道の練習を記録し、共有するアプリケーション",
 		"email": "メールアドレス",
 		"password": "パスワード",
 		"forgotPassword": "パスワードを忘れた場合",
@@ -265,10 +262,6 @@
 		"tori": "取り",
 		"uke": "受け",
 		"waza": "技"
-	},
-	"profileEdit": {
-		"title": "プロフィール編集",
-		"description": "プロフィール情報を編集できます"
 	},
 	"mypage": {
 		"title": "マイページ",

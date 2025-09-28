@@ -23,9 +23,10 @@ export default async function ForgotPasswordPage({
   params: { locale: string };
 }) {
   const t = await getTranslations({ locale, namespace: "auth" });
+  const loginHref = `/${locale}/login`;
 
   return (
-    <MinimalLayout headerTitle={t("passwordResetTitle")} backHref="/login">
+    <MinimalLayout headerTitle={t("passwordResetTitle")} backHref={loginHref}>
       <div className={styles.container}>
         <h1 className={styles.title}>{t("passwordResetTitle")}</h1>
         <div className={styles.formCard}>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./EmailVerificationForm.module.css";
@@ -23,6 +23,10 @@ export function EmailVerificationForm({
   const [_errorMessage, setErrorMessage] = useState<string>("");
   const { verifyEmail } = useAuth();
   const t = useTranslations();
+  const locale = useLocale();
+  const homeHref = `/${locale}/personal/pages`;
+  const loginHref = `/${locale}/login`;
+  const signupHref = `/${locale}/signup`;
 
   useEffect(() => {
     const performVerification = async () => {
@@ -45,7 +49,7 @@ export function EmailVerificationForm({
       setErrorMessage(t("auth.verificationTokenInvalid"));
       setVerificationStatus("error");
     }
-  }, [token, verifyEmail, onSuccess, onError, verificationStatus]);
+  }, [token, verifyEmail, onSuccess, onError, verificationStatus, t]);
 
   if (verificationStatus === "loading") {
     return (
@@ -115,7 +119,7 @@ export function EmailVerificationForm({
             </div>
             <Link
               role="button"
-              href="/personal/pages"
+              href={homeHref}
               className={`${styles.button} ${styles.primaryButton}`}
             >
               {t("auth.startAikiNote")}
@@ -167,13 +171,13 @@ export function EmailVerificationForm({
 
         <div className={styles.buttonContainer}>
           <Link
-            href="/signup"
+            href={signupHref}
             className={`${styles.button} ${styles.primaryButton}`}
           >
             {t("auth.retrySignup")}
           </Link>
           <Link
-            href="/login"
+            href={loginHref}
             className={`${styles.button} ${styles.secondaryButton}`}
           >
             {t("auth.goToLogin")}

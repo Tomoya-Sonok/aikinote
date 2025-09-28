@@ -3,10 +3,16 @@
  * セッション監視機能の復活に関する重要な動作をテスト
  */
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import * as supabaseClient from "@/lib/supabase/client";
 import * as userApi from "@/lib/utils/user-api";
 import { useAuth } from "./useAuth";
+import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
+
+const Wrapper = ({ children }: PropsWithChildren) => (
+  <I18nTestProvider>{children}</I18nTestProvider>
+);
 
 // useRouterをモック
 vi.mock("next/navigation", () => ({
@@ -53,7 +59,7 @@ describe("useAuth hook - セッション監視機能", () => {
   });
 
   it("セッション変更監視が正しく設定される", async () => {
-    renderHook(() => useAuth());
+    renderHook(() => useAuth(), { wrapper: Wrapper });
 
     // onAuthStateChangeが呼び出されることを確認
     expect(mockSupabaseClient.auth.onAuthStateChange).toHaveBeenCalledTimes(1);
@@ -80,7 +86,7 @@ describe("useAuth hook - セッション監視機能", () => {
       return { data: { subscription: { unsubscribe: vi.fn() } } };
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     // 初期化完了を待つ
     await waitFor(() => {
@@ -114,7 +120,7 @@ describe("useAuth hook - セッション監視機能", () => {
       return { data: { subscription: { unsubscribe: vi.fn() } } };
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     // 認証状態変更をシミュレート（エラーケース）
     await act(async () => {
@@ -135,7 +141,7 @@ describe("useAuth hook - セッション監視機能", () => {
       data: { subscription: { unsubscribe: mockUnsubscribe } },
     });
 
-    const { unmount } = renderHook(() => useAuth());
+    const { unmount } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     unmount();
 
@@ -160,7 +166,7 @@ describe("useAuth hook - セッション監視機能", () => {
         ),
     );
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     // 初期化中に認証状態変更が発生
     await act(async () => {
@@ -191,7 +197,7 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
       message: "登録成功",
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     await act(async () => {
       await result.current.signUp({
@@ -229,7 +235,7 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
       error: null,
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     await waitFor(() => {
       expect(userApi.fetchUserProfile).toHaveBeenCalledWith("user-123");
@@ -252,7 +258,7 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
       error: null,
     });
 
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
     await waitFor(() => {
       expect(result.current.user).toBeNull();

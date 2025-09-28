@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Loader } from "@/components/atoms/Loader";
 import { EmailVerificationForm } from "@/components/auth/EmailVerificationForm";
@@ -17,8 +17,8 @@ export async function generateMetadata({
 }: VerifyEmailPageProps): Promise<Metadata> {
 	const t = await getTranslations({ locale, namespace: "auth" });
 	return buildMetadata({
-		title: t("auth.emailVerification"),
-		description: t("auth.emailVerificationDescription"),
+		title: t("emailVerification"),
+		description: t("emailVerificationDescription"),
 	});
 }
 
@@ -28,18 +28,19 @@ async function EmailVerificationContent({
 	searchParams: { token?: string; locale?: string };
 }) {
 	const token = searchParams.token;
-	const t = await getTranslations({ locale: searchParams.locale });
+	const locale = searchParams.locale ?? "ja";
+	const t = await getTranslations({ locale, namespace: "auth" });
 
 	if (!token) {
 		return (
 			<div className={styles.container}>
-				<h1 className={styles.title}>{t("auth.signup")}</h1>
+				<h1 className={styles.title}>{t("signup")}</h1>
 
 				<div className={styles.formCard}>
 					<div className={styles.stepContainer}>
 						<div className={styles.stepInfo}>
 							<div className={styles.stepHeader}>
-								<span className={styles.stepText}>{t("auth.step3of4")}</span>
+								<span className={styles.stepText}>{t("step3of4")}</span>
 							</div>
 							<div className={styles.progressContainer}>
 								<div
@@ -56,9 +57,9 @@ async function EmailVerificationContent({
 					</div>
 					<div className={styles.loginPrompt}>
 						<span className={styles.loginPromptText}>
-							{t("auth.tokenNotFound")}
-							<Link href="/signup" className={styles.loginLink}>
-								{t("auth.retrySignup")}
+							{t("tokenNotFound")}
+							<Link href={`/${locale}/signup`} className={styles.loginLink}>
+								{t("retrySignup")}
 							</Link>
 						</span>
 					</div>
@@ -75,20 +76,17 @@ export default async function VerifyEmailPage({
 }: {
 	searchParams: { token?: string; locale?: string };
 }) {
+	const locale = searchParams.locale ?? "ja";
 	const t = await getTranslations({
-		locale: searchParams.locale,
+		locale,
 		namespace: "auth",
 	});
+	const signupHref = `/${locale}/signup`;
 
 	return (
-		<MinimalLayout
-			headerTitle={t("auth.emailVerification")}
-			backHref={`/${searchParams.locale}/signup`}
-		>
-			<Suspense
-				fallback={<Loader size="large" centered text={t("auth.loading")} />}
-			>
-				<EmailVerificationContent searchParams={searchParams} />
+		<MinimalLayout headerTitle={t("emailVerification")} backHref={signupHref}>
+			<Suspense fallback={<Loader size="large" centered text={t("loading")} />}>
+				<EmailVerificationContent searchParams={{ ...searchParams, locale }} />
 			</Suspense>
 		</MinimalLayout>
 	);

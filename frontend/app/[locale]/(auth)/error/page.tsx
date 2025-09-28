@@ -26,6 +26,8 @@ export default async function AuthErrorPage({
 }) {
   const t = await getTranslations({ locale, namespace: "auth" });
   const error = searchParams.error;
+  const loginHref = `/${locale}/login`;
+  const signupHref = `/${locale}/signup`;
 
   const getErrorMessage = (errorCode?: string) => {
     switch (errorCode) {
@@ -41,7 +43,7 @@ export default async function AuthErrorPage({
   };
 
   return (
-    <MinimalLayout headerTitle={t("authError")} backHref="/login">
+    <MinimalLayout headerTitle={t("authError")} backHref={loginHref}>
       <div className={styles.container}>
         <h1 className={styles.title}>{t("authError")}</h1>
 
@@ -76,13 +78,13 @@ export default async function AuthErrorPage({
 
           <div className={styles.buttonContainer}>
             <Link
-              href="/login"
+              href={loginHref}
               className={`${styles.button} ${styles.primaryButton}`}
             >
               {t("backToLogin")}
             </Link>
             <Link
-              href="/signup"
+              href={signupHref}
               className={`${styles.button} ${styles.secondaryButton}`}
             >
               {t("signup")}

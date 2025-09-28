@@ -76,7 +76,8 @@
 		"email": "Email",
 		"fontSize": "Font Size",
 		"language": "Language",
-		"close": "Close settings"
+		"close": "Close settings",
+		"fontSizeTooltip": "You can change the font size in Settings"
 	},
 	"auth": {
 		"login": "Login",

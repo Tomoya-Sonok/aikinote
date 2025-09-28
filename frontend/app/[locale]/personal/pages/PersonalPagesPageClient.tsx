@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/atoms/Loader";
@@ -50,6 +50,7 @@ export function PersonalPagesPageClient() {
     null,
   );
   const router = useRouter();
+  const locale = useLocale();
   const { user, loading: authLoading } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -118,8 +119,8 @@ export function PersonalPagesPageClient() {
       }
     };
 
-    fetchAllData();
-  }, [user]);
+    void fetchAllData();
+  }, [user, t]);
 
   useEffect(() => {
     if (
@@ -310,7 +311,7 @@ export function PersonalPagesPageClient() {
   };
 
   const handleViewTraining = (id: string) => {
-    router.push(`/personal/pages/${id}`);
+    router.push(`/${locale}/personal/pages/${id}`);
   };
 
   if (authLoading || loading) {
@@ -325,7 +326,10 @@ export function PersonalPagesPageClient() {
     return (
       <div className={styles.container}>
         <p>{t("personalPages.loginRequired")}</p>
-        <button type="button" onClick={() => router.push("/login")}>
+        <button
+          type="button"
+          onClick={() => router.push(`/${locale}/login`)}
+        >
           {t("personalPages.goToLogin")}
         </button>
       </div>

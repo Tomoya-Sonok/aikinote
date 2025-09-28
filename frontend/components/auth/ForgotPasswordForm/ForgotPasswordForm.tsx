@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Loader } from "@/components/atoms/Loader";
@@ -18,6 +18,7 @@ interface ForgotPasswordFormProps {
 
 export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
   const t = useTranslations();
+  const locale = useLocale();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { forgotPassword, isProcessing, error, clearError } = useAuth();
   const emailId = useId();
@@ -40,6 +41,8 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
       console.error("Forgot password error:", err);
     }
   };
+
+  const loginHref = `/${locale}/login`;
 
   if (isSubmitted) {
     return (
@@ -71,7 +74,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
           <p className="text-sm text-gray-500 mb-6">{t("auth.checkSpam")}</p>
           <div className="space-y-3">
             <Link
-              href="/login"
+              href={loginHref}
               className="block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
             >
               {t("auth.backToLogin")}
@@ -140,7 +143,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
 
       <div className="mt-6 text-center">
         <Link
-          href="/login"
+          href={loginHref}
           className="text-sm text-blue-600 hover:text-blue-500"
         >
           {t("auth.backToLogin")}
