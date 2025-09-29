@@ -227,6 +227,37 @@
 		"notSpecified": "Not specified",
 		"selectDate": "Filter by Date"
 	},
+	"datePickerModal": {
+		"close": "Close",
+		"prevMonth": "Previous month",
+		"nextMonth": "Next month",
+		"cancel": "Cancel",
+		"filter": "Filter",
+		"year": "Year",
+		"months": {
+			"january": "Jan",
+			"february": "Feb",
+			"march": "Mar",
+			"april": "Apr",
+			"may": "May",
+			"june": "Jun",
+			"july": "Jul",
+			"august": "Aug",
+			"september": "Sep",
+			"october": "Oct",
+			"november": "Nov",
+			"december": "Dec"
+		},
+		"days": {
+			"sunday": "Sun",
+			"monday": "Mon",
+			"tuesday": "Tue",
+			"wednesday": "Wed",
+			"thursday": "Thu",
+			"friday": "Fri",
+			"saturday": "Sat"
+		}
+	},
 	"pageCreate": {
 		"title": "Create Page",
 		"save": "Save"
@@ -265,7 +296,9 @@
 		"close": "Close",
 		"tori": "Tori",
 		"uke": "Uke",
-		"waza": "Technique"
+		"waza": "Technique",
+		"cancel": "Cancel",
+		"filter": "Filter"
 	},
 	"profileEdit": {
 		"title": "Edit Profile",
