@@ -326,10 +326,7 @@ export function PersonalPagesPageClient() {
     return (
       <div className={styles.container}>
         <p>{t("personalPages.loginRequired")}</p>
-        <button
-          type="button"
-          onClick={() => router.push(`/${locale}/login`)}
-        >
+        <button type="button" onClick={() => router.push(`/${locale}/login`)}>
           {t("personalPages.goToLogin")}
         </button>
       </div>

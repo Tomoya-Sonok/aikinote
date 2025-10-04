@@ -2,9 +2,14 @@ import type { ComponentPropsWithoutRef } from "react";
 
 interface ChevronLeftProps extends ComponentPropsWithoutRef<"svg"> {
   size?: number;
+  title?: string;
 }
 
-export function ChevronLeft({ size = 24, ...props }: ChevronLeftProps) {
+export function ChevronLeft({
+  size = 24,
+  title = "Chevron left icon",
+  ...props
+}: ChevronLeftProps) {
   return (
     <svg
       width={size}
@@ -17,6 +22,7 @@ export function ChevronLeft({ size = 24, ...props }: ChevronLeftProps) {
       strokeLinejoin="round"
       {...props}
     >
+      <title>{title}</title>
       <path d="m15 18-6-6 6-6" />
     </svg>
   );

@@ -34,7 +34,9 @@ export function EmailVerificationWaitingForm() {
           </div>
         </div>
         <div className={styles.contentsWrapper}>
-          <div className={styles.stepText}>{t("auth.emailVerificationTitle")}</div>
+          <div className={styles.stepText}>
+            {t("auth.emailVerificationTitle")}
+          </div>
 
           <div className={styles.emailSentMessage}>
             {t("auth.emailVerificationWaiting")}

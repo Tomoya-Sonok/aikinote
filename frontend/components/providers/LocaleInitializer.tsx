@@ -2,7 +2,7 @@
 
 import { useLocale } from "next-intl";
 import { useEffect } from "react";
-import { useLanguageStore, type Language } from "@/stores/languageStore";
+import { type Language, useLanguageStore } from "@/stores/languageStore";
 
 export function LocaleInitializer() {
   const currentLocale = useLocale() as Language;

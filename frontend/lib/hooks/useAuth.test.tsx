@@ -2,13 +2,13 @@
  * useAuth hook のテスト
  * セッション監視機能の復活に関する重要な動作をテスト
  */
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
-import * as supabaseClient from "@/lib/supabase/client";
 import * as userApi from "@/lib/utils/user-api";
-import { useAuth } from "./useAuth";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
+import { useAuth } from "./useAuth";
 
 const Wrapper = ({ children }: PropsWithChildren) => (
   <I18nTestProvider>{children}</I18nTestProvider>
@@ -33,6 +33,11 @@ const mockSupabaseClient = {
     verifyOtp: vi.fn(),
   },
 };
+
+type AuthStateChangeHandler = (
+  event: AuthChangeEvent,
+  session: Session | null,
+) => void;
 
 vi.mock("@/lib/supabase/client", () => ({
   getClientSupabase: () => mockSupabaseClient,
@@ -81,7 +86,7 @@ describe("useAuth hook - セッション監視機能", () => {
 
     (userApi.fetchUserProfile as Mock).mockResolvedValue(mockUser);
 
-    let authStateChangeCallback: Function;
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
     mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
       authStateChangeCallback = callback;
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -115,7 +120,7 @@ describe("useAuth hook - セッション監視機能", () => {
       new Error("ネットワークエラー"),
     );
 
-    let authStateChangeCallback: Function;
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
     mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
       authStateChangeCallback = callback;
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -150,7 +155,7 @@ describe("useAuth hook - セッション監視機能", () => {
   });
 
   it("初期化中は認証状態変更を処理しない", async () => {
-    let authStateChangeCallback: Function;
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
     mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
       authStateChangeCallback = callback;
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -261,9 +266,12 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
-    await waitFor(() => {
-      expect(result.current.user).toBeNull();
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(result.current.user).toBeNull();
+      },
+      { timeout: 2000 },
+    );
   });
 
   it("ユーザープロフィール取得が遅延してもリトライで成功する", async () => {
@@ -333,7 +341,9 @@ describe("useAuth hook - メール認証", () => {
     });
 
     mockSupabaseClient.auth.getSession.mockResolvedValueOnce({
-      data: { session: { user: { id: "user-123", email: "test@example.com" } } },
+      data: {
+        session: { user: { id: "user-123", email: "test@example.com" } },
+      },
       error: null,
     });
 
@@ -349,8 +359,8 @@ describe("useAuth hook - メール認証", () => {
       }),
     });
 
-    const originalFetch = global.fetch;
-    (global as any).fetch = fetchMock;
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     try {
       const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
@@ -369,15 +379,21 @@ describe("useAuth hook - メール認証", () => {
         token: "123456",
       });
 
-      await waitFor(() => {
-        expect(userApi.fetchUserProfile).toHaveBeenCalledWith("user-123");
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(userApi.fetchUserProfile).toHaveBeenCalledWith("user-123");
+        },
+        { timeout: 2000 },
+      );
 
-      await waitFor(() => {
-        expect(result.current.user).toEqual(mockUserProfile);
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(result.current.user).toEqual(mockUserProfile);
+        },
+        { timeout: 2000 },
+      );
     } finally {
-      (global as any).fetch = originalFetch;
+      globalThis.fetch = originalFetch;
     }
   });
 });

@@ -51,7 +51,6 @@ describe("ミドルウェアルーティング動作テスト", () => {
   describe("URLパスの動作仕様", () => {
     it("プレフィックスなしのパスは日本語として処理される", () => {
       // Arrange: プレフィックスなしのパス例を準備する
-      const pathsWithoutPrefix = ["/signup", "/login", "/mypage", "/settings"];
       const expectedLocale = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -63,12 +62,6 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("enプレフィックス付きのパスは英語として処理される", () => {
       // Arrange: 英語プレフィックス付きのパス例を準備する
-      const pathsWithEnPrefix = [
-        "/en/signup",
-        "/en/login",
-        "/en/mypage",
-        "/en/settings",
-      ];
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
@@ -116,7 +109,6 @@ describe("ミドルウェアルーティング動作テスト", () => {
   describe("期待される動作の仕様確認", () => {
     it("localhost:3000/signupは日本語で表示される", () => {
       // Arrange: プレフィックスなしURL用のロケールを準備する
-      const signupUrl = "localhost:3000/signup";
       const expectedLocale = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -128,7 +120,6 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("localhost:3000/en/signupは英語で表示される", () => {
       // Arrange: 英語プレフィックス付きURL用のロケールを準備する
-      const englishSignupUrl = "localhost:3000/en/signup";
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
@@ -141,7 +132,6 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("localhost:3000/loginは日本語で表示される", () => {
       // Arrange: プレフィックスなしログインURL用のロケールを準備する
-      const loginUrl = "localhost:3000/login";
       const expectedLocale = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -153,7 +143,6 @@ describe("ミドルウェアルーティング動作テスト", () => {
 
     it("localhost:3000/en/loginは英語で表示される", () => {
       // Arrange: 英語プレフィックス付きログインURL用のロケールを準備する
-      const englishLoginUrl = "localhost:3000/en/login";
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する

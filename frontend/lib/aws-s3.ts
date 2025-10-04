@@ -6,16 +6,27 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 
+const requireEnv = (key: string) => {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`${key} is not defined`);
+  }
+  return value;
+};
+
+const AWS_REGION = requireEnv("AWS_REGION");
+const AWS_ACCESS_KEY_ID = requireEnv("AWS_ACCESS_KEY_ID");
+const AWS_SECRET_ACCESS_KEY = requireEnv("AWS_SECRET_ACCESS_KEY");
+const BUCKET_NAME = requireEnv("AWS_S3_BUCKET_NAME");
+
 // S3クライアントの設定
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
+  region: AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
   },
 });
-
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME!;
 
 // サポートされる画像形式
 const SUPPORTED_FORMATS = ["jpg", "jpeg", "png", "webp"] as const;

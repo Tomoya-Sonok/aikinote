@@ -16,7 +16,10 @@ export default async function LocaleLayout({
   params: { locale },
 }: LocaleLayoutProps) {
   // 有効なロケールかチェック
-  if (!routing.locales.includes(locale as any)) {
+  const isSupportedLocale = routing.locales.some(
+    (supportedLocale) => supportedLocale === locale,
+  );
+  if (!isSupportedLocale) {
     notFound();
   }
 

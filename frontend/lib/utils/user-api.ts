@@ -117,7 +117,7 @@ export async function createUserProfile(userData: {
   username: string;
 }): Promise<{
   success: boolean;
-  data?: any;
+  data?: unknown;
   message?: string;
   error?: string;
 }> {

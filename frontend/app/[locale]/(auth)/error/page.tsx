@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";

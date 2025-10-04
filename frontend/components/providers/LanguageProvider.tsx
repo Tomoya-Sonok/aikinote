@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useRef } from "react";
-import { useLanguageStore } from "@/stores/languageStore";
+import { type Language, useLanguageStore } from "@/stores/languageStore";
 
 interface LanguageProviderProps {
   children: ReactNode;
@@ -18,8 +18,12 @@ export function LanguageProvider({ children, locale }: LanguageProviderProps) {
   // 初回マウント時にストアの言語をロケールと同期（リダイレクトなし）
   useEffect(() => {
     if (!isInitializedRef.current) {
-      // 現在のロケールに合わせてストアを更新（リダイレクトは行わない）
-      setLanguage(locale as any);
+      const isSupportedLanguage = (value: string): value is Language =>
+        value === "ja" || value === "en";
+
+      if (isSupportedLanguage(locale)) {
+        setLanguage(locale);
+      }
       isInitializedRef.current = true;
     }
   }, [locale, setLanguage]);

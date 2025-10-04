@@ -39,7 +39,7 @@ export function createSuccessResponse<T>(
 export function createErrorResponse(
   error: string | ApiErrorCode,
   options: {
-    details?: Record<string, any>;
+    details?: Record<string, unknown>;
     code?: ApiErrorCode;
     status?: number;
     message?: string;

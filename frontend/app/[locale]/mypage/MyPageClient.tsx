@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Loader } from "@/components/atoms/Loader/Loader";
 import type { UserProfile } from "@/components/organisms/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/organisms/MyPageContent/MyPageContent";
@@ -20,10 +19,9 @@ export default function MyPageClient({ initialUser }: MyPageClientProps) {
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     setLoading(true);
     try {
-      // JWTトークンを取得
       const tokenResponse = await fetch("/api/auth/token", {
         method: "POST",
       });
@@ -35,7 +33,6 @@ export default function MyPageClient({ initialUser }: MyPageClientProps) {
       const tokenData = await tokenResponse.json();
       const token = tokenData.data.token;
 
-      // Hono APIからプロフィール取得
       const response = await fetch(`${API_BASE_URL}/api/users/${user.id}`, {
         method: "GET",
         headers: {
@@ -58,12 +55,12 @@ export default function MyPageClient({ initialUser }: MyPageClientProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast, t, user.id]);
 
   // マイページアクセス時に最新プロフィールを取得
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+  }, [fetchUserProfile]);
 
   if (loading) {
     return (

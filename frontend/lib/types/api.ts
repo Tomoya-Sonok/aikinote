@@ -15,7 +15,7 @@ export interface BaseApiResponse {
 /**
  * 成功レスポンス型
  */
-export interface ApiSuccessResponse<T = any> extends BaseApiResponse {
+export interface ApiSuccessResponse<T = unknown> extends BaseApiResponse {
   success: true;
   data: T;
   message?: string;
@@ -27,14 +27,14 @@ export interface ApiSuccessResponse<T = any> extends BaseApiResponse {
 export interface ApiErrorResponse extends BaseApiResponse {
   success: false;
   error: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   code?: string;
 }
 
 /**
  * APIレスポンスの union 型
  */
-export type ApiResponse<T = any> = ApiSuccessResponse<T> | ApiErrorResponse;
+export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;
 
 /**
  * HTTPステータスコードと対応するエラーコード

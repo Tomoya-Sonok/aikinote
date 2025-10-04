@@ -106,7 +106,6 @@ describe("i18n設定値テスト", () => {
   describe("言語設定の仕様確認", () => {
     it("URLにプレフィックスがない場合はデフォルトロケール（日本語）が使用される", () => {
       // Arrange: プレフィックスなしURL用のロケールとして設定されたデフォルトロケールを取得する
-      const urlWithoutPrefix = "/signup";
       const expectedLocaleForNoPrefix = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -118,7 +117,6 @@ describe("i18n設定値テスト", () => {
 
     it("URLに/enプレフィックスがある場合は英語ロケールが使用される", () => {
       // Arrange: enプレフィックス付きURL用のロケールを設定する
-      const urlWithEnPrefix = "/en/signup";
       const expectedLocaleForEnPrefix = "en";
 
       // Act: 英語ロケールがサポートされているか確認する

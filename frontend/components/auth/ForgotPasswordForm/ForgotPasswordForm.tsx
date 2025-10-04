@@ -5,150 +5,143 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/atoms/Button/Button";
 import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
-  type ResetPasswordFormData,
-  resetPasswordSchema,
+	type ResetPasswordFormData,
+	resetPasswordSchema,
 } from "@/lib/utils/validation";
+import styles from "./ForgotPasswordForm.module.css";
 
 interface ForgotPasswordFormProps {
-  onSuccess?: () => void;
+	onSuccess?: () => void;
 }
 
 export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
-  const t = useTranslations();
-  const locale = useLocale();
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const { forgotPassword, isProcessing, error, clearError } = useAuth();
-  const emailId = useId();
+	const t = useTranslations();
+	const locale = useLocale();
+	const [isSubmitted, setIsSubmitted] = useState(false);
+	const { forgotPassword, isProcessing, error, clearError } = useAuth();
+	const emailId = useId();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    getValues,
-  } = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
-  });
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		getValues,
+	} = useForm<ResetPasswordFormData>({
+		resolver: zodResolver(resetPasswordSchema),
+		mode: "onChange",
+	});
 
-  const handleForgotPassword = async (data: ResetPasswordFormData) => {
-    try {
-      await forgotPassword(data);
-      setIsSubmitted(true);
-      onSuccess?.();
-    } catch (err) {
-      console.error("Forgot password error:", err);
-    }
-  };
+	const handleForgotPassword = async (data: ResetPasswordFormData) => {
+		try {
+			await forgotPassword(data);
+			setIsSubmitted(true);
+			onSuccess?.();
+		} catch (err) {
+			console.error("Forgot password error:", err);
+		}
+	};
 
-  const loginHref = `/${locale}/login`;
+	const loginHref = `/${locale}/login`;
 
-  if (isSubmitted) {
-    return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <div className="mb-4 text-green-600">
-            <svg
-              className="mx-auto h-12 w-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <title>{t("auth.emailSentIcon")}</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            {t("auth.emailSent")}
-          </h2>
-          <p className="text-gray-600 mb-2">{t("auth.passwordResetSent")}</p>
-          <p className="text-sm text-gray-500 mb-6">
-            {t("auth.checkEmail")} {getValues("email")}
-          </p>
-          <p className="text-sm text-gray-500 mb-6">{t("auth.checkSpam")}</p>
-          <div className="space-y-3">
-            <Link
-              href={loginHref}
-              className="block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
-            >
-              {t("auth.backToLogin")}
-            </Link>
-            <button
-              type="button"
-              onClick={() => setIsSubmitted(false)}
-              className="block w-full bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors"
-            >
-              {t("auth.sendAgain")}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+	if (isSubmitted) {
+		return (
+			<div className={styles.card}>
+				<div className={styles.header}>
+					<div className={styles.iconWrapper}>
+						<svg
+							className={styles.icon}
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+						>
+							<title>{t("auth.emailSentIcon")}</title>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+							/>
+						</svg>
+					</div>
+					<h2 className={styles.title}>{t("auth.emailSent")}</h2>
+					<p className={styles.description}>{t("auth.passwordResetSent")}</p>
+					<p className={styles.successNote}>
+						{t("auth.checkEmail")} {getValues("email")}
+					</p>
+					<p className={styles.successNote}>{t("auth.checkSpam")}</p>
+				</div>
 
-  return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
-        {t("auth.passwordReset")}
-      </h2>
-      <p className="text-center text-gray-600 mb-6">
-        {t("auth.passwordResetInstruction")}
-      </p>
+				<div className={styles.actions}>
+					<Link href={loginHref} className={styles.linkButton}>
+						{t("auth.backToLogin")}
+					</Link>
+					<Button
+						variant="secondary"
+						onClick={() => setIsSubmitted(false)}
+						className={`${styles.button} ${styles.secondaryButton}`}
+					>
+						{t("auth.sendAgain")}
+					</Button>
+				</div>
+			</div>
+		);
+	}
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+	return (
+		<div className={styles.card}>
+			<div className={styles.header}>
+				<h2 className={styles.title}>{t("auth.passwordReset")}</h2>
+				<p className={styles.description}>
+					{t("auth.passwordResetInstruction")}
+				</p>
+			</div>
 
-      <form onSubmit={handleSubmit(handleForgotPassword)} className="space-y-4">
-        <div>
-          <label
-            htmlFor={emailId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            {t("auth.email")}
-          </label>
-          <input
-            {...register("email")}
-            type="email"
-            id={emailId}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="example@domain.com"
-            onFocus={clearError}
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-          )}
-        </div>
+			{error && <div className={styles.alertMessage}>{error}</div>}
 
-        <button
-          type="submit"
-          disabled={isProcessing}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isProcessing ? (
-            <Loader size="small" text={t("auth.sending")} />
-          ) : (
-            t("auth.sendResetEmail")
-          )}
-        </button>
-      </form>
+			<form
+				className={styles.form}
+				onSubmit={handleSubmit(handleForgotPassword)}
+			>
+				<div className={styles.fieldGroup}>
+					<label htmlFor={emailId} className={styles.fieldLabel}>
+						{t("auth.email")}
+					</label>
+					<input
+						{...register("email")}
+						type="email"
+						id={emailId}
+						className={`${styles.inputField} ${
+							errors.email ? styles.error : ""
+						}`}
+						placeholder="aaaa@example.com"
+						onFocus={clearError}
+					/>
+					{errors.email && (
+						<p className={styles.errorMessage}>{errors.email.message}</p>
+					)}
+				</div>
 
-      <div className="mt-6 text-center">
-        <Link
-          href={loginHref}
-          className="text-sm text-blue-600 hover:text-blue-500"
-        >
-          {t("auth.backToLogin")}
-        </Link>
-      </div>
-    </div>
-  );
+				<Button
+					type="submit"
+					variant="primary"
+					disabled={isProcessing}
+					className={`${styles.button} ${styles.primaryButton}`}
+				>
+					{isProcessing ? (
+						<Loader size="small" text={t("auth.sending")} />
+					) : (
+						t("auth.sendResetEmail")
+					)}
+				</Button>
+			</form>
+
+			<Link href={loginHref} className={styles.link}>
+				{t("auth.backToLogin")}
+			</Link>
+		</div>
+	);
 }

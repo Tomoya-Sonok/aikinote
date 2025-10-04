@@ -42,18 +42,26 @@ vi.mock("next/headers", () => ({
   }),
 }));
 
+type FetchMock = ReturnType<typeof vi.fn<typeof fetch>>;
+
+const getGlobalWithFetch = () =>
+  globalThis as typeof globalThis & { fetch?: FetchMock };
+
 describe("OAuth認証コールバック処理", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (global as any).fetch = vi.fn().mockResolvedValue({
+    const globalWithFetch = getGlobalWithFetch();
+    const mockFetch = vi.fn<typeof fetch>().mockResolvedValue({
       ok: false,
       headers: { get: () => null },
-    });
+    } as unknown as Response);
+    globalWithFetch.fetch = mockFetch;
   });
 
   afterEach(() => {
     vi.resetAllMocks();
-    delete (global as any).fetch;
+    const globalWithFetch = getGlobalWithFetch();
+    delete globalWithFetch.fetch;
   });
 
   it("新規ユーザーの場合に直接データベースアクセスでユーザーを作成する", async () => {
@@ -97,7 +105,10 @@ describe("OAuth認証コールバック処理", () => {
 
     // タグ初期化成功をシミュレート
     const { initializeUserTagsIfNeeded } = await import("@/lib/server/tag");
-    (initializeUserTagsIfNeeded as any).mockResolvedValue({
+    const mockedInitializeUserTagsIfNeeded = vi.mocked(
+      initializeUserTagsIfNeeded,
+    );
+    mockedInitializeUserTagsIfNeeded.mockResolvedValue({
       success: true,
       data: [],
     });
@@ -416,12 +427,14 @@ describe("OAuth認証コールバック処理", () => {
       },
     };
 
-    (global as any).fetch = vi.fn().mockResolvedValue({
+    const globalWithFetch = getGlobalWithFetch();
+    const mockFetch = vi.fn<typeof fetch>().mockResolvedValue({
       ok: true,
       headers: {
         get: vi.fn(() => "500000"),
       },
-    });
+    } as unknown as Response);
+    globalWithFetch.fetch = mockFetch;
 
     mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
       data: mockAuthData,
@@ -472,10 +485,13 @@ describe("OAuth認証コールバック処理", () => {
       updated_at: expect.any(String),
     });
 
-    expect((global as any).fetch).toHaveBeenCalledWith(
-      "https://example.com/avatar.png",
-      { method: "HEAD" },
-    );
+    const fetchMock = globalWithFetch.fetch;
+    if (!fetchMock) {
+      throw new Error("Fetch mock is not defined");
+    }
+    expect(fetchMock).toHaveBeenCalledWith("https://example.com/avatar.png", {
+      method: "HEAD",
+    });
   });
 
   it("avatarが1MBを超える場合はprofile_image_urlを保存しない", async () => {
@@ -489,12 +505,14 @@ describe("OAuth認証コールバック処理", () => {
       },
     };
 
-    (global as any).fetch = vi.fn().mockResolvedValue({
+    const globalWithFetch = getGlobalWithFetch();
+    const oversizedFetch = vi.fn<typeof fetch>().mockResolvedValue({
       ok: true,
       headers: {
         get: vi.fn(() => "1500000"),
       },
-    });
+    } as unknown as Response);
+    globalWithFetch.fetch = oversizedFetch;
 
     mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
       data: mockAuthData,
@@ -545,7 +563,11 @@ describe("OAuth認証コールバック処理", () => {
       updated_at: expect.any(String),
     });
 
-    expect((global as any).fetch).toHaveBeenCalledWith(
+    const fetchOversized = globalWithFetch.fetch;
+    if (!fetchOversized) {
+      throw new Error("Fetch mock is not defined");
+    }
+    expect(fetchOversized).toHaveBeenCalledWith(
       "https://example.com/big-avatar.png",
       { method: "HEAD" },
     );

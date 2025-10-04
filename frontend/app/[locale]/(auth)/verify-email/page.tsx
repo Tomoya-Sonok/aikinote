@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Loader } from "@/components/atoms/Loader";
@@ -33,7 +33,10 @@ async function EmailVerificationContent({
 }) {
   const token = searchParams.token;
   const resolvedLocale = locale;
-  const t = await getTranslations({ locale: resolvedLocale, namespace: "auth" });
+  const t = await getTranslations({
+    locale: resolvedLocale,
+    namespace: "auth",
+  });
 
   if (!token) {
     return (

@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import type { MouseEventHandler, ReactNode } from "react";
 import { ChevronLeft } from "../../atoms/icons/ChevronLeft";
-import { BackButton } from "./BackButton";
 import styles from "./MinimalLayout.module.css";
 
 interface MinimalLayoutProps {

@@ -326,9 +326,9 @@ describe("API Integration Tests - Response Format Consistency", () => {
           emailOtp: "123456",
         });
       }
-      expect(
-        mockServiceSupabase.auth.admin.generateLink,
-      ).toHaveBeenCalledTimes(1);
+      expect(mockServiceSupabase.auth.admin.generateLink).toHaveBeenCalledTimes(
+        1,
+      );
     });
 
     it.todo(
@@ -496,10 +496,12 @@ describe("API Integration Tests - Response Format Consistency", () => {
 
       const responseData: ApiResponse = await response.json();
 
-      expect(responseData.timestamp).toBeDefined();
-      expect(new Date(responseData.timestamp!).toISOString()).toBe(
-        responseData.timestamp,
-      );
+      const { timestamp } = responseData;
+      expect(timestamp).toBeDefined();
+      if (typeof timestamp !== "string") {
+        return;
+      }
+      expect(new Date(timestamp).toISOString()).toBe(timestamp);
     });
   });
 });

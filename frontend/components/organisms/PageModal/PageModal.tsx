@@ -123,6 +123,7 @@ export const PageModal: FC<PageModalProps> = ({
     showToast,
     initialTagsCreated,
     shouldCreateInitialTags,
+    t,
   ]);
 
   // タグ作成の関数

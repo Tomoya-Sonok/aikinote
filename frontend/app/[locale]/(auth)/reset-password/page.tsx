@@ -1,11 +1,14 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Loader } from "@/components/atoms/Loader";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
+import { NotLoggedInLayout } from "@/components/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
+import styles from "./page.module.css";
 
 export async function generateMetadata({
   params: { locale },
@@ -30,39 +33,31 @@ async function ResetPasswordContent({
   const t = await getTranslations({ locale });
 
   if (!token) {
+    const forgotHref = `/${locale}/forgot-password`;
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <div className="mb-4 text-red-600">
-            <svg
-              className="mx-auto h-12 w-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              role="img"
-              aria-label={t("auth.authErrorIcon")}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L5.351 16.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            {t("auth.invalidLink")}
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {t("auth.invalidTokenMessage")}
-          </p>
-          <a
-            href={`/${locale}/forgot-password`}
-            className="inline-block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
+      <div className={styles.formCard}>
+        <div className={`${styles.iconWrapper} ${styles.errorIconWrapper}`}>
+          <svg
+            className={styles.icon}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            role="img"
+            aria-label={t("auth.authErrorIcon")}
           >
-            {t("auth.retryPasswordReset")}
-          </a>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L5.351 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
         </div>
+        <h2 className={styles.errorTitle}>{t("auth.invalidLink")}</h2>
+        <p className={styles.infoText}>{t("auth.invalidTokenMessage")}</p>
+        <Link href={forgotHref} className={styles.linkButton}>
+          {t("auth.retryPasswordReset")}
+        </Link>
       </div>
     );
   }
@@ -86,23 +81,20 @@ export default async function ResetPasswordPage({
   const t = await getTranslations({ locale });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {t("auth.serviceName")}
-        </h1>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          {t("auth.setNewPassword")}
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <NotLoggedInLayout>
+      <div className={styles.container}>
+        <h1 className={styles.title}>{t("auth.serviceName")}</h1>
+        <p className={styles.subtitle}>{t("auth.setNewPassword")}</p>
         <Suspense
-          fallback={<Loader size="large" centered text={t("auth.loading")} />}
+          fallback={
+            <div className={styles.formCard}>
+              <Loader size="large" centered text={t("auth.loading")} />
+            </div>
+          }
         >
           <ResetPasswordContent searchParams={searchParams} locale={locale} />
         </Suspense>
       </div>
-    </div>
+    </NotLoggedInLayout>
   );
 }

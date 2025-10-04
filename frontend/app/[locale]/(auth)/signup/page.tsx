@@ -6,12 +6,12 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { SignUpPageClient } from "./SignUpPageClient";
 
 interface SignupPageProps {
-	params: { locale: string };
+  params: { locale: string };
 }
 
 export const metadata: Metadata = buildMetadata({
-	title: "新規登録",
-	description: "AikiNoteの新規登録ページ",
+  title: "新規登録",
+  description: "AikiNoteの新規登録ページ",
 });
 
 export default async function SignUpPage({

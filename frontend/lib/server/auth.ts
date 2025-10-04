@@ -1,8 +1,5 @@
 import type { UserSession } from "@/lib/auth";
-import {
-  getServerSupabase,
-  getServiceRoleSupabase,
-} from "@/lib/supabase/server";
+import { getServerSupabase } from "@/lib/supabase/server";
 import { getApiBaseUrl } from "@/lib/utils/env";
 import { fetchUserProfile } from "@/lib/utils/user-api";
 

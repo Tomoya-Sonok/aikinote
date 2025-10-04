@@ -3,33 +3,44 @@
 import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { getRedirectUrl } from "@/lib/utils/env";
 import { createUserProfile, fetchUserProfile } from "@/lib/utils/user-api";
 import type {
-	NewPasswordFormData,
-	ResetPasswordFormData,
-	SignInFormData,
-	SignUpFormData,
+  NewPasswordFormData,
+  ResetPasswordFormData,
+  SignInFormData,
+  SignUpFormData,
 } from "@/lib/utils/validation";
 
+type SupabaseClient = ReturnType<typeof getClientSupabase>;
+type SessionResponse = Awaited<
+  ReturnType<SupabaseClient["auth"]["getSession"]>
+>;
+type SignOutResponse = Awaited<ReturnType<SupabaseClient["auth"]["signOut"]>>;
+
 interface SignUpResponse {
-	message: string;
-	userId?: string;
+  message: string;
+  userId?: string;
 }
 
 export function useAuth() {
-	const [user, setUser] = useState<UserSession | null>(null);
-	const [isInitializing, setIsInitializing] = useState(true);
-	const [isProcessing, setIsProcessing] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const router = useRouter();
-	const locale = useLocale();
-	const supabase = useMemo(() => {
-		return getClientSupabase();
-	}, []);
+  const [user, setUser] = useState<UserSession | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const isInitializingRef = useRef(true);
+  const router = useRouter();
+  const locale = useLocale();
+  const supabase = useMemo(() => {
+    return getClientSupabase();
+  }, []);
+
+  useEffect(() => {
+    isInitializingRef.current = isInitializing;
+  }, [isInitializing]);
 
   useEffect(() => {
     let isMounted = true;
@@ -55,9 +66,7 @@ export function useAuth() {
         }
 
         if (attempt < retries) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, retryDelay),
-          );
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
         }
       }
 
@@ -81,393 +90,392 @@ export function useAuth() {
       }
     };
 
-		const initializeSession = async () => {
-			setIsInitializing(true);
-			try {
-				// タイムアウト付きでセッション取得
-				const sessionPromise = supabaseClient.auth.getSession();
-				const timeoutPromise = new Promise((_, reject) =>
-					setTimeout(
-						() => reject(new Error("セッション取得がタイムアウトしました")),
-						10000,
-					),
-				);
+    const initializeSession = async () => {
+      isInitializingRef.current = true;
+      setIsInitializing(true);
+      try {
+        // タイムアウト付きでセッション取得
+        const sessionPromise: Promise<SessionResponse> =
+          supabaseClient.auth.getSession();
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error("セッション取得がタイムアウトしました")),
+            10000,
+          ),
+        );
 
-				const result = (await Promise.race([
-					sessionPromise,
-					timeoutPromise,
-				])) as any;
-				const {
-					data: { session },
-					error,
-				} = result;
+        const result = await Promise.race([sessionPromise, timeoutPromise]);
+        const {
+          data: { session },
+          error,
+        } = result;
 
-				if (error) {
-					console.error("セッション取得エラー:", error);
-					setUser(null);
-					return;
-				}
+        if (error) {
+          console.error("セッション取得エラー:", error);
+          setUser(null);
+          return;
+        }
 
-				if (isMounted) {
-					await applySession(session);
-				}
-			} catch (error) {
-				console.error("セッション初期化中に予期せぬエラー:", error);
-				if (isMounted) {
-					setUser(null);
-				}
-			} finally {
-				if (isMounted) {
-					setIsInitializing(false);
-				}
-			}
-		};
+        if (isMounted) {
+          await applySession(session);
+        }
+      } catch (error) {
+        console.error("セッション初期化中に予期せぬエラー:", error);
+        if (isMounted) {
+          setUser(null);
+        }
+      } finally {
+        if (isMounted) {
+          isInitializingRef.current = false;
+          setIsInitializing(false);
+        }
+      }
+    };
 
-		void initializeSession();
+    void initializeSession();
 
-		// セッション変更の監視を有効化（改善されたエラーハンドリング付き）
-		const {
-			data: { subscription },
-		} = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-			// 初期化中でない場合のみ処理
-			if (!isInitializing && isMounted) {
-				setIsInitializing(true);
-				try {
-					await applySession(session);
-				} catch (error) {
-					console.error("認証状態変更処理中にエラー:", error);
-					if (isMounted) {
-						setUser(null);
-						// ネットワークエラー以外の場合はエラー状態を設定
-						if (
-							error instanceof Error &&
-							!error.message.includes("ネットワーク")
-						) {
-							setError("認証状態の更新中にエラーが発生しました");
-						}
-					}
-				} finally {
-					if (isMounted) {
-						setIsInitializing(false);
-					}
-				}
-			}
-		});
+    // セッション変更の監視を有効化（改善されたエラーハンドリング付き）
+    const {
+      data: { subscription },
+    } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+      // 初期化中でない場合のみ処理
+      if (!isInitializingRef.current && isMounted) {
+        isInitializingRef.current = true;
+        setIsInitializing(true);
+        try {
+          await applySession(session);
+        } catch (error) {
+          console.error("認証状態変更処理中にエラー:", error);
+          if (isMounted) {
+            setUser(null);
+            // ネットワークエラー以外の場合はエラー状態を設定
+            if (
+              error instanceof Error &&
+              !error.message.includes("ネットワーク")
+            ) {
+              setError("認証状態の更新中にエラーが発生しました");
+            }
+          }
+        } finally {
+          if (isMounted) {
+            isInitializingRef.current = false;
+            setIsInitializing(false);
+          }
+        }
+      }
+    });
 
-		return () => {
-			isMounted = false;
-			subscription.unsubscribe();
-		};
-	}, [supabase]); // supabaseを依存配列に戻す
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
-	const signUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
-		setIsProcessing(true);
-		setError(null);
+  const signUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			const userResult = await createUserProfile({
-				email: data.email,
-				password: data.password,
-				username: data.username,
-			});
+    try {
+      const userResult = await createUserProfile({
+        email: data.email,
+        password: data.password,
+        username: data.username,
+      });
 
-			if (!userResult.success) {
-				throw new Error(userResult.error || "新規登録に失敗しました");
-			}
+      if (!userResult.success) {
+        throw new Error(userResult.error || "新規登録に失敗しました");
+      }
 
-			return {
-				message:
-					userResult.message ||
-					"新規登録が完了しました。認証メールを確認してください。",
-				userId: userResult.data?.id,
-			};
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "新規登録に失敗しました";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      return {
+        message:
+          userResult.message ||
+          "新規登録が完了しました。認証メールを確認してください。",
+        userId: userResult.data?.id,
+      };
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "新規登録に失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	const signInWithCredentials = async (data: SignInFormData) => {
-		setIsProcessing(true);
-		setError(null);
+  const signInWithCredentials = async (data: SignInFormData) => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			const { error } = await supabase.auth.signInWithPassword({
-				email: data.email,
-				password: data.password,
-			});
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
 
-			if (error) {
-				throw new Error("メールアドレスまたはパスワードが正しくありません");
-			}
+      if (error) {
+        throw new Error("メールアドレスまたはパスワードが正しくありません");
+      }
 
-			// セッション確立を待つ
-			await new Promise((resolve) => setTimeout(resolve, 100));
+      // セッション確立を待つ
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
-			// ログイン成功後のリダイレクト
-			router.push(`/${locale}/personal/pages`);
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "ログインに失敗しました";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      // ログイン成功後のリダイレクト
+      router.push(`/${locale}/personal/pages`);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "ログインに失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	const signInWithGoogle = async () => {
-		setIsProcessing(true);
-		setError(null);
+  const signInWithGoogle = async () => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			const { error } = await supabase.auth.signInWithOAuth({
-				provider: "google",
-				options: {
-					redirectTo: getRedirectUrl("/auth/callback"),
-				},
-			});
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: getRedirectUrl("/auth/callback"),
+        },
+      });
 
-			if (error) {
-				throw new Error(error.message || "Googleログインに失敗しました");
-			}
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "Googleログインに失敗しました";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      if (error) {
+        throw new Error(error.message || "Googleログインに失敗しました");
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Googleログインに失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	const signOutUser = async () => {
-		setIsProcessing(true);
-		setError(null);
+  const signOutUser = async () => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			// タイムアウト付きでSupabaseのサインアウトを実行
-			const signOutPromise = supabase.auth.signOut();
-			const timeoutPromise = new Promise((_, reject) =>
-				setTimeout(
-					() =>
-						reject(
-							new Error("Supabaseサインアウトがタイムアウトしました（10秒）"),
-						),
-					10000,
-				),
-			);
+    try {
+      // タイムアウト付きでSupabaseのサインアウトを実行
+      const signOutPromise: Promise<SignOutResponse> = supabase.auth.signOut();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error("Supabaseサインアウトがタイムアウトしました（10秒）"),
+            ),
+          10000,
+        ),
+      );
 
-			const { error } = (await Promise.race([
-				signOutPromise,
-				timeoutPromise,
-			])) as any;
+      const { error } = await Promise.race([signOutPromise, timeoutPromise]);
 
-			if (error) {
-				console.error("signOutUser: Supabaseサインアウトエラー", error);
-			}
+      if (error) {
+        console.error("signOutUser: Supabaseサインアウトエラー", error);
+      }
 
-			// エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
-			setUser(null);
+      // エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
+      setUser(null);
 
-			router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
-		} catch (err) {
-			console.warn(
-				"signOutUser: Supabaseサインアウトでタイムアウト/エラーが発生しましたが、ローカルログアウトを実行します",
-				err,
-			);
-			// エラーが発生してもユーザー状態をクリアしてリダイレクト
-			setUser(null);
-			router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
-			// タイムアウトの場合は特にエラーとして扱わない
-			if (err instanceof Error && err.message.includes("タイムアウト")) {
-				// タイムアウトの場合は特にログ出力しない
-			} else {
-				const errorMessage =
-					err instanceof Error ? err.message : "ログアウトに失敗しました";
-				setError(errorMessage);
-			}
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
+    } catch (err) {
+      console.warn(
+        "signOutUser: Supabaseサインアウトでタイムアウト/エラーが発生しましたが、ローカルログアウトを実行します",
+        err,
+      );
+      // エラーが発生してもユーザー状態をクリアしてリダイレクト
+      setUser(null);
+      router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
+      // タイムアウトの場合は特にエラーとして扱わない
+      if (err instanceof Error && err.message.includes("タイムアウト")) {
+        // タイムアウトの場合は特にログ出力しない
+      } else {
+        const errorMessage =
+          err instanceof Error ? err.message : "ログアウトに失敗しました";
+        setError(errorMessage);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	const forgotPassword = async (data: ResetPasswordFormData) => {
-		setIsProcessing(true);
-		setError(null);
+  const forgotPassword = async (data: ResetPasswordFormData) => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			const response = await fetch("/api/auth/forgot-password", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(data),
-			});
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-			const result = await response.json();
+      const result = await response.json();
 
-			if (!response.ok) {
-				throw new Error(result.error || "パスワードリセット要求に失敗しました");
-			}
+      if (!response.ok) {
+        throw new Error(result.error || "パスワードリセット要求に失敗しました");
+      }
 
-			return result;
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error
-					? err.message
-					: "パスワードリセット要求に失敗しました";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      return result;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "パスワードリセット要求に失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	const resetPassword = async (token: string, data: NewPasswordFormData) => {
-		setIsProcessing(true);
-		setError(null);
+  const resetPassword = async (token: string, data: NewPasswordFormData) => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			const response = await fetch("/api/auth/reset-password", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					token,
-					password: data.password,
-					confirmPassword: data.confirmPassword,
-				}),
-			});
+    try {
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        }),
+      });
 
-			const result = await response.json();
+      const result = await response.json();
 
-			if (!response.ok) {
-				throw new Error(result.error || "パスワードリセットに失敗しました");
-			}
+      if (!response.ok) {
+        throw new Error(result.error || "パスワードリセットに失敗しました");
+      }
 
-			return result;
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "パスワードリセットに失敗しました";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      return result;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "パスワードリセットに失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	const refreshUser = async () => {
-		console.log("🔄 [DEBUG] refreshUser: ユーザー情報の再取得を開始");
-		try {
-			const {
-				data: { session },
-			} = await supabase.auth.getSession();
-			console.log("🔄 [DEBUG] refreshUser: セッション取得結果", {
-				hasSession: !!session,
-				hasUser: !!session?.user,
-				userId: session?.user?.id,
-			});
+  const refreshUser = async () => {
+    console.log("🔄 [DEBUG] refreshUser: ユーザー情報の再取得を開始");
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      console.log("🔄 [DEBUG] refreshUser: セッション取得結果", {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userId: session?.user?.id,
+      });
 
-			if (session?.user) {
-				console.log("🔄 [DEBUG] refreshUser: fetchUserProfileを呼び出し中...");
-				const userProfile = await fetchUserProfile(session.user.id);
-				console.log("🔄 [DEBUG] refreshUser: fetchUserProfile結果", {
-					hasProfile: !!userProfile,
-					username: userProfile?.username,
-					dojo_style_name: userProfile?.dojo_style_name,
-					email: userProfile?.email,
-				});
+      if (session?.user) {
+        console.log("🔄 [DEBUG] refreshUser: fetchUserProfileを呼び出し中...");
+        const userProfile = await fetchUserProfile(session.user.id);
+        console.log("🔄 [DEBUG] refreshUser: fetchUserProfile結果", {
+          hasProfile: !!userProfile,
+          username: userProfile?.username,
+          dojo_style_name: userProfile?.dojo_style_name,
+          email: userProfile?.email,
+        });
 
-				if (userProfile) {
-					console.log("🔄 [DEBUG] refreshUser: setUserでstateを更新中...");
-					setUser(userProfile);
-					console.log("🔄 [DEBUG] refreshUser: state更新完了");
-					return userProfile;
-				}
-			}
+        if (userProfile) {
+          console.log("🔄 [DEBUG] refreshUser: setUserでstateを更新中...");
+          setUser(userProfile);
+          console.log("🔄 [DEBUG] refreshUser: state更新完了");
+          return userProfile;
+        }
+      }
 
-			console.log(
-				"🔄 [DEBUG] refreshUser: セッションまたはプロフィールが無効、userをnullに設定",
-			);
-			setUser(null);
-			return null;
-		} catch (error) {
-			console.error(
-				"🔄 [DEBUG] refreshUser: ユーザー情報の再取得エラー:",
-				error,
-			);
-			return null;
-		}
-	};
+      console.log(
+        "🔄 [DEBUG] refreshUser: セッションまたはプロフィールが無効、userをnullに設定",
+      );
+      setUser(null);
+      return null;
+    } catch (error) {
+      console.error(
+        "🔄 [DEBUG] refreshUser: ユーザー情報の再取得エラー:",
+        error,
+      );
+      return null;
+    }
+  };
 
-	const verifyEmail = async (token: string) => {
-		setIsProcessing(true);
-		setError(null);
+  const verifyEmail = async (token: string) => {
+    setIsProcessing(true);
+    setError(null);
 
-		try {
-			const url = `/api/auth/verify-email?token=${token}`;
+    try {
+      const url = `/api/auth/verify-email?token=${token}`;
 
-			const response = await fetch(url, {
-				method: "POST",
-			});
+      const response = await fetch(url, {
+        method: "POST",
+      });
 
-			const result = await response.json();
+      const result = await response.json();
 
-			if (!response.ok) {
-				throw new Error(result.error || "メール認証に失敗しました");
-			}
+      if (!response.ok) {
+        throw new Error(result.error || "メール認証に失敗しました");
+      }
 
-			const emailOtp: string | null = result?.data?.emailOtp ?? null;
-			const responseUser: UserSession | null = result?.data?.user ?? null;
+      const emailOtp: string | null = result?.data?.emailOtp ?? null;
+      const responseUser: UserSession | null = result?.data?.user ?? null;
 
-			if (emailOtp && responseUser?.email) {
-				const { error: otpError } = await supabase.auth.verifyOtp({
-					type: "magiclink",
-					email: responseUser.email,
-					token: emailOtp,
-				});
+      if (emailOtp && responseUser?.email) {
+        const { error: otpError } = await supabase.auth.verifyOtp({
+          type: "magiclink",
+          email: responseUser.email,
+          token: emailOtp,
+        });
 
-				if (otpError) {
-					console.error("verifyEmail: verifyOtpエラー", otpError);
-					throw new Error("メール認証後の自動ログインに失敗しました");
-				}
+        if (otpError) {
+          console.error("verifyEmail: verifyOtpエラー", otpError);
+          throw new Error("メール認証後の自動ログインに失敗しました");
+        }
 
-				await refreshUser();
-			} else if (responseUser) {
-				setUser(responseUser);
-			}
+        await refreshUser();
+      } else if (responseUser) {
+        setUser(responseUser);
+      }
 
-			return result;
-		} catch (err) {
-			const errorMessage =
-				err instanceof Error ? err.message : "メール認証に失敗しました";
-			setError(errorMessage);
-			throw new Error(errorMessage);
-		} finally {
-			setIsProcessing(false);
-		}
-	};
+      return result;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "メール認証に失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
-	return {
-		user,
-		loading: isInitializing || isProcessing,
-		isInitializing,
-		isProcessing,
-		error,
-		signUp,
-		signInWithCredentials,
-		signInWithGoogle,
-		signOutUser,
-		forgotPassword,
-		resetPassword,
-		verifyEmail,
-		refreshUser,
-		clearError: () => setError(null),
-	};
+  return {
+    user,
+    loading: isInitializing || isProcessing,
+    isInitializing,
+    isProcessing,
+    error,
+    signUp,
+    signInWithCredentials,
+    signInWithGoogle,
+    signOutUser,
+    forgotPassword,
+    resetPassword,
+    verifyEmail,
+    refreshUser,
+    clearError: () => setError(null),
+  };
 }
