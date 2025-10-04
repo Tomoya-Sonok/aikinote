@@ -6,27 +6,65 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 
-const requireEnv = (key: string) => {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`${key} is not defined`);
-  }
-  return value;
+type AwsConfig = {
+  region: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucketName: string;
 };
 
-const AWS_REGION = requireEnv("AWS_REGION");
-const AWS_ACCESS_KEY_ID = requireEnv("AWS_ACCESS_KEY_ID");
-const AWS_SECRET_ACCESS_KEY = requireEnv("AWS_SECRET_ACCESS_KEY");
-const BUCKET_NAME = requireEnv("AWS_S3_BUCKET_NAME");
+let cachedConfig: AwsConfig | null = null;
+let cachedS3Client: S3Client | null = null;
 
-// S3クライアントの設定
-const s3Client = new S3Client({
-  region: AWS_REGION,
-  credentials: {
-    accessKeyId: AWS_ACCESS_KEY_ID,
-    secretAccessKey: AWS_SECRET_ACCESS_KEY,
-  },
-});
+const loadAwsConfig = (): AwsConfig => {
+  if (cachedConfig) {
+    return cachedConfig;
+  }
+
+  const requiredEnv = {
+    AWS_REGION: process.env.AWS_REGION,
+    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+    AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
+  } as const;
+
+  const missingKeys = Object.entries(requiredEnv)
+    .filter(([, value]) => !value)
+    .map(([key]) => key);
+
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `S3連携に必要な環境変数が見つかりません: ${missingKeys.join(", ")}`,
+    );
+  }
+
+  cachedConfig = {
+    region: requiredEnv.AWS_REGION!,
+    accessKeyId: requiredEnv.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: requiredEnv.AWS_SECRET_ACCESS_KEY!,
+    bucketName: requiredEnv.AWS_S3_BUCKET_NAME!,
+  };
+
+  return cachedConfig;
+};
+
+const getS3Client = (): S3Client => {
+  if (cachedS3Client) {
+    return cachedS3Client;
+  }
+
+  const { region, accessKeyId, secretAccessKey } = loadAwsConfig();
+
+  cachedS3Client = new S3Client({
+    region,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+  });
+
+  return cachedS3Client;
+};
 
 // サポートされる画像形式
 const SUPPORTED_FORMATS = ["jpg", "jpeg", "png", "webp"] as const;
@@ -61,9 +99,10 @@ export async function generateUploadSignedUrl(
   }
 
   const fileKey = generateProfileImageKey(userId, filename);
+  const { bucketName } = loadAwsConfig();
 
   const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
+    Bucket: bucketName,
     Key: fileKey,
     ContentType: contentType,
     Tagging: "public=true",
@@ -74,7 +113,7 @@ export async function generateUploadSignedUrl(
   });
 
   // 15分で期限切れになる署名付きURLを生成
-  const uploadUrl = await getSignedUrl(s3Client, command, {
+  const uploadUrl = await getSignedUrl(getS3Client(), command, {
     expiresIn: 15 * 60, // 15分
   });
 
@@ -83,17 +122,19 @@ export async function generateUploadSignedUrl(
 
 // S3からファイルを削除
 export async function deleteFileFromS3(fileKey: string): Promise<void> {
+  const { bucketName } = loadAwsConfig();
   const command = new DeleteObjectCommand({
-    Bucket: BUCKET_NAME,
+    Bucket: bucketName,
     Key: fileKey,
   });
 
-  await s3Client.send(command);
+  await getS3Client().send(command);
 }
 
 // S3 URLからファイルキーを抽出
 export function extractFileKeyFromUrl(s3Url: string): string | null {
   try {
+    const { bucketName } = loadAwsConfig();
     const url = new URL(s3Url);
     // パススタイルとバーチャルホスト形式の両方に対応
     const pathSegments = url.pathname.split("/").filter(Boolean);
@@ -102,7 +143,7 @@ export function extractFileKeyFromUrl(s3Url: string): string | null {
       // 以下のようなURL形式に対応:
       // https://bucket.s3.region.amazonaws.com/path/to/file
       // https://s3.region.amazonaws.com/bucket/path/to/file
-      if (url.hostname.startsWith(BUCKET_NAME)) {
+      if (url.hostname.startsWith(bucketName)) {
         // バーチャルホスト形式: bucket.s3.region.amazonaws.com
         return pathSegments.join("/");
       } else {
