@@ -45,6 +45,15 @@ vi.mock("next/headers", () => ({
 describe("OAuth認証コールバック処理", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (global as any).fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      headers: { get: () => null },
+    });
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+    delete (global as any).fetch;
   });
 
   it("新規ユーザーの場合に直接データベースアクセスでユーザーを作成する", async () => {
@@ -112,7 +121,7 @@ describe("OAuth認証コールバック処理", () => {
       publicity_setting: "private",
       language: "ja",
       is_email_verified: true,
-      verification_token: "mock-token-123",
+      verification_token: null,
       password_hash: "",
       created_at: expect.any(String),
       updated_at: expect.any(String),
@@ -380,11 +389,165 @@ describe("OAuth認証コールバック処理", () => {
         publicity_setting: "private",
         language: "ja",
         is_email_verified: true,
-        verification_token: "mock-token-123",
+        verification_token: null,
         password_hash: "",
         created_at: expect.any(String),
         updated_at: expect.any(String),
       });
     }
+  });
+
+  it("Googleのavatarが1MB以下の場合はprofile_image_urlとして保存される", async () => {
+    const mockAuthData = {
+      user: {
+        id: "user-123",
+        email: "avatar@example.com",
+        user_metadata: {
+          avatar_url: "https://example.com/avatar.png",
+        },
+        identities: [
+          {
+            provider: "google",
+            identity_data: {
+              picture: "https://example.com/avatar.png",
+            },
+          },
+        ],
+      },
+    };
+
+    (global as any).fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: {
+        get: vi.fn(() => "500000"),
+      },
+    });
+
+    mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
+      data: mockAuthData,
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      }),
+    });
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { id: "user-123" },
+          error: null,
+        }),
+      }),
+    });
+
+    mockServiceSupabase.from.mockReturnValue({
+      select: mockSelect,
+      insert: mockInsert,
+    });
+
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
+
+    await GET(request);
+
+    expect(mockInsert).toHaveBeenCalledWith({
+      id: "user-123",
+      email: "avatar@example.com",
+      username: "avatar",
+      profile_image_url: "https://example.com/avatar.png",
+      training_start_date: null,
+      publicity_setting: "private",
+      language: "ja",
+      is_email_verified: true,
+      verification_token: null,
+      password_hash: "",
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+
+    expect((global as any).fetch).toHaveBeenCalledWith(
+      "https://example.com/avatar.png",
+      { method: "HEAD" },
+    );
+  });
+
+  it("avatarが1MBを超える場合はprofile_image_urlを保存しない", async () => {
+    const mockAuthData = {
+      user: {
+        id: "user-123",
+        email: "bigavatar@example.com",
+        user_metadata: {
+          picture: "https://example.com/big-avatar.png",
+        },
+      },
+    };
+
+    (global as any).fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      headers: {
+        get: vi.fn(() => "1500000"),
+      },
+    });
+
+    mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
+      data: mockAuthData,
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      }),
+    });
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { id: "user-123" },
+          error: null,
+        }),
+      }),
+    });
+
+    mockServiceSupabase.from.mockReturnValue({
+      select: mockSelect,
+      insert: mockInsert,
+    });
+
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
+
+    await GET(request);
+
+    expect(mockInsert).toHaveBeenCalledWith({
+      id: "user-123",
+      email: "bigavatar@example.com",
+      username: "bigavatar",
+      profile_image_url: null,
+      training_start_date: null,
+      publicity_setting: "private",
+      language: "ja",
+      is_email_verified: true,
+      verification_token: null,
+      password_hash: "",
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+
+    expect((global as any).fetch).toHaveBeenCalledWith(
+      "https://example.com/big-avatar.png",
+      { method: "HEAD" },
+    );
   });
 });

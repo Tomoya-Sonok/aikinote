@@ -1,27 +1,17 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/server/auth";
+import { FontSizeSettingPageClient } from "./FontSizeSettingPageClient";
 
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { MinimalLayout } from "@/components/layouts/MinimalLayout";
-import { FontSizeSetting } from "@/components/molecules/FontSizeSetting/FontSizeSetting";
-import { useToast } from "@/contexts/ToastContext";
+export default async function FontSizeSettingPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  const user = await getCurrentUser();
 
-export default function FontSizeSettingPage() {
-  const router = useRouter();
-  const { showToast } = useToast();
-  const t = useTranslations();
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
 
-  const handleSave = () => {
-    showToast(t("fontSize.saved"), "success");
-    // 少し待ってからホームページに戻る
-    setTimeout(() => {
-      router.push("/");
-    }, 800);
-  };
-
-  return (
-    <MinimalLayout headerTitle={t("fontSize.title")} backHref="/">
-      <FontSizeSetting onSave={handleSave} />
-    </MinimalLayout>
-  );
+  return <FontSizeSettingPageClient locale={locale} />;
 }

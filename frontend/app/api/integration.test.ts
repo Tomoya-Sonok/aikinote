@@ -24,6 +24,7 @@ const mockServiceSupabase = {
       createUser: vi.fn(),
       deleteUser: vi.fn(),
       updateUserById: vi.fn(),
+      generateLink: vi.fn(),
     },
   },
 };
@@ -53,6 +54,16 @@ vi.mock("@/lib/utils/email", () => ({
 describe("API Integration Tests - Response Format Consistency", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    mockServiceSupabase.auth.admin.generateLink.mockResolvedValue({
+      data: {
+        action_link: "https://example.com/action",
+        properties: {
+          email_otp: "123456",
+        },
+      },
+      error: null,
+    });
   });
 
   describe("統一されたAPIレスポンス形式", () => {
@@ -257,6 +268,9 @@ describe("API Integration Tests - Response Format Consistency", () => {
       const mockUser = {
         id: "user-123",
         email: "test@example.com",
+        username: "test-user",
+        profile_image_url: null,
+        dojo_style_name: null,
         is_email_verified: false,
         verification_token: "test-token",
         created_at: new Date().toISOString(),
@@ -300,6 +314,21 @@ describe("API Integration Tests - Response Format Consistency", () => {
       expect(responseData).toHaveProperty("success", true);
       expect(responseData).toHaveProperty("message");
       expect(responseData).toHaveProperty("timestamp");
+      if (responseData.success) {
+        expect(responseData.data).toMatchObject({
+          user: {
+            id: "user-123",
+            email: "test@example.com",
+            username: "test-user",
+            profile_image_url: null,
+            dojo_style_name: null,
+          },
+          emailOtp: "123456",
+        });
+      }
+      expect(
+        mockServiceSupabase.auth.admin.generateLink,
+      ).toHaveBeenCalledTimes(1);
     });
 
     it.todo(

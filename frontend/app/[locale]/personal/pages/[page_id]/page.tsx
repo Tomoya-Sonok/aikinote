@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import { DefaultLayout } from "@/components/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
+import { getCurrentUser } from "@/lib/server/auth";
 import { PageDetailPageClient } from "./PageDetailPageClient";
 
 export const metadata = buildMetadata({
@@ -7,7 +9,17 @@ export const metadata = buildMetadata({
   description: "稽古ページの詳細を確認できます。",
 });
 
-export default function PageDetailPage() {
+export default async function PageDetailPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
+
   return (
     <DefaultLayout>
       <PageDetailPageClient />

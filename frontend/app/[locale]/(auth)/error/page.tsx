@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
+import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -24,6 +26,12 @@ export default async function AuthErrorPage({
   params: { locale: string };
   searchParams: { error?: string };
 }) {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect(`/${locale}/personal/pages`);
+  }
+
   const t = await getTranslations({ locale, namespace: "auth" });
   const error = searchParams.error;
   const loginHref = `/${locale}/login`;

@@ -30,6 +30,7 @@ const mockSupabaseClient = {
     signInWithOAuth: vi.fn(),
     signUp: vi.fn(),
     signOut: vi.fn(),
+    verifyOtp: vi.fn(),
   },
 };
 
@@ -262,6 +263,121 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
 
     await waitFor(() => {
       expect(result.current.user).toBeNull();
+    }, { timeout: 2000 });
+  });
+
+  it("ユーザープロフィール取得が遅延してもリトライで成功する", async () => {
+    const mockUser = {
+      id: "user-123",
+      email: "test@example.com",
+      username: "testuser",
+      profile_image_url: null,
+    };
+
+    (userApi.fetchUserProfile as Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValue(mockUser);
+
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: {
+        session: {
+          user: { id: "user-123", email: "test@example.com" },
+        },
+      },
+      error: null,
     });
+
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    expect(result.current.user).toEqual(mockUser);
+  });
+});
+
+describe("useAuth hook - メール認証", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+
+    mockSupabaseClient.auth.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    });
+
+    mockSupabaseClient.auth.verifyOtp.mockResolvedValue({
+      data: { session: { access_token: "token" } },
+      error: null,
+    });
+  });
+
+  it("メール認証後にマジックリンクで自動ログインできる", async () => {
+    const mockUserProfile = {
+      id: "user-123",
+      email: "test@example.com",
+      username: "test-user",
+      profile_image_url: null,
+      dojo_style_name: null,
+    };
+
+    (userApi.fetchUserProfile as Mock).mockResolvedValue(mockUserProfile);
+
+    mockSupabaseClient.auth.getSession.mockResolvedValueOnce({
+      data: { session: null },
+      error: null,
+    });
+
+    mockSupabaseClient.auth.getSession.mockResolvedValueOnce({
+      data: { session: { user: { id: "user-123", email: "test@example.com" } } },
+      error: null,
+    });
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          user: mockUserProfile,
+          emailOtp: "123456",
+          actionLink: "https://example.com",
+        },
+      }),
+    });
+
+    const originalFetch = global.fetch;
+    (global as any).fetch = fetchMock;
+
+    try {
+      const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isInitializing).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.verifyEmail("test-token");
+      });
+
+      expect(mockSupabaseClient.auth.verifyOtp).toHaveBeenCalledWith({
+        type: "magiclink",
+        email: "test@example.com",
+        token: "123456",
+      });
+
+      await waitFor(() => {
+        expect(userApi.fetchUserProfile).toHaveBeenCalledWith("user-123");
+      }, { timeout: 2000 });
+
+      await waitFor(() => {
+        expect(result.current.user).toEqual(mockUserProfile);
+      }, { timeout: 2000 });
+    } finally {
+      (global as any).fetch = originalFetch;
+    }
   });
 });

@@ -1,12 +1,18 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { Loader } from "@/components/atoms/Loader";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 import { buildMetadata } from "@/lib/metadata";
+import { getCurrentUser } from "@/lib/server/auth";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations();
+export async function generateMetadata({
+  params: { locale },
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale });
   return buildMetadata({
     title: t("auth.newPasswordTitle"),
     description: t("auth.newPasswordDescription"),
@@ -15,11 +21,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function ResetPasswordContent({
   searchParams,
+  locale,
 }: {
   searchParams: { token?: string };
+  locale: string;
 }) {
   const token = searchParams.token;
-  const t = await getTranslations();
+  const t = await getTranslations({ locale });
 
   if (!token) {
     return (
@@ -49,7 +57,7 @@ async function ResetPasswordContent({
             {t("auth.invalidTokenMessage")}
           </p>
           <a
-            href="/forgot-password"
+            href={`/${locale}/forgot-password`}
             className="inline-block w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
           >
             {t("auth.retryPasswordReset")}
@@ -63,11 +71,19 @@ async function ResetPasswordContent({
 }
 
 export default async function ResetPasswordPage({
+  params: { locale },
   searchParams,
 }: {
+  params: { locale: string };
   searchParams: { token?: string };
 }) {
-  const t = await getTranslations();
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect(`/${locale}/personal/pages`);
+  }
+
+  const t = await getTranslations({ locale });
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -84,7 +100,7 @@ export default async function ResetPasswordPage({
         <Suspense
           fallback={<Loader size="large" centered text={t("auth.loading")} />}
         >
-          <ResetPasswordContent searchParams={searchParams} />
+          <ResetPasswordContent searchParams={searchParams} locale={locale} />
         </Suspense>
       </div>
     </div>

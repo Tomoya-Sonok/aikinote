@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
+import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -22,6 +24,12 @@ export default async function ForgotPasswordPage({
 }: {
   params: { locale: string };
 }) {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect(`/${locale}/personal/pages`);
+  }
+
   const t = await getTranslations({ locale, namespace: "auth" });
   const loginHref = `/${locale}/login`;
 

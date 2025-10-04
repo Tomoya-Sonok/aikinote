@@ -16,6 +16,7 @@ import {
 	type UsernameFormData,
 } from "@/lib/utils/validation";
 import styles from "./page.module.css";
+import { Button } from "@/components/atoms/Button/Button";
 
 interface SignUpPageClientProps {
 	locale?: string;
@@ -119,18 +120,7 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 				{error && <div className={styles.errorMessage}>{error}</div>}
 
 				<div className={styles.contentsWrapper}>
-					<form
-						className={styles.form}
-						onSubmit={emailPasswordForm.handleSubmit(
-							handleEmailPasswordSubmit,
-							(errors) => {
-								console.log(
-									"=== Form submitted with VALIDATION ERRORS ===",
-									errors,
-								);
-							},
-						)}
-					>
+					<form className={styles.form}>
 						<div className={styles.fieldGroup}>
 							<label htmlFor={emailId} className={styles.fieldLabel}>
 								{t("auth.email")}
@@ -187,19 +177,26 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 							</p>
 						</div>
 
-						<div className={styles.buttonContainer}>
-							<button
-								type="submit"
-								disabled={isProcessing}
-								className={`${styles.button} ${styles.primaryButton}`}
-							>
-								{isProcessing ? (
-									<Loader size="small" text={t("auth.processing")} />
-								) : (
-									t("auth.next")
-								)}
-							</button>
-						</div>
+						<Button
+							variant="primary"
+							onClick={emailPasswordForm.handleSubmit(
+								handleEmailPasswordSubmit,
+								(errors) => {
+									console.log(
+										"=== Form submitted with VALIDATION ERRORS ===",
+										errors,
+									);
+								},
+							)}
+							disabled={isProcessing}
+							className={`${styles.button} ${styles.primaryButton}`}
+						>
+							{isProcessing ? (
+								<Loader size="small" text={t("auth.processing")} />
+							) : (
+								t("auth.next")
+							)}
+						</Button>
 					</form>
 
 					<div className={styles.otherActions}>
@@ -275,10 +272,7 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 				{error && <div className={styles.errorMessage}>{error}</div>}
 
 				<div className={styles.contentsWrapper}>
-					<form
-						className={styles.form}
-						onSubmit={usernameForm.handleSubmit(handleUsernameSubmit)}
-					>
+					<form className={styles.form}>
 						<div className={styles.fieldGroup}>
 							<div className={styles.inputContainer}>
 								<label htmlFor={usernameId} className={styles.fieldLabel}>
@@ -303,24 +297,20 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
 						</div>
 
 						<div className={styles.buttonContainer}>
-							<button
-								type="button"
-								onClick={handleBack}
-								className={`${styles.button} ${styles.secondaryButton}`}
-							>
+							<Button variant="secondary" onClick={handleBack}>
 								{t("auth.back")}
-							</button>
-							<button
-								type="submit"
+							</Button>
+							<Button
+								variant="primary"
+								onClick={usernameForm.handleSubmit(handleUsernameSubmit)}
 								disabled={isProcessing}
-								className={`${styles.button} ${styles.primaryButton}`}
 							>
 								{isProcessing ? (
 									<Loader size="small" text={t("auth.creating")} />
 								) : (
 									t("auth.next")
 								)}
-							</button>
+							</Button>
 						</div>
 					</form>
 

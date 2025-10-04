@@ -323,9 +323,13 @@ describe("DatePickerModal", () => {
 		);
 
 		// Assert: 今日の日付がtoday状態で表示される
-		const todayButton = screen.getByRole("button", {
+		const todayButtons = screen.getAllByRole("button", {
 			name: todayDate.toString(),
 		});
+		const todayButton = todayButtons.find((button) =>
+			button.classList.contains(styles.today),
+		);
+		expect(todayButton).toBeDefined();
 		expect(todayButton).toHaveClass(styles.today);
 	});
 });
