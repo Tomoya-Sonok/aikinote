@@ -9,16 +9,12 @@ import styles from "./SettingsMenu.module.css";
 interface SettingsMenuProps {
   onPublicityClick: () => void;
   onEmailClick: () => void;
-  onTextSizeClick: () => void;
-  onLanguageClick: () => void;
   className?: string;
 }
 
 export const SettingsMenu: FC<SettingsMenuProps> = ({
   // onPublicityClick, 初期リリース時は「公開範囲」をスコープアウト
   onEmailClick,
-  onTextSizeClick,
-  onLanguageClick,
   className = "",
 }) => {
   const t = useTranslations();
@@ -30,14 +26,10 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({
       {/* 初期リリース時は「公開範囲」をスコープアウト */}
       {/* <SettingItem onClick={onPublicityClick}>公開範囲</SettingItem> */}
       <SettingItem onClick={onEmailClick}>{t("settings.email")}</SettingItem>
-      <SettingItem
-        onClick={() => router.push(`/${locale}/settings/font-size`)}
-      >
+      <SettingItem onClick={() => router.push(`/${locale}/settings/font-size`)}>
         {t("fontSize.title")}
       </SettingItem>
-      <SettingItem
-        onClick={() => router.push(`/${locale}/settings/language`)}
-      >
+      <SettingItem onClick={() => router.push(`/${locale}/settings/language`)}>
         {t("language.label")}
       </SettingItem>
     </div>

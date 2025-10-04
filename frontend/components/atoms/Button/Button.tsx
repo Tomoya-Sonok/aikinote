@@ -5,6 +5,7 @@ interface ButtonProps {
   children: ReactNode;
   variant?: "primary" | "secondary" | "icon";
   size?: "small" | "medium" | "large";
+  type?: "button" | "submit" | "reset";
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
@@ -14,13 +15,14 @@ export const Button: FC<ButtonProps> = ({
   children,
   variant = "primary",
   size = "medium",
+  type = "button",
   onClick,
   disabled = false,
   className = "",
 }) => {
   return (
     <button
-      type="button"
+      type={type}
       className={`${styles.button} ${styles[variant]} ${styles[size]} ${className}`}
       onClick={onClick}
       disabled={disabled}

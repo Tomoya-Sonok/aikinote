@@ -2,9 +2,14 @@ import type { ComponentPropsWithoutRef } from "react";
 
 interface TrashIconProps extends ComponentPropsWithoutRef<"svg"> {
   size?: number;
+  title?: string;
 }
 
-export function TrashIcon({ size = 16, ...props }: TrashIconProps) {
+export function TrashIcon({
+  size = 16,
+  title = "Trash icon",
+  ...props
+}: TrashIconProps) {
   return (
     <svg
       width={size}
@@ -17,6 +22,7 @@ export function TrashIcon({ size = 16, ...props }: TrashIconProps) {
       strokeLinejoin="round"
       {...props}
     >
+      <title>{title}</title>
       <path d="m3 6 3 0" />
       <path d="m19 6-3 0" />
       <path d="m8 6 0-2c0-1 1-2 2-2h4c1 0 2 1 2 2l0 2" />

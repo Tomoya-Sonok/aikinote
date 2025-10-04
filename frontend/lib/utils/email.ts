@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { getExternalUrl } from "./env";
+import { getRedirectUrl } from "./env";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -32,7 +32,7 @@ export async function sendVerificationEmail({
   );
   console.log("==========================================");
 
-  const verificationUrl = getExternalUrl(
+  const verificationUrl = getRedirectUrl(
     `/verify-email?token=${verificationToken}`,
   );
 
@@ -113,4 +113,4 @@ export async function sendPasswordResetEmail({
   }
 }
 
-// 削除: getAppUrl関数は getExternalUrl に置き換え済み
+// 削除: getAppUrl関数は getRedirectUrl に置き換え済み

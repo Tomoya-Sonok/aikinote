@@ -6,12 +6,14 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Button } from "@/components/atoms/Button/Button";
 import { Loader } from "@/components/atoms/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
   type NewPasswordFormData,
   newPasswordSchema,
 } from "@/lib/utils/validation";
+import styles from "./ResetPasswordForm.module.css";
 
 interface ResetPasswordFormProps {
   token: string;
@@ -39,6 +41,7 @@ export function ResetPasswordForm({
     formState: { errors },
   } = useForm<NewPasswordFormData>({
     resolver: zodResolver(newPasswordSchema),
+    mode: "onChange",
   });
 
   const handleResetPassword = async (data: NewPasswordFormData) => {
@@ -53,11 +56,11 @@ export function ResetPasswordForm({
 
   if (isSuccess) {
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <div className="mb-4 text-green-600">
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <div className={styles.iconWrapper}>
             <svg
-              className="mx-auto h-12 w-12"
+              className={styles.icon}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -71,126 +74,112 @@ export function ResetPasswordForm({
               />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            {t("auth.passwordChangeComplete")}
-          </h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className={styles.title}>{t("auth.passwordChangeComplete")}</h2>
+          <p className={styles.description}>
             {t("auth.passwordChangeSuccess")}
           </p>
-          <button
-            type="button"
-            onClick={() => router.push(loginHref)}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            {t("auth.goToLogin")}
-          </button>
         </div>
+
+        <Button
+          variant="primary"
+          onClick={() => router.push(loginHref)}
+          className={`${styles.button} ${styles.primaryButton}`}
+        >
+          {t("auth.goToLogin")}
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center text-gray-900 mb-2">
-        {t("auth.setNewPasswordTitle")}
-      </h2>
-      <p className="text-center text-gray-600 mb-6">
-        {t("auth.enterNewPassword")}
-      </p>
+    <div className={styles.card}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>{t("auth.setNewPasswordTitle")}</h2>
+        <p className={styles.description}>{t("auth.enterNewPassword")}</p>
+      </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
+      {error && <div className={styles.errorMessage}>{error}</div>}
 
-      <form onSubmit={handleSubmit(handleResetPassword)} className="space-y-4">
-        <div>
-          <label
-            htmlFor={passwordId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+      <form
+        className={styles.form}
+        onSubmit={handleSubmit(handleResetPassword)}
+      >
+        <div className={styles.fieldGroup}>
+          <label htmlFor={passwordId} className={styles.fieldLabel}>
             {t("auth.newPassword")}
           </label>
-          <div className="relative">
+          <div className={styles.inputContainer}>
             <input
               {...register("password")}
               type={showPassword ? "text" : "password"}
               id={passwordId}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`${styles.inputField} ${
+                errors.password ? styles.error : ""
+              }`}
               placeholder={t("auth.newPasswordPlaceholder")}
               onFocus={clearError}
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className={styles.passwordToggle}
             >
               {showPassword ? t("auth.hide") : t("auth.show")}
             </button>
           </div>
           {errors.password && (
-            <p className="mt-1 text-sm text-red-600">
-              {errors.password.message}
-            </p>
+            <p className={styles.errorMessage}>{errors.password.message}</p>
           )}
-          <p className="mt-1 text-xs text-gray-500">
-            {t("auth.passwordRequirements")}
-          </p>
+          <p className={styles.helperText}>{t("auth.passwordRequirements")}</p>
         </div>
 
-        <div>
-          <label
-            htmlFor={confirmPasswordId}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
+        <div className={styles.fieldGroup}>
+          <label htmlFor={confirmPasswordId} className={styles.fieldLabel}>
             {t("auth.confirmPassword")}
           </label>
-          <div className="relative">
+          <div className={styles.inputContainer}>
             <input
               {...register("confirmPassword")}
               type={showConfirmPassword ? "text" : "password"}
               id={confirmPasswordId}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`${styles.inputField} ${
+                errors.confirmPassword ? styles.error : ""
+              }`}
               placeholder={t("auth.confirmPasswordPlaceholder")}
               onFocus={clearError}
             />
             <button
               type="button"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              className={styles.passwordToggle}
             >
               {showConfirmPassword ? t("auth.hide") : t("auth.show")}
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className={styles.errorMessage}>
               {errors.confirmPassword.message}
             </p>
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={isProcessing}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`${styles.button} ${styles.primaryButton}`}
         >
           {isProcessing ? (
             <Loader size="small" text={t("auth.changing")} />
           ) : (
             t("auth.changePassword")
           )}
-        </button>
+        </Button>
       </form>
 
-      <div className="mt-6 text-center">
-        <Link
-          href={loginHref}
-          className="text-sm text-blue-600 hover:text-blue-500"
-        >
-          {t("auth.goToLogin")}
-        </Link>
-      </div>
+      <Link href={loginHref} className={styles.link}>
+        {t("auth.goToLogin")}
+      </Link>
     </div>
   );
 }

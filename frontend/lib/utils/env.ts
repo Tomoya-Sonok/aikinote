@@ -55,10 +55,10 @@ export function getApiBaseUrl(): string {
 }
 
 /**
- * 外部URL（リダイレクト用）を取得する
+ * リダイレクト用のURLを取得する
  * OAuth認証やメール認証のリダイレクトで使用
  */
-export function getExternalUrl(path: string = ""): string {
+export function getRedirectUrl(path: string = ""): string {
   const baseUrl = getBaseUrl();
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
   return `${baseUrl}${cleanPath}`;

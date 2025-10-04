@@ -26,6 +26,8 @@
   border-radius: 24px;
   padding: 24px;
   width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -111,13 +113,13 @@
 .contentsWrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* フォームフィールド */
@@ -195,7 +197,7 @@
 .buttonContainer {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .button {
@@ -207,6 +209,7 @@
   line-height: 1.448;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .primaryButton {
@@ -260,7 +263,8 @@
   }
 
   .formCard {
-    min-width: 342px;
+    max-width: 580px;
+    padding: 32px;
   }
 
   .secondaryButton {

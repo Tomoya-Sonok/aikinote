@@ -86,43 +86,43 @@ const testMessages = {
     title: "ページ作成",
     save: "保存",
   },
-	datePickerModal: {
-		close: "閉じる",
-		prevMonth: "前の月",
-		nextMonth: "次の月",
-		cancel: "キャンセル",
-		filter: "絞り込み",
-		year: "年",
-		months: {
-			january: "1月",
-			february: "2月",
-			march: "3月",
-			april: "4月",
-			may: "5月",
-			june: "6月",
-			july: "7月",
-			august: "8月",
-			september: "9月",
-			october: "10月",
-			november: "11月",
-			december: "12月"
-		},
-		days: {
-			sunday: "日",
-			monday: "月",
-			tuesday: "火",
-			wednesday: "水",
-			thursday: "木",
-			friday: "金",
-			saturday: "土"
-		}
-	}
+  datePickerModal: {
+    close: "閉じる",
+    prevMonth: "前の月",
+    nextMonth: "次の月",
+    cancel: "キャンセル",
+    filter: "絞り込み",
+    year: "年",
+    months: {
+      january: "1月",
+      february: "2月",
+      march: "3月",
+      april: "4月",
+      may: "5月",
+      june: "6月",
+      july: "7月",
+      august: "8月",
+      september: "9月",
+      october: "10月",
+      november: "11月",
+      december: "12月",
+    },
+    days: {
+      sunday: "日",
+      monday: "月",
+      tuesday: "火",
+      wednesday: "水",
+      thursday: "木",
+      friday: "金",
+      saturday: "土",
+    },
+  },
 };
 
 interface I18nTestProviderProps {
   children: ReactNode;
   locale?: string;
-  messages?: Record<string, any>;
+  messages?: Record<string, unknown>;
 }
 
 export function I18nTestProvider({

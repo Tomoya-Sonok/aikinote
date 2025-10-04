@@ -1,37 +1,37 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { SignInForm } from "@/components/auth/SignInForm";
 import { NotLoggedInLayout } from "@/components/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
-import styles from "./page.module.css";
+import { getCurrentUser } from "@/lib/server/auth";
+import { LoginPageClient } from "./LoginPageClient";
 
 export async function generateMetadata({
-	params: { locale },
+  params: { locale },
 }: {
-	params: { locale: string };
+  params: { locale: string };
 }): Promise<Metadata> {
-	const t = await getTranslations({ locale, namespace: "auth" });
-	return buildMetadata({
-		title: t("loginTitle"),
-		description: t("loginDescription"),
-	});
+  const t = await getTranslations({ locale, namespace: "auth" });
+  return buildMetadata({
+    title: t("loginTitle"),
+    description: t("loginDescription"),
+  });
 }
 
 export default async function LoginPage({
-	params: { locale },
+  params: { locale },
 }: {
-	params: { locale: string };
+  params: { locale: string };
 }) {
-	const t = await getTranslations({ locale, namespace: "auth" });
+  const user = await getCurrentUser();
 
-	return (
-		<NotLoggedInLayout>
-			<div className={styles.container}>
-				<h1 className={styles.title}>{t("loginTitle")}</h1>
-				<div className={styles.formCard}>
-					<SignInForm locale={locale} />
-				</div>
-			</div>
-		</NotLoggedInLayout>
-	);
+  if (user) {
+    redirect(`/${locale}/personal/pages`);
+  }
+
+  return (
+    <NotLoggedInLayout>
+      <LoginPageClient locale={locale} />
+    </NotLoggedInLayout>
+  );
 }

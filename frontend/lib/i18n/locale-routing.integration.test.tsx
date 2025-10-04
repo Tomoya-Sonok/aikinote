@@ -39,8 +39,8 @@ const TestSignupPageContent = () => {
   return (
     <div>
       <h1>{t("signup")}</h1>
-      <label>{t("email")}</label>
-      <label>{t("password")}</label>
+      <p>{t("email")}</p>
+      <p>{t("password")}</p>
     </div>
   );
 };
@@ -62,8 +62,8 @@ const TestLoginPageContent = () => {
   return (
     <div>
       <h1>{t("login")}</h1>
-      <label>{t("email")}</label>
-      <label>{t("password")}</label>
+      <p>{t("email")}</p>
+      <p>{t("password")}</p>
     </div>
   );
 };

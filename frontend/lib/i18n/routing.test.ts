@@ -75,7 +75,6 @@ describe("i18nルーティング設定", () => {
   describe("言語設定の期待される動作仕様", () => {
     it("プレフィックスなしのURLは日本語として扱われる", () => {
       // Arrange: プレフィックスなしのパスを設定する
-      const pathWithoutPrefix = "/signup";
       const expectedLocale = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -88,7 +87,6 @@ describe("i18nルーティング設定", () => {
     it("enプレフィックス付きのURLは英語として扱われる", () => {
       // Arrange: 英語ロケールを設定する
       const englishLocale = "en";
-      const pathWithEnPrefix = "/en/signup";
 
       // Act: サポートされるロケールに英語が含まれているか確認する
       const isEnglishSupported =
@@ -100,7 +98,6 @@ describe("i18nルーティング設定", () => {
 
     it("/signupは日本語で表示される", () => {
       // Arrange: 日本語ページのパスを設定する
-      const japanesePath = "/signup";
       const expectedLocale = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -112,7 +109,6 @@ describe("i18nルーティング設定", () => {
 
     it("/en/signupは英語で表示される", () => {
       // Arrange: 英語ページのパスとロケールを設定する
-      const englishPath = "/en/signup";
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する
@@ -125,7 +121,6 @@ describe("i18nルーティング設定", () => {
 
     it("/loginは日本語で表示される", () => {
       // Arrange: 日本語ログインページのパスを設定する
-      const japaneseLoginPath = "/login";
       const expectedLocale = "ja";
 
       // Act: デフォルトロケールを取得する
@@ -137,7 +132,6 @@ describe("i18nルーティング設定", () => {
 
     it("/en/loginは英語で表示される", () => {
       // Arrange: 英語ログインページのパスとロケールを設定する
-      const englishLoginPath = "/en/login";
       const expectedLocale = "en";
 
       // Act: 英語ロケールがサポートされているか確認する

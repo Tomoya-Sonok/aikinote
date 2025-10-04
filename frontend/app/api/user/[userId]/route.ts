@@ -24,7 +24,6 @@ export async function GET(
     const serverSupabase = getServerSupabase();
     const {
       data: { session },
-      error: sessionError,
     } = await serverSupabase.auth.getSession();
 
     // セッションがある場合は、リクエストしているユーザーが本人または管理者かチェック
@@ -108,7 +107,6 @@ export async function PUT(
     const serverSupabase = getServerSupabase();
     const {
       data: { session },
-      error: sessionError,
     } = await serverSupabase.auth.getSession();
 
     if (!session?.user) {
@@ -130,7 +128,7 @@ export async function PUT(
     if (username !== undefined) {
       try {
         usernameSchema.parse({ username });
-      } catch (error) {
+      } catch (_error) {
         return createBadRequestResponse("無効なユーザー名です");
       }
     }
@@ -138,7 +136,7 @@ export async function PUT(
     // Service Roleでユーザー情報を更新
     const serviceSupabase = getServiceRoleSupabase();
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (username !== undefined) updateData.username = username;
     if (dojo_style_name !== undefined)
       updateData.dojo_style_name = dojo_style_name || null;

@@ -2,13 +2,13 @@
  * useAuth hook のテスト
  * セッション監視機能の復活に関する重要な動作をテスト
  */
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
-import * as supabaseClient from "@/lib/supabase/client";
 import * as userApi from "@/lib/utils/user-api";
-import { useAuth } from "./useAuth";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
+import { useAuth } from "./useAuth";
 
 const Wrapper = ({ children }: PropsWithChildren) => (
   <I18nTestProvider>{children}</I18nTestProvider>
@@ -30,8 +30,14 @@ const mockSupabaseClient = {
     signInWithOAuth: vi.fn(),
     signUp: vi.fn(),
     signOut: vi.fn(),
+    verifyOtp: vi.fn(),
   },
 };
+
+type AuthStateChangeHandler = (
+  event: AuthChangeEvent,
+  session: Session | null,
+) => void;
 
 vi.mock("@/lib/supabase/client", () => ({
   getClientSupabase: () => mockSupabaseClient,
@@ -80,7 +86,7 @@ describe("useAuth hook - セッション監視機能", () => {
 
     (userApi.fetchUserProfile as Mock).mockResolvedValue(mockUser);
 
-    let authStateChangeCallback: Function;
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
     mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
       authStateChangeCallback = callback;
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -114,7 +120,7 @@ describe("useAuth hook - セッション監視機能", () => {
       new Error("ネットワークエラー"),
     );
 
-    let authStateChangeCallback: Function;
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
     mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
       authStateChangeCallback = callback;
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -149,7 +155,7 @@ describe("useAuth hook - セッション監視機能", () => {
   });
 
   it("初期化中は認証状態変更を処理しない", async () => {
-    let authStateChangeCallback: Function;
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
     mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
       authStateChangeCallback = callback;
       return { data: { subscription: { unsubscribe: vi.fn() } } };
@@ -260,8 +266,134 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
-    await waitFor(() => {
-      expect(result.current.user).toBeNull();
+    await waitFor(
+      () => {
+        expect(result.current.user).toBeNull();
+      },
+      { timeout: 2000 },
+    );
+  });
+
+  it("ユーザープロフィール取得が遅延してもリトライで成功する", async () => {
+    const mockUser = {
+      id: "user-123",
+      email: "test@example.com",
+      username: "testuser",
+      profile_image_url: null,
+    };
+
+    (userApi.fetchUserProfile as Mock)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValue(mockUser);
+
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: {
+        session: {
+          user: { id: "user-123", email: "test@example.com" },
+        },
+      },
+      error: null,
     });
+
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    expect(result.current.user).toEqual(mockUser);
+  });
+});
+
+describe("useAuth hook - メール認証", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+
+    mockSupabaseClient.auth.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    });
+
+    mockSupabaseClient.auth.verifyOtp.mockResolvedValue({
+      data: { session: { access_token: "token" } },
+      error: null,
+    });
+  });
+
+  it("メール認証後にマジックリンクで自動ログインできる", async () => {
+    const mockUserProfile = {
+      id: "user-123",
+      email: "test@example.com",
+      username: "test-user",
+      profile_image_url: null,
+      dojo_style_name: null,
+    };
+
+    (userApi.fetchUserProfile as Mock).mockResolvedValue(mockUserProfile);
+
+    mockSupabaseClient.auth.getSession.mockResolvedValueOnce({
+      data: { session: null },
+      error: null,
+    });
+
+    mockSupabaseClient.auth.getSession.mockResolvedValueOnce({
+      data: {
+        session: { user: { id: "user-123", email: "test@example.com" } },
+      },
+      error: null,
+    });
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          user: mockUserProfile,
+          emailOtp: "123456",
+          actionLink: "https://example.com",
+        },
+      }),
+    });
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+
+    try {
+      const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isInitializing).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.verifyEmail("test-token");
+      });
+
+      expect(mockSupabaseClient.auth.verifyOtp).toHaveBeenCalledWith({
+        type: "magiclink",
+        email: "test@example.com",
+        token: "123456",
+      });
+
+      await waitFor(
+        () => {
+          expect(userApi.fetchUserProfile).toHaveBeenCalledWith("user-123");
+        },
+        { timeout: 2000 },
+      );
+
+      await waitFor(
+        () => {
+          expect(result.current.user).toEqual(mockUserProfile);
+        },
+        { timeout: 2000 },
+      );
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });

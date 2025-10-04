@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       data: result.data,
       message: result.message,
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       { success: false, error: "初期タグの作成に失敗しました" },
       { status: 500 },

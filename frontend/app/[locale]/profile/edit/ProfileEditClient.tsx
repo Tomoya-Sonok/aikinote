@@ -1,8 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { type FC, useEffect, useState } from "react";
+import {
+  type ChangeEvent,
+  type FC,
+  Fragment,
+  useCallback,
+  useEffect,
+  useId,
+  useState,
+} from "react";
 import { ZodError } from "zod";
 import { Button } from "@/components/atoms/Button/Button";
 import { EditIcon } from "@/components/atoms/icons/EditIcon";
@@ -31,6 +40,9 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
   const { refreshUser } = useAuth();
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
+  const usernameInputId = useId();
+  const dojoInputId = useId();
+  const trainingStartInputId = useId();
 
   const handleSave = async () => {
     // バリデーションチェック
@@ -190,7 +202,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
   };
 
   // 最新のプロフィール情報を取得
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       // JWTトークンを取得
       const tokenResponse = await fetch("/api/auth/token", {
@@ -234,12 +246,12 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [showToast, t, user.id]);
 
   // コンポーネントマウント時に最新プロフィールを取得
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+  }, [fetchUserProfile]);
 
   // フォームデータの初期化（userが更新された時）
   useEffect(() => {
@@ -253,7 +265,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
 
   const handleInputChange =
     (field: keyof typeof formData) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
         ...prev,
@@ -275,7 +287,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
       }
     };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setProfileImageFile(file);
@@ -293,6 +305,18 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
   };
 
   const currentImageUrl = previewUrl || user.profile_image_url;
+  const uploadInstructionLines = t("profileEdit.uploadInstructions").split(
+    "\n",
+  );
+  const lineOccurrences = new Map<string, number>();
+  const uploadInstructionItems = uploadInstructionLines.map((line) => {
+    const occurrence = lineOccurrences.get(line) ?? 0;
+    lineOccurrences.set(line, occurrence + 1);
+    return {
+      line,
+      key: occurrence > 0 ? `${line}-${occurrence}` : line,
+    };
+  });
 
   // ローディング中の表示
   if (loading) {
@@ -310,10 +334,13 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
           <label className={styles.profileImageContainer}>
             <div className={styles.profileImage}>
               {currentImageUrl ? (
-                <img
+                <Image
                   src={currentImageUrl}
                   alt={t("profileEdit.profileImageAlt")}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  fill
+                  sizes="96px"
+                  style={{ objectFit: "cover" }}
+                  unoptimized
                 />
               ) : (
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af">
@@ -334,14 +361,12 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
           </label>
           <div className={styles.imageUpload}>
             <p className={styles.uploadText}>
-              {t("profileEdit.uploadInstructions")
-                .split("\n")
-                .map((line, index) => (
-                  <span key={index}>
-                    {line}
-                    {index === 0 && <br />}
-                  </span>
-                ))}
+              {uploadInstructionItems.map(({ line, key }, index) => (
+                <Fragment key={key}>
+                  {index > 0 && <br />}
+                  {line}
+                </Fragment>
+              ))}
             </p>
             <div className={styles.fileInfoContainer}>
               <p
@@ -372,7 +397,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
 
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
-            <label htmlFor="username" className={styles.label}>
+            <label htmlFor={usernameInputId} className={styles.label}>
               {t("profileEdit.username")}
               <span className={styles.required}>
                 {t("profileEdit.required")}
@@ -380,7 +405,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
             </label>
             <input
               type="text"
-              id="username"
+              id={usernameInputId}
               value={formData.username}
               onChange={handleInputChange("username")}
               className={`${styles.inputField} ${usernameError ? styles.error : ""}`}
@@ -397,12 +422,12 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="dojo_style_name" className={styles.label}>
+            <label htmlFor={dojoInputId} className={styles.label}>
               {t("profileEdit.currentDojo")}
             </label>
             <input
               type="text"
-              id="dojo_style_name"
+              id={dojoInputId}
               value={formData.dojo_style_name}
               onChange={handleInputChange("dojo_style_name")}
               placeholder={t("profileEdit.dojoPlaceholder")}
@@ -411,12 +436,12 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="training_start_date" className={styles.label}>
+            <label htmlFor={trainingStartInputId} className={styles.label}>
               {t("profileEdit.trainingStartDate")}
             </label>
             <input
               type="text"
-              id="training_start_date"
+              id={trainingStartInputId}
               value={formData.training_start_date}
               onChange={handleInputChange("training_start_date")}
               placeholder={t("profileEdit.trainingStartPlaceholder")}

@@ -42,9 +42,26 @@ vi.mock("next/headers", () => ({
   }),
 }));
 
+type FetchMock = ReturnType<typeof vi.fn<typeof fetch>>;
+
+const getGlobalWithFetch = () =>
+  globalThis as typeof globalThis & { fetch?: FetchMock };
+
 describe("OAuth認証コールバック処理", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    const globalWithFetch = getGlobalWithFetch();
+    const mockFetch = vi.fn<typeof fetch>().mockResolvedValue({
+      ok: false,
+      headers: { get: () => null },
+    } as unknown as Response);
+    globalWithFetch.fetch = mockFetch;
+  });
+
+  afterEach(() => {
+    vi.resetAllMocks();
+    const globalWithFetch = getGlobalWithFetch();
+    delete globalWithFetch.fetch;
   });
 
   it("新規ユーザーの場合に直接データベースアクセスでユーザーを作成する", async () => {
@@ -88,7 +105,10 @@ describe("OAuth認証コールバック処理", () => {
 
     // タグ初期化成功をシミュレート
     const { initializeUserTagsIfNeeded } = await import("@/lib/server/tag");
-    (initializeUserTagsIfNeeded as any).mockResolvedValue({
+    const mockedInitializeUserTagsIfNeeded = vi.mocked(
+      initializeUserTagsIfNeeded,
+    );
+    mockedInitializeUserTagsIfNeeded.mockResolvedValue({
       success: true,
       data: [],
     });
@@ -112,7 +132,7 @@ describe("OAuth認証コールバック処理", () => {
       publicity_setting: "private",
       language: "ja",
       is_email_verified: true,
-      verification_token: "mock-token-123",
+      verification_token: null,
       password_hash: "",
       created_at: expect.any(String),
       updated_at: expect.any(String),
@@ -380,11 +400,176 @@ describe("OAuth認証コールバック処理", () => {
         publicity_setting: "private",
         language: "ja",
         is_email_verified: true,
-        verification_token: "mock-token-123",
+        verification_token: null,
         password_hash: "",
         created_at: expect.any(String),
         updated_at: expect.any(String),
       });
     }
+  });
+
+  it("Googleのavatarが1MB以下の場合はprofile_image_urlとして保存される", async () => {
+    const mockAuthData = {
+      user: {
+        id: "user-123",
+        email: "avatar@example.com",
+        user_metadata: {
+          avatar_url: "https://example.com/avatar.png",
+        },
+        identities: [
+          {
+            provider: "google",
+            identity_data: {
+              picture: "https://example.com/avatar.png",
+            },
+          },
+        ],
+      },
+    };
+
+    const globalWithFetch = getGlobalWithFetch();
+    const mockFetch = vi.fn<typeof fetch>().mockResolvedValue({
+      ok: true,
+      headers: {
+        get: vi.fn(() => "500000"),
+      },
+    } as unknown as Response);
+    globalWithFetch.fetch = mockFetch;
+
+    mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
+      data: mockAuthData,
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      }),
+    });
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { id: "user-123" },
+          error: null,
+        }),
+      }),
+    });
+
+    mockServiceSupabase.from.mockReturnValue({
+      select: mockSelect,
+      insert: mockInsert,
+    });
+
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
+
+    await GET(request);
+
+    expect(mockInsert).toHaveBeenCalledWith({
+      id: "user-123",
+      email: "avatar@example.com",
+      username: "avatar",
+      profile_image_url: "https://example.com/avatar.png",
+      training_start_date: null,
+      publicity_setting: "private",
+      language: "ja",
+      is_email_verified: true,
+      verification_token: null,
+      password_hash: "",
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+
+    const fetchMock = globalWithFetch.fetch;
+    if (!fetchMock) {
+      throw new Error("Fetch mock is not defined");
+    }
+    expect(fetchMock).toHaveBeenCalledWith("https://example.com/avatar.png", {
+      method: "HEAD",
+    });
+  });
+
+  it("avatarが1MBを超える場合はprofile_image_urlを保存しない", async () => {
+    const mockAuthData = {
+      user: {
+        id: "user-123",
+        email: "bigavatar@example.com",
+        user_metadata: {
+          picture: "https://example.com/big-avatar.png",
+        },
+      },
+    };
+
+    const globalWithFetch = getGlobalWithFetch();
+    const oversizedFetch = vi.fn<typeof fetch>().mockResolvedValue({
+      ok: true,
+      headers: {
+        get: vi.fn(() => "1500000"),
+      },
+    } as unknown as Response);
+    globalWithFetch.fetch = oversizedFetch;
+
+    mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
+      data: mockAuthData,
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      }),
+    });
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: { id: "user-123" },
+          error: null,
+        }),
+      }),
+    });
+
+    mockServiceSupabase.from.mockReturnValue({
+      select: mockSelect,
+      insert: mockInsert,
+    });
+
+    const request = new NextRequest(
+      "http://localhost:3000/auth/callback?code=auth_code",
+    );
+
+    await GET(request);
+
+    expect(mockInsert).toHaveBeenCalledWith({
+      id: "user-123",
+      email: "bigavatar@example.com",
+      username: "bigavatar",
+      profile_image_url: null,
+      training_start_date: null,
+      publicity_setting: "private",
+      language: "ja",
+      is_email_verified: true,
+      verification_token: null,
+      password_hash: "",
+      created_at: expect.any(String),
+      updated_at: expect.any(String),
+    });
+
+    const fetchOversized = globalWithFetch.fetch;
+    if (!fetchOversized) {
+      throw new Error("Fetch mock is not defined");
+    }
+    expect(fetchOversized).toHaveBeenCalledWith(
+      "https://example.com/big-avatar.png",
+      { method: "HEAD" },
+    );
   });
 });

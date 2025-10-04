@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
-import { getClientSupabase } from "@/lib/supabase/client";
+import styles from "./profile-image-upload.module.css";
 
 interface ProfileImageUploadProps {
   currentImageUrl?: string;
@@ -25,8 +26,6 @@ export function ProfileImageUpload({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const supabase = getClientSupabase();
-
   const validateFile = (file: File): string | null => {
     // ファイル形式のチェック
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -82,7 +81,7 @@ export function ProfileImageUpload({
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
-      // アップロード進捰の追跡
+      // アップロード進捗の追跡
       xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable) {
           const progress = Math.round((event.loaded / event.total) * 100);
@@ -176,61 +175,70 @@ export function ProfileImageUpload({
   };
 
   const handleUploadClick = () => {
+    if (disabled || isUploading) return;
     fileInputRef.current?.click();
   };
 
+  const uploadButtonClassName = [
+    styles.uploadButton,
+    isUploading && styles.uploadButtonActive,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="profile-image-upload">
+    <div className={styles.container}>
       <input
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/jpg,image/png,image/webp"
         onChange={handleFileSelect}
         disabled={disabled || isUploading}
-        className="hidden"
+        className={styles.hiddenInput}
       />
 
-      <div className="relative">
-        <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-          {currentImageUrl ? (
-            <img
-              src={currentImageUrl}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="text-gray-400 text-4xl">👤</div>
-          )}
-        </div>
+      <div className={styles.avatarWrapper}>
+        {currentImageUrl ? (
+          <Image
+            src={currentImageUrl}
+            alt="プロフィール画像"
+            fill
+            className={styles.avatarImage}
+            sizes="128px"
+          />
+        ) : (
+          <div className={styles.avatarPlaceholder}>👤</div>
+        )}
 
         <button
+          type="button"
           onClick={handleUploadClick}
           disabled={disabled || isUploading}
-          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 hover:opacity-100 transition-opacity disabled:cursor-not-allowed"
+          className={uploadButtonClassName}
         >
-          {isUploading ? (
-            <div className="text-white text-center">
-              <div className="text-sm">アップロード中...</div>
-              <div className="text-xs">{uploadProgress}%</div>
-            </div>
-          ) : (
-            <div className="text-white text-sm">写真を変更</div>
-          )}
+          <div className={styles.uploadContent}>
+            {isUploading ? (
+              <>
+                <span className={styles.uploadText}>アップロード中...</span>
+                <span className={styles.uploadText}>{uploadProgress}%</span>
+              </>
+            ) : (
+              <span className={styles.uploadText}>写真を変更</span>
+            )}
+          </div>
         </button>
       </div>
 
       {isUploading && (
-        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+        <div className={styles.progressTrack}>
           <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            className={styles.progressFill}
             style={{ width: `${uploadProgress}%` }}
           />
         </div>
       )}
 
-      <div className="mt-2 text-xs text-gray-500 text-center">
-        JPG、PNG、またはWebP • 最大1MB
-      </div>
+      <div className={styles.note}>JPG、PNG、またはWebP • 最大1MB</div>
     </div>
   );
 }

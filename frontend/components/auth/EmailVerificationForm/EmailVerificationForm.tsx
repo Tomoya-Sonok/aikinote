@@ -36,7 +36,9 @@ export function EmailVerificationForm({
         onSuccess?.();
       } catch (err) {
         const message =
-          err instanceof Error ? err.message : t("auth.emailVerificationFailed");
+          err instanceof Error
+            ? err.message
+            : t("auth.emailVerificationFailed");
         setErrorMessage(message);
         setVerificationStatus("error");
         onError?.(message);
@@ -75,7 +77,9 @@ export function EmailVerificationForm({
               <div className={`${styles.stepDot} ${styles.stepDotInactive}`} />
             </div>
           </div>
-          <h2 className={styles.loadingTitle}>{t("auth.emailVerificationInProgress")}</h2>
+          <h2 className={styles.loadingTitle}>
+            {t("auth.emailVerificationInProgress")}
+          </h2>
           <p className={styles.loadingMessage}>
             {t("auth.emailVerificationProcessing")}
           </p>
@@ -112,7 +116,9 @@ export function EmailVerificationForm({
 
           <div className={styles.successContainer}>
             <div className={styles.successTextContainer}>
-              <div className={styles.stepText}>{t("auth.emailVerificationComplete")}</div>
+              <div className={styles.stepText}>
+                {t("auth.emailVerificationComplete")}
+              </div>
               <p className={styles.completionMessage}>
                 {t("auth.signupComplete")}
               </p>
@@ -156,7 +162,9 @@ export function EmailVerificationForm({
         <div className={styles.errorContentsWrapper}>
           <h2 className={styles.errorTitle}>{t("auth.verificationFailed")}</h2>
           <div className={styles.errorDetails}>
-            <p className={styles.errorDetailsTitle}>{t("auth.verificationFailedReasons")}</p>
+            <p className={styles.errorDetailsTitle}>
+              {t("auth.verificationFailedReasons")}
+            </p>
             <ul className={styles.errorDetailsList}>
               <li className={styles.errorDetailsItem}>
                 {t("auth.expiredLink")}
@@ -164,7 +172,9 @@ export function EmailVerificationForm({
               <li className={styles.errorDetailsItem}>
                 {t("auth.alreadyVerified")}
               </li>
-              <li className={styles.errorDetailsItem}>{t("auth.invalidToken")}</li>
+              <li className={styles.errorDetailsItem}>
+                {t("auth.invalidToken")}
+              </li>
             </ul>
           </div>
         </div>

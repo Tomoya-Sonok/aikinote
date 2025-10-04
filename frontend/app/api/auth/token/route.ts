@@ -10,13 +10,12 @@ import {
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // セッション確認
     const serverSupabase = getServerSupabase();
     const {
       data: { session },
-      error: sessionError,
     } = await serverSupabase.auth.getSession();
 
     if (!session?.user) {

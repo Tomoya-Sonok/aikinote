@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         const oldFileKey = extractFileKeyFromUrl(
           currentProfile.profile_image_url,
         );
-        if (oldFileKey && oldFileKey.startsWith(`users/${user.id}/`)) {
+        if (oldFileKey?.startsWith(`users/${user.id}/`)) {
           await deleteFileFromS3(oldFileKey);
         }
       } catch (error) {
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(_request: NextRequest) {
   try {
     // Supabaseクライアントの初期化
     const supabase = getServerSupabase();
@@ -142,7 +142,7 @@ export async function DELETE(request: NextRequest) {
     if (currentProfile?.profile_image_url) {
       try {
         const fileKey = extractFileKeyFromUrl(currentProfile.profile_image_url);
-        if (fileKey && fileKey.startsWith(`users/${user.id}/`)) {
+        if (fileKey?.startsWith(`users/${user.id}/`)) {
           await deleteFileFromS3(fileKey);
         }
       } catch (error) {

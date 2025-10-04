@@ -14,13 +14,9 @@ import styles from "./FontSizeSetting.module.css";
 
 interface FontSizeSettingProps {
   onSave?: () => void;
-  className?: string;
 }
 
-export const FontSizeSetting: FC<FontSizeSettingProps> = ({
-  onSave,
-  className = "",
-}) => {
+export const FontSizeSetting: FC<FontSizeSettingProps> = ({ onSave }) => {
   const { fontSize, setFontSize } = useFontSizeStore();
   const t = useTranslations();
 

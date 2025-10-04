@@ -175,6 +175,7 @@
 @media (max-width: 430px) {
   .contentArea {
     padding: 24px 16px 24px 32px; /* Adjust inner padding */
+    margin-bottom: 48px;
     /* A slightly more subtle shadow for mobile, but still present */
     box-shadow:
       0 1px 1px rgba(0, 0, 0, 0.06),

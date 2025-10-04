@@ -3,10 +3,10 @@
 import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
-import { getExternalUrl } from "@/lib/utils/env";
+import { getRedirectUrl } from "@/lib/utils/env";
 import { createUserProfile, fetchUserProfile } from "@/lib/utils/user-api";
 import type {
   NewPasswordFormData,
@@ -14,6 +14,12 @@ import type {
   SignInFormData,
   SignUpFormData,
 } from "@/lib/utils/validation";
+
+type SupabaseClient = ReturnType<typeof getClientSupabase>;
+type SessionResponse = Awaited<
+  ReturnType<SupabaseClient["auth"]["getSession"]>
+>;
+type SignOutResponse = Awaited<ReturnType<SupabaseClient["auth"]["signOut"]>>;
 
 interface SignUpResponse {
   message: string;
@@ -25,11 +31,16 @@ export function useAuth() {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isInitializingRef = useRef(true);
   const router = useRouter();
   const locale = useLocale();
   const supabase = useMemo(() => {
     return getClientSupabase();
   }, []);
+
+  useEffect(() => {
+    isInitializingRef.current = isInitializing;
+  }, [isInitializing]);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,11 +49,35 @@ export function useAuth() {
 
     // 共通のユーザー取得関数を使用
 
+    const fetchUserProfileWithRetry = async (
+      userId: string,
+      retries = 2,
+      retryDelay = 200,
+    ): Promise<UserSession | null> => {
+      for (let attempt = 0; attempt <= retries; attempt += 1) {
+        const profile = await fetchUserProfile(userId);
+
+        if (!isMounted) {
+          return profile ?? null;
+        }
+
+        if (profile) {
+          return profile;
+        }
+
+        if (attempt < retries) {
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+        }
+      }
+
+      return null;
+    };
+
     const applySession = async (session: Session | null) => {
       if (!isMounted) return;
 
       if (session?.user) {
-        const userProfile = await fetchUserProfile(session.user.id);
+        const userProfile = await fetchUserProfileWithRetry(session.user.id);
 
         if (userProfile && isMounted) {
           setUser(userProfile);
@@ -56,21 +91,20 @@ export function useAuth() {
     };
 
     const initializeSession = async () => {
+      isInitializingRef.current = true;
       setIsInitializing(true);
       try {
         // タイムアウト付きでセッション取得
-        const sessionPromise = supabaseClient.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) =>
+        const sessionPromise: Promise<SessionResponse> =
+          supabaseClient.auth.getSession();
+        const timeoutPromise = new Promise<never>((_, reject) =>
           setTimeout(
             () => reject(new Error("セッション取得がタイムアウトしました")),
             10000,
           ),
         );
 
-        const result = (await Promise.race([
-          sessionPromise,
-          timeoutPromise,
-        ])) as any;
+        const result = await Promise.race([sessionPromise, timeoutPromise]);
         const {
           data: { session },
           error,
@@ -92,6 +126,7 @@ export function useAuth() {
         }
       } finally {
         if (isMounted) {
+          isInitializingRef.current = false;
           setIsInitializing(false);
         }
       }
@@ -102,9 +137,10 @@ export function useAuth() {
     // セッション変更の監視を有効化（改善されたエラーハンドリング付き）
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       // 初期化中でない場合のみ処理
-      if (!isInitializing && isMounted) {
+      if (!isInitializingRef.current && isMounted) {
+        isInitializingRef.current = true;
         setIsInitializing(true);
         try {
           await applySession(session);
@@ -122,6 +158,7 @@ export function useAuth() {
           }
         } finally {
           if (isMounted) {
+            isInitializingRef.current = false;
             setIsInitializing(false);
           }
         }
@@ -132,7 +169,7 @@ export function useAuth() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]); // supabaseを依存配列に戻す
+  }, []);
 
   const signUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
     setIsProcessing(true);
@@ -202,7 +239,7 @@ export function useAuth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: getExternalUrl("/auth/callback"),
+          redirectTo: getRedirectUrl("/auth/callback"),
         },
       });
 
@@ -225,8 +262,8 @@ export function useAuth() {
 
     try {
       // タイムアウト付きでSupabaseのサインアウトを実行
-      const signOutPromise = supabase.auth.signOut();
-      const timeoutPromise = new Promise((_, reject) =>
+      const signOutPromise: Promise<SignOutResponse> = supabase.auth.signOut();
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(
           () =>
             reject(
@@ -236,10 +273,7 @@ export function useAuth() {
         ),
       );
 
-      const { error } = (await Promise.race([
-        signOutPromise,
-        timeoutPromise,
-      ])) as any;
+      const { error } = await Promise.race([signOutPromise, timeoutPromise]);
 
       if (error) {
         console.error("signOutUser: Supabaseサインアウトエラー", error);
@@ -248,7 +282,7 @@ export function useAuth() {
       // エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
       setUser(null);
 
-      router.push("/");
+      router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
     } catch (err) {
       console.warn(
         "signOutUser: Supabaseサインアウトでタイムアウト/エラーが発生しましたが、ローカルログアウトを実行します",
@@ -256,7 +290,7 @@ export function useAuth() {
       );
       // エラーが発生してもユーザー状態をクリアしてリダイレクト
       setUser(null);
-      router.push("/");
+      router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
       // タイムアウトの場合は特にエラーとして扱わない
       if (err instanceof Error && err.message.includes("タイムアウト")) {
         // タイムアウトの場合は特にログ出力しない
@@ -336,34 +370,6 @@ export function useAuth() {
     }
   };
 
-  const verifyEmail = async (token: string) => {
-    setIsProcessing(true);
-    setError(null);
-
-    try {
-      const url = `/api/auth/verify-email?token=${token}`;
-
-      const response = await fetch(url, {
-        method: "POST",
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "メール認証に失敗しました");
-      }
-
-      return result;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "メール認証に失敗しました";
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   const refreshUser = async () => {
     console.log("🔄 [DEBUG] refreshUser: ユーザー情報の再取得を開始");
     try {
@@ -405,6 +411,54 @@ export function useAuth() {
         error,
       );
       return null;
+    }
+  };
+
+  const verifyEmail = async (token: string) => {
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const url = `/api/auth/verify-email?token=${token}`;
+
+      const response = await fetch(url, {
+        method: "POST",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "メール認証に失敗しました");
+      }
+
+      const emailOtp: string | null = result?.data?.emailOtp ?? null;
+      const responseUser: UserSession | null = result?.data?.user ?? null;
+
+      if (emailOtp && responseUser?.email) {
+        const { error: otpError } = await supabase.auth.verifyOtp({
+          type: "magiclink",
+          email: responseUser.email,
+          token: emailOtp,
+        });
+
+        if (otpError) {
+          console.error("verifyEmail: verifyOtpエラー", otpError);
+          throw new Error("メール認証後の自動ログインに失敗しました");
+        }
+
+        await refreshUser();
+      } else if (responseUser) {
+        setUser(responseUser);
+      }
+
+      return result;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "メール認証に失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
     }
   };
 

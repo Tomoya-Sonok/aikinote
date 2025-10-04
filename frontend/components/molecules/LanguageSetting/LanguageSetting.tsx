@@ -4,20 +4,23 @@ import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useState } from "react";
 import { Button } from "@/components/atoms/Button/Button";
-import { useLanguageStore, type Language, getLanguageOptions } from "@/stores/languageStore";
+import {
+  getLanguageOptions,
+  type Language,
+  useLanguageStore,
+} from "@/stores/languageStore";
 import styles from "./LanguageSetting.module.css";
-
 
 interface LanguageSettingProps {
   onSave?: () => void;
   className?: string;
 }
 
-
 export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
   const currentLocale = useLocale() as Language;
-  const { language, setLanguage } = useLanguageStore();
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(currentLocale);
+  const { setLanguage } = useLanguageStore();
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<Language>(currentLocale);
   const t = useTranslations();
 
   const languageOptions = getLanguageOptions();
@@ -42,7 +45,9 @@ export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
               key={option.value}
               type="button"
               className={`${styles.languageOption} ${
-                selectedLanguage === option.value ? styles.languageOptionActive : ""
+                selectedLanguage === option.value
+                  ? styles.languageOptionActive
+                  : ""
               }`}
               onClick={() => handleLanguageChange(option.value)}
             >

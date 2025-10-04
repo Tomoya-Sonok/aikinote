@@ -26,7 +26,8 @@
   border-radius: 24px;
   padding: 24px;
   width: 100%;
-  min-width: 290px;
+  max-width: 450px;
+  margin: 0 auto;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -70,7 +71,7 @@
 
 /* プログレスステップ3（メール認証段階） */
 .progressStep3 {
-  width: 75%;
+  width: 68%;
 }
 
 /* プログレスステップ4（完了） */
@@ -163,7 +164,7 @@
 .successContainer {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .successTextContainer {
@@ -238,7 +239,7 @@
 }
 
 .button {
-  width: 177.61px;
+  width: 100%;
   height: 35px;
   border-radius: 24px;
   border: none;
@@ -276,13 +277,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .contentsWrapper {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* メール送信完了メッセージ */
@@ -297,16 +298,12 @@
 
 /* レスポンシブ対応 */
 @media (min-width: 768px) {
-  .container {
-    padding: 0 12px;
-  }
-
   .formCard {
-    min-width: 342px;
+    max-width: 580px;
+    padding: 32px;
   }
 
   .button {
-    width: 100%;
     max-width: 280px;
   }
 }

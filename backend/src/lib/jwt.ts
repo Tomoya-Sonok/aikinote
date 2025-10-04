@@ -23,7 +23,7 @@ export function verifyToken(token: string): JWTPayload {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
     return decoded;
-  } catch (error) {
+  } catch (_error) {
     throw new Error("Invalid or expired token");
   }
 }
