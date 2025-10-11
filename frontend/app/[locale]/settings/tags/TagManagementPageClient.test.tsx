@@ -118,9 +118,9 @@ describe("TagManagementPageClient", () => {
       expect(mockGetTags).toHaveBeenCalledTimes(1);
     });
 
-    const toriSection = screen
-      .getByRole("heading", { name: "取り" })
-      .closest("section");
+    const toriSection = (await screen.findByRole("heading", { name: "取り" })).closest(
+      "section",
+    );
 
     expect(toriSection).not.toBeNull();
 
@@ -156,9 +156,9 @@ describe("TagManagementPageClient", () => {
       expect(mockGetTags).toHaveBeenCalledTimes(1);
     });
 
-    const toriSection = screen
-      .getByRole("heading", { name: "取り" })
-      .closest("section");
+    const toriSection = (await screen.findByRole("heading", { name: "取り" })).closest(
+      "section",
+    );
 
     expect(toriSection).not.toBeNull();
 
@@ -200,9 +200,9 @@ describe("TagManagementPageClient", () => {
       expect(mockGetTags).toHaveBeenCalledTimes(1);
     });
 
-    const toriSection = screen
-      .getByRole("heading", { name: "取り" })
-      .closest("section");
+    const toriSection = (await screen.findByRole("heading", { name: "取り" })).closest(
+      "section",
+    );
 
     expect(toriSection).not.toBeNull();
 
@@ -270,9 +270,9 @@ describe("TagManagementPageClient", () => {
       expect(mockGetTags).toHaveBeenCalledTimes(1);
     });
 
-    const toriSection = screen
-      .getByRole("heading", { name: "取り" })
-      .closest("section");
+    const toriSection = (await screen.findByRole("heading", { name: "取り" })).closest(
+      "section",
+    );
 
     expect(toriSection).not.toBeNull();
 
