@@ -1,0 +1,244 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.card {
+	background-color: var(--aikinote-white);
+	border-radius: 24px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+	padding: 24px 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.categoryHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.categoryTitle {
+	font-size: var(--font-size-lg);
+	font-weight: 500;
+	color: var(--aikinote-black);
+}
+
+.editButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	border: 1px solid var(--aikinote-black);
+	background-color: var(--aikinote-white);
+	color: var(--aikinote-black);
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.editButtonActive {
+	background-color: var(--aikinote-black);
+	color: var(--aikinote-white);
+}
+
+.editHint {
+	font-size: var(--font-size-xs);
+	color: var(--aikinote-text-light);
+}
+
+.editControls {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.reorderButtons {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.tagList {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.tagItem {
+	position: relative;
+	font-family: var(--font-zen-old-mincho);
+	font-size: var(--font-size-xs);
+}
+
+.tagItemDraggable {
+	cursor: grab;
+	touch-action: none;
+}
+
+.tagItemDragging {
+	opacity: 0.6;
+	cursor: grabbing;
+}
+
+.tagItemDeleting {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.deleteMark {
+	color: var(--aikinote-white);
+	margin-left: 2px;
+	font-size: 16px;
+	line-height: 1;
+	font-weight: 600;
+}
+
+.emptyMessage {
+	font-size: var(--font-size-sm);
+	color: var(--aikinote-text-light);
+}
+
+.newTagForm {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	padding: 8px;
+	background-color: #f9f9f9;
+	border-radius: 8px;
+	border: 1px solid #e0e0e0;
+}
+
+.newTagInput {
+	flex: 1;
+	padding: 6px 10px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: var(--font-size-sm);
+	font-family: var(--font-zen-old-mincho);
+	height: 32px;
+}
+
+.newTagInput:focus {
+	outline: none;
+	border-color: #838383;
+}
+
+.formButtonPrimary {
+	padding: 6px 12px;
+	border: none;
+	border-radius: 6px;
+	font-size: var(--font-size-xs);
+	font-family: var(--font-zen-old-mincho);
+	background-color: #838383;
+	color: #ffffff;
+	cursor: pointer;
+	white-space: nowrap;
+	height: 32px;
+	transition: background-color 0.2s ease;
+}
+
+.formButtonPrimary:disabled {
+	background-color: #bcbcbc;
+	cursor: not-allowed;
+}
+
+.formButtonSecondary {
+	padding: 6px 12px;
+	border: none;
+	border-radius: 6px;
+	font-size: var(--font-size-xs);
+	font-family: var(--font-zen-old-mincho);
+	background-color: #e0e0e0;
+	color: #333333;
+	cursor: pointer;
+	white-space: nowrap;
+	height: 32px;
+	transition: background-color 0.2s ease;
+}
+
+.orderButtonPrimary {
+	padding: 6px 16px;
+	border: none;
+	border-radius: 6px;
+	font-size: var(--font-size-sm);
+	font-family: var(--font-zen-old-mincho);
+	background-color: var(--aikinote-black);
+	color: #ffffff;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.orderButtonPrimary:disabled {
+	background-color: #bcbcbc;
+	cursor: not-allowed;
+}
+
+.orderButtonPrimary:hover:not(:disabled) {
+	background-color: #2f2f2f;
+}
+
+.orderButtonSecondary {
+	padding: 6px 16px;
+	border: 1px solid var(--aikinote-black);
+	border-radius: 6px;
+	font-size: var(--font-size-sm);
+	font-family: var(--font-zen-old-mincho);
+	background-color: var(--aikinote-white);
+	color: var(--aikinote-black);
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.orderButtonSecondary:disabled {
+	background-color: #f5f5f5;
+	color: #9a9a9a;
+	cursor: not-allowed;
+}
+
+.orderButtonSecondary:hover:not(:disabled) {
+	background-color: var(--background-light);
+}
+
+.loaderWrapper {
+	display: flex;
+	justify-content: center;
+	padding: 40px 0;
+}
+
+.deleteButton {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px;
+	margin-left: 2px;
+	border-radius: 4px;
+	transition: background-color 0.2s ease;
+}
+
+@media (max-width: 480px) {
+	.card {
+		padding: 20px 16px;
+	}
+
+	.newTagForm {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.formButtonPrimary,
+	.formButtonSecondary {
+		width: 100%;
+	}
+
+	.tagList {
+		gap: 6px;
+	}
+}

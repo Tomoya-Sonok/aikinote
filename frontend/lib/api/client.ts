@@ -108,6 +108,27 @@ export const createTag = async (tagData: CreateTagPayload) => {
   });
 };
 
+export const deleteTag = async (tagId: string, userId: string) => {
+  const query = new URLSearchParams({ user_id: userId }).toString();
+  return apiCall(`/api/tags/${tagId}?${query}`, {
+    method: "DELETE",
+  });
+};
+
+export interface UpdateTagOrderPayload {
+  user_id: string;
+  tori: string[];
+  uke: string[];
+  waza: string[];
+}
+
+export const updateTagOrder = async (payload: UpdateTagOrderPayload) => {
+  return apiCall("/api/tags/order", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+};
+
 // ページ更新の型定義（フロントエンド用）
 export interface UpdatePagePayload {
   id: string;

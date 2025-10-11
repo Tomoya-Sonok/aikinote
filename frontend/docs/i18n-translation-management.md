@@ -33,7 +33,8 @@ frontend/
 │       ├── routing.ts     # ルーティング設定
 │       └── request.ts     # リクエスト設定
 ├── stores/
-│   └── languageStore.ts   # 言語設定Zustandストア
+│   ├── languageStore.ts   # 言語設定Zustandストア
+│   └── fontSizeStore.ts   # 文字サイズ設定Zustandストア
 └── components/
     └── providers/
         └── LanguageProvider.tsx  # 言語プロバイダー
@@ -64,7 +65,7 @@ frontend/
     "saved": "言語設定を保存しました"
   },
   "fontSize": {
-    "title": "文字サイズ設定",
+    "title": "文字サイズ",
     "small": "小",
     "medium": "中",
     "large": "大"

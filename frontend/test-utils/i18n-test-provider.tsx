@@ -73,6 +73,28 @@ const testMessages = {
   tagSelection: {
     add: "＋追加",
   },
+  tagManagement: {
+    title: "タグ管理",
+    loading: "タグを読み込み中...",
+    categories: {
+      tori: "取り",
+      uke: "受け",
+      waza: "技",
+    },
+    editAria: "{category}のタグを編集",
+    editingHint: "×が表示されたタグを押すと削除できます",
+    reorderHint:
+      "タグを動かして並び替えることができます。×を押すとタグを削除できます。",
+    empty: "登録済みのタグはありません",
+    deleteSuccess: "タグを削除しました",
+    deleteFailed: "タグの削除に失敗しました",
+    fetchFailed: "タグの取得に失敗しました",
+    authRequired: "ログイン状態を確認してください",
+    saveOrder: "並び順を保存",
+    orderSaving: "保存中...",
+    orderSaveSuccess: "タグの並び順を保存しました",
+    orderSaveFailed: "タグの並び順の保存に失敗しました",
+  },
   tagFilterModal: {
     title: "タグで絞り込み",
     close: "閉じる",
