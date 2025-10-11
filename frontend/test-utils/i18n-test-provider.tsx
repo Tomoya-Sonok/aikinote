@@ -52,6 +52,7 @@ const testMessages = {
     dataFetchFailed: "データの取得に失敗しました",
     pageCreationFailed: "ページの作成に失敗しました",
     pageUpdateFailed: "ページの更新に失敗しました",
+    pageDeleteFailed: "ページの削除に失敗しました",
     pageCount: "これまでに作成したページ数は",
     pageCountSuffix: "ページです",
     recentPages: "最近作成したページ",
@@ -69,6 +70,7 @@ const testMessages = {
     content: "稽古内容",
     comment: "その他・コメント",
     updateFailed: "ページの更新に失敗しました",
+    deleteFailed: "ページの削除に失敗しました",
   },
   tagSelection: {
     add: "＋追加",

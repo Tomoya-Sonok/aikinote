@@ -387,9 +387,7 @@ export const updateUserTagOrder = async (
     .eq("user_id", userId);
 
   if (fetchError) {
-    throw new Error(
-      `タグ情報の取得に失敗しました: ${fetchError.message}`,
-    );
+    throw new Error(`タグ情報の取得に失敗しました: ${fetchError.message}`);
   }
 
   if (!userTags) {
@@ -402,9 +400,7 @@ export const updateUserTagOrder = async (
     throw new Error("指定されたタグが見つかりません");
   }
 
-  const categoryMap = new Map(
-    userTags.map((tag) => [tag.id, tag.category]),
-  );
+  const categoryMap = new Map(userTags.map((tag) => [tag.id, tag.category]));
 
   for (const update of updates) {
     const category = categoryMap.get(update.id);
@@ -445,7 +441,10 @@ export const updateUserTagOrder = async (
   const sortedCategories = Array.from(categoryUpdatesMap.keys()).sort();
 
   for (const category of sortedCategories) {
-    const categoryUpdates = categoryUpdatesMap.get(category)!;
+    const categoryUpdates = categoryUpdatesMap.get(category);
+    if (!categoryUpdates) {
+      continue;
+    }
     const orderedUpdates = [...categoryUpdates].sort(
       (a, b) => a.sort_order - b.sort_order,
     );
@@ -454,18 +453,16 @@ export const updateUserTagOrder = async (
     const desiredSet = new Set(desiredIds);
 
     const existing = existingByCategory.get(category) ?? [];
-    const sortedExisting = existing
-      .slice()
-      .sort((a, b) => {
-        const orderA = a.sort_order ?? Number.MAX_SAFE_INTEGER;
-        const orderB = b.sort_order ?? Number.MAX_SAFE_INTEGER;
+    const sortedExisting = existing.slice().sort((a, b) => {
+      const orderA = a.sort_order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.sort_order ?? Number.MAX_SAFE_INTEGER;
 
-        if (orderA !== orderB) {
-          return orderA - orderB;
-        }
+      if (orderA !== orderB) {
+        return orderA - orderB;
+      }
 
-        return a.name.localeCompare(b.name, "ja");
-      });
+      return a.name.localeCompare(b.name, "ja");
+    });
 
     for (const tag of sortedExisting) {
       if (!desiredSet.has(tag.id)) {
@@ -499,9 +496,7 @@ export const updateUserTagOrder = async (
         .eq("user_id", userId);
 
       if (error) {
-        throw new Error(
-          `タグ並び順の更新に失敗しました: ${error.message}`,
-        );
+        throw new Error(`タグ並び順の更新に失敗しました: ${error.message}`);
       }
     }
   };
@@ -526,9 +521,7 @@ export const updateUserTagOrder = async (
     .eq("user_id", userId);
 
   if (refetchError) {
-    throw new Error(
-      `タグ情報の再取得に失敗しました: ${refetchError.message}`,
-    );
+    throw new Error(`タグ情報の再取得に失敗しました: ${refetchError.message}`);
   }
 
   return updatedTags ?? [];
@@ -559,9 +552,7 @@ export const deleteUserTag = async (
     .eq("user_tag_id", tagId);
 
   if (detachError) {
-    throw new Error(
-      `タグ関連付け削除に失敗しました: ${detachError.message}`,
-    );
+    throw new Error(`タグ関連付け削除に失敗しました: ${detachError.message}`);
   }
 
   const { error: deleteError } = await supabase
@@ -740,6 +731,52 @@ export const updateTrainingPage = async (
     return { page: updatedPage, tags: associatedTags };
   } catch (error) {
     console.error("TrainingPage更新エラー:", error);
+    throw error;
+  }
+};
+
+// ページ削除関数
+export const deleteTrainingPage = async (
+  pageId: string,
+  userId: string,
+): Promise<void> => {
+  try {
+    // 対象ページの存在確認と権限チェック
+    const { data: existingPage, error: fetchError } = await supabase
+      .from("TrainingPage")
+      .select("id")
+      .eq("id", pageId)
+      .eq("user_id", userId)
+      .single();
+
+    if (fetchError || !existingPage) {
+      throw new Error("ページが見つからないか、削除権限がありません");
+    }
+
+    // 関連するタグ紐付けの削除
+    const { error: deleteRelationsError } = await supabase
+      .from("TrainingPageTag")
+      .delete()
+      .eq("training_page_id", pageId);
+
+    if (deleteRelationsError) {
+      throw new Error(
+        `タグ関連付けの削除に失敗しました: ${deleteRelationsError.message}`,
+      );
+    }
+
+    // ページ本体の削除
+    const { error: deletePageError } = await supabase
+      .from("TrainingPage")
+      .delete()
+      .eq("id", pageId)
+      .eq("user_id", userId);
+
+    if (deletePageError) {
+      throw new Error(`ページの削除に失敗しました: ${deletePageError.message}`);
+    }
+  } catch (error) {
+    console.error("TrainingPage削除エラー:", error);
     throw error;
   }
 };

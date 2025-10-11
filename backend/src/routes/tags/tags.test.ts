@@ -430,21 +430,18 @@ describe("タグ並び順更新API", () => {
     const responseBody = await response.json();
 
     expect(response.status).toBe(200);
-    expect(supabaseModule.updateUserTagOrder).toHaveBeenCalledWith(
-      "user-id",
-      [
-        {
-          id: "tag-tori-1",
-          category: "取り",
-          sort_order: 1,
-        },
-        {
-          id: "tag-uke-1",
-          category: "受け",
-          sort_order: 2,
-        },
-      ],
-    );
+    expect(supabaseModule.updateUserTagOrder).toHaveBeenCalledWith("user-id", [
+      {
+        id: "tag-tori-1",
+        category: "取り",
+        sort_order: 1,
+      },
+      {
+        id: "tag-uke-1",
+        category: "受け",
+        sort_order: 2,
+      },
+    ]);
     expect(responseBody.success).toBe(true);
     expect(responseBody.data).toHaveLength(2);
   });

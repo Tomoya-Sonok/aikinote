@@ -1,33 +1,37 @@
-import type { FC, ReactNode } from "react";
+import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
 import styles from "./Button.module.css";
 
-interface ButtonProps {
+interface ButtonProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   children: ReactNode;
-  variant?: "primary" | "secondary" | "icon";
+  variant?: "primary" | "secondary" | "icon" | "danger";
   size?: "small" | "medium" | "large";
-  type?: "button" | "submit" | "reset";
-  onClick?: () => void;
-  disabled?: boolean;
   className?: string;
 }
 
-export const Button: FC<ButtonProps> = ({
-  children,
-  variant = "primary",
-  size = "medium",
-  type = "button",
-  onClick,
-  disabled = false,
-  className = "",
-}) => {
-  return (
-    <button
-      type={type}
-      className={`${styles.button} ${styles[variant]} ${styles[size]} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-};
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      children,
+      variant = "primary",
+      size = "medium",
+      type = "button",
+      className = "",
+      ...rest
+    },
+    ref,
+  ) => {
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={`${styles.button} ${styles[variant]} ${styles[size]} ${className}`}
+        {...rest}
+      >
+        {children}
+      </button>
+    );
+  },
+);
+
+Button.displayName = "Button";

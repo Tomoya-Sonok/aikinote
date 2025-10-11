@@ -25,11 +25,7 @@ export const Tag: FC<TagProps> = ({
 
   if (onClick) {
     return (
-      <button
-        type="button"
-        className={baseClassName}
-        onClick={onClick}
-      >
+      <button type="button" className={baseClassName} onClick={onClick}>
         {children}
       </button>
     );

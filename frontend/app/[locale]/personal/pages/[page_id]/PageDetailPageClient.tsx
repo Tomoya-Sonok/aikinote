@@ -5,11 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Loader } from "@/components/atoms/Loader";
 import { Tag } from "@/components/atoms/Tag/Tag";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import {
   type PageEditData,
   PageEditModal,
 } from "@/components/organisms/PageEditModal/PageEditModal";
 import {
+  deletePage,
   getPage,
   getTags,
   type UpdatePagePayload,
@@ -33,6 +35,8 @@ export function PageDetailPageClient() {
   const [pageData, setPageData] = useState<TrainingPageData | null>(null);
   const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
   const [availableTags, setAvailableTags] = useState<ApiTag[]>([]);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeletingPage, setDeletingPage] = useState(false);
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
@@ -121,8 +125,49 @@ export function PageDetailPageClient() {
   };
 
   const handleDelete = () => {
-    // TODO: 削除機能の実装（API実装後）
-    console.log("Delete page:", pageId);
+    if (!pageData) {
+      return;
+    }
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    if (isDeletingPage) {
+      return;
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!pageData) {
+      setDeleteDialogOpen(false);
+      return;
+    }
+
+    if (!user?.id) {
+      alert(t("personalPages.loginRequired"));
+      return;
+    }
+
+    setDeletingPage(true);
+
+    try {
+      const response = await deletePage(pageData.id, user.id);
+
+      if (response.success) {
+        setDeleteDialogOpen(false);
+        router.push(`/${locale}/personal/pages`);
+      } else {
+        throw new Error(response.error || t("pageDetail.deleteFailed"));
+      }
+    } catch (error) {
+      console.error("Failed to delete page:", error);
+      alert(
+        error instanceof Error ? error.message : t("pageDetail.deleteFailed"),
+      );
+    } finally {
+      setDeletingPage(false);
+    }
   };
 
   if (loading) {
@@ -240,6 +285,17 @@ export function PageDetailPageClient() {
           initialData={editData}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title={t("pageDetail.delete")}
+        message={t("pageDetail.deleteConfirm")}
+        confirmLabel={t("pageDetail.delete")}
+        cancelLabel={t("tagFilterModal.cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isProcessing={isDeletingPage}
+      />
     </div>
   );
 }

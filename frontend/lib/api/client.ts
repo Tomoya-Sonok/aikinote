@@ -86,6 +86,14 @@ export const getPage = async (pageId: string, userId: string) => {
   return apiCall(`/api/pages/${pageId}?${queryParams.toString()}`);
 };
 
+// ページ削除API関数
+export const deletePage = async (pageId: string, userId: string) => {
+  const queryParams = new URLSearchParams({ user_id: userId });
+  return apiCall(`/api/pages/${pageId}?${queryParams.toString()}`, {
+    method: "DELETE",
+  });
+};
+
 // タグ関連のAPI関数
 export interface CreateTagPayload {
   name: string;

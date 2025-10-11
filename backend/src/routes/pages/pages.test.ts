@@ -715,3 +715,64 @@ describe("ページ一覧取得API", () => {
     expect(responseBody.data.training_pages).toHaveLength(0);
   });
 });
+
+describe("ページ削除API", () => {
+  let app: Hono;
+
+  beforeEach(() => {
+    app = new Hono();
+    app.route("/", pagesRoute);
+    vi.clearAllMocks();
+  });
+
+  it("正常にページが削除されること", async () => {
+    const deleteSpy = vi
+      .spyOn(supabaseModule, "deleteTrainingPage")
+      .mockResolvedValue();
+
+    const request = new Request(
+      "http://localhost/test-page-id?user_id=test-user-id",
+      {
+        method: "DELETE",
+      },
+    );
+
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(responseBody.success).toBe(true);
+    expect(responseBody.message).toBe("ページが正常に削除されました");
+    expect(deleteSpy).toHaveBeenCalledWith("test-page-id", "test-user-id");
+  });
+
+  it("user_idが指定されていない場合にバリデーションエラーが返されること", async () => {
+    const request = new Request("http://localhost/test-page-id", {
+      method: "DELETE",
+    });
+
+    const response = await app.fetch(request);
+
+    expect(response.status).toBe(400);
+  });
+
+  it("削除処理でエラーが発生した場合にサーバーエラーが返されること", async () => {
+    vi.spyOn(supabaseModule, "deleteTrainingPage").mockRejectedValue(
+      new Error("削除に失敗しました"),
+    );
+
+    const request = new Request(
+      "http://localhost/test-page-id?user_id=test-user-id",
+      {
+        method: "DELETE",
+      },
+    );
+
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(responseBody.success).toBe(false);
+    expect(responseBody.error).toBe("削除に失敗しました");
+  });
+});
