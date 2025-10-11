@@ -13,6 +13,7 @@ interface NavigationDrawerProps {
   onEmailClick: () => void;
   onTextSizeClick: () => void;
   onLanguageClick: () => void;
+  onTagManagementClick: () => void;
 }
 
 export const NavigationDrawer: FC<NavigationDrawerProps> = ({
@@ -22,6 +23,7 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   onEmailClick,
   onTextSizeClick,
   onLanguageClick,
+  onTagManagementClick,
 }) => {
   const t = useTranslations();
   // ESCキーでドロワーを閉じる
@@ -83,6 +85,9 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
             </SettingItem>
             <SettingItem onClick={onLanguageClick}>
               {t("navigation.language")}
+            </SettingItem>
+            <SettingItem onClick={onTagManagementClick}>
+              {t("navigation.tagManagement")}
             </SettingItem>
           </div>
         </div>

@@ -62,6 +62,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     window.location.href = `/${locale}/settings/language`;
   };
 
+  const handleTagManagementClick = () => {
+    setIsDrawerOpen(false);
+    window.location.href = `/${locale}/settings/tags`;
+  };
+
   useEffect(() => {
     if (!isTooltipVisible || typeof window === "undefined") {
       return;
@@ -175,6 +180,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
         onEmailClick={handleEmailClick}
         onTextSizeClick={handleTextSizeClick}
         onLanguageClick={handleLanguageClick}
+        onTagManagementClick={handleTagManagementClick}
       />
     </header>
   );

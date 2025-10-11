@@ -33,6 +33,7 @@ export interface UserTagRow {
   name: string; // text
   category: string; // text (取り、受け、技)
   created_at: string; // timestamp
+  sort_order: number | null; // 並び順（カテゴリ内）
 }
 
 export interface TrainingPageTagRow {
@@ -276,6 +277,7 @@ export const getUserTags = async (userId: string): Promise<UserTagRow[]> => {
     .select("*")
     .eq("user_id", userId)
     .order("category", { ascending: true })
+    .order("sort_order", { ascending: true, nullsFirst: false })
     .order("name", { ascending: true });
 
   if (error) {
@@ -307,11 +309,43 @@ export const checkDuplicateTag = async (
 };
 
 // タグ作成関数
+const resolveNextSortOrder = async (
+  userId: string,
+  category: string,
+): Promise<number> => {
+  const { data: existingOrders, error } = await supabase
+    .from("UserTag")
+    .select("sort_order")
+    .eq("user_id", userId)
+    .eq("category", category);
+
+  if (error) {
+    throw new Error(`並び順情報の取得に失敗しました: ${error.message}`);
+  }
+
+  const rows = (existingOrders ?? []).filter(
+    (row): row is { sort_order: number | null } => row !== null,
+  );
+
+  const numericOrders = rows
+    .map((row) => row.sort_order)
+    .filter((value): value is number => typeof value === "number");
+
+  if (numericOrders.length === 0) {
+    return 1;
+  }
+
+  const maxSortOrder = Math.max(...numericOrders);
+  return maxSortOrder >= 1 ? maxSortOrder + 1 : 1;
+};
+
 export const createUserTag = async (
   userId: string,
   name: string,
   category: string,
 ): Promise<UserTagRow> => {
+  const nextSortOrder = await resolveNextSortOrder(userId, category);
+
   const { data: newTag, error } = await supabase
     .from("UserTag")
     .insert([
@@ -320,6 +354,7 @@ export const createUserTag = async (
         name,
         category,
         created_at: new Date().toISOString(),
+        sort_order: nextSortOrder,
       },
     ])
     .select("*")
@@ -330,6 +365,216 @@ export const createUserTag = async (
   }
 
   return newTag;
+};
+
+interface TagOrderUpdate {
+  id: string;
+  category: string;
+  sort_order: number;
+}
+
+export const updateUserTagOrder = async (
+  userId: string,
+  updates: TagOrderUpdate[],
+): Promise<UserTagRow[]> => {
+  if (updates.length === 0) {
+    return [];
+  }
+
+  const { data: userTags, error: fetchError } = await supabase
+    .from("UserTag")
+    .select("id, category, user_id, name, created_at, sort_order")
+    .eq("user_id", userId);
+
+  if (fetchError) {
+    throw new Error(
+      `タグ情報の取得に失敗しました: ${fetchError.message}`,
+    );
+  }
+
+  if (!userTags) {
+    throw new Error("指定されたタグが見つかりません");
+  }
+
+  const userTagMap = new Map(userTags.map((tag) => [tag.id, tag]));
+
+  if (updates.some((update) => !userTagMap.has(update.id))) {
+    throw new Error("指定されたタグが見つかりません");
+  }
+
+  const categoryMap = new Map(
+    userTags.map((tag) => [tag.id, tag.category]),
+  );
+
+  for (const update of updates) {
+    const category = categoryMap.get(update.id);
+    if (!category) {
+      throw new Error("指定されたタグが見つかりません");
+    }
+
+    if (category !== update.category) {
+      throw new Error("カテゴリが一致しないタグが含まれています");
+    }
+  }
+
+  const categoryUpdatesMap = new Map<string, TagOrderUpdate[]>();
+
+  for (const update of updates) {
+    const list = categoryUpdatesMap.get(update.category) ?? [];
+    list.push(update);
+    categoryUpdatesMap.set(update.category, list);
+  }
+
+  const existingByCategory = new Map<
+    string,
+    Array<{ id: string; name: string; sort_order: number | null }>
+  >();
+
+  for (const tag of userTags) {
+    const list = existingByCategory.get(tag.category) ?? [];
+    list.push({
+      id: tag.id,
+      name: tag.name,
+      sort_order: tag.sort_order,
+    });
+    existingByCategory.set(tag.category, list);
+  }
+
+  const normalizedUpdates: TagOrderUpdate[] = [];
+
+  const sortedCategories = Array.from(categoryUpdatesMap.keys()).sort();
+
+  for (const category of sortedCategories) {
+    const categoryUpdates = categoryUpdatesMap.get(category)!;
+    const orderedUpdates = [...categoryUpdates].sort(
+      (a, b) => a.sort_order - b.sort_order,
+    );
+
+    const desiredIds = orderedUpdates.map((update) => update.id);
+    const desiredSet = new Set(desiredIds);
+
+    const existing = existingByCategory.get(category) ?? [];
+    const sortedExisting = existing
+      .slice()
+      .sort((a, b) => {
+        const orderA = a.sort_order ?? Number.MAX_SAFE_INTEGER;
+        const orderB = b.sort_order ?? Number.MAX_SAFE_INTEGER;
+
+        if (orderA !== orderB) {
+          return orderA - orderB;
+        }
+
+        return a.name.localeCompare(b.name, "ja");
+      });
+
+    for (const tag of sortedExisting) {
+      if (!desiredSet.has(tag.id)) {
+        desiredIds.push(tag.id);
+      }
+    }
+
+    desiredIds.forEach((id, index) => {
+      normalizedUpdates.push({
+        id,
+        category,
+        sort_order: index + 1,
+      });
+    });
+  }
+
+  if (normalizedUpdates.length === 0) {
+    return userTags;
+  }
+
+  const temporaryOffset = 100000;
+
+  const applyUpdates = async (
+    orderUpdates: Array<{ id: string; sort_order: number }>,
+  ) => {
+    for (const update of orderUpdates) {
+      const { error } = await supabase
+        .from("UserTag")
+        .update({ sort_order: update.sort_order })
+        .eq("id", update.id)
+        .eq("user_id", userId);
+
+      if (error) {
+        throw new Error(
+          `タグ並び順の更新に失敗しました: ${error.message}`,
+        );
+      }
+    }
+  };
+
+  await applyUpdates(
+    normalizedUpdates.map(({ id }, index) => ({
+      id,
+      sort_order: temporaryOffset + index,
+    })),
+  );
+
+  await applyUpdates(
+    normalizedUpdates.map(({ id, sort_order }) => ({
+      id,
+      sort_order,
+    })),
+  );
+
+  const { data: updatedTags, error: refetchError } = await supabase
+    .from("UserTag")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (refetchError) {
+    throw new Error(
+      `タグ情報の再取得に失敗しました: ${refetchError.message}`,
+    );
+  }
+
+  return updatedTags ?? [];
+};
+
+export const deleteUserTag = async (
+  tagId: string,
+  userId: string,
+): Promise<UserTagRow | null> => {
+  const { data: targetTag, error: fetchError } = await supabase
+    .from("UserTag")
+    .select("*")
+    .eq("id", tagId)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchError) {
+    if (fetchError.code === "PGRST116") {
+      return null;
+    }
+
+    throw new Error(`タグ取得に失敗しました: ${fetchError.message}`);
+  }
+
+  const { error: detachError } = await supabase
+    .from("TrainingPageTag")
+    .delete()
+    .eq("user_tag_id", tagId);
+
+  if (detachError) {
+    throw new Error(
+      `タグ関連付け削除に失敗しました: ${detachError.message}`,
+    );
+  }
+
+  const { error: deleteError } = await supabase
+    .from("UserTag")
+    .delete()
+    .eq("id", tagId)
+    .eq("user_id", userId);
+
+  if (deleteError) {
+    throw new Error(`タグ削除に失敗しました: ${deleteError.message}`);
+  }
+
+  return targetTag ?? null;
 };
 
 // ページ詳細取得関数

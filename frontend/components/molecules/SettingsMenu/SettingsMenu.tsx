@@ -32,6 +32,9 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({
       <SettingItem onClick={() => router.push(`/${locale}/settings/language`)}>
         {t("language.label")}
       </SettingItem>
+      <SettingItem onClick={() => router.push(`/${locale}/settings/tags`)}>
+        {t("tagManagement.title")}
+      </SettingItem>
     </div>
   );
 };

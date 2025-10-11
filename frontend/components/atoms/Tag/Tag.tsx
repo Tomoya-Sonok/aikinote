@@ -5,18 +5,29 @@ interface TagProps {
   children: ReactNode;
   variant?: "default" | "selected" | "selectable";
   onClick?: () => void;
+  className?: string;
 }
 
 export const Tag: FC<TagProps> = ({
   children,
   variant = "default",
   onClick,
+  className,
 }) => {
+  const baseClassName = [
+    styles.tag,
+    styles[variant],
+    onClick ? styles.clickable : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   if (onClick) {
     return (
       <button
         type="button"
-        className={`${styles.tag} ${styles[variant]} ${styles.clickable}`}
+        className={baseClassName}
         onClick={onClick}
       >
         {children}
@@ -24,5 +35,5 @@ export const Tag: FC<TagProps> = ({
     );
   }
 
-  return <div className={`${styles.tag} ${styles[variant]}`}>{children}</div>;
+  return <div className={baseClassName}>{children}</div>;
 };

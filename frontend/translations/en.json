@@ -70,6 +70,7 @@
 		"email": "Email",
 		"fontSize": "Font Size",
 		"language": "Language",
+		"tagManagement": "Tags",
 		"close": "Close settings",
 		"fontSizeTooltip": "You can change the font size in Settings"
 	},
@@ -284,6 +285,28 @@
 	},
 	"tagSelection": {
 		"add": "＋Add"
+	},
+	"tagManagement": {
+		"title": "Tags",
+		"loading": "Loading tags...",
+		"categories": {
+			"tori": "Tori",
+			"uke": "Uke",
+			"waza": "Technique"
+		},
+		"editAria": "Edit tags for {category}",
+		"editingHint": "Tap a tag marked with × to delete it",
+		"reorderHint": "Drag and drop tags to reorder them. Tap × to delete a tag",
+		"empty": "No tags registered yet",
+		"deleteSuccess": "Tag deleted",
+		"deleteFailed": "Failed to delete the tag",
+		"fetchFailed": "Failed to load tags",
+		"authRequired": "Please confirm your login status",
+		"saveOrder": "Save order",
+		"undo": "Undo",
+		"orderSaving": "Saving...",
+		"orderSaveSuccess": "Tag order saved",
+		"orderSaveFailed": "Failed to save tag order"
 	},
 	"tagFilterModal": {
 		"title": "Filter by Tags",

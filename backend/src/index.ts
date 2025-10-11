@@ -36,7 +36,7 @@ app.use(logger());
 app.use(
   cors({
     origin: ["http://localhost:3000", "http://frontend:3000"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,

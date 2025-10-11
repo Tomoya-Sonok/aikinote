@@ -30,6 +30,7 @@ describe("ページ作成API", () => {
           name: "立技",
           category: "取り",
           created_at: "2023-01-01T00:00:00.000Z",
+          sort_order: 1,
         },
         {
           id: "test-tag-id-2",
@@ -37,6 +38,7 @@ describe("ページ作成API", () => {
           name: "正面打ち",
           category: "受け",
           created_at: "2023-01-01T00:00:00.000Z",
+          sort_order: 2,
         },
         {
           id: "test-tag-id-3",
@@ -44,6 +46,7 @@ describe("ページ作成API", () => {
           name: "四方投げ",
           category: "技",
           created_at: "2023-01-01T00:00:00.000Z",
+          sort_order: 3,
         },
       ],
     };
@@ -218,6 +221,7 @@ describe("ページ詳細取得API", () => {
           name: "立技",
           category: "取り",
           created_at: "2023-01-01T00:00:00.000Z",
+          sort_order: 1,
         },
         {
           id: "test-tag-id-2",
@@ -225,6 +229,7 @@ describe("ページ詳細取得API", () => {
           name: "正面打ち",
           category: "受け",
           created_at: "2023-01-01T00:00:00.000Z",
+          sort_order: 2,
         },
       ],
     };
@@ -393,6 +398,7 @@ type PageWithTags = {
     name: string;
     category: string;
     created_at: string;
+    sort_order: number | null;
   }[];
 };
 
@@ -424,6 +430,7 @@ describe("ページ一覧取得API", () => {
             category: "取り",
             user_id: "test-user-id",
             created_at: "2023-01-01T00:00:00.000Z",
+            sort_order: 1,
           },
         ],
       },
