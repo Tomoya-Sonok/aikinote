@@ -1,7 +1,8 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getPages, getTags } from "@/lib/api/client";
+import { deletePage, getPages, getTags } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { I18nTestProvider } from "../../../../test-utils/i18n-test-provider";
 import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
@@ -20,6 +21,7 @@ vi.mock("@/lib/api/client", () => ({
   getTags: vi.fn(),
   createPage: vi.fn(),
   updatePage: vi.fn(),
+  deletePage: vi.fn(),
 }));
 
 vi.mock("@/lib/hooks/useDebounce", () => ({
@@ -42,13 +44,26 @@ vi.mock("@/components/molecules/TrainingCard/TrainingCard", () => ({
   TrainingCard: ({
     title,
     onClick,
+    onDelete,
   }: {
     title: string;
     onClick: () => void;
+    onDelete?: () => void;
   }) => (
-    <button type="button" data-testid="training-card" onClick={onClick}>
-      {title}
-    </button>
+    <div>
+      <button type="button" data-testid="training-card" onClick={onClick}>
+        {title}
+      </button>
+      {onDelete && (
+        <button
+          type="button"
+          data-testid={`delete-${title}`}
+          onClick={onDelete}
+        >
+          削除
+        </button>
+      )}
+    </div>
   ),
 }));
 
@@ -88,11 +103,14 @@ describe("ページ一覧画面", () => {
   const mockUseAuth = vi.mocked(useAuth);
   const mockGetPages = vi.mocked(getPages);
   const mockGetTags = vi.mocked(getTags);
+  const mockDeletePage = vi.mocked(deletePage);
 
   const mockPush = vi.fn();
+  const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
 
   beforeEach(() => {
     vi.clearAllMocks();
+    alertSpy.mockClear();
 
     mockUseRouter.mockReturnValue({
       push: mockPush,
@@ -131,6 +149,8 @@ describe("ページ一覧画面", () => {
         },
       ],
     });
+
+    mockDeletePage.mockReset();
   });
 
   it("ページ一覧が正常に表示されること", async () => {
@@ -195,6 +215,67 @@ describe("ページ一覧画面", () => {
       expect(screen.getByTestId("page-stats")).toHaveTextContent(
         "これまでに作成したページ数は2ページです",
       );
+    });
+  });
+
+  it("削除ボタン押下後に確認してページが削除されること", async () => {
+    // Arrange
+    const mockPagesResponse = {
+      success: true,
+      data: {
+        training_pages: [
+          {
+            page: {
+              id: "page1",
+              title: "稽古ページ1",
+              content: "基本動作の稽古",
+              comment: "",
+              user_id: "test-user-id",
+              created_at: "2023-01-01T00:00:00.000Z",
+              updated_at: "2023-01-01T00:00:00.000Z",
+            },
+            tags: [],
+          },
+        ],
+      },
+      message: "ページ一覧を取得しました",
+    };
+
+    mockGetPages.mockResolvedValue(mockPagesResponse);
+    mockDeletePage.mockResolvedValue({
+      success: true,
+      message: "ページが正常に削除されました",
+    });
+
+    const user = userEvent.setup();
+
+    await act(async () => {
+      render(
+        <I18nTestProvider>
+          <PersonalPagesPageClient />
+        </I18nTestProvider>,
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("稽古ページ1")).toBeInTheDocument();
+    });
+
+    // Act
+    const deleteTrigger = screen.getByTestId("delete-稽古ページ1");
+    await user.click(deleteTrigger);
+
+    const dialog = await screen.findByRole("dialog");
+    const confirmButton = within(dialog).getByRole("button", { name: "削除" });
+    await user.click(confirmButton);
+
+    // Assert
+    await waitFor(() => {
+      expect(mockDeletePage).toHaveBeenCalledWith("page1", "test-user-id");
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText("稽古ページ1")).not.toBeInTheDocument();
     });
   });
 

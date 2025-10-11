@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/atoms/Loader";
+import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
 import { FilterArea } from "@/components/molecules/FilterArea/FilterArea";
 import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
 import {
@@ -19,6 +20,7 @@ import { TagFilterModal } from "@/components/organisms/TagFilterModal/TagFilterM
 import {
   type CreatePagePayload,
   createPage,
+  deletePage,
   getPages,
   getTags,
   type UpdatePagePayload,
@@ -49,6 +51,11 @@ export function PersonalPagesPageClient() {
   const [editingPageData, setEditingPageData] = useState<PageEditData | null>(
     null,
   );
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTargetPageId, setDeleteTargetPageId] = useState<string | null>(
+    null,
+  );
+  const [isDeletingPage, setDeletingPage] = useState(false);
   const router = useRouter();
   const locale = useLocale();
   const { user, loading: authLoading } = useAuth();
@@ -306,8 +313,54 @@ export function PersonalPagesPageClient() {
     }
   };
 
-  const handleDeleteTraining = (id: string) => {
-    setAllTrainingPageData((prev) => prev.filter((item) => item.id !== id));
+  const handleRequestDelete = (id: string) => {
+    setDeleteTargetPageId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    if (isDeletingPage) {
+      return;
+    }
+    setDeleteDialogOpen(false);
+    setDeleteTargetPageId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetPageId) {
+      setDeleteDialogOpen(false);
+      return;
+    }
+
+    if (!user?.id) {
+      alert(t("personalPages.loginRequired"));
+      return;
+    }
+
+    setDeletingPage(true);
+
+    try {
+      const response = await deletePage(deleteTargetPageId, user.id);
+
+      if (response.success) {
+        setAllTrainingPageData((prev) =>
+          prev.filter((item) => item.id !== deleteTargetPageId),
+        );
+        setDeleteDialogOpen(false);
+        setDeleteTargetPageId(null);
+      } else {
+        throw new Error(response.error || t("personalPages.pageDeleteFailed"));
+      }
+    } catch (error) {
+      console.error("Failed to delete page:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : t("personalPages.pageDeleteFailed"),
+      );
+    } finally {
+      setDeletingPage(false);
+    }
   };
 
   const handleViewTraining = (id: string) => {
@@ -379,7 +432,7 @@ export function PersonalPagesPageClient() {
               {...training}
               onClick={() => handleViewTraining(training.id)}
               onEdit={() => handleEditTraining(training.id)}
-              onDelete={() => handleDeleteTraining(training.id)}
+              onDelete={() => handleRequestDelete(training.id)}
             />
           ))}
         </div>
@@ -397,6 +450,17 @@ export function PersonalPagesPageClient() {
       </div>
 
       <FloatingActionButton onClick={handleCreatePage} />
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title={t("pageDetail.delete")}
+        message={t("pageDetail.deleteConfirm")}
+        confirmLabel={t("pageDetail.delete")}
+        cancelLabel={t("tagFilterModal.cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        isProcessing={isDeletingPage}
+      />
 
       <PageCreateModal
         isOpen={isPageCreateModalOpen}

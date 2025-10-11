@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import {
   createTrainingPage,
+  deleteTrainingPage,
   getTrainingPageById,
   getTrainingPages,
   updateTrainingPage,
@@ -199,6 +200,33 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
     return c.json(response, 200);
   } catch (error) {
     console.error("ページ更新エラー:", error);
+
+    const errorResponse: ApiResponse<never> = {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "不明なエラーが発生しました",
+    };
+
+    return c.json(errorResponse, 500);
+  }
+});
+
+// ページ削除API
+app.delete("/:id", zValidator("query", getPageSchema), async (c) => {
+  try {
+    const pageId = c.req.param("id");
+    const { user_id } = c.req.valid("query");
+
+    await deleteTrainingPage(pageId, user_id);
+
+    const response: ApiResponse<never> = {
+      success: true,
+      message: "ページが正常に削除されました",
+    };
+
+    return c.json(response, 200);
+  } catch (error) {
+    console.error("ページ削除エラー:", error);
 
     const errorResponse: ApiResponse<never> = {
       success: false,

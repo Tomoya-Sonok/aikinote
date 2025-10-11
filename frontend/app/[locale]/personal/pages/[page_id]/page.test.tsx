@@ -1,9 +1,9 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useParams, useRouter } from "next/navigation";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import type { PageEditModalProps } from "@/components/organisms/PageEditModal/PageEditModal";
-import { getPage, getTags, updatePage } from "@/lib/api/client";
+import { deletePage, getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { I18nTestProvider } from "../../../../../test-utils/i18n-test-provider";
 import { PageDetailPageClient } from "./PageDetailPageClient";
@@ -18,6 +18,7 @@ vi.mock("@/lib/api/client", () => ({
   getPage: vi.fn(),
   getTags: vi.fn(),
   updatePage: vi.fn(),
+  deletePage: vi.fn(),
 }));
 
 vi.mock("@/lib/hooks/useAuth", () => ({
@@ -56,8 +57,10 @@ describe("ページ詳細画面", () => {
   const mockGetPage = vi.mocked(getPage);
   const mockGetTags = vi.mocked(getTags);
   const mockUpdatePage = vi.mocked(updatePage);
+  const mockDeletePage = vi.mocked(deletePage);
 
   const mockPush = vi.fn();
+  const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
 
   // モックデータの定義
   const mockInitialPageData = {
@@ -117,6 +120,8 @@ describe("ページ詳細画面", () => {
     // デフォルトのAPIモック
     mockGetPage.mockResolvedValue(mockInitialPageData);
     mockGetTags.mockResolvedValue(mockAvailableTags);
+    mockDeletePage.mockReset();
+    alertSpy.mockClear();
   });
 
   describe("表示", () => {
@@ -177,6 +182,52 @@ describe("ページ詳細画面", () => {
         expect(
           screen.getByText("ページが見つかりませんでした"),
         ).toBeInTheDocument();
+      });
+    });
+
+    describe("削除機能", () => {
+      it("削除ボタン押下後に確認しページを削除できること", async () => {
+        // Arrange
+        mockDeletePage.mockResolvedValue({
+          success: true,
+          message: "ページが正常に削除されました",
+        });
+
+        const user = userEvent.setup();
+
+        await act(async () => {
+          render(
+            <I18nTestProvider>
+              <PageDetailPageClient />
+            </I18nTestProvider>,
+          );
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText("テスト稽古ページ")).toBeInTheDocument();
+        });
+
+        // Act
+        const deleteButton = screen.getByRole("button", { name: "削除" });
+        await user.click(deleteButton);
+
+        const dialog = await screen.findByRole("dialog");
+        const confirmButton = within(dialog).getByRole("button", {
+          name: "削除",
+        });
+        await user.click(confirmButton);
+
+        // Assert
+        await waitFor(() => {
+          expect(mockDeletePage).toHaveBeenCalledWith(
+            "test-page-id",
+            "test-user-id",
+          );
+        });
+
+        await waitFor(() => {
+          expect(mockPush).toHaveBeenCalledWith("/ja/personal/pages");
+        });
       });
     });
   });

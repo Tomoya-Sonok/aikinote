@@ -207,7 +207,10 @@ app.patch("/order", zValidator("json", updateTagOrderSchema), async (c) => {
       return c.json(errorResponse, 400);
     }
 
-    const categoryConfigs: { ids: string[]; category: "取り" | "受け" | "技" }[] = [
+    const categoryConfigs: {
+      ids: string[];
+      category: "取り" | "受け" | "技";
+    }[] = [
       { ids: tori, category: "取り" },
       { ids: uke, category: "受け" },
       { ids: waza, category: "技" },
