@@ -199,6 +199,58 @@ describe("OAuth認証コールバック処理", () => {
     );
   });
 
+  it("0.0.0.0でアクセスした場合でもlocalhostへリダイレクトする", async () => {
+    const mockAuthData = {
+      user: {
+        id: "user-456",
+        email: "sample@example.com",
+      },
+    };
+
+    mockSupabaseClient.auth.exchangeCodeForSession.mockResolvedValue({
+      data: mockAuthData,
+      error: null,
+    });
+
+    const mockSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      }),
+    });
+
+    const mockInsert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: {
+            id: "user-456",
+            email: "sample@example.com",
+            username: "sample",
+          },
+          error: null,
+        }),
+      }),
+    });
+
+    mockServiceSupabase.from.mockReturnValue({
+      select: mockSelect,
+      insert: mockInsert,
+    });
+
+    const request = new NextRequest(
+      "http://0.0.0.0:3000/auth/callback?code=auth_code",
+    );
+
+    const response = await GET(request);
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/personal/pages",
+    );
+  });
+
   it("ユーザー作成エラー時もリダイレクトを継続する", async () => {
     const mockAuthData = {
       user: {

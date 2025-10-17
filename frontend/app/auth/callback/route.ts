@@ -16,6 +16,15 @@ const buildLocalizedUrl = (
 
 const MAX_OAUTH_AVATAR_BYTES = 1 * 1024 * 1024; // 1MB
 
+const normalizeOrigin = (url: URL) => {
+  if (url.hostname === "0.0.0.0") {
+    const portSegment = url.port ? `:${url.port}` : "";
+    return `${url.protocol}//localhost${portSegment}`;
+  }
+
+  return url.origin;
+};
+
 type SupabaseIdentity = {
   provider?: string | null;
   identity_data?: Record<string, unknown> | null;
@@ -85,6 +94,7 @@ async function pickGoogleAvatarUrl(
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
+  const redirectOrigin = normalizeOrigin(requestUrl);
   const code = requestUrl.searchParams.get("code");
 
   if (code) {
@@ -92,7 +102,7 @@ export async function GET(request: NextRequest) {
     const localeFromCookie = cookieStore.get("NEXT_LOCALE")?.value;
     const locale = localeFromCookie ?? routing.defaultLocale;
     const buildUrl = (pathWithLeadingSlash: string) =>
-      buildLocalizedUrl(requestUrl.origin, locale, pathWithLeadingSlash);
+      buildLocalizedUrl(redirectOrigin, locale, pathWithLeadingSlash);
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -191,6 +201,6 @@ export async function GET(request: NextRequest) {
 
   // コードがない場合はログインページにリダイレクト
   const locale = cookies().get("NEXT_LOCALE")?.value ?? routing.defaultLocale;
-  const fallbackUrl = buildLocalizedUrl(requestUrl.origin, locale, "/login");
+  const fallbackUrl = buildLocalizedUrl(redirectOrigin, locale, "/login");
   return NextResponse.redirect(fallbackUrl);
 }
