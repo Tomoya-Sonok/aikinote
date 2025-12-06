@@ -16,8 +16,8 @@
   top: 0;
   right: 0;
   height: 100vh;
-  width: 300px;
-  max-width: 80vw;
+  width: 280px;
+  max-width: 85vw;
   background: var(--aikinote-white);
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   z-index: 1001;
@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 16px;
+  padding: 16px 20px 12px;
   border-bottom: 1px solid var(--aikinote-bg);
   background: linear-gradient(
     135deg,
@@ -86,14 +86,14 @@
 /* コンテンツエリア */
 .content {
   flex: 1;
-  padding: 24px 0;
+  padding: 20px 0;
   overflow-y: auto;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  padding: 0 24px;
+  padding: 0 20px;
 }
 
 /* フェードインアニメーション */
@@ -106,23 +106,22 @@
   }
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 480px) {
+@media (min-width: 481px) {
   .drawer {
-    width: 280px;
-    max-width: 85vw;
+    width: 300px;
+    max-width: 80vw;
   }
 
   .header {
-    padding: 16px 20px 12px;
+    padding: 20px 24px 16px;
   }
 
   .content {
-    padding: 20px 0;
+    padding: 24px 0;
   }
 
   .menu {
-    padding: 0 20px;
+    padding: 0 24px;
   }
 }
 

@@ -15,10 +15,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 355px;
-  max-width: calc(100vw - 36px);
-  height: 726px;
-  max-height: calc(100vh - 134px);
+  width: calc(100vw - 20px);
+  max-width: none;
+  height: calc(100vh - 100px);
+  max-height: none;
   background: #ffffff;
   border-radius: 24px;
   border: none;
@@ -31,7 +31,7 @@
 }
 
 .header {
-  padding: 24px 42px;
+  padding: 24px 20px;
   border-bottom: 1px solid #f0f0f0;
 }
 
@@ -46,7 +46,7 @@
 
 .content {
   flex: 1;
-  padding: 24px 42px;
+  padding: 24px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -59,7 +59,7 @@
 }
 
 .footer {
-  padding: 16px 42px 32px;
+  padding: 16px 20px 32px;
   display: flex;
   gap: 10px;
   justify-content: flex-end;
@@ -164,19 +164,20 @@
   background-color: #d0d0d0;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 430px) {
+@media (min-width: 431px) {
   .modal {
-    width: calc(100vw - 20px);
-    height: calc(100vh - 100px);
-    max-width: none;
-    max-height: none;
+    width: 355px;
+    max-width: calc(100vw - 36px);
+    height: 726px;
+    max-height: calc(100vh - 134px);
   }
 
   .header,
-  .content,
+  .content {
+    padding: 24px 42px;
+  }
+
   .footer {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 16px 42px 32px;
   }
 }

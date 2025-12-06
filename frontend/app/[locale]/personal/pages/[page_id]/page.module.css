@@ -1,25 +1,24 @@
 .contentArea {
   background: #ffffff;
-  margin: 0 auto; /* Center the page */
+  margin: 0 auto 48px; /* Center the page */
   border-radius: 3px; /* A subtle radius for a paper feel */
   min-height: 600px;
   position: relative;
   max-width: 800px; /* A comfortable reading width on desktop */
-  padding: 24px 24px 24px 48px; /* Inner padding, with more space on the left for the line */
+  padding: 24px 16px 24px 32px; /* Inner padding, with more space on the left for the line */
   /* Multiple shadows to create a 3D, stacked-paper effect */
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.08),
-    0 2px 2px rgba(0, 0, 0, 0.08),
-    0 4px 4px rgba(0, 0, 0, 0.08),
-    0 8px 8px rgba(0, 0, 0, 0.08),
-    0 16px 16px rgba(0, 0, 0, 0.08);
+    0 1px 1px rgba(0, 0, 0, 0.06),
+    0 2px 2px rgba(0, 0, 0, 0.06),
+    0 3px 4px rgba(0, 0, 0, 0.06),
+    0 4px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* The vertical line, like in a notebook */
 .contentArea::before {
   content: "";
   position: absolute;
-  left: 32px; /* Positioned within the left padding */
+  left: 20px; /* Positioned within the left padding */
   top: 24px; /* Margin from the top edge of the paper */
   bottom: 24px; /* Margin from the bottom edge */
   width: 1px;
@@ -91,10 +90,11 @@
 
 .buttonsContainer {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 32px;
   padding: 0; /* Padding is now on contentArea */
   justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .backButton {
@@ -108,11 +108,12 @@
   line-height: 1.45;
   cursor: pointer;
   height: 32px;
-  min-width: 133px;
+  min-width: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 400;
+  flex: 1;
 }
 
 .backButton:hover {
@@ -171,34 +172,29 @@
   color: #666;
 }
 
-/* Responsive adjustments for smartphones */
-@media (max-width: 430px) {
+@media (min-width: 431px) {
   .contentArea {
-    padding: 24px 16px 24px 32px; /* Adjust inner padding */
-    margin-bottom: 48px;
-    /* A slightly more subtle shadow for mobile, but still present */
+    margin: 0 auto; /* Center the page */
+    padding: 24px 24px 24px 48px; /* Inner padding, with more space on the left for the line */
     box-shadow:
-      0 1px 1px rgba(0, 0, 0, 0.06),
-      0 2px 2px rgba(0, 0, 0, 0.06),
-      0 3px 4px rgba(0, 0, 0, 0.06),
-      0 4px 8px rgba(0, 0, 0, 0.06);
+      0 1px 1px rgba(0, 0, 0, 0.08),
+      0 2px 2px rgba(0, 0, 0, 0.08),
+      0 4px 4px rgba(0, 0, 0, 0.08),
+      0 8px 8px rgba(0, 0, 0, 0.08),
+      0 16px 16px rgba(0, 0, 0, 0.08);
   }
 
   .contentArea::before {
-    left: 20px; /* Move the vertical line for the new padding */
-  }
-
-  .divider {
-    width: 100%;
+    left: 32px; /* Positioned within the left padding */
   }
 
   .buttonsContainer {
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 10px;
   }
 
   .backButton {
-    min-width: auto;
-    flex: 1;
+    min-width: 133px;
+    flex: initial;
   }
 }

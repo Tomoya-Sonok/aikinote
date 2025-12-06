@@ -8,7 +8,7 @@
   background-color: var(--aikinote-white);
   border-radius: 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  padding: 24px 20px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -69,7 +69,7 @@
 .tagList {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -113,7 +113,8 @@
 .newTagForm {
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
+  flex-direction: column;
   padding: 8px;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -147,6 +148,7 @@
   white-space: nowrap;
   height: 32px;
   transition: background-color 0.2s ease;
+  width: 100%;
 }
 
 .formButtonPrimary:disabled {
@@ -166,6 +168,7 @@
   white-space: nowrap;
   height: 32px;
   transition: background-color 0.2s ease;
+  width: 100%;
 }
 
 .orderButtonPrimary {
@@ -230,22 +233,22 @@
   transition: background-color 0.2s ease;
 }
 
-@media (max-width: 480px) {
+@media (min-width: 481px) {
   .card {
-    padding: 20px 16px;
+    padding: 24px 20px;
   }
 
   .newTagForm {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .formButtonPrimary,
   .formButtonSecondary {
-    width: 100%;
+    width: auto;
   }
 
   .tagList {
-    gap: 6px;
+    gap: 8px;
   }
 }

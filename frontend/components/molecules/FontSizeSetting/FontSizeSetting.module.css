@@ -23,12 +23,12 @@
 .settingArea {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
 
 /* プレビューエリア */
 .preview {
-  padding: 24px;
+  padding: 16px;
   border: 2px solid var(--border-color);
   border-radius: 12px;
   background: var(--aikinote-white);
@@ -46,6 +46,7 @@
 /* スライダーコンテナ */
 .sliderContainer {
   position: relative;
+  padding: 24px 0;
 }
 
 /* Radix UI Slider スタイル */
@@ -145,17 +146,17 @@
 }
 
 /* レスポンシブ対応 */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .settingArea {
-    gap: 24px;
+    gap: 32px;
   }
 
   .preview {
-    padding: 16px;
+    padding: 24px;
   }
 
   .sliderContainer {
-    padding: 24px 0;
+    padding: 0;
   }
 }
 
