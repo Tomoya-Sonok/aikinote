@@ -45,9 +45,12 @@ h2 {
   margin-bottom: 4px;
 }
 
-/* モバイルファースト対応 */
-@media (max-width: 768px) {
+.container {
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
   .container {
-    padding: 0 1rem;
+    padding: 0;
   }
 }

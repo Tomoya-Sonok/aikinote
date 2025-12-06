@@ -15,12 +15,6 @@
   align-items: center;
 }
 
-.logo {
-  width: 56px;
-  height: 56px;
-  object-fit: contain;
-}
-
 .headerRight {
   display: flex;
   align-items: center;
@@ -144,9 +138,15 @@
   transition: all 0.3s ease;
 }
 
-@media (max-width: 480px) {
+.logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+@media (min-width: 481px) {
   .logo {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
   }
 }

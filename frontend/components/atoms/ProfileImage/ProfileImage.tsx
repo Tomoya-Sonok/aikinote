@@ -24,13 +24,13 @@ export const ProfileImage: FC<ProfileImageProps> = ({
     <div className={`${styles.container} ${styles[size]} ${className}`}>
       {src ? (
         <Image
-          src={src}
-          alt={defaultAlt}
-          fill
-          unoptimized
-          className={styles.image}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+        src={src}
+        alt={defaultAlt}
+        fill
+        unoptimized
+        className={styles.image}
+        sizes="(min-width: 1201px) 33vw, (min-width: 769px) 50vw, 100vw"
+      />
       ) : (
         <DefaultProfileIcon size={120} className={styles.image} />
       )}

@@ -1,5 +1,5 @@
 .container {
-  padding: 20px;
+  padding: 16px;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -19,13 +19,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 14px 16px;
   border: 2px solid var(--aikinote-border);
   border-radius: 8px;
   background: var(--aikinote-bg-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 60px;
+  min-height: 56px;
 }
 
 .languageOption:hover {
@@ -44,7 +44,7 @@
 }
 
 .languageLabel {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--aikinote-text-primary);
 }
@@ -56,12 +56,12 @@
 
 .activeIndicator {
   color: #ffffff;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,24 +73,23 @@
   margin-top: 20px;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 20px;
   }
 
   .languageOption {
-    padding: 14px 16px;
-    min-height: 56px;
+    padding: 16px 20px;
+    min-height: 60px;
   }
 
   .languageLabel {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .activeIndicator {
-    font-size: 18px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px;
+    width: 28px;
+    height: 28px;
   }
 }
