@@ -55,6 +55,9 @@ AWSCLIV2.pkg
 *.swo
 *~
 
+# AI Tools
+.gemini-clipboard/
+
 # ビルド
 *.tsbuildinfo
 
