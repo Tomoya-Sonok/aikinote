@@ -13,7 +13,7 @@ const JWT_SECRET =
 export async function POST(_request: NextRequest) {
   try {
     // セッション確認
-    const serverSupabase = getServerSupabase();
+    const serverSupabase = await getServerSupabase();
     const {
       data: { session },
     } = await serverSupabase.auth.getSession();

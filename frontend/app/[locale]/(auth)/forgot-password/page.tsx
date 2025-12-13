@@ -8,10 +8,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
   return buildMetadata({
     title: t("passwordReset"),
@@ -20,10 +21,11 @@ export async function generateMetadata({
 }
 
 export default async function ForgotPasswordPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (user) {

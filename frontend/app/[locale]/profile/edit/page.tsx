@@ -7,10 +7,11 @@ import { getCurrentUser, getUserProfile } from "@/lib/server/auth";
 import { ProfileEditClient } from "./ProfileEditClient";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "profileEdit" });
 
   return buildMetadata({
@@ -20,10 +21,11 @@ export async function generateMetadata({
 }
 
 export default async function ProfileEditPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "profileEdit" });
   const loginPath = `/${locale}/login`;
   const myPagePath = `/${locale}/mypage`;

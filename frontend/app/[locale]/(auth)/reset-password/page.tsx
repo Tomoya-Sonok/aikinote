@@ -11,10 +11,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale });
   return buildMetadata({
     title: t("auth.newPasswordTitle"),
@@ -66,12 +67,16 @@ async function ResetPasswordContent({
 }
 
 export default async function ResetPasswordPage({
-  params: { locale },
+  params,
   searchParams,
 }: {
-  params: { locale: string };
-  searchParams: { token?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ token?: string }>;
 }) {
+  const [{ locale }, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const user = await getCurrentUser();
 
   if (user) {
@@ -92,7 +97,10 @@ export default async function ResetPasswordPage({
             </div>
           }
         >
-          <ResetPasswordContent searchParams={searchParams} locale={locale} />
+          <ResetPasswordContent
+            searchParams={resolvedSearchParams}
+            locale={locale}
+          />
         </Suspense>
       </div>
     </NotLoggedInLayout>

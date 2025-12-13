@@ -15,13 +15,13 @@ import { usernameSchema } from "@/lib/utils/validation";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } },
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   try {
-    const { userId } = params;
+    const { userId } = await params;
 
     // まず通常のSupabaseクライアントでセッション確認
-    const serverSupabase = getServerSupabase();
+    const serverSupabase = await getServerSupabase();
     const {
       data: { session },
     } = await serverSupabase.auth.getSession();
@@ -98,13 +98,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { userId: string } },
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   try {
-    const { userId } = params;
+    const { userId } = await params;
 
     // セッション確認
-    const serverSupabase = getServerSupabase();
+    const serverSupabase = await getServerSupabase();
     const {
       data: { session },
     } = await serverSupabase.auth.getSession();

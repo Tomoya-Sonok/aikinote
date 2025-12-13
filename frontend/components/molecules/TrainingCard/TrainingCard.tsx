@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { FC } from "react";
+import type { FC, KeyboardEvent } from "react";
 import { Button } from "../../atoms/Button/Button";
 import { Tag } from "../../atoms/Tag/Tag";
 import styles from "./TrainingCard.module.css";
@@ -37,6 +37,13 @@ export const TrainingCard: FC<TrainingCardProps> = ({
   const handleCardClick = (e: React.MouseEvent) => {
     // Only trigger card click if not clicking on action buttons
     if (!(e.target as Element).closest(`.${styles.actions}`)) {
+      onClick?.();
+    }
+  };
+
+  const handleCardKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
       onClick?.();
     }
   };
@@ -84,13 +91,15 @@ export const TrainingCard: FC<TrainingCardProps> = ({
 
   if (onClick) {
     return (
-      <button
-        type="button"
+      <div
         className={`${styles.card} ${styles.clickable}`}
         onClick={handleCardClick}
+        onKeyDown={handleCardKeyDown}
+        role="button"
+        tabIndex={0}
       >
         {cardContent}
-      </button>
+      </div>
     );
   }
 

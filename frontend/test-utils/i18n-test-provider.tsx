@@ -93,6 +93,7 @@ const testMessages = {
     fetchFailed: "タグの取得に失敗しました",
     authRequired: "ログイン状態を確認してください",
     saveOrder: "並び順を保存",
+    undo: "元に戻す",
     orderSaving: "保存中...",
     orderSaveSuccess: "タグの並び順を保存しました",
     orderSaveFailed: "タグの並び順の保存に失敗しました",

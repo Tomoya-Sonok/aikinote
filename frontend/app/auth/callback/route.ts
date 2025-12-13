@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get("code");
 
   if (code) {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const localeFromCookie = cookieStore.get("NEXT_LOCALE")?.value;
     const locale = localeFromCookie ?? routing.defaultLocale;
     const buildUrl = (pathWithLeadingSlash: string) =>
@@ -200,7 +200,9 @@ export async function GET(request: NextRequest) {
   }
 
   // コードがない場合はログインページにリダイレクト
-  const locale = cookies().get("NEXT_LOCALE")?.value ?? routing.defaultLocale;
+  const fallbackCookieStore = await cookies();
+  const locale =
+    fallbackCookieStore.get("NEXT_LOCALE")?.value ?? routing.defaultLocale;
   const fallbackUrl = buildLocalizedUrl(redirectOrigin, locale, "/login");
   return NextResponse.redirect(fallbackUrl);
 }

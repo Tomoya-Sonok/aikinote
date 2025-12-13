@@ -8,10 +8,11 @@ import MyPageClient from "./MyPageClient";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "mypage" });
 
   return buildMetadata({
@@ -21,10 +22,11 @@ export async function generateMetadata({
 }
 
 export default async function MyPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const profileT = await getTranslations({ locale, namespace: "profileEdit" });
   const loginPath = `/${locale}/login`;
   const settingsPath = `/${locale}/mypage`;

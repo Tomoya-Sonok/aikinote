@@ -283,7 +283,7 @@ describe("ページ詳細画面", () => {
       };
       expect(MockPageEditModal).toHaveBeenCalledWith(
         expect.objectContaining({ initialData: expectedInitialData }),
-        expect.anything(),
+        undefined,
       );
     });
 

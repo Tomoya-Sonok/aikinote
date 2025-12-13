@@ -3,10 +3,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { LanguageSettingPageClient } from "./LanguageSettingPageClient";
 
 export default async function LanguageSettingPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (!user) {

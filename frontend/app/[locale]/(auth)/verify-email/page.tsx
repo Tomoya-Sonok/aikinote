@@ -11,12 +11,13 @@ import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 interface VerifyEmailPageProps {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: VerifyEmailPageProps): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
   return buildMetadata({
     title: t("emailVerification"),
@@ -82,12 +83,16 @@ async function EmailVerificationContent({
 }
 
 export default async function VerifyEmailPage({
-  params: { locale },
+  params,
   searchParams,
 }: {
-  params: { locale: string };
-  searchParams: { token?: string; locale?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ token?: string; locale?: string }>;
 }) {
+  const [{ locale }, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
   const user = await getCurrentUser();
 
   if (user) {
@@ -104,7 +109,7 @@ export default async function VerifyEmailPage({
     <MinimalLayout headerTitle={t("emailVerification")} backHref={signupHref}>
       <Suspense fallback={<Loader size="large" centered text={t("loading")} />}>
         <EmailVerificationContent
-          searchParams={{ ...searchParams, locale }}
+          searchParams={{ ...resolvedSearchParams, locale }}
           locale={locale}
         />
       </Suspense>

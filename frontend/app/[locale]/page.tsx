@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 interface RootPageProps {
-	params: { locale: string };
+	params: Promise<{ locale: string }>;
 }
 
 interface NavigationContent {
@@ -38,7 +38,8 @@ const FAQ_KEYS = [
 
 const bold = (chunks: ReactNode) => <strong>{chunks}</strong>;
 
-export default async function RootPage({ params: { locale } }: RootPageProps) {
+export default async function RootPage({ params }: RootPageProps) {
+	const { locale } = await params;
 	const user = await getCurrentUser();
 	const isDefaultLocale = locale === "ja";
 	const localePrefix = isDefaultLocale ? "" : `/${locale}`;
