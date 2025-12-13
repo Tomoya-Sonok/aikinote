@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const { filename, contentType, fileSize } = validatedData;
 
     // Supabaseクライアントの初期化
-    const supabase = getServerSupabase();
+    const supabase = await getServerSupabase();
 
     // 認証済みユーザーの取得
     const {

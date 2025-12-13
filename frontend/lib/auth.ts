@@ -21,7 +21,7 @@ export type UserSession = {
 };
 
 export async function signUp(credentials: SignUpCredentials) {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
 
   // Supabase Authでユーザーを作成
   const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -69,7 +69,7 @@ export async function signUp(credentials: SignUpCredentials) {
 }
 
 export async function signIn({ email, password }: SignInCredentials) {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -78,7 +78,7 @@ export async function signIn({ email, password }: SignInCredentials) {
 }
 
 export async function signOut() {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   const { error } = await supabase.auth.signOut();
   return { error };
 }

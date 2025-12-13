@@ -7,10 +7,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { LoginPageClient } from "./LoginPageClient";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
   return buildMetadata({
     title: t("loginTitle"),
@@ -19,10 +20,11 @@ export async function generateMetadata({
 }
 
 export default async function LoginPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (user) {

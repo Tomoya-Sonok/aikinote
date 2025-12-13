@@ -3,10 +3,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { FontSizeSettingPageClient } from "./FontSizeSettingPageClient";
 
 export default async function FontSizeSettingPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (!user) {

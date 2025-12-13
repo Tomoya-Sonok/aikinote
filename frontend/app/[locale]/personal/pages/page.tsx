@@ -10,10 +10,11 @@ export const metadata = buildMetadata({
 });
 
 export default async function PersonalPagesPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (!user) {

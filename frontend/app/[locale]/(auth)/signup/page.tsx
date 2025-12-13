@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { SignUpPageClient } from "./SignUpPageClient";
 
 interface SignupPageProps {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }
 
 export const metadata: Metadata = buildMetadata({
@@ -15,8 +15,9 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function SignUpPage({
-  params: { locale },
+  params,
 }: SignupPageProps) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (user) {

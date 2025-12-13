@@ -5,7 +5,7 @@ import { fetchUserProfile } from "@/lib/utils/user-api";
 
 export async function getCurrentUser(): Promise<UserSession | null> {
   console.log("🐾 getCurrentUser: start");
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
 
   try {
     const {

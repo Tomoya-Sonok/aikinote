@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const { fileKey } = profileImageSchema.parse(body);
 
     // Supabaseクライアントの初期化
-    const supabase = getServerSupabase();
+    const supabase = await getServerSupabase();
 
     // 認証済みユーザーの取得
     const {
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(_request: NextRequest) {
   try {
     // Supabaseクライアントの初期化
-    const supabase = getServerSupabase();
+    const supabase = await getServerSupabase();
 
     // Get authenticated user
     const {

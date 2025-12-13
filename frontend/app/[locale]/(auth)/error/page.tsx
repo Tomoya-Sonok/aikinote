@@ -8,10 +8,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
   return buildMetadata({
     title: t("authErrorTitle"),
@@ -20,12 +21,14 @@ export async function generateMetadata({
 }
 
 export default async function AuthErrorPage({
-  params: { locale },
+  params,
   searchParams,
 }: {
-  params: { locale: string };
-  searchParams: { error?: string };
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
+  const { locale } = await params;
+  const resolvedSearchParams = await searchParams;
   const user = await getCurrentUser();
 
   if (user) {
@@ -33,7 +36,7 @@ export default async function AuthErrorPage({
   }
 
   const t = await getTranslations({ locale, namespace: "auth" });
-  const error = searchParams.error;
+  const error = resolvedSearchParams.error;
   const loginHref = `/${locale}/login`;
   const signupHref = `/${locale}/signup`;
 

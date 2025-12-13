@@ -3,10 +3,11 @@ import { getCurrentUser } from "@/lib/server/auth";
 import { TagManagementPageClient } from "./TagManagementPageClient";
 
 export default async function TagManagementPage({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   const user = await getCurrentUser();
 
   if (!user) {

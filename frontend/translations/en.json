@@ -440,6 +440,10 @@
 		"cancel": "Cancel",
 		"filter": "Filter"
 	},
+	"mypage": {
+		"title": "My Page",
+		"description": "Manage your profile and practice records"
+	},
 	"profileEdit": {
 		"title": "Edit Profile",
 		"description": "Edit your profile information",
