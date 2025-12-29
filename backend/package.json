@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "cd .. && dotenv -e .env.local -- tsx watch backend/src/index.ts",
-    "dev:docker": "tsx watch src/index.ts",
+    "dev": "cd .. && dotenv -e .env.local -- tsx watch backend/src/index.node.ts",
+    "dev:docker": "tsx watch src/index.node.ts",
+    "dev:wrangler": "wrangler dev --remote",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/index.node.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:watch": "vitest --watch",
@@ -34,7 +35,8 @@
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "undici": "^7.16.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wrangler": "^4.54.0"
   },
   "packageManager": "pnpm@8.15.4+sha256.cea6d0bdf2de3a0549582da3983c70c92ffc577ff4410cbf190817ddc35137c2"
 }

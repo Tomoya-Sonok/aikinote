@@ -1,20 +1,29 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-// 環境変数からSupabase接続情報を取得
-const supabaseUrl = process.env.SUPABASE_URL || "";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+let supabase!: SupabaseClient<any>;
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error("Supabase環境変数が設定されていません");
+// 環境変数からSupabase接続情報を取得（Node.js用の初期化）
+const supabaseUrl =
+  typeof process !== "undefined" ? process.env?.SUPABASE_URL : undefined;
+const supabaseServiceKey =
+  typeof process !== "undefined"
+    ? process.env?.SUPABASE_SERVICE_ROLE_KEY
+    : undefined;
+
+if (supabaseUrl && supabaseServiceKey) {
+  supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
 
-// Supabaseクライアントの初期化
-export const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+export const setSupabaseClient = (client: SupabaseClient<any>): void => {
+  supabase = client;
+};
+
+export { supabase };
 
 // 実際のDB設計に基づくデータベース型定義
 export interface TrainingPageRow {

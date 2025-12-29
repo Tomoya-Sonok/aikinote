@@ -38,15 +38,18 @@ describe("ユーザープロフィールAPI", () => {
   const testUserId = "550e8400-e29b-41d4-a716-446655440000";
   const otherUserId = "550e8400-e29b-41d4-a716-446655440001";
 
-  beforeEach(() => {
+  beforeEach(async () => {
     app = new Hono();
     app.route("/api/users", usersRoute);
 
     // 有効なJWTトークンを生成
-    validToken = generateToken({
-      userId: testUserId,
-      email: "test@example.com",
-    });
+    validToken = await generateToken(
+      {
+        userId: testUserId,
+        email: "test@example.com",
+      },
+      { JWT_SECRET: process.env.JWT_SECRET },
+    );
 
     // モックをリセット
     vi.clearAllMocks();

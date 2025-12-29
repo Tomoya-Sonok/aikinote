@@ -1,22 +1,60 @@
 import { zValidator } from "@hono/zod-validator";
-import { createClient } from "@supabase/supabase-js";
-import { Hono } from "hono";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { Hono, type Context } from "hono";
 import { z } from "zod";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 
-const app = new Hono();
+type UserBindings = {
+  SUPABASE_URL?: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+  JWT_SECRET?: string;
+};
 
-// 環境変数からSupabase接続情報を取得
-const supabaseUrl = process.env.SUPABASE_URL || "";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+type UserVariables = {
+  supabase: SupabaseClient | null;
+};
 
-// Supabaseクライアントの初期化
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+const app = new Hono<{ Bindings: UserBindings; Variables: UserVariables }>();
+
+let supabaseForUsers: SupabaseClient | null = null;
+
+const resolveSupabaseClient = (
+  c: Context<{ Bindings: UserBindings; Variables: UserVariables }>,
+): SupabaseClient | null => {
+  const supabaseFromContext = c.get("supabase");
+
+  if (supabaseFromContext) {
+    return supabaseFromContext;
+  }
+
+  if (supabaseForUsers) {
+    return supabaseForUsers;
+  }
+
+  const supabaseUrl =
+    c.env?.SUPABASE_URL ??
+    (typeof process !== "undefined" ? process.env?.SUPABASE_URL : undefined) ??
+    "";
+  const supabaseServiceKey =
+    c.env?.SUPABASE_SERVICE_ROLE_KEY ??
+    (typeof process !== "undefined"
+      ? process.env?.SUPABASE_SERVICE_ROLE_KEY
+      : undefined) ??
+    "";
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return null;
+  }
+
+  supabaseForUsers = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+
+  return supabaseForUsers;
+};
 
 // プロフィール更新のスキーマ
 const updateProfileSchema = z.object({
@@ -34,7 +72,7 @@ app.get("/:userId", async (c) => {
 
     // JWT認証
     const token = extractTokenFromHeader(authHeader);
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token, c.env);
 
     // 本人のプロフィールのみ取得可能
     if (payload.userId !== userId) {
@@ -44,6 +82,18 @@ app.get("/:userId", async (c) => {
           error: "他のユーザーのプロフィールは取得できません",
         },
         403,
+      );
+    }
+
+    const supabase = resolveSupabaseClient(c);
+
+    if (!supabase) {
+      return c.json(
+        {
+          success: false,
+          error: "サーバー設定が不正です",
+        },
+        500,
       );
     }
 
@@ -116,7 +166,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
 
     // JWT認証
     const token = extractTokenFromHeader(authHeader);
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token, c.env);
 
     // 本人のプロフィールのみ更新可能
     if (payload.userId !== userId) {
@@ -137,6 +187,18 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
           error: "ユーザー名は20文字以内で入力してください",
         },
         400,
+      );
+    }
+
+    const supabase = resolveSupabaseClient(c);
+
+    if (!supabase) {
+      return c.json(
+        {
+          success: false,
+          error: "サーバー設定が不正です",
+        },
+        500,
       );
     }
 
