@@ -1,0 +1,3 @@
+name = "aikinote-api"
+main = "src/index.worker.ts"
+compatibility_date = "2025-12-28"

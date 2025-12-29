@@ -134,12 +134,27 @@ export async function createUserProfile(userData: {
       }),
     });
 
-    const result: ApiResponse = await response.json();
+    let result: ApiResponse | null = null;
+    let parseErrorMessage: string | null = null;
+    try {
+      result = await response.json();
+    } catch (error) {
+      console.error("📡 [DEBUG] createUserProfile: JSON解析エラー", {
+        status: response.status,
+        statusText: response.statusText,
+        error,
+      });
+      parseErrorMessage =
+        error instanceof Error ? error.message : "Invalid JSON response";
+    }
 
-    if (!response.ok || !result.success) {
+    if (!response.ok || !result?.success) {
       return {
         success: false,
-        error: result.success ? "ユーザー作成に失敗しました" : result.error,
+        error: result
+          ? result.error || "ユーザー作成に失敗しました"
+          : parseErrorMessage ??
+            `ユーザー作成に失敗しました (status: ${response.status})`,
       };
     }
 

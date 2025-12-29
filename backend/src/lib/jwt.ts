@@ -1,7 +1,4 @@
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+import { sign, verify } from "hono/jwt";
 
 export interface JWTPayload {
   userId: string;
@@ -10,19 +7,49 @@ export interface JWTPayload {
   exp?: number;
 }
 
-export function generateToken(payload: {
-  userId: string;
-  email?: string;
-}): string {
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "24h",
-  });
+type JwtEnv = {
+  JWT_SECRET?: string;
+} | undefined;
+
+const getSecret = (env?: JwtEnv): string => {
+  const secret =
+    env?.JWT_SECRET ??
+    (typeof process !== "undefined" ? process.env?.JWT_SECRET : undefined);
+
+  if (!secret) {
+    throw new Error("JWT secret is not configured");
+  }
+
+  return secret;
+};
+
+export async function generateToken(
+  payload: { userId: string; email?: string },
+  env?: JwtEnv,
+): Promise<string> {
+  const secret = getSecret(env);
+  const now = Math.floor(Date.now() / 1000);
+  const exp = now + 60 * 60 * 24;
+
+  return sign(
+    {
+      ...payload,
+      iat: now,
+      exp,
+    },
+    secret,
+  );
 }
 
-export function verifyToken(token: string): JWTPayload {
+export async function verifyToken(
+  token: string,
+  env?: JwtEnv,
+): Promise<JWTPayload> {
+  const secret = getSecret(env);
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    return decoded;
+    const result = await verify(token, secret);
+    return result as unknown as JWTPayload;
   } catch (_error) {
     throw new Error("Invalid or expired token");
   }
