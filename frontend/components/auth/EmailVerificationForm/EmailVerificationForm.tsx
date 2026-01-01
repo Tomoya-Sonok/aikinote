@@ -20,13 +20,50 @@ export function EmailVerificationForm({
   const [verificationStatus, setVerificationStatus] = useState<
     "loading" | "success" | "error"
   >("loading");
-  const [_errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [debugDetails, setDebugDetails] = useState<Record<string, string>>({});
   const { verifyEmail } = useAuth();
   const t = useTranslations();
   const locale = useLocale();
   const homeHref = `/${locale}/personal/pages`;
   const loginHref = `/${locale}/login`;
   const signupHref = `/${locale}/signup`;
+  const debugEntries = Object.entries(debugDetails);
+
+  const buildDebugDetails = (error: unknown, currentToken?: string) => {
+    const details: Record<string, string> = {
+      timestamp: new Date().toISOString(),
+      locale,
+      token: currentToken || "(missing)",
+      tokenLength: currentToken ? String(currentToken.length) : "0",
+      tokenPrefix: currentToken ? currentToken.slice(0, 8) : "-",
+      tokenSuffix: currentToken ? currentToken.slice(-8) : "-",
+      currentUrl:
+        typeof window !== "undefined" ? window.location.href : "unknown",
+      userAgent:
+        typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      isSecureContext:
+        typeof window !== "undefined" ? String(window.isSecureContext) : "false",
+      apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || "(not set)",
+      errorType: typeof error,
+    };
+
+    if (error instanceof Error) {
+      details.errorName = error.name;
+      details.errorMessage = error.message;
+      if (error.stack) {
+        details.errorStack = error.stack;
+      }
+      if ("cause" in error && error.cause) {
+        details.errorCause =
+          typeof error.cause === "string"
+            ? error.cause
+            : JSON.stringify(error.cause);
+      }
+    }
+
+    return details;
+  };
 
   useEffect(() => {
     const performVerification = async () => {
@@ -40,6 +77,7 @@ export function EmailVerificationForm({
             ? err.message
             : t("auth.emailVerificationFailed");
         setErrorMessage(message);
+        setDebugDetails(buildDebugDetails(err, token));
         setVerificationStatus("error");
         onError?.(message);
       }
@@ -49,9 +87,12 @@ export function EmailVerificationForm({
       void performVerification();
     } else if (!token) {
       setErrorMessage(t("auth.verificationTokenInvalid"));
+      setDebugDetails(
+        buildDebugDetails(new Error(t("auth.verificationTokenInvalid")), token),
+      );
       setVerificationStatus("error");
     }
-  }, [token, verifyEmail, onSuccess, onError, verificationStatus, t]);
+  }, [token, verifyEmail, onSuccess, onError, verificationStatus, t, locale]);
 
   if (verificationStatus === "loading") {
     return (
@@ -161,6 +202,22 @@ export function EmailVerificationForm({
         </div>
         <div className={styles.errorContentsWrapper}>
           <h2 className={styles.errorTitle}>{t("auth.verificationFailed")}</h2>
+          {errorMessage && (
+            <div className={styles.debugInfo}>
+              <p className={styles.debugInfoTitle}>Debug info</p>
+              <p className={styles.debugInfoMessage}>{errorMessage}</p>
+              {debugEntries.length > 0 && (
+                <ul className={styles.debugInfoList}>
+                  {debugEntries.map(([key, value]) => (
+                    <li key={key} className={styles.debugInfoItem}>
+                      <span className={styles.debugInfoKey}>{key}</span>
+                      <span className={styles.debugInfoValue}>{value}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
           <div className={styles.errorDetails}>
             <p className={styles.errorDetailsTitle}>
               {t("auth.verificationFailedReasons")}
