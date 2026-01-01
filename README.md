@@ -67,7 +67,7 @@
 | **Backend**  | Hono (Node.js 20) / TypeScript / Zod / JSON Web Token / Supabase JavaScript SDK |
 | **Database & Auth** | Supabase (PostgreSQL, Auth, Row Level Security) |
 | **Storage & Messaging** | Amazon S3 / CloudFront / Resend |
-| **Infrastructure** | AWS ECS Fargate / Application Load Balancer / Elastic Container Registry / AWS Systems Manager Parameter Store / CloudWatch Logs / Terraform |
+| **Infrastructure** | Vercel (Frontend) / Cloudflare Workers (Backend) / Cloudflare DNS |
 | **Tooling & Testing** | pnpm Workspaces / Docker & Docker Compose / Vitest / Testing Library / Storybook / MSW / Biome |
 
 ## Setup

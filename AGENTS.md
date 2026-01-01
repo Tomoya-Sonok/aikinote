@@ -6,7 +6,7 @@
 # AGENTS.md
 
 AikiNote モノレポの開発をスムーズに進めるためのエージェント用ガイドラインです。  
-フロントエンド・バックエンド・インフラ・運用規約を統一的に整理しています。
+フロントエンド・バックエンド・運用規約を統一的に整理しています。
 
 ---
 
@@ -28,7 +28,6 @@ AikiNote モノレポの開発をスムーズに進めるためのエージェ�
 │   ├── src/types
 │   └── src/test/     # テスト補助
 │
-├── infra/            # IaC (Terraform 等)
 ├── scripts/          # CLI・自動化スクリプト
 ├── docker-compose.yml
 ├── pnpm-workspace.yaml
