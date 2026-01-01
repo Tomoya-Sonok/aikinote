@@ -238,49 +238,6 @@
   left: 0;
 }
 
-.debugInfo {
-  color: #fd4545;
-  font-family: "Public Sans", sans-serif;
-  font-size: 11px;
-  line-height: 1.4;
-  word-break: break-word;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.debugInfoTitle {
-  font-weight: 600;
-}
-
-.debugInfoMessage {
-  font-weight: 500;
-}
-
-.debugInfoList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.debugInfoItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.debugInfoKey {
-  font-weight: 600;
-}
-
-.debugInfoValue {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
 .button {
   width: 100%;
   height: 35px;
