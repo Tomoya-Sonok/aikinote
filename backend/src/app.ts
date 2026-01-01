@@ -34,7 +34,11 @@ const fetchGlobals =
 		? { fetch, Headers, Request, Response }
 		: undefined;
 
-const defaultAllowedOrigins = ["http://localhost:3000", "https://aikinote.com"];
+const defaultAllowedOrigins = [
+	"http://localhost:3000",
+	"https://aikinote.com",
+	"https://www.aikinote.com",
+];
 
 const normalizeOrigin = (origin: string): string => origin.replace(/\/+$/, "");
 
