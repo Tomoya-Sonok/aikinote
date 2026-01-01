@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 AikiNote Production Deployment Script"
+echo "🚀 AikiNote Deployment Script"
 echo "========================================"
 
 # 現在のブランチをチェック
@@ -36,32 +36,26 @@ echo "🔍 Current commit:"
 git log --oneline -1
 echo ""
 
-# タグ名の生成（日付ベース）
-TODAY=$(date +%Y%m%d)
-EXISTING_TAGS=$(git tag -l "${TODAY}v*" | wc -l | tr -d ' ')
-NEXT_VERSION=$((EXISTING_TAGS + 1))
-TAG_NAME="${TODAY}v${NEXT_VERSION}"
-
-echo "📋 Generated tag name: $TAG_NAME"
-echo ""
-
-read -p "Do you want to deploy version $TAG_NAME to production? (yes/no): " confirm
+read -p "Do you want to deploy frontend by pushing main branch? (yes/no): " confirm
 if [ "$confirm" != "yes" ]; then
     echo "❌ Deployment cancelled"
     exit 1
 fi
 
 echo ""
-echo "🚀 Creating tag and pushing..."
-
-# タグを作成してプッシュ
-git tag "$TAG_NAME"
-git push origin "$TAG_NAME"
+echo "🚀 Pushing main branch..."
+git push origin main
 
 echo ""
-echo "✅ Deployment tag created successfully!"
-echo "🚀 Tag: $TAG_NAME"
-echo "📊 Monitor deployment progress at:"
-echo "   https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\([^/]*\/[^/]*\)\.git/\1/')/actions"
+echo "✅ Frontend deployment triggered (Vercel)"
 echo ""
-echo "⏱️  Deployment typically takes 5-10 minutes to complete."
+
+read -p "Do you want to deploy backend via Cloudflare Workers now? (yes/no): " confirm_backend
+if [ "$confirm_backend" != "yes" ]; then
+    echo "ℹ️  Backend deployment skipped"
+    exit 0
+fi
+
+echo ""
+echo "🚀 Deploying backend via Wrangler (pnpm --filter backend exec wrangler deploy)..."
+pnpm --filter backend exec wrangler deploy

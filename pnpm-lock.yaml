@@ -22,6 +22,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.2
       hono:
         specifier: ^4.7.7
         version: 4.9.7

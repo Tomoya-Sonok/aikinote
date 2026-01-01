@@ -1,6 +1,13 @@
 import type { UserSession } from "@/lib/auth";
 import type { ApiResponse } from "@/lib/types/api";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+
+const buildApiUrl = (path: string) => {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE_URL}${normalizedPath}`;
+};
+
 /**
  * ユーザープロフィール取得の共通関数
  * クライアントサイド・サーバーサイド両方で使用可能
@@ -122,7 +129,7 @@ export async function createUserProfile(userData: {
   error?: string;
 }> {
   try {
-    const response = await fetch("/api/users", {
+    const response = await fetch(buildApiUrl("/api/users"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

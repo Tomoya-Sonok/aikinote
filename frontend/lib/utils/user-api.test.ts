@@ -216,7 +216,7 @@ describe("createUserProfile", () => {
 
     const result = await createUserProfile(userData);
 
-    expect(mockFetch).toHaveBeenCalledWith("/api/users", {
+    expect(mockFetch).toHaveBeenCalledWith("http://localhost:8787/api/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
