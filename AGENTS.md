@@ -103,6 +103,12 @@ AikiNote モノレポの開発をスムーズに進めるためのエージェ�
 	- Backend ハンドラ: create<Name>Handler
 	- 共通ユーティリティ: 名前付きエクスポート推奨
 
+- コンポーネント配置
+	- 新規UIコンポーネントは `frontend/components/{atoms|molecules|organisms}` 配下に配置する
+	- `*.module.css` と `*.stories.tsx` を同階層に置く
+	- `frontend/app/` 直下へコンポーネントを新規追加しない
+	- 置き場所の指定がある場合は最優先、迷う場合は必ず確認する
+
 ## 4. テスト指針
 
 	- ツール:

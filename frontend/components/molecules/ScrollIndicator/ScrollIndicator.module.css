@@ -1,8 +1,7 @@
 .scrollIndicator {
 	position: fixed;
-	bottom: 16px;
-	left: 50%;
-	transform: translateX(-50%);
+	bottom: 6%;
+	right: 6%;
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
@@ -71,7 +70,10 @@
 
 @media (min-width: 768px) {
 	.scrollIndicator {
-		bottom: 20px;
+		bottom: 16px;
+		left: 50%;
+		right: auto;
+		transform: translateX(-50%);
 	}
 
 	.label {

@@ -1,0 +1,41 @@
+.button {
+  position: absolute;
+  bottom: -45px;
+  right: 10px;
+  color: var(--aikinote-white, #ffffff);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.button:focus-visible {
+  outline: 3px solid var(--accent-color, #f59e0b);
+  outline-offset: 4px;
+}
+
+.icon {
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+  transform: rotate(-45deg);
+  display: inline-block;
+  align-self: end;
+}
+
+@media (min-width: 768px) {
+  .button {
+    bottom: 16px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+}
