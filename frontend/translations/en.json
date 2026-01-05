@@ -12,25 +12,43 @@
 			"signup": "Sign up",
 			"login": "Log in",
 			"contact": "Contact us",
-			"seeMore": "See more"
+			"goDown": "Go down"
 		},
 		"navigation": {
 			"logoLabel": "AikiNote home",
 			"ariaLabel": "Landing page navigation",
 			"links": [
 				{
+					"href": "#hero",
+					"label": "Top"
+				},
+				{
+					"href": "#pain-points",
+					"label": "Practice Record Pain Points"
+				},
+				{
 					"href": "#solution-recording",
-					"label": "How it works"
+					"label": "How It Works"
 				},
 				{
 					"href": "#solution-search",
-					"label": "Features"
+					"label": "Helpful Search Features"
 				},
 				{
 					"href": "#faq",
-					"label": "FAQ"
+					"label": "FAQ & Contact"
 				}
 			]
+		},
+		"drawer": {
+			"title": "Menu",
+			"close": "Close menu",
+			"terms": "Terms of Service",
+			"privacy": "Privacy Policy",
+			"help": {
+				"prefix": "Help & contact form is",
+				"linkLabel": "here"
+			}
 		},
 		"hero": {
 			"lead": "Digital practice log specifically designed for Aikido.",
@@ -129,7 +147,8 @@
 			"brand": "AikiNote",
 			"contact": "Contact",
 			"instagram": "Instagram",
-			"facebook": "Facebook"
+			"facebook": "Facebook",
+			"backToTop": "Back to top"
 		},
 		"floatingCta": "Start for free"
 	},

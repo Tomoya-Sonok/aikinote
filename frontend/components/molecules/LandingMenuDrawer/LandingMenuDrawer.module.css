@@ -1,0 +1,168 @@
+.menuButton {
+  align-items: center;
+  background: var(--aikinote-white, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 12px;
+  color: var(--text-color, #1f2937);
+  cursor: pointer;
+  display: inline-flex;
+  min-height: 36px;
+  padding: 8px;
+  width: 40px;
+  justify-content: center;
+}
+
+.menuButton:focus-visible,
+.menuDrawerLink:focus-visible,
+.menuDrawerClose:focus-visible {
+  outline: 3px solid var(--accent-color, #f59e0b);
+  outline-offset: 4px;
+}
+
+.menuIcon {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 18px;
+}
+
+.menuIcon span {
+  background: var(--aikinote-black, #000000);
+  border-radius: 999px;
+  height: 2px;
+  width: 100%;
+}
+
+.srOnly {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.menuDrawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 100vw;
+  background: var(--aikinote-white, #ffffff);
+  z-index: 10000;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.menuDrawerOpen {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.menuDrawerClose {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--aikinote-gray, #838383);
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+}
+
+.menuDrawerClose:hover {
+  background: var(--aikinote-bg, #efecec);
+  color: var(--aikinote-black, #000000);
+  transform: scale(1.05);
+}
+
+.menuDrawerClose:active {
+  transform: scale(0.95);
+}
+
+.menuDrawerContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 72px 0 20px;
+  overflow-y: auto;
+}
+
+.menuDrawerNav {
+  padding: 0 24px;
+}
+
+.menuDrawerList {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menuDrawerList li {
+  width: 100%;
+}
+
+.menuDrawerLink {
+  color: var(--aikinote-black, #000000);
+  display: block;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  padding: 12px 0;
+  width: 100%;
+}
+
+.menuDrawerFooter {
+  margin-top: auto;
+  padding: 20px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-light, #6b7280);
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.menuDrawerFooterItem {
+  margin: 0;
+}
+
+.menuDrawerHelpLink {
+  color: var(--text-color, #1f2937);
+  text-decoration: underline;
+  margin-left: 4px;
+  font-weight: 600;
+}
+
+@media (hover: hover) {
+  .menuDrawerLink:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .menuButton {
+    display: none;
+  }
+}

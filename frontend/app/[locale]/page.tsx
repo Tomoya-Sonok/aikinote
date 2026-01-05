@@ -3,7 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Fragment, type ReactNode } from "react";
+import { BackToTopButton } from "@/components/atoms/BackToTopButton/BackToTopButton";
 import { HeroCarousel } from "@/components/molecules/HeroCarousel/HeroCarousel";
+import { LandingMenuDrawer } from "@/components/molecules/LandingMenuDrawer/LandingMenuDrawer";
 import { ScrollIndicator } from "@/components/molecules/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
@@ -49,6 +51,7 @@ export default async function RootPage({ params }: RootPageProps) {
 	}
 
 	const t = await getTranslations({ locale, namespace: "landing" });
+	const tLanguage = await getTranslations({ locale, namespace: "language" });
 	const heroTitleLines = t.raw("hero.titleLines") as string[];
 	const heroCarouselItems = (
 		t.raw("hero.carousel.items") as Array<{
@@ -65,7 +68,6 @@ export default async function RootPage({ params }: RootPageProps) {
 	const footer = t.raw("footer") as FooterContent;
 	const rootHref = isDefaultLocale ? "/" : `/${locale}`;
 	const signupHref = `${localePrefix}/signup`;
-	const loginHref = `${localePrefix}/login`;
 	const currentYear = new Date().getFullYear();
 	const searchFeatureIcons: Record<
 		(typeof SEARCH_FEATURE_KEYS)[number],
@@ -76,6 +78,27 @@ export default async function RootPage({ params }: RootPageProps) {
 		third: styles.featureIconRecent,
 	};
 	const searchSubtitleLines = t("solutionSearch.subtitle").split("\n");
+	const localeSummary = isDefaultLocale
+		? tLanguage("japanese")
+		: tLanguage("english");
+	const localeOptions = [
+		{
+			href: "/",
+			label: tLanguage("japanese"),
+			isActive: isDefaultLocale,
+		},
+		{
+			href: "/en",
+			label: tLanguage("english"),
+			isActive: locale === "en",
+		},
+	];
+	const menuLabel = t("drawer.title");
+	const menuCloseLabel = t("drawer.close");
+	const menuTermsLabel = t("drawer.terms");
+	const menuPrivacyLabel = t("drawer.privacy");
+	const menuHelpPrefix = t("drawer.help.prefix");
+	const menuHelpLinkLabel = t("drawer.help.linkLabel");
 
 	return (
 		<div className={styles.page}>
@@ -96,30 +119,52 @@ export default async function RootPage({ params }: RootPageProps) {
 							priority
 						/>
 					</Link>
-					<nav aria-label={navigation.ariaLabel} className={styles.nav}>
-						<ul className={styles.navList}>
-							{navigation.links.map((link) => (
-								<li key={link.href}>
-									<a className={styles.navLink} href={link.href}>
-										{link.label}
-									</a>
-								</li>
-							))}
-						</ul>
-					</nav>
-					<div className={styles.navActions}>
-						<Link
-							href={loginHref}
-							className={`${styles.navCta} ${styles.navCtaSecondary}`}
-						>
-							{t("cta.login")}
-						</Link>
-						<Link
-							href={signupHref}
-							className={`${styles.navCta} ${styles.navCtaPrimary}`}
-						>
-							{t("cta.signup")}
-						</Link>
+					<div className={styles.headerRight}>
+						<nav aria-label={navigation.ariaLabel} className={styles.nav}>
+							<ul className={styles.navList}>
+								{navigation.links.map((link) => (
+									<li key={link.href}>
+										<a className={styles.navLink} href={link.href}>
+											{link.label}
+										</a>
+									</li>
+								))}
+							</ul>
+						</nav>
+						<div className={styles.headerUtilities}>
+							<details className={styles.localeMenu}>
+								<summary className={styles.localeSummary}>
+									<span className={styles.localeSummaryText}>
+										{localeSummary}
+									</span>
+									<span className={styles.localeChevron} aria-hidden="true" />
+								</summary>
+								<div className={styles.localePanel}>
+									{localeOptions.map((option) => (
+										<Link
+											key={option.href}
+											href={option.href}
+											className={`${styles.localeOption} ${
+												option.isActive ? styles.localeOptionActive : ""
+											}`}
+											aria-current={option.isActive ? "page" : undefined}
+										>
+											{option.label}
+										</Link>
+									))}
+								</div>
+							</details>
+							<LandingMenuDrawer
+								links={navigation.links}
+								menuLabel={menuLabel}
+								closeLabel={menuCloseLabel}
+								ariaLabel={navigation.ariaLabel}
+								termsLabel={menuTermsLabel}
+								privacyLabel={menuPrivacyLabel}
+								helpPrefix={menuHelpPrefix}
+								helpLinkLabel={menuHelpLinkLabel}
+							/>
+						</div>
 					</div>
 				</div>
 			</header>
@@ -426,13 +471,14 @@ export default async function RootPage({ params }: RootPageProps) {
 							</a>
 						</li>
 					</ul>
+					<BackToTopButton label={t("footer.backToTop")} />
 				</div>
 			</footer>
 
 			<Link href={signupHref} className={styles.floatingCta}>
 				{t("floatingCta")}
 			</Link>
-			<ScrollIndicator label={t("cta.seeMore")} />
+			<ScrollIndicator label={t("cta.goDown")} />
 		</div>
 	);
 }

@@ -12,25 +12,43 @@
 			"signup": "新規登録",
 			"login": "ログイン",
 			"contact": "問い合わせはこちら",
-			"seeMore": "続きを見る"
+			"goDown": "下へ進む"
 		},
 		"navigation": {
 			"logoLabel": "AikiNote ホーム",
 			"ariaLabel": "ランディングページ内リンク",
 			"links": [
 				{
+					"href": "#hero",
+					"label": "トップ"
+				},
+				{
+					"href": "#pain-points",
+					"label": "稽古記録の悩み"
+				},
+				{
 					"href": "#solution-recording",
-					"label": "使い方"
+					"label": "利用方法・流れ"
 				},
 				{
 					"href": "#solution-search",
-					"label": "機能"
+					"label": "便利な検索機能"
 				},
 				{
 					"href": "#faq",
-					"label": "FAQ"
+					"label": "FAQ・問い合わせ"
 				}
 			]
+		},
+		"drawer": {
+			"title": "メニュー",
+			"close": "メニューを閉じる",
+			"terms": "利用規約",
+			"privacy": "プライバシーポリシー",
+			"help": {
+				"prefix": "ヘルプ・問い合わせフォームは",
+				"linkLabel": "こちら"
+			}
 		},
 		"hero": {
 			"lead": "合気道に特化したデジタル稽古日誌",
@@ -129,7 +147,8 @@
 			"brand": "AikiNote",
 			"contact": "お問い合わせ",
 			"instagram": "Instagram",
-			"facebook": "Facebook"
+			"facebook": "Facebook",
+			"backToTop": "トップに戻る"
 		},
 		"floatingCta": "無料ではじめる"
 	},
