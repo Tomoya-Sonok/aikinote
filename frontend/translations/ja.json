@@ -6,7 +6,6 @@
 		"settings": "設定"
 	},
 	"landing": {
-		"contactEmail": "mailto:hello@aikinote.com",
 		"cta": {
 			"primary": "無料ではじめる",
 			"signup": "新規登録",
@@ -139,7 +138,7 @@
 				},
 				"others": {
 					"question": "Q. その他に気になることがあったら？",
-					"answer": "A. <bold>ヘルプ・問い合わせ</bold>から問い合わせフォームをご利用ください。"
+					"answer": "A. <underlined><link>ヘルプ・問い合わせ</link></underlined>から問い合わせフォームをご利用ください。"
 				}
 			}
 		},

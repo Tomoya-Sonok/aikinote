@@ -39,6 +39,7 @@ const FAQ_KEYS = [
 ] as const;
 
 const bold = (chunks: ReactNode) => <strong>{chunks}</strong>;
+const underlined = (chunks: ReactNode) => <u>{chunks}</u>;
 
 export default async function RootPage({ params }: RootPageProps) {
 	const { locale } = await params;
@@ -411,14 +412,31 @@ export default async function RootPage({ params }: RootPageProps) {
 											<span>{t(`faq.items.${key}.question`)}</span>
 										</summary>
 										<div className={styles.accordionPanel}>
-											{t.rich(`faq.items.${key}.answer`, { bold })}
+											{t.rich(`faq.items.${key}.answer`, {
+												bold,
+												underlined,
+												link: (chunks) => (
+													<a
+														href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
+														target="_blank"
+														rel="noreferrer"
+													>
+														{chunks}
+													</a>
+												),
+											})}
 										</div>
 									</details>
 								))}
 							</div>
 						</div>
 						<div className={styles.sectionActions}>
-							<a className={styles.secondaryCta} href={t("contactEmail")}>
+							<a
+								className={styles.secondaryCta}
+								target="_blank"
+								rel="noreferrer"
+								href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
+							>
 								{t("cta.contact")}
 							</a>
 						</div>
@@ -446,7 +464,12 @@ export default async function RootPage({ params }: RootPageProps) {
 					</div>
 					<ul className={styles.footerLinks}>
 						<li>
-							<a href={t("contactEmail")} className={styles.footerLink}>
+							<a
+								href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
+								target="_blank"
+								rel="noreferrer"
+								className={styles.footerLink}
+							>
 								{footer.contact}
 							</a>
 						</li>
