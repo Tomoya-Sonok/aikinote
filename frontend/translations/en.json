@@ -6,7 +6,6 @@
 		"settings": "Settings"
 	},
 	"landing": {
-		"contactEmail": "mailto:hello@aikinote.com",
 		"cta": {
 			"primary": "Start for free",
 			"signup": "Sign up",
@@ -139,7 +138,7 @@
 				},
 				"others": {
 					"question": "Q. How can I ask other questions?",
-					"answer": "A. Please reach out through the <bold>Help &amp; Contact</bold> form and we will get back to you."
+					"answer": "A. Please reach out through the <underlined><link>Help &amp; Contact</link></underlined> form and we will get back to you."
 				}
 			}
 		},
