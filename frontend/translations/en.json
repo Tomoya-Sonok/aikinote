@@ -172,6 +172,26 @@
 	"settings": {
 		"email": "Email"
 	},
+	"emailChange": {
+		"title": "Email Address",
+		"description": "We will send a confirmation email to your new address.",
+		"currentEmail": "Current email",
+		"newEmail": "New email",
+		"currentPassword": "Current password",
+		"submit": "Send confirmation email",
+		"submitting": "Sending...",
+		"requestSuccess": "A confirmation email has been sent to your new email address. Please click the link in the email to complete the change.",
+		"requestFailed": "Failed to request email change.",
+		"pendingLabel": "Pending email",
+		"confirmTitle": "Confirm email change",
+		"confirming": "Confirming your email change...",
+		"confirmSuccess": "Your email address has been updated.",
+		"confirmFailed": "Failed to change your email address.",
+		"tokenInvalid": "Invalid authentication token.",
+		"tokenExpired": "The authentication link has expired.",
+		"backToLogin": "Go to login",
+		"completeNote": "Please sign in again with your new email."
+	},
 	"profile": {
 		"edit": "Edit",
 		"notEntered": "Not entered",

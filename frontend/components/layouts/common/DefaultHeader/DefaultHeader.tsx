@@ -54,7 +54,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 
   const handleEmailClick = () => {
     setIsDrawerOpen(false);
-    console.log("メール設定がクリックされました");
+    window.location.href = `/${locale}/settings/email`;
   };
 
   const handleLanguageClick = () => {
