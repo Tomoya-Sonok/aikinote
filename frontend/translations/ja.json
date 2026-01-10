@@ -172,6 +172,26 @@
 	"settings": {
 		"email": "メール"
 	},
+	"emailChange": {
+		"title": "メールアドレス",
+		"description": "新しいメールアドレスに確認メールを送信します。",
+		"currentEmail": "現在のメールアドレス",
+		"newEmail": "新しいメールアドレス",
+		"currentPassword": "現在のパスワード",
+		"submit": "確認メールを送信",
+		"submitting": "送信中...",
+		"requestSuccess": "新しいメールアドレス宛に確認メールを送信しました。メール内のリンクを押して変更を完了してください。",
+		"requestFailed": "メール変更の申請に失敗しました",
+		"pendingLabel": "変更先のメールアドレス",
+		"confirmTitle": "メールアドレス変更の確認",
+		"confirming": "メールアドレス変更を確認しています...",
+		"confirmSuccess": "メールアドレスの変更が完了しました",
+		"confirmFailed": "メールアドレスの変更に失敗しました",
+		"tokenInvalid": "認証トークンが無効です",
+		"tokenExpired": "認証トークンの有効期限が切れています",
+		"backToLogin": "ログイン画面へ",
+		"completeNote": "続けてログインし直してください。"
+	},
 	"profile": {
 		"edit": "編集する",
 		"notEntered": "未入力",

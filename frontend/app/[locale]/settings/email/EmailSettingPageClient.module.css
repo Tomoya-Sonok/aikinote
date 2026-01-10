@@ -1,0 +1,99 @@
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 580px;
+  background: var(--aikinote-white, #ffffff);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+}
+
+.description {
+  font-size: 14px;
+  color: var(--aikinote-text-secondary, #4b5563);
+  line-height: 1.6;
+}
+
+.currentEmail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--aikinote-text-primary, #1f2937);
+}
+
+.label {
+  font-size: 12px;
+  color: var(--aikinote-text-secondary, #6b7280);
+}
+
+.value {
+  font-weight: 600;
+}
+
+.pendingBox {
+  border-radius: 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.08);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pendingHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pendingLabel {
+  font-size: 12px;
+  color: #2563eb;
+}
+
+.pendingStatus {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.pendingValue {
+  font-size: 14px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.errorMessage {
+  font-size: 12px;
+  color: #e11d48;
+}
+
+.submitButton {
+  width: 100%;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--aikinote-text-secondary, #6b7280);
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}

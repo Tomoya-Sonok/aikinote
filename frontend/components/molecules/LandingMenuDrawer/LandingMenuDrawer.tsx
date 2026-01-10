@@ -38,20 +38,23 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
   };
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
+    const previousOverflowY = document.body.style.overflowY;
 
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
+    document.addEventListener("keydown", handleEscape);
+    document.body.style.overflowY = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+      document.body.style.overflowY = previousOverflowY;
     };
   }, [isOpen]);
 

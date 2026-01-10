@@ -8,13 +8,11 @@ import styles from "./SettingsMenu.module.css";
 
 interface SettingsMenuProps {
   onPublicityClick: () => void;
-  onEmailClick: () => void;
   className?: string;
 }
 
 export const SettingsMenu: FC<SettingsMenuProps> = ({
   // onPublicityClick, 初期リリース時は「公開範囲」をスコープアウト
-  onEmailClick,
   className = "",
 }) => {
   const t = useTranslations();
@@ -28,7 +26,9 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({
       <SettingItem onClick={() => router.push(`/${locale}/settings/tags`)}>
         {t("tagManagement.title")}
       </SettingItem>
-      <SettingItem onClick={onEmailClick}>{t("settings.email")}</SettingItem>
+      <SettingItem onClick={() => router.push(`/${locale}/settings/email`)}>
+        {t("settings.email")}
+      </SettingItem>
       <SettingItem onClick={() => router.push(`/${locale}/settings/font-size`)}>
         {t("fontSize.title")}
       </SettingItem>

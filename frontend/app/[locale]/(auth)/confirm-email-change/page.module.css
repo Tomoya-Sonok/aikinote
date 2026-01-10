@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 32px;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--aikinote-white, #ffffff);
+  border-radius: 20px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--aikinote-text-primary, #1f2937);
+}
+
+.note {
+  font-size: 13px;
+  color: var(--aikinote-text-secondary, #6b7280);
+  line-height: 1.6;
+}
+
+.linkButton {
+  font-size: 14px;
+  color: var(--aikinote-text-primary, #1f2937);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  align-self: center;
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 32px;
+  }
+}
