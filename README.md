@@ -142,6 +142,8 @@ docker-compose up
 ```
 
 > **Note**: If you prefer running them without Docker, open two terminals and run `pnpm --filter backend dev` and `pnpm --filter frontend dev`. Both commands rely on the root `.env.local`.
+>
+> **Tip**: You can also start both servers from the monorepo root with a single command: `pnpm dev`. To run in the background, use `pnpm dev -- --bg`, and to stop them, run `pnpm dev:stop`.
 
 ### 5. Access the application
 

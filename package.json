@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:stop": "node scripts/dev-stop.mjs",
     "test": "pnpm -r test",
     "check": "pnpm -r check",
     "check:fix": "pnpm -r check:fix"

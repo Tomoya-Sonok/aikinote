@@ -1,0 +1,95 @@
+
+> aikinote-frontend@0.1.0 dev /Users/tomoyakonos/Desktop/projects/aikinote/frontend
+> next dev -H 0.0.0.0
+
+[dotenv@17.2.2] injecting env (19) from ../.env.local -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+ ⚠ `eslint` configuration in next.config.js is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+ ⚠ `images.domains` is deprecated in favor of `images.remotePatterns`. Please update next.config.js to protect your application from malicious users.
+ ⚠ Invalid next.config.js options detected: 
+ ⚠     Unrecognized key(s) in object: 'eslint', 'optimizeFonts'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://0.0.0.0:3000
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 419ms
+[middleware] start /
+[middleware] main getSession done
+Middleware session: No active session
+🐾 getCurrentUser: start
+🐾 getCurrentUser: getSession done { hasSession: false, userId: undefined, error: undefined }
+getCurrentUser session check: {
+  hasSession: false,
+  hasUser: false,
+  userId: undefined,
+  error: undefined
+}
+No session or user found in getCurrentUser
+ GET / 200 in 1224ms (compile: 898ms, proxy.ts: 85ms, render: 241ms)
+ ⚠ The "images.domains" configuration is deprecated. Please use "images.remotePatterns" configuration instead.
+[middleware] start /signup
+[middleware] main getSession done
+Middleware session: No active session
+🐾 getCurrentUser: start
+🐾 getCurrentUser: getSession done { hasSession: false, userId: undefined, error: undefined }
+getCurrentUser session check: {
+  hasSession: false,
+  hasUser: false,
+  userId: undefined,
+  error: undefined
+}
+No session or user found in getCurrentUser
+ GET /signup 200 in 686ms (compile: 647ms, proxy.ts: 21ms, render: 18ms)
+[middleware] start /ja/login
+[middleware] main getSession done
+Middleware session: No active session
+[middleware] start /login
+[middleware] main getSession done
+Middleware session: No active session
+🐾 getCurrentUser: start
+🐾 getCurrentUser: getSession done { hasSession: false, userId: undefined, error: undefined }
+getCurrentUser session check: {
+  hasSession: false,
+  hasUser: false,
+  userId: undefined,
+  error: undefined
+}
+No session or user found in getCurrentUser
+ GET /login 200 in 425ms (compile: 391ms, proxy.ts: 18ms, render: 16ms)
+[dotenv@17.2.2] injecting env (19) from ../.env.local -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+[?25h
+
+> aikinote-frontend@0.1.0 dev /Users/tomoyakonos/Desktop/projects/aikinote/frontend
+> next dev -H 0.0.0.0
+
+[dotenv@17.2.2] injecting env (19) from ../.env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+ ⚠ `eslint` configuration in next.config.js is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+ ⚠ `images.domains` is deprecated in favor of `images.remotePatterns`. Please update next.config.js to protect your application from malicious users.
+ ⚠ Invalid next.config.js options detected: 
+ ⚠     Unrecognized key(s) in object: 'eslint', 'optimizeFonts'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+   ▲ Next.js 16.0.10 (Turbopack)
+   - Local:         http://localhost:3000
+   - Network:       http://0.0.0.0:3000
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 488ms
+[middleware] start /login
+[middleware] main getSession done
+Middleware session: No active session
+🐾 getCurrentUser: start
+🐾 getCurrentUser: getSession done { hasSession: false, userId: undefined, error: undefined }
+getCurrentUser session check: {
+  hasSession: false,
+  hasUser: false,
+  userId: undefined,
+  error: undefined
+}
+No session or user found in getCurrentUser
+ GET /login 200 in 1157ms (compile: 915ms, proxy.ts: 69ms, render: 173ms)
+ ⚠ The "images.domains" configuration is deprecated. Please use "images.remotePatterns" configuration instead.
+[dotenv@17.2.2] injecting env (19) from ../.env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[?25h
