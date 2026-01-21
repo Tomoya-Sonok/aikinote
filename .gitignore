@@ -74,3 +74,6 @@ yarn-error.log*
 
 *storybook.log
 storybook-static
+
+# logs
+logs/
