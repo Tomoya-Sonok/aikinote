@@ -9,6 +9,7 @@ yarn-error.log*
 
 # Next.js
 .next/
+frontend/next-env.d.ts
 out/
 build/
 dist/
