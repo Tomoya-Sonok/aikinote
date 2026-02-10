@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
-import { TagManagementPageClient } from "./TagManagementPageClient";
+import { TagManagementPage } from "./TagManagementPage";
 
-export default async function TagManagementPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -14,5 +14,5 @@ export default async function TagManagementPage({
     redirect(`/${locale}/login`);
   }
 
-  return <TagManagementPageClient locale={locale} />;
+  return <TagManagementPage locale={locale} />;
 }

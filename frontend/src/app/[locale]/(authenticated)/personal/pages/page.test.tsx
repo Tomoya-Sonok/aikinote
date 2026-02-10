@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { deletePage, getPages, getTags } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
-import { PersonalPagesPageClient } from "./PersonalPagesPageClient";
+import { PersonalPagesPage } from "./PersonalPagesPage";
 
 // モック設定
 vi.mock("next/navigation", () => ({
@@ -200,7 +200,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -252,7 +252,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -289,7 +289,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -320,7 +320,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -352,7 +352,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -377,7 +377,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -408,7 +408,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -466,7 +466,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -509,7 +509,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -535,7 +535,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -570,7 +570,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -613,7 +613,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });
@@ -664,7 +664,7 @@ describe("ページ一覧画面", () => {
     await act(async () => {
       render(
         <I18nTestProvider>
-          <PersonalPagesPageClient />
+          <PersonalPagesPage />
         </I18nTestProvider>,
       );
     });

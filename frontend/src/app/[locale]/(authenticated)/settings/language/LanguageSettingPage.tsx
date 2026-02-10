@@ -7,13 +7,11 @@ import { LanguageSetting } from "@/components/molecules/LanguageSetting/Language
 import { useToast } from "@/contexts/ToastContext";
 import { useLanguageStore } from "@/stores/languageStore";
 
-interface LanguageSettingPageClientProps {
+interface LanguageSettingPageProps {
   locale: string;
 }
 
-export function LanguageSettingPageClient({
-  locale,
-}: LanguageSettingPageClientProps) {
+export function LanguageSettingPage({ locale }: LanguageSettingPageProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const { getNavigationPath } = useLanguageStore();

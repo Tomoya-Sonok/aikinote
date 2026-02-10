@@ -16,40 +16,34 @@ type AwsConfig = {
 let cachedConfig: AwsConfig | null = null;
 let cachedS3Client: S3Client | null = null;
 
-const assertRequiredEnv = <T extends Record<string, string | undefined>>(
-  env: T,
-  buildMessage: (missingKeys: string[]) => string,
-): asserts env is { [K in keyof T]: string } => {
-  const missingKeys = Object.entries(env)
-    .filter(([, value]) => !value)
-    .map(([key]) => key);
-
-  if (missingKeys.length > 0) {
-    throw new Error(buildMessage(missingKeys));
-  }
-};
-
 const loadAwsConfig = (): AwsConfig => {
   if (cachedConfig) {
     return cachedConfig;
   }
 
-  const requiredEnv = {
-    AWS_REGION: process.env.AWS_REGION,
-    AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-    AWS_S3_BUCKET_NAME: process.env.AWS_S3_BUCKET_NAME,
-  } as const;
+  const region = process.env.AWS_REGION;
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
-  assertRequiredEnv(requiredEnv, (missingKeys) => {
-    return `S3連携に必要な環境変数が見つかりません: ${missingKeys.join(", ")}`;
-  });
+  const missingKeys = [
+    !region ? "AWS_REGION" : null,
+    !accessKeyId ? "AWS_ACCESS_KEY_ID" : null,
+    !secretAccessKey ? "AWS_SECRET_ACCESS_KEY" : null,
+    !bucketName ? "AWS_S3_BUCKET_NAME" : null,
+  ].filter(Boolean);
+
+  if (missingKeys.length > 0) {
+    throw new Error(
+      `S3連携に必要な環境変数が見つかりません: ${missingKeys.join(", ")}`,
+    );
+  }
 
   cachedConfig = {
-    region: requiredEnv.AWS_REGION,
-    accessKeyId: requiredEnv.AWS_ACCESS_KEY_ID,
-    secretAccessKey: requiredEnv.AWS_SECRET_ACCESS_KEY,
-    bucketName: requiredEnv.AWS_S3_BUCKET_NAME,
+    region: region as string,
+    accessKeyId: accessKeyId as string,
+    secretAccessKey: secretAccessKey as string,
+    bucketName: bucketName as string,
   };
 
   return cachedConfig;

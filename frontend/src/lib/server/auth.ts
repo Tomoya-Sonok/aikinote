@@ -1,10 +1,102 @@
+import type { Session } from "@supabase/supabase-js";
+import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
 import { getServerSupabase } from "@/lib/supabase/server";
-import { getApiBaseUrl } from "@/lib/utils/env";
-import { fetchUserProfile } from "@/lib/utils/user-api";
+import type { ApiResponse } from "@/types/api";
+
+const HONO_API_BASE_URL =
+  process.env.NEXT_SERVER_API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8787";
+
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+
+type HonoUserProfile = {
+  id: string;
+  email: string;
+  username: string;
+  profile_image_url: string | null;
+  dojo_style_name: string | null;
+  training_start_date?: string | null;
+};
+
+const buildApiUrl = (path: string) => {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${HONO_API_BASE_URL}${normalizedPath}`;
+};
+
+const createBackendAuthTokenFromSession = (session: Session | null) => {
+  if (!session?.user) {
+    return null;
+  }
+
+  return jwt.sign(
+    {
+      userId: session.user.id,
+      email: session.user.email ?? "",
+    },
+    JWT_SECRET,
+    {
+      expiresIn: "24h",
+    },
+  );
+};
+
+const createBackendAuthToken = async () => {
+  const supabase = await getServerSupabase();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return createBackendAuthTokenFromSession(session);
+};
+
+const fetchUserProfileFromHono = async (
+  userId: string,
+  sessionOverride?: Session | null,
+): Promise<UserSession | null> => {
+  const token =
+    createBackendAuthTokenFromSession(sessionOverride ?? null) ||
+    (await createBackendAuthToken());
+  if (!token) {
+    return null;
+  }
+
+  const response = await fetch(buildApiUrl(`/api/users/${userId}`), {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const result: ApiResponse<HonoUserProfile> = await response
+    .json()
+    .catch(() => ({ success: false, error: "Invalid JSON response" }));
+
+  if (!result.success || !result.data) {
+    return null;
+  }
+
+  const data = result.data;
+  if (!data.id || !data.email || !data.username) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    email: data.email,
+    username: data.username,
+    profile_image_url: data.profile_image_url || null,
+    dojo_style_name: data.dojo_style_name || null,
+  };
+};
 
 export async function getCurrentUser(): Promise<UserSession | null> {
-  console.log("🐾 getCurrentUser: start");
   const supabase = await getServerSupabase();
 
   try {
@@ -12,63 +104,12 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       data: { session },
       error,
     } = await supabase.auth.getSession();
-    console.log("🐾 getCurrentUser: getSession done", {
-      hasSession: !!session,
-      userId: session?.user?.id,
-      error: error?.message,
-    });
 
-    // デバッグ用ログ
-    if (process.env.NODE_ENV === "development") {
-      console.log("getCurrentUser session check:", {
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userId: session?.user?.id,
-        error: error?.message,
-      });
-    }
-
-    if (error) {
-      console.error("Session error in getCurrentUser:", error);
+    if (error || !session?.user) {
       return null;
     }
 
-    if (!session?.user) {
-      console.log("No session or user found in getCurrentUser");
-      return null;
-    }
-
-    // 共通のプロフィール取得関数を使用
-    try {
-      const baseUrl = getApiBaseUrl();
-      console.log("🐾 getCurrentUser: call fetchUserProfile", {
-        userId: session.user.id,
-        baseUrl,
-      });
-      const userProfile = await fetchUserProfile(session.user.id, { baseUrl });
-      console.log("🐾 getCurrentUser: fetchUserProfile result", {
-        hasProfile: !!userProfile,
-      });
-
-      if (!userProfile) {
-        console.error("Profile fetch failed in getCurrentUser");
-        return null;
-      }
-
-      // デバッグ用ログ
-      if (process.env.NODE_ENV === "development") {
-        console.log("getCurrentUser success:", {
-          userId: session.user.id,
-          username: userProfile.username,
-        });
-      }
-
-      return userProfile;
-    } catch (apiError) {
-      console.error("API call failed in getCurrentUser:", apiError);
-      // API呼び出しに失敗した場合はnullを返す（認証失敗として扱う）
-      return null;
-    }
+    return await fetchUserProfileFromHono(session.user.id, session);
   } catch (error) {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;
@@ -77,14 +118,13 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 
 export async function getUserProfile(userId: string) {
   try {
-    const baseUrl = getApiBaseUrl();
-    const userProfile = await fetchUserProfile(userId, { baseUrl });
+    const userProfile = await fetchUserProfileFromHono(userId);
 
     if (userProfile) {
       return { data: userProfile, error: null };
-    } else {
-      return { data: null, error: { message: "User not found" } };
     }
+
+    return { data: null, error: { message: "User not found" } };
   } catch (error) {
     console.error("getUserProfile API call failed:", error);
     return { data: null, error: { message: "API call failed" } };

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
-import { EmailSettingPageClient } from "./EmailSettingPageClient";
+import { EmailSettingPage } from "./EmailSettingPage";
 
-export default async function EmailSettingPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -14,5 +14,5 @@ export default async function EmailSettingPage({
     redirect(`/${locale}/login`);
   }
 
-  return <EmailSettingPageClient locale={locale} />;
+  return <EmailSettingPage locale={locale} />;
 }

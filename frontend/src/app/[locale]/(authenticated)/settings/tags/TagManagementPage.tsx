@@ -23,7 +23,7 @@ import {
   updateTagOrder,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import styles from "./TagManagementPageClient.module.css";
+import styles from "./TagManagementPage.module.css";
 
 interface TagItem {
   id: string;
@@ -67,6 +67,12 @@ const EMPTY_ORDERS: OrderMap = {
 };
 
 const DRAG_ACTIVATION_THRESHOLD_PX = 6;
+type ReactTouchList = TouchEvent<HTMLUListElement>["touches"];
+type TouchPoint = {
+  identifier: number;
+  clientX: number;
+  clientY: number;
+};
 
 const getCategoryKey = (category: TagItem["category"]): CategoryKey | null => {
   return REVERSE_CATEGORY_MAP[category] ?? null;
@@ -113,13 +119,11 @@ const extractOrders = (groups: TagGroupMap): OrderMap => {
   };
 };
 
-interface TagManagementPageClientProps {
+interface TagManagementPageProps {
   locale: string;
 }
 
-export function TagManagementPageClient({
-  locale,
-}: TagManagementPageClientProps) {
+export function TagManagementPage({ locale }: TagManagementPageProps) {
   const t = useTranslations();
   const { showToast } = useToast();
   const { user } = useAuth();
@@ -175,10 +179,17 @@ export function TagManagementPageClient({
     try {
       const response = await getTags(user.id);
 
-      if (response.success && Array.isArray(response.data)) {
+      if (!response.success) {
+        showToast(
+          ("error" in response && response.error) ||
+            t("tagManagement.fetchFailed"),
+          "error",
+        );
+        return;
+      }
+
+      if (Array.isArray(response.data)) {
         groupOrders(response.data as TagItem[]);
-      } else {
-        showToast(response.error ?? t("tagManagement.fetchFailed"), "error");
       }
     } catch (error) {
       console.error("タグ取得エラー:", error);
@@ -288,7 +299,11 @@ export function TagManagementPageClient({
         handleResetInput(category);
         showToast(t("pageModal.tagAdded"), "success");
       } else {
-        showToast(response.error ?? t("pageModal.tagAddFailed"), "error");
+        showToast(
+          ("error" in response && response.error) ||
+            t("pageModal.tagAddFailed"),
+          "error",
+        );
       }
     } catch (error) {
       console.error("タグ追加エラー:", error);
@@ -319,7 +334,11 @@ export function TagManagementPageClient({
         });
         showToast(t("tagManagement.deleteSuccess"), "success");
       } else {
-        showToast(response.error ?? t("tagManagement.deleteFailed"), "error");
+        showToast(
+          ("error" in response && response.error) ||
+            t("tagManagement.deleteFailed"),
+          "error",
+        );
       }
     } catch (error) {
       console.error("タグ削除エラー:", error);
@@ -399,7 +418,10 @@ export function TagManagementPageClient({
     reorderWithinCategory(category, draggingTagId, targetId);
   };
 
-  const getTouchAt = (touches: TouchList, index: number): Touch | null => {
+  const getTouchAt = (
+    touches: ReactTouchList,
+    index: number,
+  ): TouchPoint | null => {
     if (typeof touches.item === "function") {
       const touch = touches.item(index);
       if (touch) {
@@ -407,13 +429,13 @@ export function TagManagementPageClient({
       }
     }
 
-    const fallback = (touches as unknown as Touch[])[index];
+    const fallback = (touches as unknown as TouchPoint[])[index];
     return fallback ?? null;
   };
 
   const resolveActiveTouch = (
     event: TouchEvent<HTMLUListElement>,
-  ): Touch | null => {
+  ): TouchPoint | null => {
     if (event.touches.length === 0) {
       return null;
     }
@@ -610,7 +632,8 @@ export function TagManagementPageClient({
         showToast(t("tagManagement.orderSaveSuccess"), "success");
       } else {
         showToast(
-          response.error ?? t("tagManagement.orderSaveFailed"),
+          ("error" in response && response.error) ||
+            t("tagManagement.orderSaveFailed"),
           "error",
         );
       }

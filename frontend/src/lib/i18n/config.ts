@@ -10,7 +10,11 @@ export default getRequestConfig(async ({ locale }) => {
   // 有効なロケールかチェック
   if (!locales.includes(locale as Locale)) notFound();
 
+  const resolvedLocale = locale as Locale;
+
   return {
-    messages: (await import(`../../translations/${locale}.json`)).default,
+    locale: resolvedLocale,
+    messages: (await import(`../../translations/${resolvedLocale}.json`))
+      .default,
   };
 });

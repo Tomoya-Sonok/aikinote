@@ -14,12 +14,12 @@ import {
 } from "@/lib/utils/validation";
 import styles from "./page.module.css";
 
-interface LoginPageClientProps {
+interface LoginPageProps {
   locale?: string;
   onSuccess?: () => void;
 }
 
-export function LoginPageClient({ locale, onSuccess }: LoginPageClientProps) {
+export function LoginPage({ locale, onSuccess }: LoginPageProps) {
   const t = useTranslations();
   const resolvedLocale = locale ?? "ja";
   const emailId = useId();
@@ -35,7 +35,7 @@ export function LoginPageClient({ locale, onSuccess }: LoginPageClientProps) {
   } = useAuth();
 
   const form = useForm<SignInFormData>({
-    resolver: zodResolver(createSignInSchema(t)),
+    resolver: zodResolver(createSignInSchema(t) as any),
     mode: "onChange",
   });
 

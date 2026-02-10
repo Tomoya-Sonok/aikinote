@@ -3,7 +3,7 @@ import type { UpdatePagePayload } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
-interface PageEditModalProps {
+export interface PageEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: (pageData: UpdatePagePayload) => void;

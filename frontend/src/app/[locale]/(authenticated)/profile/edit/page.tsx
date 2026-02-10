@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser, getUserProfile } from "@/lib/server/auth";
-import { ProfileEditClient } from "./ProfileEditClient";
+import { ProfileEdit } from "./ProfileEdit";
 
 export async function generateMetadata({
   params,
@@ -57,7 +57,7 @@ export default async function ProfileEditPage({
 
   return (
     <MinimalLayout backHref={myPagePath} headerTitle={t("title")}>
-      <ProfileEditClient user={profile} />
+      <ProfileEdit user={profile} />
     </MinimalLayout>
   );
 }

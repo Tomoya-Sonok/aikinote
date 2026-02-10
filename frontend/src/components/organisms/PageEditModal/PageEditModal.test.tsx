@@ -39,8 +39,16 @@ vi.mock("../PageModal/PageModal", () => ({
     isOpen: boolean;
     modalTitle: string;
     actionButtonText: string;
-    onSubmit: (data: { id: string; title: string }) => void;
-    initialData?: { title: string };
+    onSubmit: (data: unknown) => void;
+    initialData?: {
+      id: string;
+      title: string;
+      tori?: string[];
+      uke?: string[];
+      waza?: string[];
+      content?: string;
+      comment?: string;
+    };
   }) => {
     if (!isOpen) return null;
     return (
@@ -51,8 +59,13 @@ vi.mock("../PageModal/PageModal", () => ({
           type="button"
           onClick={() =>
             onSubmit({
-              ...initialData,
+              id: initialData?.id ?? "",
               title: "更新されたタイトル",
+              tori: initialData?.tori ?? [],
+              uke: initialData?.uke ?? [],
+              waza: initialData?.waza ?? [],
+              content: initialData?.content ?? "",
+              comment: initialData?.comment ?? "",
             })
           }
         >

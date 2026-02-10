@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
-import { LanguageSettingPageClient } from "./LanguageSettingPageClient";
+import { LanguageSettingPage } from "./LanguageSettingPage";
 
-export default async function LanguageSettingPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -14,5 +14,5 @@ export default async function LanguageSettingPage({
     redirect(`/${locale}/login`);
   }
 
-  return <LanguageSettingPageClient locale={locale} />;
+  return <LanguageSettingPage locale={locale} />;
 }

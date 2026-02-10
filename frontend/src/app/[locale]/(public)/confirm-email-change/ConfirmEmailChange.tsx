@@ -6,17 +6,14 @@ import { useEffect, useState } from "react";
 import { Loader } from "@/components/atoms/Loader";
 import styles from "./page.module.css";
 
-interface ConfirmEmailChangeClientProps {
+interface ConfirmEmailChangeProps {
   token?: string;
   locale: string;
 }
 
 type Status = "loading" | "success" | "error";
 
-export function ConfirmEmailChangeClient({
-  token,
-  locale,
-}: ConfirmEmailChangeClientProps) {
+export function ConfirmEmailChange({ token, locale }: ConfirmEmailChangeProps) {
   const t = useTranslations();
   const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState<string>("");
@@ -40,16 +37,12 @@ export function ConfirmEmailChangeClient({
 
         if (!response.ok || !result?.success) {
           setStatus("error");
-          setMessage(
-            result?.error ?? t("emailChange.confirmFailed"),
-          );
+          setMessage(result?.error ?? t("emailChange.confirmFailed"));
           return;
         }
 
         setStatus("success");
-        setMessage(
-          result?.message ?? t("emailChange.confirmSuccess"),
-        );
+        setMessage(result?.message ?? t("emailChange.confirmSuccess"));
       } catch (error) {
         console.error("confirm-email-change: リクエスト失敗", error);
         setStatus("error");

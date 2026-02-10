@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
-import { TagManagementPageClient } from "./TagManagementPageClient";
+import { TagManagementPage } from "./TagManagementPage";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -75,7 +75,7 @@ const defaultTags = [
   },
 ];
 
-describe("TagManagementPageClient", () => {
+describe("TagManagementPage", () => {
   beforeEach(() => {
     mockUseAuth.mockReset();
     mockGetTags.mockReset();
@@ -93,7 +93,7 @@ describe("TagManagementPageClient", () => {
   it("タグ取得が成功したときにカテゴリごとのタグが表示される", async () => {
     render(
       <I18nTestProvider>
-        <TagManagementPageClient locale="ja" />
+        <TagManagementPage locale="ja" />
       </I18nTestProvider>,
     );
 
@@ -110,7 +110,7 @@ describe("TagManagementPageClient", () => {
   it("編集ボタンを押すと編集モードが表示される", async () => {
     render(
       <I18nTestProvider>
-        <TagManagementPageClient locale="ja" />
+        <TagManagementPage locale="ja" />
       </I18nTestProvider>,
     );
 
@@ -148,7 +148,7 @@ describe("TagManagementPageClient", () => {
   it("タグ削除が成功すると一覧から該当タグが消える", async () => {
     render(
       <I18nTestProvider>
-        <TagManagementPageClient locale="ja" />
+        <TagManagementPage locale="ja" />
       </I18nTestProvider>,
     );
 
@@ -192,7 +192,7 @@ describe("TagManagementPageClient", () => {
 
     render(
       <I18nTestProvider>
-        <TagManagementPageClient locale="ja" />
+        <TagManagementPage locale="ja" />
       </I18nTestProvider>,
     );
 
@@ -262,7 +262,7 @@ describe("TagManagementPageClient", () => {
   it("SPドラッグ操作でタグの並び順が入れ替わる", async () => {
     render(
       <I18nTestProvider>
-        <TagManagementPageClient locale="ja" />
+        <TagManagementPage locale="ja" />
       </I18nTestProvider>,
     );
 

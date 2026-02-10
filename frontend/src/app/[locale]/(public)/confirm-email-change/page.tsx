@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { ConfirmEmailChangeClient } from "./ConfirmEmailChangeClient";
+import { ConfirmEmailChange } from "./ConfirmEmailChange";
 
 export async function generateMetadata({
   params,
@@ -35,10 +35,7 @@ export default async function ConfirmEmailChangePage({
       headerTitle={t("emailChange.confirmTitle")}
       backHref={`/${locale}/login`}
     >
-      <ConfirmEmailChangeClient
-        token={resolvedSearchParams.token}
-        locale={locale}
-      />
+      <ConfirmEmailChange token={resolvedSearchParams.token} locale={locale} />
     </MinimalLayout>
   );
 }

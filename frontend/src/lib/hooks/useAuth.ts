@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { getRedirectUrl } from "@/lib/utils/env";
-import { createUserProfile, fetchUserProfile } from "@/lib/utils/user-api";
+import { createUserProfile, fetchUserProfile } from "@/lib/utils/user";
 import type {
   NewPasswordFormData,
   ResetPasswordFormData,

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/server/auth";
-import { FontSizeSettingPageClient } from "./FontSizeSettingPageClient";
+import { FontSizeSettingPage } from "./FontSizeSettingPage";
 
-export default async function FontSizeSettingPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -14,5 +14,5 @@ export default async function FontSizeSettingPage({
     redirect(`/${locale}/login`);
   }
 
-  return <FontSizeSettingPageClient locale={locale} />;
+  return <FontSizeSettingPage locale={locale} />;
 }

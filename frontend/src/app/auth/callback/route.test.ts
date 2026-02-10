@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "./route";
 
 // @supabase/ssrのモック
@@ -61,7 +61,7 @@ describe("OAuth認証コールバック処理", () => {
   afterEach(() => {
     vi.resetAllMocks();
     const globalWithFetch = getGlobalWithFetch();
-    delete globalWithFetch.fetch;
+    globalWithFetch.fetch = undefined;
   });
 
   it("新規ユーザーの場合に直接データベースアクセスでユーザーを作成する", async () => {

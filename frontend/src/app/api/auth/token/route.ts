@@ -10,6 +10,7 @@ import {
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
+// TODO: クライアント側のAPI呼び出しはtRPC経由に統一したため、将来的に削除予定
 export async function POST(_request: NextRequest) {
   try {
     // セッション確認

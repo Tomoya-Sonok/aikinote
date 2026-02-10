@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { NotLoggedInLayout } from "@/components/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import { LoginPageClient } from "./LoginPageClient";
+import { LoginPage } from "./LoginPage";
 
 export async function generateMetadata({
   params,
@@ -19,7 +19,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function LoginPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -33,7 +33,7 @@ export default async function LoginPage({
 
   return (
     <NotLoggedInLayout>
-      <LoginPageClient locale={locale} />
+      <LoginPage locale={locale} />
     </NotLoggedInLayout>
   );
 }

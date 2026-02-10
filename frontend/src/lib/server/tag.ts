@@ -123,6 +123,6 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
       message: "初期タグを作成しました",
     };
   } catch (error) {
-    return { success: false, error };
+    return { success: false, error: error as PostgrestError };
   }
 }

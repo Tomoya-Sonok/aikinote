@@ -6,13 +6,11 @@ import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { FontSizeSetting } from "@/components/molecules/FontSizeSetting/FontSizeSetting";
 import { useToast } from "@/contexts/ToastContext";
 
-interface FontSizeSettingPageClientProps {
+interface FontSizeSettingPageProps {
   locale: string;
 }
 
-export function FontSizeSettingPageClient({
-  locale,
-}: FontSizeSettingPageClientProps) {
+export function FontSizeSettingPage({ locale }: FontSizeSettingPageProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const t = useTranslations();

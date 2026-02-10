@@ -28,7 +28,7 @@ interface ApiTag {
   category: string;
 }
 
-export function PageDetailPageClient() {
+export function PageDetailPage() {
   const t = useTranslations();
   const locale = useLocale();
   const [loading, setLoading] = useState(true);
@@ -74,10 +74,16 @@ export function PageDetailPageClient() {
       if (!user?.id) return;
       try {
         const response = await getTags(user.id);
-        if (response.success && response.data) {
-          setAvailableTags(response.data);
-        } else {
-          console.error("Failed to fetch tags:", response.error);
+        if (!response.success) {
+          console.error(
+            "Failed to fetch tags:",
+            "error" in response ? response.error : undefined,
+          );
+          return;
+        }
+
+        if (response.data) {
+          setAvailableTags(response.data as ApiTag[]);
         }
       } catch (err) {
         console.error("Failed to fetch tags:", err);
@@ -113,7 +119,10 @@ export function PageDetailPageClient() {
         setPageData(convertedData);
         setPageEditModalOpen(false);
       } else {
-        console.error("Failed to update page:", response.error);
+        console.error(
+          "Failed to update page:",
+          "error" in response ? response.error : undefined,
+        );
         alert(t("pageDetail.updateFailed"));
       }
     } catch (error) {

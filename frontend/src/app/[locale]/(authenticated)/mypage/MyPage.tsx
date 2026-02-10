@@ -6,14 +6,13 @@ import { Loader } from "@/components/atoms/Loader/Loader";
 import type { UserProfile } from "@/components/organisms/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/organisms/MyPageContent/MyPageContent";
 import { useToast } from "@/contexts/ToastContext";
+import { getUserProfile } from "@/lib/api/client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-
-interface MyPageClientProps {
+interface MyPageProps {
   initialUser: UserProfile;
 }
 
-export default function MyPageClient({ initialUser }: MyPageClientProps) {
+export default function MyPage({ initialUser }: MyPageProps) {
   const t = useTranslations();
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(false);
@@ -22,32 +21,15 @@ export default function MyPageClient({ initialUser }: MyPageClientProps) {
   const fetchUserProfile = useCallback(async () => {
     setLoading(true);
     try {
-      const tokenResponse = await fetch("/api/auth/token", {
-        method: "POST",
-      });
-
-      if (!tokenResponse.ok) {
-        throw new Error(t("mypageContent.profileFetchFailed"));
+      const result = await getUserProfile(user.id);
+      if (!result.success || !result.data) {
+        const errorMessage =
+          "error" in result
+            ? result.error
+            : t("mypageContent.profileFetchFailed");
+        throw new Error(errorMessage);
       }
 
-      const tokenData = await tokenResponse.json();
-      const token = tokenData.data.token;
-
-      const response = await fetch(`${API_BASE_URL}/api/users/${user.id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || t("mypageContent.profileFetchFailed"),
-        );
-      }
-
-      const result = await response.json();
       setUser(result.data);
     } catch (error) {
       console.error("プロフィール取得エラー:", error);

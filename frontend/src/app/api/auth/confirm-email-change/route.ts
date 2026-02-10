@@ -36,7 +36,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!user.pending_email) {
-      return createValidationErrorResponse("変更先メールアドレスが見つかりません");
+      return createValidationErrorResponse(
+        "変更先メールアドレスが見つかりません",
+      );
     }
 
     if (
@@ -83,10 +85,15 @@ export async function POST(request: NextRequest) {
           email_confirm: true,
         });
       } catch (rollbackError) {
-        console.error("confirm-email-change: authロールバック失敗", rollbackError);
+        console.error(
+          "confirm-email-change: authロールバック失敗",
+          rollbackError,
+        );
       }
 
-      return createInternalServerErrorResponse("メールアドレスの更新に失敗しました");
+      return createInternalServerErrorResponse(
+        "メールアドレスの更新に失敗しました",
+      );
     }
 
     return createSuccessResponse(

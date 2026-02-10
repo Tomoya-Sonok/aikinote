@@ -6,7 +6,7 @@ import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
-import * as userApi from "@/lib/utils/user-api";
+import * as userApi from "@/lib/utils/user";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { useAuth } from "./useAuth";
 
@@ -44,7 +44,7 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 // ユーザーAPI関数をモック
-vi.mock("@/lib/utils/user-api", () => ({
+vi.mock("@/lib/utils/user", () => ({
   fetchUserProfile: vi.fn(),
   createUserProfile: vi.fn(),
 }));

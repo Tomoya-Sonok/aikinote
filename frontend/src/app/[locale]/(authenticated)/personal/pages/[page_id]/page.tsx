@@ -2,14 +2,14 @@ import { redirect } from "next/navigation";
 import { DefaultLayout } from "@/components/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import { PageDetailPageClient } from "./PageDetailPageClient";
+import { PageDetailPage } from "./PageDetailPage";
 
 export const metadata = buildMetadata({
   title: "稽古ページ詳細",
   description: "稽古ページの詳細を確認できます。",
 });
 
-export default async function PageDetailPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -23,7 +23,7 @@ export default async function PageDetailPage({
 
   return (
     <DefaultLayout>
-      <PageDetailPageClient />
+      <PageDetailPage />
     </DefaultLayout>
   );
 }

@@ -1,5 +1,5 @@
-import { LogoutClient } from "./LogoutClient";
+import { Logout } from "./Logout";
 
 export default async function LogoutPage() {
-  return <LogoutClient />;
+  return <Logout />;
 }

@@ -2,15 +2,12 @@ import type { Meta, StoryObj } from "@storybook/nextjs";
 import { TagFilterModal } from "./TagFilterModal";
 
 const meta: Meta<typeof TagFilterModal> = {
-  title: "Atoms/TagFilterModal",
+  title: "Organisms/TagFilterModal",
   component: TagFilterModal,
   parameters: {
     layout: "padded",
   },
   tags: ["autodocs"],
-  argTypes: {
-    onClick: { action: "clicked" },
-  },
 };
 
 export default meta;
@@ -18,26 +15,39 @@ type Story = StoryObj<typeof meta>;
 
 export const TagFilter: Story = {
   args: {
-    icon: "/icons/tag-icon.svg",
-    label: "タグ",
-    value: "指定なし",
-    onClick: () => console.log("Tag filter clicked"),
+    isOpen: true,
+    onClose: () => {},
+    tags: [
+      { id: "1", name: "相半身", category: "取り" },
+      { id: "2", name: "片手取り", category: "受け" },
+      { id: "3", name: "四方投げ", category: "技" },
+    ],
+    selectedTags: [],
+    onTagsConfirm: () => {},
+    title: "タグを選択",
   },
 };
 
 export const DateFilter: Story = {
   args: {
-    icon: "/icons/calendar-icon.svg",
-    label: "日付",
-    value: "2024-01-15",
-    onClick: () => console.log("Date filter clicked"),
+    isOpen: true,
+    onClose: () => {},
+    tags: [
+      { id: "1", name: "立技", category: "取り" },
+      { id: "2", name: "正面打ち", category: "受け" },
+    ],
+    selectedTags: ["立技"],
+    onTagsConfirm: () => {},
+    title: "フィルター",
   },
 };
 
 export const WithoutClick: Story = {
   args: {
-    icon: "/icons/tag-icon.svg",
-    label: "タグ",
-    value: "選択済み",
+    isOpen: false,
+    onClose: () => {},
+    tags: [],
+    selectedTags: [],
+    onTagsConfirm: () => {},
   },
 };

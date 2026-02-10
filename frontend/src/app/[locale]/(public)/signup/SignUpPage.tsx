@@ -18,12 +18,12 @@ import {
 } from "@/lib/utils/validation";
 import styles from "./page.module.css";
 
-interface SignUpPageClientProps {
+interface SignUpPageProps {
   locale?: string;
   onSuccess?: () => void;
 }
 
-export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
+export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
   const [step, setStep] = useState<"email-password" | "username">(
     "email-password",
   );
@@ -44,12 +44,12 @@ export function SignUpPageClient({ locale, onSuccess }: SignUpPageClientProps) {
     useAuth();
 
   const emailPasswordForm = useForm<EmailPasswordFormData>({
-    resolver: zodResolver(createEmailPasswordSchema(t)),
+    resolver: zodResolver(createEmailPasswordSchema(t) as any),
     mode: "onChange",
   });
 
   const usernameForm = useForm<UsernameFormData>({
-    resolver: zodResolver(createUsernameSchema(t)),
+    resolver: zodResolver(createUsernameSchema(t) as any),
     mode: "onChange",
   });
 

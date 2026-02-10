@@ -221,5 +221,7 @@ export function handleApiError(error: unknown, context?: string): NextResponse {
   }
 
   // デフォルトでサーバーエラーとして処理
-  return createInternalServerErrorResponse(error);
+  return createInternalServerErrorResponse(
+    error instanceof Error || typeof error === "string" ? error : undefined,
+  );
 }

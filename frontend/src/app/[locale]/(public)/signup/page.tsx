@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { NotLoggedInLayout } from "@/components/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import { SignUpPageClient } from "./SignUpPageClient";
+import { SignUpPage } from "./SignUpPage";
 
 interface SignupPageProps {
   params: Promise<{ locale: string }>;
@@ -14,9 +14,7 @@ export const metadata: Metadata = buildMetadata({
   description: "AikiNoteの新規登録ページ",
 });
 
-export default async function SignUpPage({
-  params,
-}: SignupPageProps) {
+export default async function Page({ params }: SignupPageProps) {
   const { locale } = await params;
   const user = await getCurrentUser();
 
@@ -26,7 +24,7 @@ export default async function SignUpPage({
 
   return (
     <NotLoggedInLayout>
-      <SignUpPageClient locale={locale} />
+      <SignUpPage locale={locale} />
     </NotLoggedInLayout>
   );
 }

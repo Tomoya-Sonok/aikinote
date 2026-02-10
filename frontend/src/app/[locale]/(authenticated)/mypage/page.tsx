@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { DefaultLayout } from "@/components/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import MyPageClient from "./MyPageClient";
+import MyPage from "./MyPage";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -21,7 +21,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function MyPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -54,7 +54,7 @@ export default async function MyPage({
     <DefaultLayout settingsHref={settingsPath}>
       <div className={styles.container}>
         <div className={styles.content}>
-          <MyPageClient initialUser={initialProfile} />
+          <MyPage initialUser={initialProfile} />
         </div>
       </div>
     </DefaultLayout>

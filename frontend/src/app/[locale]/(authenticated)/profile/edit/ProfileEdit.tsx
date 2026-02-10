@@ -19,20 +19,16 @@ import { TrashIcon } from "@/components/atoms/icons/TrashIcon";
 import { Loader } from "@/components/atoms/Loader/Loader";
 import type { UserProfile } from "@/components/organisms/MyPageContent/MyPageContent";
 import { useToast } from "@/contexts/ToastContext";
+import { getUserProfile, updateUserProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usernameSchema } from "@/lib/utils/validation";
-import styles from "./ProfileEditClient.module.css";
+import styles from "./ProfileEdit.module.css";
 
-interface ProfileEditClientProps {
+interface ProfileEditProps {
   user: UserProfile;
 }
 
-// APIリクエストのベースURL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-
-export const ProfileEditClient: FC<ProfileEditClientProps> = ({
-  user: initialUser,
-}) => {
+export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -51,7 +47,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
     } catch (error) {
       if (error instanceof ZodError) {
         setUsernameError(
-          error.errors[0]?.message || t("profileEdit.invalidUsername"),
+          error.issues[0]?.message || t("profileEdit.invalidUsername"),
         );
         return;
       }
@@ -66,42 +62,17 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
       }
 
       const updatedData = {
+        userId: user.id,
         username: formData.username,
         dojo_style_name: formData.dojo_style_name || null,
         training_start_date: formData.training_start_date || null,
         profile_image_url: updatedProfileImageUrl || null,
       };
 
-      // JWTトークンを取得
-      const tokenResponse = await fetch("/api/auth/token", {
-        method: "POST",
-      });
-
-      if (!tokenResponse.ok) {
-        throw new Error(t("profileEdit.authTokenFailed"));
+      const result = await updateUserProfile(updatedData);
+      if (!result.success) {
+        throw new Error(result.error || t("profileEdit.communicationFailed"));
       }
-
-      const tokenData = await tokenResponse.json();
-      const token = tokenData.data.token;
-
-      // HonoAPIを呼び出し
-      const response = await fetch(`${API_BASE_URL}/api/users/${user.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || t("profileEdit.communicationFailed"),
-        );
-      }
-
-      const result = await response.json();
       console.log("✅ [DEBUG] ProfileEdit: プロフィール更新成功:", result);
 
       // ユーザー情報を再取得してセッションを更新
@@ -204,32 +175,15 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
   // 最新のプロフィール情報を取得
   const fetchUserProfile = useCallback(async () => {
     try {
-      // JWTトークンを取得
-      const tokenResponse = await fetch("/api/auth/token", {
-        method: "POST",
-      });
-
-      if (!tokenResponse.ok) {
-        throw new Error(t("profileEdit.authTokenFailed"));
+      const result = await getUserProfile(user.id);
+      if (!result.success || !result.data) {
+        const errorMessage =
+          "error" in result
+            ? result.error
+            : t("profileEdit.profileFetchFailed");
+        throw new Error(errorMessage);
       }
 
-      const tokenData = await tokenResponse.json();
-      const token = tokenData.data.token;
-
-      // Hono APIからプロフィール取得
-      const response = await fetch(`${API_BASE_URL}/api/users/${user.id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || t("profileEdit.profileFetchFailed"));
-      }
-
-      const result = await response.json();
       const latestUser = result.data;
 
       // ユーザー情報とフォームデータを更新
@@ -280,7 +234,7 @@ export const ProfileEditClient: FC<ProfileEditClientProps> = ({
         } catch (error) {
           if (error instanceof ZodError) {
             setUsernameError(
-              error.errors[0]?.message || t("profileEdit.invalidUsername"),
+              error.issues[0]?.message || t("profileEdit.invalidUsername"),
             );
           }
         }

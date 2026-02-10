@@ -13,6 +13,7 @@ import {
 } from "@/lib/utils/auth-server";
 import { sendVerificationEmail } from "@/lib/utils/email";
 
+// TODO: クライアント側はtRPC経由に統一したため、このRoute Handlerは段階的に廃止予定
 const signUpSchema = z.object({
   email: z.string().email("メールアドレスの形式が正しくありません"),
   password: z.string().min(8, "パスワードは8文字以上で入力してください"),
@@ -20,7 +21,10 @@ const signUpSchema = z.object({
 });
 
 function formatZodErrors(error: z.ZodError) {
-  const fieldErrors = error.flatten().fieldErrors;
+  const fieldErrors = error.flatten().fieldErrors as Record<
+    string,
+    string[] | undefined
+  >;
   const filteredEntries = Object.entries(fieldErrors)
     .filter(([, messages]) => messages && messages.length > 0)
     .map(([field, messages]) => [field, messages ?? []]);

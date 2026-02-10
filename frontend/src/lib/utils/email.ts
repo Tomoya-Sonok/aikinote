@@ -124,8 +124,7 @@ export async function sendPasswordResetEmail({
   email,
   resetToken,
 }: SendPasswordResetEmailParams) {
-  const appUrl = getAppUrl();
-  const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
+  const resetUrl = getRedirectUrl(`/reset-password?token=${resetToken}`);
 
   // TODO: HTMLメールではなくReactコンポーネントでメール文面を整える
   try {
@@ -161,5 +160,3 @@ export async function sendPasswordResetEmail({
     throw new Error("パスワードリセットメールの送信に失敗しました");
   }
 }
-
-// 削除: getAppUrl関数は getRedirectUrl に置き換え済み

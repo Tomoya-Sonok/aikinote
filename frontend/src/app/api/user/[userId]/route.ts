@@ -13,6 +13,7 @@ import {
 } from "@/lib/utils/api-response";
 import { usernameSchema } from "@/lib/utils/validation";
 
+// TODO: クライアント側はtRPC経由に統一したため、このRoute Handlerは段階的に廃止予定
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string }> },

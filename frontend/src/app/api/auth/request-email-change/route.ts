@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { getServerSupabase, getServiceRoleSupabase } from "@/lib/supabase/server";
+import {
+  getServerSupabase,
+  getServiceRoleSupabase,
+} from "@/lib/supabase/server";
 import {
   createBadRequestResponse,
   createInternalServerErrorResponse,
@@ -9,7 +12,10 @@ import {
   createValidationErrorResponse,
   handleApiError,
 } from "@/lib/utils/api-response";
-import { generateVerificationToken, verifyPassword } from "@/lib/utils/auth-server";
+import {
+  generateVerificationToken,
+  verifyPassword,
+} from "@/lib/utils/auth-server";
 import { sendEmailChangeEmail } from "@/lib/utils/email";
 
 const requestSchema = z.object({
@@ -20,7 +26,7 @@ const requestSchema = z.object({
 function formatZodErrors(error: z.ZodError) {
   const fieldErrors = error.flatten().fieldErrors;
   const filteredEntries = Object.entries(fieldErrors)
-    .filter(([, messages]) => messages && messages.length > 0)
+    .filter(([, messages]) => Array.isArray(messages) && messages.length > 0)
     .map(([field, messages]) => [field, messages ?? []]);
 
   return Object.fromEntries(filteredEntries) as Record<string, string[]>;

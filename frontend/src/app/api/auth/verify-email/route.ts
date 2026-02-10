@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
         return {
           emailOtp: linkData?.properties?.email_otp ?? null,
-          actionLink: linkData?.action_link ?? null,
+          actionLink: linkData?.properties?.action_link ?? null,
         };
       } catch (linkError) {
         console.error("verify-email: マジックリンク生成中に例外", linkError);

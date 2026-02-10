@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { Loader } from "@/components/atoms/Loader";
 import { MinimalLayout } from "@/components/layouts/MinimalLayout";
 import { useAuth } from "@/lib/hooks/useAuth";
-import styles from "./LogoutClient.module.css";
+import styles from "./Logout.module.css";
 
-export function LogoutClient() {
+export function Logout() {
   const { signOutUser } = useAuth();
   const t = useTranslations();
 

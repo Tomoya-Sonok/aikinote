@@ -7,56 +7,59 @@ const originalScrollBy = window.scrollBy;
 const originalInnerHeight = window.innerHeight;
 
 class MockIntersectionObserver implements IntersectionObserver {
-	constructor(
-		public callback: IntersectionObserverCallback,
-		public options?: IntersectionObserverInit,
-	) {}
+  constructor(
+    public callback: IntersectionObserverCallback,
+    public options?: IntersectionObserverInit,
+  ) {}
 
-	readonly root = null;
+  readonly root = null;
 
-	readonly rootMargin = "";
+  readonly rootMargin = "";
 
-	readonly thresholds: ReadonlyArray<number> = [];
+  readonly thresholds: ReadonlyArray<number> = [];
 
-	disconnect() {}
+  disconnect() {}
 
-	observe() {}
+  observe() {}
 
-	takeRecords(): IntersectionObserverEntry[] {
-		return [];
-	}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 
-	unobserve() {}
+  unobserve() {}
 }
 
 describe("ScrollIndicator", () => {
-	beforeEach(() => {
-		window.scrollBy = vi.fn();
-		Object.defineProperty(window, "innerHeight", {
-			value: 800,
-			writable: true,
-		});
-		// @ts-expect-error jsdomに存在しないためモックする
-		global.IntersectionObserver = MockIntersectionObserver;
-	});
+  beforeEach(() => {
+    window.scrollBy = vi.fn();
+    Object.defineProperty(window, "innerHeight", {
+      value: 800,
+      writable: true,
+    });
+    (
+      globalThis as typeof globalThis & {
+        IntersectionObserver: typeof IntersectionObserver;
+      }
+    ).IntersectionObserver = MockIntersectionObserver;
+  });
 
-	afterEach(() => {
-		window.scrollBy = originalScrollBy;
-		Object.defineProperty(window, "innerHeight", {
-			value: originalInnerHeight,
-			writable: true,
-		});
-	});
+  afterEach(() => {
+    window.scrollBy = originalScrollBy;
+    Object.defineProperty(window, "innerHeight", {
+      value: originalInnerHeight,
+      writable: true,
+    });
+  });
 
-	it("クリックで画面高の75%分スクロールする", async () => {
-		render(<ScrollIndicator label="続きを見る" />);
+  it("クリックで画面高の75%分スクロールする", async () => {
+    render(<ScrollIndicator label="続きを見る" />);
 
-		await userEvent.click(screen.getByRole("button", { name: "続きを見る" }));
+    await userEvent.click(screen.getByRole("button", { name: "続きを見る" }));
 
-		expect(window.scrollBy).toHaveBeenCalledWith({
-			top: 600,
-			left: 0,
-			behavior: "smooth",
-		});
-	});
+    expect(window.scrollBy).toHaveBeenCalledWith({
+      top: 600,
+      left: 0,
+      behavior: "smooth",
+    });
+  });
 });

@@ -20,7 +20,7 @@ interface FilterAreaProps {
 export const FilterArea: FC<FilterAreaProps> = ({
   onSearchChange,
   onDateFilterChange,
-  _onTagFilterChange,
+  onTagFilterChange: _onTagFilterChange,
   currentSearchQuery,
   currentSelectedDate,
   currentSelectedTags,

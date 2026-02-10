@@ -28,8 +28,8 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { type TrainingPageData } from "@/types/training";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
+import { type TrainingPageData } from "@/types/training";
 import styles from "./page.module.css";
 
 const PAGE_LIMIT = 25;
@@ -38,9 +38,10 @@ const PAGE_LIMIT = 25;
 interface Tag {
   id: string;
   name: string;
+  category: string;
 }
 
-export function PersonalPagesPageClient() {
+export function PersonalPagesPage() {
   const t = useTranslations();
   const [loading, setLoading] = useState(true);
   const [allTrainingPageData, setAllTrainingPageData] = useState<
@@ -95,26 +96,31 @@ export function PersonalPagesPageClient() {
             date: undefined,
           });
 
-          if (response.success && response.data) {
-            const pagesBatch = response.data.training_pages.map((item) => ({
-              id: item.page.id,
-              title: item.page.title,
-              content: item.page.content,
-              comment: item.page.comment,
-              date: formatToLocalDateString(item.page.created_at),
-              tags: item.tags.map((tag) => tag.name),
-            }));
-
-            allPages = [...allPages, ...pagesBatch];
-
-            // 取得したページ数がlimitより少ない場合、これ以上データがない
-            hasMoreData = pagesBatch.length === limit;
-            offset += limit;
-          } else {
+          if (!response.success) {
             throw new Error(
-              response.error || t("personalPages.dataFetchFailed"),
+              ("error" in response && response.error) ||
+                t("personalPages.dataFetchFailed"),
             );
           }
+
+          if (!response.data) {
+            throw new Error(t("personalPages.dataFetchFailed"));
+          }
+
+          const pagesBatch = response.data.training_pages.map((item) => ({
+            id: item.page.id,
+            title: item.page.title,
+            content: item.page.content,
+            comment: item.page.comment,
+            date: formatToLocalDateString(item.page.created_at),
+            tags: item.tags.map((tag) => tag.name),
+          }));
+
+          allPages = [...allPages, ...pagesBatch];
+
+          // 取得したページ数がlimitより少ない場合、これ以上データがない
+          hasMoreData = pagesBatch.length === limit;
+          offset += limit;
         }
 
         setAllTrainingPageData(allPages);
@@ -183,10 +189,16 @@ export function PersonalPagesPageClient() {
       if (!user?.id) return;
       try {
         const response = await getTags(user.id);
-        if (response.success && response.data) {
-          setAvailableTags(response.data); // オブジェクトの配列をそのままセット
-        } else {
-          console.error("Failed to fetch tags:", response.error);
+        if (!response.success) {
+          console.error(
+            "Failed to fetch tags:",
+            "error" in response ? response.error : undefined,
+          );
+          return;
+        }
+
+        if (response.data) {
+          setAvailableTags(response.data as Tag[]); // オブジェクトの配列をそのままセット
         }
       } catch (err) {
         console.error("Failed to fetch tags:", err);
@@ -401,6 +413,7 @@ export function PersonalPagesPageClient() {
       <FilterArea
         onSearchChange={handleSearchChange}
         onDateFilterChange={handleDateFilterChange}
+        onTagFilterChange={handleTagsConfirm}
         currentSearchQuery={searchQuery}
         currentSelectedDate={selectedDate}
         currentSelectedTags={selectedTags}
