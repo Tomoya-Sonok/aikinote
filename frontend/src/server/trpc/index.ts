@@ -1,18 +1,21 @@
-import {
-  // TRPCError,
-  initTRPC,
-} from "@trpc/server";
+import { initTRPC } from "@trpc/server";
 
-const t = initTRPC.create({
+export type TRPCContext = {
+  req: Request;
+};
+
+const t = initTRPC.context<TRPCContext>().create({
   errorFormatter({ shape }) {
     return shape;
   },
 });
 
-export const router = t.router;
+export const createTRPCRouter = t.router;
+export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 
 // TODO: セッション情報を使う場合は、authenticatedProcedure を実装する
+// import { TRPCError } from "@trpc/server";
 // export const authenticatedProcedure = t.procedure.use(({ next, ctx }) => {
 //   if (!ctx.session || !ctx.session.user) {
 //     throw new TRPCError({

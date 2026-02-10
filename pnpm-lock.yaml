@@ -98,6 +98,12 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.87.4
         version: 5.87.4(react@19.2.3)
+      '@trpc/client':
+        specifier: ^11.5.1
+        version: 11.5.1(@trpc/server@11.5.1)(typescript@5.9.2)
+      '@trpc/server':
+        specifier: ^11.5.1
+        version: 11.5.1(typescript@5.9.2)
       '@types/bcryptjs':
         specifier: ^3.0.0
         version: 3.0.0
@@ -4836,6 +4842,24 @@ packages:
     dependencies:
       '@testing-library/dom': 10.4.1
     dev: true
+
+  /@trpc/client@11.5.1(@trpc/server@11.5.1)(typescript@5.9.2):
+    resolution: {integrity: sha512-7I6JJ1I1lxv3S87ht3FAIZi0XxQa7hnQ9K+Oo5BH7cGO8ZtWe9Ftq6ItdkuDfpsnsRPcR2h158AMWbNs/iptqg==}
+    peerDependencies:
+      '@trpc/server': 11.5.1
+      typescript: '>=5.7.2'
+    dependencies:
+      '@trpc/server': 11.5.1(typescript@5.9.2)
+      typescript: 5.9.2
+    dev: false
+
+  /@trpc/server@11.5.1(typescript@5.9.2):
+    resolution: {integrity: sha512-KIDzHRS5m8U1ncPwjgtOtPWK9lNO0kYL7b+lnvKXRqowSAQIEC/z6y7g/dkt4Aqv3DKI/STLydt2/afrP1QrxQ==}
+    peerDependencies:
+      typescript: '>=5.7.2'
+    dependencies:
+      typescript: 5.9.2
+    dev: false
 
   /@tybys/wasm-util@0.10.1:
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
