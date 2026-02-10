@@ -1,5 +1,5 @@
 import type { UserSession } from "@/lib/auth";
-import type { ApiResponse } from "@/lib/types/api";
+import type { ApiResponse } from "@/types/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
 
@@ -160,8 +160,8 @@ export async function createUserProfile(userData: {
         success: false,
         error: result
           ? result.error || "ユーザー作成に失敗しました"
-          : parseErrorMessage ??
-            `ユーザー作成に失敗しました (status: ${response.status})`,
+          : (parseErrorMessage ??
+            `ユーザー作成に失敗しました (status: ${response.status})`),
       };
     }
 

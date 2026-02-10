@@ -11,7 +11,7 @@ if (!process.env.NEXT_PUBLIC_IS_DOCKER) {
   }
 }
 
-const withNextIntl = createNextIntlPlugin("./lib/i18n/i18n.ts");
+const withNextIntl = createNextIntlPlugin("./src/lib/i18n/i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

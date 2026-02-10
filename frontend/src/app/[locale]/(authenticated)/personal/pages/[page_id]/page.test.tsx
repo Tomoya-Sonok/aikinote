@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import type { PageEditModalProps } from "@/components/organisms/PageEditModal/PageEditModal";
 import { deletePage, getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { I18nTestProvider } from "../../../../../test-utils/i18n-test-provider";
+import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { PageDetailPageClient } from "./PageDetailPageClient";
 
 // モック設定

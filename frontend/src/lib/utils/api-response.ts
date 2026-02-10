@@ -8,8 +8,8 @@ import type {
   ApiErrorCode,
   ApiErrorResponse,
   ApiSuccessResponse,
-} from "@/lib/types/api";
-import { API_ERROR_CODES, API_ERROR_MESSAGES } from "@/lib/types/api";
+} from "@/types/api";
+import { API_ERROR_CODES, API_ERROR_MESSAGES } from "@/types/api";
 
 /**
  * 成功レスポンスを作成する

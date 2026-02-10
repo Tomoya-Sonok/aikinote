@@ -28,7 +28,7 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDebounce } from "@/lib/hooks/useDebounce";
-import { type TrainingPageData } from "@/lib/types/training";
+import { type TrainingPageData } from "@/types/training";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./page.module.css";
 

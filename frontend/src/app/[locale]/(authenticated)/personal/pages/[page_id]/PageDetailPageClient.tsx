@@ -18,7 +18,7 @@ import {
   updatePage,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import type { TrainingPageData } from "@/lib/types/training";
+import type { TrainingPageData } from "@/types/training";
 import styles from "./page.module.css";
 
 // APIから取得するタグの型

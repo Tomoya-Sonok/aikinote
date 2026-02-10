@@ -5,7 +5,7 @@
 
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ApiResponse } from "@/lib/types/api";
+import type { ApiResponse } from "@/types/api";
 import { POST as verifyEmailAPI } from "./auth/verify-email/route";
 import { GET as getUserAPI } from "./user/[userId]/route";
 import { POST as createUserAPI } from "./users/route";

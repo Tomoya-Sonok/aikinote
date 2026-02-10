@@ -3,7 +3,7 @@
  * 統一されたエラーレスポンス形式のテスト
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { API_ERROR_CODES } from "@/lib/types/api";
+import { API_ERROR_CODES } from "@/types/api";
 import {
   createErrorResponse,
   createForbiddenResponse,

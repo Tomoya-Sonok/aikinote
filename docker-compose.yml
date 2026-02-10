@@ -13,7 +13,6 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8787
       - NEXT_SERVER_API_URL=http://backend:8787
-      - SKIP_MIDDLEWARE=true
       - NEXT_PUBLIC_IS_DOCKER=true
     command:
       - pnpm
