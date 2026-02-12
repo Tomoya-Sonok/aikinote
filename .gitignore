@@ -65,6 +65,7 @@ AWSCLIV2.pkg
 # テストカバレッジ
 coverage/
 *.lcov
+.vitest-cache/
 
 # debug
 npm-debug.log*
@@ -77,3 +78,6 @@ storybook-static
 
 # logs
 logs/
+
+# Cloudflare Workers local secrets
+.dev.vars

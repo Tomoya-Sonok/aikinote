@@ -1,0 +1,152 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--aikinote-border, #e5e5e5);
+  background: var(--aikinote-surface, #ffffff);
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settingsWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #5143d0, #8475f5);
+  color: #ffffff;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 185px;
+}
+
+.userName {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--aikinote-text-primary, #1f2937);
+  line-height: 1.2;
+}
+
+.userDojoStyleName {
+  font-size: var(--font-size-xs);
+  color: var(--aikinote-text-secondary, #6b7280);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settingsButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 1px solid rgba(131, 131, 131, 0.2);
+  background: var(--aikinote-white);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.settingsButton:hover {
+  background: var(--aikinote-bg);
+  border-color: var(--aikinote-gray);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settingsButton:active {
+  transform: scale(0.95);
+}
+
+.settingsIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.fontSizeTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  transform: translateX(-40%);
+  background-color: var(--aikinote-light-gray, #a4a4a4);
+  color: var(--aikinote-white, #ffffff);
+  font-size: var(--font-size-sm);
+  border-radius: 8px;
+  padding: 8px 12px;
+  z-index: 10001;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.fontSizeTooltip::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 90%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background-color: var(--aikinote-light-gray, #a4a4a4);
+  border-radius: 2px 0 0 0;
+  transition: all 0.3s ease;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+@media (min-width: 481px) {
+  .logo {
+    width: 56px;
+    height: 56px;
+  }
+}

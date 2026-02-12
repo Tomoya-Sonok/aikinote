@@ -11,14 +11,10 @@ if (!process.env.NEXT_PUBLIC_IS_DOCKER) {
   }
 }
 
-const withNextIntl = createNextIntlPlugin("./lib/i18n/i18n.ts");
+const withNextIntl = createNextIntlPlugin("./src/lib/i18n/i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ESLintをビルド時に無効化
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 
   // TypeScript型チェックをビルド時に無効化（一時的）
   typescript: {
@@ -28,14 +24,6 @@ const nextConfig = {
   // SSGを完全に無効化し、すべてをSSRに変更
   output: "standalone",
   trailingSlash: false,
-
-  // フォント最適化の設定（Docker環境での問題を回避）
-  optimizeFonts: true,
-
-  // 外部ドメインからのフォント読み込みを許可
-  images: {
-    domains: ["fonts.googleapis.com", "fonts.gstatic.com"],
-  },
 
   // webpack設定
   webpack: (config) => {

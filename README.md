@@ -144,6 +144,8 @@ docker-compose up
 > **Note**: If you prefer running them without Docker, open two terminals and run `pnpm --filter backend dev` and `pnpm --filter frontend dev`. Both commands rely on the root `.env.local`.
 >
 > **Tip**: You can also start both servers from the monorepo root with a single command: `pnpm dev`. To run in the background, use `pnpm dev -- --bg`, and to stop them, run `pnpm dev:stop`.
+>
+> **Troubleshooting**: If backend startup fails with `EADDRINUSE: ... 8787`, another process is already using port `8787`. Run `pnpm dev:stop` first, and if needed, check with `lsof -i :8787` and stop the listed process before restarting.
 
 ### 5. Access the application
 

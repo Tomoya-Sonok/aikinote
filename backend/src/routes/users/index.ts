@@ -506,6 +506,13 @@ app.get("/:userId", async (c) => {
       .single();
 
     if (error) {
+      console.error("[users/:userId] Supabase query failed:", {
+        userId,
+        errorMessage: error.message,
+        errorCode: error.code,
+        errorDetails: error.details,
+        errorHint: error.hint,
+      });
       return c.json(
         {
           success: false,
@@ -601,6 +608,33 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       );
     }
 
+    // 更新データが空の場合はupdateをスキップして現在のデータを返す
+    if (Object.keys(updateData).length === 0) {
+      const { data: currentUser, error: fetchError } = await supabase
+        .from("User")
+        .select(
+          "id, email, username, profile_image_url, dojo_style_name, training_start_date",
+        )
+        .eq("id", userId)
+        .single();
+
+      if (fetchError || !currentUser) {
+        return c.json(
+          {
+            success: false,
+            error: "ユーザー情報の取得に失敗しました",
+          },
+          500,
+        );
+      }
+
+      return c.json({
+        success: true,
+        data: currentUser,
+        message: "変更はありません",
+      });
+    }
+
     // Supabaseでユーザー情報を更新
     const { data: updatedUser, error: updateError } = await supabase
       .from("User")
@@ -612,6 +646,14 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .single();
 
     if (updateError) {
+      console.error("[users/:userId PUT] Supabase update failed:", {
+        userId,
+        updateData,
+        errorMessage: updateError.message,
+        errorCode: updateError.code,
+        errorDetails: updateError.details,
+        errorHint: updateError.hint,
+      });
       return c.json(
         {
           success: false,

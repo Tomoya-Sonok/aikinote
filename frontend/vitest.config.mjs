@@ -17,7 +17,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": resolve(process.cwd(), "./"),
+      "@": resolve(process.cwd(), "./src"),
     },
   },
   server: {
