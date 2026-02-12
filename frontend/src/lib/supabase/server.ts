@@ -1,5 +1,3 @@
-// lib/supabase/server.ts  ← サーバーだけ
-
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -34,17 +32,15 @@ export async function getServerSupabase() {
           set(name, value, options) {
             try {
               cookieStore.set({ name, value, ...options });
-            } catch (error) {
-              // Cookie設定エラーを無視（読み取り専用コンテキストの場合）
-              console.warn("Failed to set cookie:", name, error);
+            } catch {
+              // Server Componentでは読み取り専用のため無視（middlewareで処理される）
             }
           },
           remove(name, options) {
             try {
               cookieStore.set({ name, value: "", ...options });
-            } catch (error) {
-              // Cookie削除エラーを無視（読み取り専用コンテキストの場合）
-              console.warn("Failed to remove cookie:", name, error);
+            } catch {
+              // Server Componentでは読み取り専用のため無視（middlewareで処理される）
             }
           },
         },

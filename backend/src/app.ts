@@ -126,7 +126,7 @@ app.use(
 app.use(async (c, next) => {
 	maybeLogAuthHeader(c.req.path, c.req.header("Authorization") ?? null);
 
-	const supabase = resolveSupabaseClient({
+	const envVars = {
 		SUPABASE_URL: c.env?.SUPABASE_URL ?? getProcessEnv("SUPABASE_URL"),
 		SUPABASE_SERVICE_ROLE_KEY:
 			c.env?.SUPABASE_SERVICE_ROLE_KEY ??
@@ -134,16 +134,36 @@ app.use(async (c, next) => {
 		SUPABASE_ANON_KEY:
 			c.env?.SUPABASE_ANON_KEY ?? getProcessEnv("SUPABASE_ANON_KEY"),
 		JWT_SECRET: c.env?.JWT_SECRET ?? getProcessEnv("JWT_SECRET"),
-		preferAnon: Boolean(c.env?.SUPABASE_ANON_KEY),
+	};
+
+	const supabase = resolveSupabaseClient({
+		...envVars,
+		// バックエンドAPIは常にSERVICE_ROLE_KEYを使用（RLSをバイパスする必要があるため）
+		preferAnon: false,
 	});
 
 	c.set("supabase", supabase);
 
 	if (!supabase && c.req.path !== "/health") {
+		const missing = Object.entries(envVars)
+			.filter(([, v]) => !v)
+			.map(([k]) => k);
+
+		console.error(
+			"[supabase] 環境変数が未設定のため Supabase クライアントを初期化できません:",
+			{
+				missing,
+				resolved: Object.fromEntries(
+					Object.entries(envVars).map(([k, v]) => [k, v ? "✅ set" : "❌ missing"]),
+				),
+			},
+		);
+
 		return c.json(
 			{
 				success: false,
 				error: "Supabase環境変数が未設定です",
+				missing,
 			},
 			500,
 		);

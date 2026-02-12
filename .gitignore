@@ -78,3 +78,6 @@ storybook-static
 
 # logs
 logs/
+
+# Cloudflare Workers local secrets
+.dev.vars

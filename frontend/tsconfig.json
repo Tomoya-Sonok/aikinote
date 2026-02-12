@@ -35,6 +35,7 @@
     "**/*.test.tsx",
     "**/*.integration.test.ts",
     "**/*.stories.tsx",
+    "mocks/**",
     "src/mocks/**",
     "vitest.setup.ts"
   ]

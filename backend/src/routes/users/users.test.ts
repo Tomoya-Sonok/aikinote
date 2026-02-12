@@ -452,7 +452,7 @@ describe("ユーザープロフィールAPI", () => {
         training_start_date: "2020年頃",
       };
 
-      mockUpdateSingle.mockResolvedValue({
+      mockSingle.mockResolvedValue({
         data: originalUserData,
         error: null,
       });
@@ -472,6 +472,7 @@ describe("ユーザープロフィールAPI", () => {
       const responseData = await response.json();
       expect(responseData.success).toBe(true);
       expect(responseData.data).toEqual(originalUserData);
+      expect(responseData.message).toBe("変更はありません");
     });
   });
 });
