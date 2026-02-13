@@ -17,7 +17,11 @@ const getSecret = (env?: JwtEnv): string => {
     (typeof process !== "undefined" ? process.env?.JWT_SECRET : undefined);
 
   if (!secret) {
-    throw new Error("JWT secret is not configured");
+    const availableKeys = env ? Object.keys(env).join(", ") : "none";
+    const hasProcess = typeof process !== "undefined";
+    const processKeys = hasProcess && process.env ? Object.keys(process.env).join(", ") : "none";
+    
+    throw new Error(`JWT secret is not configured. (Available Env Keys: ${availableKeys}, Process Env Keys: ${processKeys})`);
   }
 
   return secret;
