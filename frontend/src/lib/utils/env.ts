@@ -8,34 +8,35 @@
  * 開発環境、ステージング環境、本番環境で一貫したURL取得を行う
  */
 export function getBaseUrl(): string {
-  // 開発環境でのデフォルト
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:3000";
-  }
-
-  // 本番環境では NEXT_PUBLIC_APP_URL を優先
+  // 1. 環境変数 NEXT_PUBLIC_APP_URL を最優先 (本番環境・プレビュー環境で手動設定する場合)
   if (process.env.NEXT_PUBLIC_APP_URL) {
     return process.env.NEXT_PUBLIC_APP_URL;
   }
 
-  // NextAuth.js用の環境変数をフォールバック
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL;
+  // 2. Vercelが自動設定する公開URL (クライアントサイドでも利用可能)
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
   }
 
-  // 古い環境変数名をフォールバック
-  if (process.env.APP_URL) {
-    return process.env.APP_URL;
-  }
-
-  // Vercelの自動設定を利用
+  // 3. サーバーサイドでVercelのURL (System Environment Variable)
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
 
+  // 4. クライアントサイドならブラウザのオリジンを使用
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+
+  // 5. 開発環境なら localhost
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
+  }
+
   // フォールバック（本来は設定すべき）
   console.warn(
-    "ベースURLが設定されていません。NEXT_PUBLIC_APP_URL環境変数を設定してください。",
+    "[Warn] getBaseUrl: Base URL not configured. Using localhost fallback.",
+    "Please set NEXT_PUBLIC_APP_URL environment variable.",
   );
   return "http://localhost:3000";
 }

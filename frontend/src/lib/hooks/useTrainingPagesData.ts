@@ -1,17 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+import { type PageCreateData } from "@/components/organisms/PageCreateModal/PageCreateModal";
 import {
+  type CreatePagePayload,
   createPage,
   deletePage,
   getPages,
-  updatePage,
-  type CreatePagePayload,
   type UpdatePagePayload,
+  updatePage,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { type TrainingPageData } from "@/types/training";
-import { type PageCreateData } from "@/components/organisms/PageCreateModal/PageCreateModal";
 
 export function useTrainingPagesData() {
   const t = useTranslations();

@@ -38,6 +38,7 @@ vi.mock("@/lib/server/tag", () => ({
 vi.mock("next/headers", () => ({
   cookies: () => ({
     get: vi.fn(),
+    getAll: vi.fn().mockReturnValue([]),
     set: vi.fn(),
   }),
 }));
