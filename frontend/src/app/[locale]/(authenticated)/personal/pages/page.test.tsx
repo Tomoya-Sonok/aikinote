@@ -298,7 +298,7 @@ describe("ページ一覧画面", () => {
     expect(screen.getByText("読み込み中...")).toBeInTheDocument();
   });
 
-  it("認証されていない場合にログインメッセージが表示されること", async () => {
+  it("認証されていない場合に空の状態が表示されること", async () => {
     // Arrange
     mockUseAuth.mockReturnValue({
       user: null,
@@ -326,11 +326,14 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    expect(screen.getByText("ログインが必要です。")).toBeInTheDocument();
-    expect(screen.getByText("ログインページへ")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("page-stats")).toHaveTextContent(
+        "これまでに作成したページ数は0ページです",
+      );
+    });
   });
 
-  it("セッション読み込み中の状態が表示されること", async () => {
+  it("ユーザー情報取得中でもクラッシュせず描画できること", async () => {
     // Arrange
     mockUseAuth.mockReturnValue({
       user: null,
@@ -358,7 +361,11 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("page-stats")).toHaveTextContent(
+        "これまでに作成したページ数は0ページです",
+      );
+    });
   });
 
   it("ページが存在しない場合に空の状態が表示されること", async () => {
@@ -577,7 +584,9 @@ describe("ページ一覧画面", () => {
 
     // Assert
     await waitFor(() => {
-      expect(screen.getByText("ログインが必要です。")).toBeInTheDocument();
+      expect(screen.getByTestId("page-stats")).toHaveTextContent(
+        "これまでに作成したページ数は0ページです",
+      );
     });
 
     expect(mockGetPages).not.toHaveBeenCalled();
