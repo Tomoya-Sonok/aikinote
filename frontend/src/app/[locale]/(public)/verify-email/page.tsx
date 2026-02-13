@@ -79,7 +79,7 @@ async function EmailVerificationContent({
     );
   }
 
-  return <EmailVerificationForm token={token} />;
+  return <EmailVerificationForm key={token} token={token} />;
 }
 
 export default async function VerifyEmailPage({
