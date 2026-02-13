@@ -1,3 +1,11 @@
 name = "aikinote-api"
 main = "src/index.worker.ts"
 compatibility_date = "2025-12-28"
+
+[[routes]]
+pattern = "api.aikinote.com"
+custom_domain = true
+
+# Cloudflare上の設定に合わせてデフォルトの動作を保持
+workers_dev = true
+preview_urls = true
