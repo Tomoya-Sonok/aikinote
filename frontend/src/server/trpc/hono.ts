@@ -73,12 +73,24 @@ export async function callHonoApi<T>(
     payload = null;
   }
 
+  // デバッグ用詳細ログ: 成功時も失敗時も重要な情報を記録
+  // 認証ヘッダーの有無だけ確認
+  const hasAuth = !!options.headers && "Authorization" in options.headers;
+
   if (!response.ok) {
+    const errorMsg = extractErrorMessage(payload);
+    console.error(`[callHonoApi] API Error (${response.status}):`, {
+      url,
+      status: response.status,
+      errorMsg,
+      hasAuth,
+      payload, // 構造化されたエラーレスポンスの中身を確認
+    });
+
     throw new TRPCError({
       code: mapTRPCErrorCodeKeyFromStatusCode(response.status as StatusCodes),
       message:
-        extractErrorMessage(payload) ||
-        `Hono APIの呼び出しに失敗しました (${response.status})`,
+        errorMsg || `Hono APIの呼び出しに失敗しました (${response.status})`,
     });
   }
 
