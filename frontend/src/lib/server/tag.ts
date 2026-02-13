@@ -63,27 +63,54 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
   message?: string;
 }> {
   try {
+
+    console.log(`[Tag Debug] Check user tags for: ${userId}`);
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    console.log(
+      `[Tag Debug] Env check - URL: ${!!supabaseUrl}, ServiceKey: ${!!serviceRoleKey}`,
+    );
+
     // ユーザーの既存タグ数を確認
     const { count, error: countError } = await getUserTagCount(userId);
 
+    console.log(
+      `[Tag Debug] Count result: ${count}, Error: ${countError?.message}`,
+    );
+
     if (countError) {
+      console.error(
+        `[Tag Debug] Failed to count tags: ${countError.message}`,
+        countError,
+      );
       return { success: false, error: countError };
     }
 
     // 既にタグが存在する場合は何もしない
     if (count && count > 0) {
+      console.log(`[Tag Debug] User already has ${count} tags. Skipping.`);
       return {
         success: true,
         message: "ユーザーには既にタグが存在します",
       };
     }
 
+    console.log(`[Tag Debug] No tags found. Creating initial tags...`);
+
     // 初期タグを作成
     const { data, error } = await createInitialUserTags(userId);
 
     if (error) {
+      console.error(
+        `[Tag Debug] Failed to create tags: ${error.message}`,
+        error,
+      );
       return { success: false, error };
     }
+
+    console.log(`[Tag Debug] Successfully created ${data?.length} tags.`);
 
     return {
       success: true,
