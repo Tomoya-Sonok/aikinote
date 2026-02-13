@@ -162,8 +162,10 @@ app.use(async (c, next) => {
 		return c.json(
 			{
 				success: false,
-				error: "Supabase環境変数が未設定です",
+				error: `Supabase環境変数が未設定です: ${missing.join(", ")}`,
 				missing,
+				// デバッグ用に、環境変数のキー一覧（値は隠す）を返す
+				debug_keys: Object.keys(c.env || {}),
 			},
 			500,
 		);
