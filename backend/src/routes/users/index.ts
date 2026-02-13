@@ -508,15 +508,12 @@ app.get("/:userId", async (c) => {
     if (error) {
       console.error("[users/:userId] Supabase query failed:", {
         userId,
-        errorMessage: error.message,
-        errorCode: error.code,
-        errorDetails: error.details,
-        errorHint: error.hint,
+        error: JSON.stringify(error), // 詳細なエラー情報を出力
       });
       return c.json(
         {
           success: false,
-          error: "ユーザー情報の取得に失敗しました",
+          error: `ユーザー情報の取得に失敗しました: ${error.message}`,
         },
         500,
       );
@@ -538,6 +535,8 @@ app.get("/:userId", async (c) => {
       message: "ユーザー情報を取得しました",
     });
   } catch (error) {
+    console.error("[users/:userId] Unexpected error:", error); // 予期せぬエラーの詳細を出力
+
     if (
       error instanceof Error &&
       (error.message.includes("token") ||
@@ -547,16 +546,17 @@ app.get("/:userId", async (c) => {
       return c.json(
         {
           success: false,
-          error: "認証に失敗しました",
+          error: `認証に失敗しました: ${error.message}`,
         },
         401,
       );
     }
 
+    const errorMessage = error instanceof Error ? error.message : "unknown error";
     return c.json(
       {
         success: false,
-        error: "サーバーエラーが発生しました",
+        error: `サーバーエラーが発生しました: ${errorMessage}`,
       },
       500,
     );
