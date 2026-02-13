@@ -7,10 +7,6 @@
 	flex-direction: column;
 }
 
-:global(html) {
-	scroll-behavior: smooth;
-}
-
 .header {
 	position: sticky;
 	top: 0;
@@ -957,9 +953,6 @@
 		scroll-behavior: auto;
 	}
 
-	:global(html) {
-		scroll-behavior: auto;
-	}
 }
 
 .navLink:focus-visible,

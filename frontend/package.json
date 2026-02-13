@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
+    "dev:webpack": "next dev --webpack -H 0.0.0.0",
     "build": "NODE_ENV=production next build",
     "start": "next start -H 0.0.0.0",
     "test": "vitest",

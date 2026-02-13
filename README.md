@@ -146,6 +146,8 @@ docker-compose up
 > **Tip**: You can also start both servers from the monorepo root with a single command: `pnpm dev`. To run in the background, use `pnpm dev -- --bg`, and to stop them, run `pnpm dev:stop`.
 >
 > **Troubleshooting**: If backend startup fails with `EADDRINUSE: ... 8787`, another process is already using port `8787`. Run `pnpm dev:stop` first, and if needed, check with `lsof -i :8787` and stop the listed process before restarting.
+>
+> **Frontend Stability**: If you intermittently hit Next.js dev cache errors (e.g. `ENOENT` under `.next/dev/...`) while using `pnpm --filter frontend dev`, try `pnpm --filter frontend dev:webpack` as a fallback.
 
 ### 5. Access the application
 
