@@ -506,14 +506,10 @@ app.get("/:userId", async (c) => {
       .single();
 
     if (error) {
-      console.error("[users/:userId] Supabase query failed:", {
-        userId,
-        error: JSON.stringify(error), // 詳細なエラー情報を出力
-      });
       return c.json(
         {
           success: false,
-          error: `ユーザー情報の取得に失敗しました: ${error.message}`,
+          error: "ユーザー情報の取得に失敗しました",
         },
         500,
       );
@@ -535,8 +531,6 @@ app.get("/:userId", async (c) => {
       message: "ユーザー情報を取得しました",
     });
   } catch (error) {
-    console.error("[users/:userId] Unexpected error:", error); // 予期せぬエラーの詳細を出力
-
     if (
       error instanceof Error &&
       (error.message.includes("token") ||
@@ -546,17 +540,16 @@ app.get("/:userId", async (c) => {
       return c.json(
         {
           success: false,
-          error: `認証に失敗しました: ${error.message}`,
+          error: "認証に失敗しました",
         },
         401,
       );
     }
 
-    const errorMessage = error instanceof Error ? error.message : "unknown error";
     return c.json(
       {
         success: false,
-        error: `サーバーエラーが発生しました: ${errorMessage}`,
+        error: "サーバーエラーが発生しました",
       },
       500,
     );
@@ -646,14 +639,6 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .single();
 
     if (updateError) {
-      console.error("[users/:userId PUT] Supabase update failed:", {
-        userId,
-        updateData,
-        errorMessage: updateError.message,
-        errorCode: updateError.code,
-        errorDetails: updateError.details,
-        errorHint: updateError.hint,
-      });
       return c.json(
         {
           success: false,
