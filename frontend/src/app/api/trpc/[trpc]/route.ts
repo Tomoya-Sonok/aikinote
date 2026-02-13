@@ -11,9 +11,7 @@ const handler = (req: Request) =>
     router: appRouter,
     createContext: () => createContext(req),
     onError({ error, path }) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(`[tRPC] path=${path ?? "unknown"}`, error);
-      }
+      console.error(`[tRPC] path=${path ?? "unknown"}`, error); // TODO: 本格的にユーザーを集めるフェーズに入ったら消しておく
     },
   });
 
