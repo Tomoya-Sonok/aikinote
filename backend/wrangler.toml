@@ -9,3 +9,11 @@ preview_urls = true
 [[routes]]
 pattern = "api.aikinote.com"
 custom_domain = true
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[vars]
+NEXT_PUBLIC_APP_URL = "https://aikinote.com"
+APP_URL = "https://aikinote.com"
