@@ -6,6 +6,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.pnpm-store/
 
 # Next.js
 .next/
@@ -58,6 +59,7 @@ AWSCLIV2.pkg
 
 # AI Tools
 .gemini-clipboard/
+.agent/
 
 # ビルド
 *.tsbuildinfo
