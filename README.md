@@ -148,6 +148,10 @@ docker-compose up
 > **Troubleshooting**: If backend startup fails with `EADDRINUSE: ... 8787`, another process is already using port `8787`. Run `pnpm dev:stop` first, and if needed, check with `lsof -i :8787` and stop the listed process before restarting.
 >
 > **Frontend Stability**: If you intermittently hit Next.js dev cache errors (e.g. `ENOENT` under `.next/dev/...`) while using `pnpm --filter frontend dev`, try `pnpm --filter frontend dev:webpack` as a fallback.
+>
+> **Production Secrets**: When deploying to Cloudflare Workers, standard environment variables are not automatically uploaded. Run the following command to sync your local secrets to Cloudflare:
+> `pnpm wrangler:secret:update`
+> This reads keys and values from your root `.env.local` and updates them on Cloudflare using `wrangler secret put`. This process is interactive for each secret but is automated by the script.
 
 ### 5. Access the application
 
