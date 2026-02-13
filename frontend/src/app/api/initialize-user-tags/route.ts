@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
-
 
 export async function POST(req: NextRequest) {
   try {

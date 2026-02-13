@@ -3,7 +3,7 @@
 import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { getRedirectUrl } from "@/lib/utils/env";
@@ -171,7 +171,8 @@ export function useAuth() {
     };
   }, []);
 
-  const signUp = async (data: SignUpFormData): Promise<SignUpResponse> => {
+
+  const signUp = useCallback(async (data: SignUpFormData): Promise<SignUpResponse> => {
     setIsProcessing(true);
     setError(null);
 
@@ -200,9 +201,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, []);
 
-  const signInWithCredentials = async (data: SignInFormData) => {
+  const signInWithCredentials = useCallback(async (data: SignInFormData) => {
     setIsProcessing(true);
     setError(null);
 
@@ -229,9 +230,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [supabase.auth, router, locale]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     setIsProcessing(true);
     setError(null);
 
@@ -254,9 +255,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [supabase.auth]);
 
-  const signOutUser = async () => {
+  const signOutUser = useCallback(async () => {
     setIsProcessing(true);
     setError(null);
 
@@ -302,9 +303,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [supabase.auth, router]);
 
-  const forgotPassword = async (data: ResetPasswordFormData) => {
+  const forgotPassword = useCallback(async (data: ResetPasswordFormData) => {
     setIsProcessing(true);
     setError(null);
 
@@ -334,9 +335,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, []);
 
-  const resetPassword = async (token: string, data: NewPasswordFormData) => {
+  const resetPassword = useCallback(async (token: string, data: NewPasswordFormData) => {
     setIsProcessing(true);
     setError(null);
 
@@ -368,9 +369,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     console.log("🔄 [DEBUG] refreshUser: ユーザー情報の再取得を開始");
     try {
       const {
@@ -412,9 +413,9 @@ export function useAuth() {
       );
       return null;
     }
-  };
+  }, [supabase.auth]);
 
-  const verifyEmail = async (token: string) => {
+  const verifyEmail = useCallback(async (token: string) => {
     setIsProcessing(true);
     setError(null);
 
@@ -460,7 +461,9 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, [supabase.auth, refreshUser]);
+
+  const clearError = useCallback(() => setError(null), []);
 
   return {
     user,
@@ -476,6 +479,6 @@ export function useAuth() {
     resetPassword,
     verifyEmail,
     refreshUser,
-    clearError: () => setError(null),
+    clearError,
   };
 }
