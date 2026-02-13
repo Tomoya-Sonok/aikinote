@@ -290,7 +290,21 @@ export const getUserProfile = async (userId: string) => {
 export const updateUserProfile = async (payload: UpdateUserProfilePayload) => {
   try {
     const response = await trpcClient.users.updateProfile.mutate(payload);
-    invalidateQueryCacheByPrefixes(["users:getProfile"]);
+
+    // キャッシュを直接更新して即時反映させる
+    if (response.success && response.data) {
+      const cacheKey = createCacheKey("users:getProfile", {
+        userId: payload.userId,
+      });
+      const now = Date.now();
+      queryCache.set(cacheKey, {
+        value: response,
+        expiresAt: now + CACHE_TTL_MS.userProfile,
+      });
+    } else {
+      invalidateQueryCacheByPrefixes(["users:getProfile"]);
+    }
+
     return response;
   } catch (error) {
     throw new Error(

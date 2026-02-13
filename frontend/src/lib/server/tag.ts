@@ -1,12 +1,6 @@
 import { PostgrestError } from "@supabase/supabase-js";
+import { INITIAL_USER_TAGS } from "@/constants/tags";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
-
-export type DefaultTagTemplate = {
-  id: string;
-  category: string;
-  name: string;
-  created_at: string;
-};
 
 export type UserTag = {
   id: string;
@@ -15,24 +9,6 @@ export type UserTag = {
   name: string;
   created_at: string;
 };
-
-/**
- * DefaultTagTemplateテーブルから初期タグデータを取得する
- */
-export async function getDefaultTagTemplates(): Promise<{
-  data: DefaultTagTemplate[] | null;
-  error: PostgrestError | null;
-}> {
-  const supabase = getServiceRoleSupabase();
-
-  const { data, error } = await supabase
-    .from("DefaultTagTemplate")
-    .select("*")
-    .order("category", { ascending: true })
-    .order("name", { ascending: true });
-
-  return { data, error };
-}
 
 /**
  * ユーザーのタグ数を確認する（初回ログイン判定用）
@@ -52,7 +28,7 @@ export async function getUserTagCount(userId: string): Promise<{
 }
 
 /**
- * DefaultTagTemplateからUserTagテーブルに初期タグを一括挿入する
+ * 定数定義からUserTagテーブルに初期タグを一括挿入する
  */
 export async function createInitialUserTags(userId: string): Promise<{
   data: UserTag[] | null;
@@ -60,19 +36,11 @@ export async function createInitialUserTags(userId: string): Promise<{
 }> {
   const supabase = getServiceRoleSupabase();
 
-  // DefaultTagTemplateから全てのテンプレートを取得
-  const { data: templates, error: templatesError } =
-    await getDefaultTagTemplates();
-
-  if (templatesError || !templates) {
-    return { data: null, error: templatesError };
-  }
-
-  // DefaultTagTemplateのデータをUserTag形式に変換
-  const userTags = templates.map((template) => ({
+  // 定数定義をUserTag形式に変換
+  const userTags = INITIAL_USER_TAGS.map((tag) => ({
     user_id: userId,
-    category: template.category,
-    name: template.name,
+    category: tag.category,
+    name: tag.name,
   }));
 
   // UserTagテーブルに一括挿入
