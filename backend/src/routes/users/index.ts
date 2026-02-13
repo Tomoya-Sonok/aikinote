@@ -101,6 +101,13 @@ const getEnvValue = (
 const getBaseUrl = (
   c: Context<{ Bindings: UserBindings; Variables: UserVariables }>,
 ): string => {
+  // 1. フロントエンドから渡された X-App-Url ヘッダーを最優先
+  const xAppUrl = c.req.header("X-App-Url");
+  if (xAppUrl) {
+    return xAppUrl.replace(/\/+$/, "");
+  }
+
+  // 2. 環境変数
   const appUrl =
     getEnvValue(c, "NEXT_PUBLIC_APP_URL") ??
     getEnvValue(c, "NEXTAUTH_URL") ??

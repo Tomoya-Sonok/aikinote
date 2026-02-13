@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import type { StatusCodes } from "http-status-codes";
+import { getBaseUrl } from "@/lib/utils/env";
 import { mapTRPCErrorCodeKeyFromStatusCode } from "./error";
 
 const HONO_API_BASE_URL =
@@ -37,6 +38,7 @@ export async function callHonoApi<T>(
     response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
+        "X-App-Url": getBaseUrl(),
         ...options.headers,
       },
       cache: "no-store",
