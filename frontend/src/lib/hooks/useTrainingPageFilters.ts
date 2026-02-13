@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { type TrainingPageData } from "@/types/training";
 

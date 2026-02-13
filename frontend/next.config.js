@@ -15,7 +15,6 @@ const withNextIntl = createNextIntlPlugin("./src/lib/i18n/i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
   // TypeScript型チェックをビルド時に無効化（一時的）
   typescript: {
     ignoreBuildErrors: true,

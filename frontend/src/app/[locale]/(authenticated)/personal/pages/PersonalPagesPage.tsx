@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { type UpdatePagePayload } from "@/lib/api/client";
 import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/atoms/Loader";
 import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
@@ -18,9 +17,10 @@ import {
   PageEditModal,
 } from "@/components/organisms/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/organisms/TagFilterModal/TagFilterModal";
-import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
+import { type UpdatePagePayload } from "@/lib/api/client";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
+import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import styles from "./page.module.css";
 
@@ -32,13 +32,8 @@ export function PersonalPagesPage() {
 
   // Custom Hooks
   const { availableTags } = useTrainingTags();
-  const {
-    loading,
-    allTrainingPageData,
-    addPage,
-    updatePageData,
-    removePage,
-  } = useTrainingPagesData();
+  const { loading, allTrainingPageData, addPage, updatePageData, removePage } =
+    useTrainingPagesData();
   const {
     searchQuery,
     setSearchQuery,

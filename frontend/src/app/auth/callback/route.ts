@@ -99,6 +99,17 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies();
+
+    // デバッグログ: クッキーの確認
+    const cookieNames = cookieStore.getAll().map((c) => c.name);
+    const verifierCookie = cookieNames.find((n) => n.includes("code-verifier"));
+    console.log("[Auth Callback] Request URL:", requestUrl.toString());
+    console.log("[Auth Callback] Cookies present:", cookieNames);
+    console.log(
+      "[Auth Callback] Verifier cookie found:",
+      verifierCookie || "None",
+    );
+
     const localeFromCookie = cookieStore.get("NEXT_LOCALE")?.value;
     const locale = localeFromCookie ?? routing.defaultLocale;
     const buildUrl = (pathWithLeadingSlash: string) =>
@@ -107,6 +118,11 @@ export async function GET(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+    console.log("[Auth Callback] Supabase Config:", {
+      url: supabaseUrl ? "Present" : "Missing",
+      key: supabaseAnonKey ? "Present" : "Missing",
+    });
+
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Supabase environment variables are not configured");
       return NextResponse.redirect(buildUrl("/login?error=configuration"));
@@ -114,14 +130,13 @@ export async function GET(request: NextRequest) {
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set({ name, value, ...options });
+          });
         },
       },
     });
