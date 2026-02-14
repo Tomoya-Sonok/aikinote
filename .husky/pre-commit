@@ -1,0 +1,3 @@
+pnpm -r check
+pnpm --filter ./frontend exec tsc --noEmit
+pnpm --filter ./backend exec tsc --noEmit
