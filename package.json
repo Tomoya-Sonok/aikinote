@@ -8,7 +8,11 @@
     "test": "pnpm -r test",
     "check": "pnpm -r check",
     "check:fix": "pnpm -r check:fix",
-    "wrangler:secret:update": "node scripts/update-wrangler-secrets.mjs"
+    "wrangler:secret:update": "node scripts/update-wrangler-secrets.mjs",
+    "prepare": "husky"
   },
-  "packageManager": "pnpm@8.15.4+sha256.cea6d0bdf2de3a0549582da3983c70c92ffc577ff4410cbf190817ddc35137c2"
+  "packageManager": "pnpm@8.15.4+sha256.cea6d0bdf2de3a0549582da3983c70c92ffc577ff4410cbf190817ddc35137c2",
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
 }
