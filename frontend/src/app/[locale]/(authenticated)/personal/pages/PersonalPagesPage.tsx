@@ -3,20 +3,20 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { FloatingActionButton } from "@/components/atoms/FloatingActionButton/FloatingActionButton";
-import { Loader } from "@/components/atoms/Loader";
-import { ConfirmDialog } from "@/components/molecules/ConfirmDialog/ConfirmDialog";
-import { FilterArea } from "@/components/molecules/FilterArea/FilterArea";
-import { TrainingCard } from "@/components/molecules/TrainingCard/TrainingCard";
+import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
+import { Loader } from "@/components/shared/Loader";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { FilterArea } from "@/components/features/personal/FilterArea/FilterArea";
+import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
 import {
   type PageCreateData,
   PageCreateModal,
-} from "@/components/organisms/PageCreateModal/PageCreateModal";
+} from "@/components/features/personal/PageCreateModal/PageCreateModal";
 import {
   type PageEditData,
   PageEditModal,
-} from "@/components/organisms/PageEditModal/PageEditModal";
-import { TagFilterModal } from "@/components/organisms/TagFilterModal/TagFilterModal";
+} from "@/components/features/personal/PageEditModal/PageEditModal";
+import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
 import { type UpdatePagePayload } from "@/lib/api/client";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";

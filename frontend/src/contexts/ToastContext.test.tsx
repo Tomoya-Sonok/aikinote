@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider, useToast } from "./ToastContext";
 
 // Toast コンポーネントをモック
-vi.mock("@/components/atoms/Toast/Toast", () => ({
+vi.mock("@/components/shared/Toast/Toast", () => ({
   Toast: ({
     message,
     type,

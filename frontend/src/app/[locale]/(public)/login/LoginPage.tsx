@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/atoms/Button/Button";
-import { Loader } from "@/components/atoms/Loader";
+import { Button } from "@/components/shared/Button/Button";
+import { Loader } from "@/components/shared/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
   createSignInSchema,

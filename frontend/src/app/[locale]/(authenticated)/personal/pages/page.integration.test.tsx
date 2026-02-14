@@ -39,12 +39,12 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/api/client");
 
 // TabNavigation をモック
-vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
+vi.mock("@/components/shared/TabNavigation/TabNavigation", () => ({
   TabNavigation: () => <div data-testid="tab-navigation" />,
 }));
 
 // FloatingActionButton をモック
-vi.mock("@/components/atoms/FloatingActionButton/FloatingActionButton", () => ({
+vi.mock("@/components/shared/FloatingActionButton/FloatingActionButton", () => ({
   FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
     <button
       type="button"
@@ -57,7 +57,7 @@ vi.mock("@/components/atoms/FloatingActionButton/FloatingActionButton", () => ({
 }));
 
 // TrainingCard をモック
-vi.mock("@/components/molecules/TrainingCard/TrainingCard", () => ({
+vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
   TrainingCard: ({
     title,
     onClick,
@@ -72,7 +72,7 @@ vi.mock("@/components/molecules/TrainingCard/TrainingCard", () => ({
 }));
 
 // PageCreateModal をモック
-vi.mock("@/components/organisms/PageCreateModal/PageCreateModal", () => ({
+vi.mock("@/components/features/personal/PageCreateModal/PageCreateModal", () => ({
   PageCreateModal: ({
     isOpen,
     onClose,

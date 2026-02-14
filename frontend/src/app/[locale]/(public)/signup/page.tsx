@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { NotLoggedInLayout } from "@/components/layouts/NotLoggedInLayout";
+import { NotLoggedInLayout } from "@/components/shared/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { SignUpPage } from "./SignUpPage";
