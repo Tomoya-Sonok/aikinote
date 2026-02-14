@@ -40,6 +40,7 @@ export function ResetPasswordForm({
     handleSubmit,
     formState: { errors },
   } = useForm<NewPasswordFormData>({
+    // biome-ignore lint/suspicious/noExplicitAny: library type mismatch
     resolver: zodResolver(newPasswordSchema as any),
     mode: "onChange",
   });

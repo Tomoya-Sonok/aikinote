@@ -108,6 +108,8 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
               ))}
             </ul>
           </nav>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Stop propagation for drawer layout */}
+          {/* biome-ignore lint/a11y/noStaticElementInteractions: Stop propagation for drawer layout */}
           <div
             className={styles.menuDrawerFooter}
             onClick={(event) => {
@@ -118,15 +120,15 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
             <p className={styles.menuDrawerFooterItem}>{privacyLabel}</p>
             <p className={styles.menuDrawerFooterItem}>
               {helpPrefix}
-              <a
+              <button
+                type="button"
                 className={styles.menuDrawerHelpLink}
-                href="#"
                 onClick={(event) => {
                   event.preventDefault();
                 }}
               >
                 {helpLinkLabel}
-              </a>
+              </button>
             </p>
           </div>
         </div>

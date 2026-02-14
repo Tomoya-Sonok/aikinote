@@ -40,6 +40,8 @@
   color: var(--aikinote-black);
   margin: 0;
   flex: 1;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .actions {
@@ -61,6 +63,8 @@
   line-height: 1.4;
   color: var(--aikinote-black);
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .date {

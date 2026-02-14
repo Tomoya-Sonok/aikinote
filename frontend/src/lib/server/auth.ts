@@ -1,6 +1,7 @@
 import type { Session } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
+import { getCachedUserProfile } from "@/lib/server/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types/api";
 
@@ -51,7 +52,7 @@ const createBackendAuthToken = async () => {
   return createBackendAuthTokenFromSession(session);
 };
 
-const fetchUserProfileFromHono = async (
+export const fetchUserProfileFromHono = async (
   userId: string,
   sessionOverride?: Session | null,
 ): Promise<UserSession | null> => {
@@ -109,7 +110,8 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       return null;
     }
 
-    return await fetchUserProfileFromHono(session.user.id, session);
+    // キャッシュを利用してプロフィール取得
+    return await getCachedUserProfile(session.user.id, session);
   } catch (error) {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;

@@ -28,7 +28,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export function getClientSupabase() {
   try {
-    const client = createBrowserClient(supabaseUrl!, supabaseAnonKey!);
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase environment variables are missing");
+    }
+    const client = createBrowserClient(supabaseUrl, supabaseAnonKey);
     return client;
   } catch (error) {
     console.error("getClientSupabase: クライアント作成エラー", error);

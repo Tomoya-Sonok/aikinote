@@ -7,9 +7,11 @@ export interface JWTPayload {
   exp?: number;
 }
 
-type JwtEnv = {
-  JWT_SECRET?: string;
-} | undefined;
+type JwtEnv =
+  | {
+      JWT_SECRET?: string;
+    }
+  | undefined;
 
 const getSecret = (env?: JwtEnv): string => {
   const secret =
@@ -19,9 +21,12 @@ const getSecret = (env?: JwtEnv): string => {
   if (!secret) {
     const availableKeys = env ? Object.keys(env).join(", ") : "none";
     const hasProcess = typeof process !== "undefined";
-    const processKeys = hasProcess && process.env ? Object.keys(process.env).join(", ") : "none";
-    
-    throw new Error(`JWT secret is not configured. (Available Env Keys: ${availableKeys}, Process Env Keys: ${processKeys})`);
+    const processKeys =
+      hasProcess && process.env ? Object.keys(process.env).join(", ") : "none";
+
+    throw new Error(
+      `JWT secret is not configured. (Available Env Keys: ${availableKeys}, Process Env Keys: ${processKeys})`,
+    );
   }
 
   return secret;

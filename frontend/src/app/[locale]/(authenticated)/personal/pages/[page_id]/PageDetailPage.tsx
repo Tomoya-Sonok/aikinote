@@ -39,11 +39,14 @@ export function PageDetailPage() {
   const [isDeletingPage, setDeletingPage] = useState(false);
   const router = useRouter();
   const params = useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const pageId = params.page_id as string;
 
   useEffect(() => {
+    if (authLoading) return;
+
     const fetchData = async () => {
+      setLoading(true);
       try {
         if (pageId && user?.id) {
           const response = await getPage(pageId, user.id);
@@ -92,7 +95,7 @@ export function PageDetailPage() {
 
     fetchData();
     fetchTags();
-  }, [pageId, user?.id]);
+  }, [pageId, user?.id, authLoading]);
 
   const handleBackToList = () => {
     router.push(`/${locale}/personal/pages`);
