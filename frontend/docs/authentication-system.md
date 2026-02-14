@@ -147,6 +147,35 @@ Frontend から Backend (Hono) を呼び出す際は、Supabase のセッショ�
 
 ---
 
+## ⏳ 認証初期化フロー（Client-Side）
+
+サーバーサイドの認証とは別に、ブラウザ（Client）側でもページ読み込み時に「ログイン状態の復元」を行う必要があります。
+
+### なぜ必要なのか？
+SPA（Single Page Application）や Next.js のクライアントコンポーネントでは、ページリロード時に JavaScript のメモリ状態がリセットされます。そのため、以下の手順で再度「自分は誰か？」を確認する時間が発生します。
+
+1. **ページロード**: ブラウザが JS を読み込む。
+2. **初期化開始 (`isInitializing: true`)**: `useAuth` フックが Supabase (LocalStorage/Cookie) にセッション情報を問い合わせる。
+3. **セッション復元**: 以前のログイン情報が見つかれば `user` ステートに格納。
+4. **初期化完了 (`isInitializing: false`)**: ログイン済みか未ログインかが確定する。
+
+### 実装上の注意点
+この「初期化中」の数ミリ秒〜数秒間は、`user` が `null` (未ログイン扱い) になります。
+そのため、**データ取得時は必ず `!isInitializing` (初期化完了) を待ってから**処理を開始しないと、「データなし（0件）」と誤判定されたり、ログイン画面へ飛ばされたりする不具合の原因になります。
+
+```typescript
+// 悪い例: 初期化中を考慮していない
+const { user } = useAuth();
+if (!user) return <Redirect to="/login" />; // 初期化中に勝手に飛ばされる！
+
+// 良い例: 初期化完了を待つ
+const { user, loading } = useAuth();
+if (loading) return <Loader />; // 待機中
+if (!user) return <Redirect to="/login" />; // 確定後に判定
+```
+
+---
+
 ## �️ 実装ファイル一覧
 
 | パス | 説明 |
