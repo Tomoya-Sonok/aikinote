@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { DefaultLayout } from "@/components/layouts/DefaultLayout";
+import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import MyPage from "./MyPage";

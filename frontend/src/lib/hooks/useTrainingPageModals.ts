@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { type PageEditData } from "@/components/organisms/PageEditModal/PageEditModal";
+import { type PageEditData } from "@/components/features/personal/PageEditModal/PageEditModal";
 
 export function useTrainingPageModals() {
   const [isPageCreateModalOpen, setPageCreateModalOpen] = useState(false);

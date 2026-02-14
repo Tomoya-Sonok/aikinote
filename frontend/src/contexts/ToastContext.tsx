@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { createContext, useContext, useState } from "react";
-import { Toast } from "@/components/atoms/Toast/Toast";
+import { Toast } from "@/components/shared/Toast/Toast";
 
 interface ToastMessage {
   id: string;

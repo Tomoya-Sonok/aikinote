@@ -32,15 +32,15 @@ vi.mock("@/lib/utils/dateUtils", () => ({
   formatToLocalDateString: vi.fn((_date) => "2023-01-01"),
 }));
 
-vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
+vi.mock("@/components/shared/TabNavigation/TabNavigation", () => ({
   TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
 }));
 
-vi.mock("@/components/molecules/FilterArea/FilterArea", () => ({
+vi.mock("@/components/features/personal/FilterArea/FilterArea", () => ({
   FilterArea: () => <div data-testid="filter-area">FilterArea</div>,
 }));
 
-vi.mock("@/components/molecules/TrainingCard/TrainingCard", () => ({
+vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
   TrainingCard: ({
     title,
     onClick,
@@ -67,7 +67,7 @@ vi.mock("@/components/molecules/TrainingCard/TrainingCard", () => ({
   ),
 }));
 
-vi.mock("@/components/atoms/FloatingActionButton/FloatingActionButton", () => ({
+vi.mock("@/components/shared/FloatingActionButton/FloatingActionButton", () => ({
   FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
     <button
       type="button"
@@ -79,17 +79,17 @@ vi.mock("@/components/atoms/FloatingActionButton/FloatingActionButton", () => ({
   ),
 }));
 
-vi.mock("@/components/organisms/PageCreateModal/PageCreateModal", () => ({
+vi.mock("@/components/features/personal/PageCreateModal/PageCreateModal", () => ({
   PageCreateModal: () => (
     <div data-testid="page-create-modal">PageCreateModal</div>
   ),
 }));
 
-vi.mock("@/components/organisms/PageEditModal/PageEditModal", () => ({
+vi.mock("@/components/features/personal/PageEditModal/PageEditModal", () => ({
   PageEditModal: () => <div data-testid="page-edit-modal">PageEditModal</div>,
 }));
 
-vi.mock("@/components/organisms/TagFilterModal/TagFilterModal", () => ({
+vi.mock("@/components/features/personal/TagFilterModal/TagFilterModal", () => ({
   TagFilterModal: () => (
     <div data-testid="tag-filter-modal">TagFilterModal</div>
   ),

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { MinimalLayout } from "@/components/layouts/MinimalLayout";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { ConfirmEmailChange } from "./ConfirmEmailChange";
 

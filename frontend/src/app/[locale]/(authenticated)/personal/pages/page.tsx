@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { DefaultLayout } from "@/components/layouts/DefaultLayout";
+import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { PersonalPagesPage } from "./PersonalPagesPage";

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { Loader } from "@/components/atoms/Loader";
+import { Loader } from "@/components/shared/Loader";
 import styles from "./page.module.css";
 
 interface ConfirmEmailChangeProps {

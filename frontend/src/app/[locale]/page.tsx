@@ -3,10 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Fragment, type ReactNode } from "react";
-import { BackToTopButton } from "@/components/atoms/BackToTopButton/BackToTopButton";
-import { HeroCarousel } from "@/components/molecules/HeroCarousel/HeroCarousel";
-import { LandingMenuDrawer } from "@/components/molecules/LandingMenuDrawer/LandingMenuDrawer";
-import { ScrollIndicator } from "@/components/molecules/ScrollIndicator/ScrollIndicator";
+import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
+import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
+import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
+import { ScrollIndicator } from "@/components/shared/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 

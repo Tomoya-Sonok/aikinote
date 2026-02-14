@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { FontSizeProvider } from "@/components/providers/FontSizeProvider";
-import { LocaleInitializer } from "@/components/providers/LocaleInitializer";
+import { FontSizeProvider } from "@/components/shared/providers/FontSizeProvider";
+import { LocaleInitializer } from "@/components/shared/providers/LocaleInitializer";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { routing } from "@/lib/i18n/routing";
 

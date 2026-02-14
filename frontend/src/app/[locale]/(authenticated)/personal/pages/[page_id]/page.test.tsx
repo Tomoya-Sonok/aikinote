@@ -2,7 +2,7 @@ import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useParams, useRouter } from "next/navigation";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
-import type { PageEditModalProps } from "@/components/organisms/PageEditModal/PageEditModal";
+import type { PageEditModalProps } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { deletePage, getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
@@ -25,11 +25,11 @@ vi.mock("@/lib/hooks/useAuth", () => ({
   useAuth: vi.fn(),
 }));
 
-vi.mock("@/components/molecules/TabNavigation/TabNavigation", () => ({
+vi.mock("@/components/shared/TabNavigation/TabNavigation", () => ({
   TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
 }));
 
-vi.mock("@/components/atoms/Tag/Tag", () => ({
+vi.mock("@/components/shared/Tag/Tag", () => ({
   Tag: ({ children }: { children: ReactNode }) => (
     <span data-testid="tag">{children}</span>
   ),
@@ -46,7 +46,7 @@ const { MockPageEditModal } = vi.hoisted(() => {
 });
 
 // モジュールモック
-vi.mock("@/components/organisms/PageEditModal/PageEditModal", () => ({
+vi.mock("@/components/features/personal/PageEditModal/PageEditModal", () => ({
   PageEditModal: MockPageEditModal,
 }));
 

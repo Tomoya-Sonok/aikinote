@@ -3,9 +3,9 @@
 import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
 import { useState } from "react";
-import { Button } from "@/components/atoms/Button/Button";
-import { TextInput } from "@/components/atoms/TextInput/TextInput";
-import { MinimalLayout } from "@/components/layouts/MinimalLayout";
+import { Button } from "@/components/shared/Button/Button";
+import { TextInput } from "@/components/shared/TextInput/TextInput";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./EmailSettingPage.module.css";

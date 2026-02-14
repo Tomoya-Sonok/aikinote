@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
-import { MinimalLayout } from "@/components/layouts/MinimalLayout";
+import { ForgotPasswordForm } from "@/components/features/auth/ForgotPasswordForm";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
