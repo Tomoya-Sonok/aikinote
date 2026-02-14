@@ -13,11 +13,11 @@ import {
   useState,
 } from "react";
 import { ZodError } from "zod";
-import { Button } from "@/components/atoms/Button/Button";
-import { EditIcon } from "@/components/atoms/icons/EditIcon";
-import { TrashIcon } from "@/components/atoms/icons/TrashIcon";
-import { Loader } from "@/components/atoms/Loader/Loader";
-import type { UserProfile } from "@/components/organisms/MyPageContent/MyPageContent";
+import { Button } from "@/components/shared/Button/Button";
+import { EditIcon } from "@/components/shared/icons/EditIcon";
+import { TrashIcon } from "@/components/shared/icons/TrashIcon";
+import { Loader } from "@/components/shared/Loader/Loader";
+import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { useToast } from "@/contexts/ToastContext";
 import { getUserProfile, updateUserProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";

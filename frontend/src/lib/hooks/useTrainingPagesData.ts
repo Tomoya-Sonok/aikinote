@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
-import { type PageCreateData } from "@/components/organisms/PageCreateModal/PageCreateModal";
+import { type PageCreateData } from "@/components/features/personal/PageCreateModal/PageCreateModal";
 import {
   type CreatePagePayload,
   createPage,

@@ -10,10 +10,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { EditIcon } from "@/components/atoms/icons/EditIcon";
-import { Loader } from "@/components/atoms/Loader/Loader";
-import { Tag } from "@/components/atoms/Tag/Tag";
-import { MinimalLayout } from "@/components/layouts/MinimalLayout";
+import { EditIcon } from "@/components/shared/icons/EditIcon";
+import { Loader } from "@/components/shared/Loader/Loader";
+import { Tag } from "@/components/shared/Tag/Tag";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useToast } from "@/contexts/ToastContext";
 import {
   createTag,

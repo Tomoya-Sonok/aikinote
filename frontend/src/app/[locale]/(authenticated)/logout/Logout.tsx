@@ -2,8 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
-import { Loader } from "@/components/atoms/Loader";
-import { MinimalLayout } from "@/components/layouts/MinimalLayout";
+import { Loader } from "@/components/shared/Loader";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./Logout.module.css";
 
