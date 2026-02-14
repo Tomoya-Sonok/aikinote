@@ -78,6 +78,10 @@ yarn-error.log*
 *storybook.log
 storybook-static
 
+# VRT（Visual Regression Test）
+__screenshots__/
+diff/
+
 # logs
 logs/
 

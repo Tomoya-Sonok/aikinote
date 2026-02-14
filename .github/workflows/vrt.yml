@@ -1,0 +1,259 @@
+name: Visual Regression Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/vrt.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  screenshot-actual:
+    name: PR ブランチのスクリーンショット撮影
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト（PR ブランチ）
+        uses: actions/checkout@v4
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: pnpm セットアップ
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: 依存パッケージのインストール
+        run: pnpm install --frozen-lockfile
+
+      - name: Playwright ブラウザのインストール
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Storybook のビルド
+        working-directory: frontend
+        run: pnpm build-storybook
+
+      - name: スクリーンショット撮影
+        working-directory: frontend
+        run: |
+          npx http-server storybook-static --port 6006 --silent &
+          sleep 3
+          node scripts/capture-screenshots.mjs
+        env:
+          STORYBOOK_URL: http://localhost:6006
+          SCREENSHOT_DIR: __screenshots__
+
+      - name: スクリーンショットのアップロード
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-actual
+          path: frontend/__screenshots__
+          retention-days: 30
+
+  screenshot-expected:
+    name: main ブランチのスクリーンショット撮影
+    runs-on: ubuntu-latest
+    steps:
+      - name: チェックアウト（main ブランチ）
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: pnpm セットアップ
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: 依存パッケージのインストール
+        run: pnpm install --frozen-lockfile
+
+      - name: Playwright のセットアップ
+        working-directory: frontend
+        run: |
+          if ! grep -q '"playwright"' package.json; then
+            pnpm add -D --no-lockfile playwright
+          fi
+          npx playwright install --with-deps chromium
+
+      - name: Storybook 互換性の確保
+        working-directory: frontend
+        run: |
+          # @storybook/nextjs が Next.js 16 非対応の場合、@storybook/nextjs-vite に切替
+          if grep -q '"@storybook/nextjs"' package.json && ! grep -q '"@storybook/nextjs-vite"' package.json; then
+            pnpm add -D --no-lockfile @storybook/nextjs-vite storybook@^9.1.17 vite
+            sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/main.ts
+            sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/preview.ts
+          fi
+
+      - name: Storybook のビルド
+        working-directory: frontend
+        run: pnpm build-storybook
+
+      - name: スクリーンショット撮影
+        working-directory: frontend
+        run: |
+          npx http-server storybook-static --port 6006 --silent &
+          sleep 3
+          if [ -f scripts/capture-screenshots.mjs ]; then
+            node scripts/capture-screenshots.mjs
+          else
+            node --input-type=module << 'SCRIPT'
+          import { chromium } from "playwright";
+          import { mkdirSync } from "node:fs";
+          import { join } from "node:path";
+          const url = process.env.STORYBOOK_URL || "http://localhost:6006";
+          const dir = process.env.SCREENSHOT_DIR || "__screenshots__";
+          const res = await fetch(`${url}/index.json`);
+          const { entries } = await res.json();
+          const stories = Object.entries(entries).filter(([, e]) => e.type === "story");
+          mkdirSync(dir, { recursive: true });
+          const browser = await chromium.launch();
+          const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+          for (const [id] of stories) {
+            const page = await ctx.newPage();
+            await page.goto(`${url}/iframe.html?id=${id}&viewMode=story`, { waitUntil: "networkidle" });
+            await page.waitForTimeout(300);
+            await page.screenshot({ path: join(dir, `${id}.png`), fullPage: true });
+            await page.close();
+            console.log(`✓ ${id}`);
+          }
+          await browser.close();
+          SCRIPT
+          fi
+        env:
+          STORYBOOK_URL: http://localhost:6006
+          SCREENSHOT_DIR: __screenshots__
+
+      - name: スクリーンショットのアップロード
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-expected
+          path: frontend/__screenshots__
+          retention-days: 30
+
+  compare:
+    name: スクリーンショット比較
+    needs: [screenshot-actual, screenshot-expected]
+    runs-on: ubuntu-latest
+    steps:
+      - name: actual スクリーンショットのダウンロード
+        uses: actions/download-artifact@v4
+        with:
+          name: screenshots-actual
+          path: actual
+
+      - name: expected スクリーンショットのダウンロード
+        uses: actions/download-artifact@v4
+        with:
+          name: screenshots-expected
+          path: expected
+
+      - name: Node.js セットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: reg-cli で差分比較
+        id: reg
+        run: |
+          npx reg-cli actual expected diff \
+            --report diff/index.html \
+            --json diff/report.json \
+            --matchingThreshold 0.01 \
+            --enableAntialias
+          echo "result=success" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: 比較結果を取得
+        id: summary
+        run: |
+          if [ -f diff/report.json ]; then
+            CHANGED=$(node -e "const r=require('./diff/report.json'); console.log(r.failedItems?.length ?? 0)")
+            NEW=$(node -e "const r=require('./diff/report.json'); console.log(r.newItems?.length ?? 0)")
+            DELETED=$(node -e "const r=require('./diff/report.json'); console.log(r.deletedItems?.length ?? 0)")
+            PASSED=$(node -e "const r=require('./diff/report.json'); console.log(r.passedItems?.length ?? 0)")
+            echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+            echo "new=$NEW" >> "$GITHUB_OUTPUT"
+            echo "deleted=$DELETED" >> "$GITHUB_OUTPUT"
+            echo "passed=$PASSED" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=0" >> "$GITHUB_OUTPUT"
+            echo "new=0" >> "$GITHUB_OUTPUT"
+            echo "deleted=0" >> "$GITHUB_OUTPUT"
+            echo "passed=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 差分レポートのアップロード
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: vrt-report
+          path: diff
+          retention-days: 30
+
+      - name: PR にコメント
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const changed = '${{ steps.summary.outputs.changed }}';
+            const newItems = '${{ steps.summary.outputs.new }}';
+            const deleted = '${{ steps.summary.outputs.deleted }}';
+            const passed = '${{ steps.summary.outputs.passed }}';
+            const hasDiff = Number(changed) > 0 || Number(newItems) > 0 || Number(deleted) > 0;
+            const icon = hasDiff ? '⚠️' : '✅';
+
+            const body = [
+              `## ${icon} Visual Regression Test 結果`,
+              '',
+              '| 項目 | 件数 |',
+              '|------|------|',
+              `| ✅ 変更なし | ${passed} |`,
+              `| 🔄 変更あり | ${changed} |`,
+              `| 🆕 新規 | ${newItems} |`,
+              `| 🗑️ 削除 | ${deleted} |`,
+              '',
+              hasDiff
+                ? '> UI に差分が検出されました。意図した変更かどうか、Artifacts の `vrt-report` をダウンロードして確認してください。'
+                : '> UI に差分は検出されませんでした。',
+              '',
+              '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
+            ].join('\n');
+
+            // 既存のVRTコメントを探して更新、なければ新規作成
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c =>
+              c.body?.includes('Visual Regression Test 結果')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
