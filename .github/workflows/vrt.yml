@@ -82,11 +82,20 @@ jobs:
       - name: Playwright のセットアップ
         working-directory: frontend
         run: |
-          # main ブランチに playwright が未導入の場合のフォールバック
           if ! grep -q '"playwright"' package.json; then
             pnpm add -D --no-lockfile playwright
           fi
           npx playwright install --with-deps chromium
+
+      - name: Storybook 互換性の確保
+        working-directory: frontend
+        run: |
+          # @storybook/nextjs が Next.js 16 非対応の場合、@storybook/nextjs-vite に切替
+          if grep -q '"@storybook/nextjs"' package.json && ! grep -q '"@storybook/nextjs-vite"' package.json; then
+            pnpm add -D --no-lockfile @storybook/nextjs-vite storybook@^9.1.17 vite
+            sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/main.ts
+            sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/preview.ts
+          fi
 
       - name: Storybook のビルド
         working-directory: frontend
