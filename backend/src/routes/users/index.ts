@@ -1,8 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { Hono, type Context } from "hono";
-import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { type Context, Hono } from "hono";
+import { z } from "zod";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 
 type UserBindings = {
@@ -107,7 +107,7 @@ const getBaseUrl = (
     xAppUrl,
     env_NEXT_PUBLIC_APP_URL: getEnvValue(c, "NEXT_PUBLIC_APP_URL"),
     env_APP_URL: getEnvValue(c, "APP_URL"),
-    env_VERCEL_URL: getEnvValue(c, "VERCEL_URL")
+    env_VERCEL_URL: getEnvValue(c, "VERCEL_URL"),
   });
 
   if (xAppUrl) {
@@ -163,7 +163,8 @@ const sendVerificationEmail = async (
     throw new Error("RESEND_API_KEY が設定されていません");
   }
 
-  const fromEmail = getEnvValue(c, "RESEND_FROM_EMAIL") || "noreply@example.com";
+  const fromEmail =
+    getEnvValue(c, "RESEND_FROM_EMAIL") || "noreply@example.com";
   const verificationUrl = buildRedirectUrl(
     c,
     `/verify-email?token=${params.verificationToken}`,

@@ -549,7 +549,7 @@
 
 .stepList li::before {
   align-items: center;
-  background: var(--aikinote-black, #000000);
+
   border-radius: 50%;
   color: var(--aikinote-white, #ffffff);
   content: counter(steps);

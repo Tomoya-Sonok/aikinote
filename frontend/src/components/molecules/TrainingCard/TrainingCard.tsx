@@ -91,6 +91,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
 
   if (onClick) {
     return (
+      // biome-ignore lint/a11y/useSemanticElements: Cannot use <button> due to nested interactive elements
       <div
         className={`${styles.card} ${styles.clickable}`}
         onClick={handleCardClick}

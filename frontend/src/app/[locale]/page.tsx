@@ -182,6 +182,7 @@ export default async function RootPage({ params }: RootPageProps) {
                 <p className={styles.leadLabel}>{t("hero.lead")}</p>
                 <h1 className={styles.heroTitle}>
                   {heroTitleLines.map((line, index) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: Display-only split text
                     <Fragment key={`${line}-${index}`}>
                       {line}
                       {index < heroTitleLines.length - 1 && <br />}
@@ -334,6 +335,7 @@ export default async function RootPage({ params }: RootPageProps) {
                   </h2>
                   <p className={styles.searchSubtitle}>
                     {searchSubtitleLines.map((line, index) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: Display-only split text
                       <Fragment key={`${line}-${index}`}>
                         {line}
                         {index < searchSubtitleLines.length - 1 && <br />}

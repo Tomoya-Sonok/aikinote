@@ -5,7 +5,7 @@ import { routing } from "./lib/i18n/routing";
 
 const handleI18nRouting = createIntlMiddleware(routing);
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const shouldSkipAuthSync = process.env.SKIP_MIDDLEWARE === "true";
 
   if (request.nextUrl.pathname.startsWith("/auth/")) {

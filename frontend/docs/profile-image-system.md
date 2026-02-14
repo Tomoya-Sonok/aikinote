@@ -127,6 +127,7 @@ const uploadResponse = await fetch(uploadUrl, {
 - 古い画像がある場合、S3から削除
 - CloudFrontのURLを生成
 - Supabaseの`User`テーブルを更新
+- **ユーザープロフィールのキャッシュ無効化 (`revalidateUserProfile`)**: 即座に新しいアイコンを反映させるため
 
 ### 6. プロフィール情報更新
 **API**: `PUT /api/users/{userId}` (Hono Backend)
