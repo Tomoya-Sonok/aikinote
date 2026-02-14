@@ -19,6 +19,7 @@ vi.mock("@/lib/server/auth", () => ({
 
 describe("cache.ts", () => {
   const userId = "test-user-id";
+  // biome-ignore lint/suspicious/noExplicitAny: mock data
   const mockSession: any = { user: { id: userId } };
 
   beforeEach(() => {
@@ -28,8 +29,10 @@ describe("cache.ts", () => {
   describe("getCachedUserProfile", () => {
     it("fetches user profile via unstable_cache", async () => {
       const mockProfile = { id: userId, username: "testuser" };
+      // biome-ignore lint/suspicious/noExplicitAny: mock function
       (fetchUserProfileFromHono as any).mockResolvedValue(mockProfile);
 
+      // biome-ignore lint/suspicious/noExplicitAny: mock function
       (unstable_cache as any).mockImplementation((fn: any) => fn);
 
       const result = await getCachedUserProfile(userId, mockSession);

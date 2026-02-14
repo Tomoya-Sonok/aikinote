@@ -48,6 +48,7 @@ export async function callHonoApi<T>(
     const cause = err instanceof Error ? err : undefined;
     const isConnRefused =
       cause?.message?.includes("ECONNREFUSED") ||
+      // biome-ignore lint/suspicious/noExplicitAny: dynamic error object
       (cause as any)?.cause?.code === "ECONNREFUSED";
 
     console.error("[callHonoApi] fetch failed:", {

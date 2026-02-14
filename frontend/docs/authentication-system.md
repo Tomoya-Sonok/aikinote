@@ -155,7 +155,7 @@ Frontend から Backend (Hono) を呼び出す際は、Supabase のセッショ�
 | `frontend/src/lib/server/cache.ts` | **(New)** プロフィール情報のキャッシュ制御ロジック |
 | `frontend/src/lib/supabase/client.ts` | クライアントサイド用 Supabase クライアント |
 | `frontend/src/lib/supabase/server.ts` | サーバーサイド用 Supabase クライアント |
-| `frontend/middleware.ts` | ルーティング保護ミドルウェア |
+| `frontend/src/proxy.ts` | ルーティング保護ミドルウェア (旧 `middleware.ts`) |
 | `frontend/src/app/api/user/[userId]/route.ts` | ユーザー情報更新 API (キャッシュ無効化を含む) |
 
 ---

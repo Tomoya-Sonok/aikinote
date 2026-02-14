@@ -26,6 +26,7 @@ type ResolveOptions = AppBindings & { preferAnon?: boolean };
 
 const app = new Hono<{ Bindings: AppBindings; Variables: AppVariables }>();
 
+// biome-ignore lint/suspicious/noExplicitAny: simplified type
 let supabaseClient: SupabaseClient<any> | null = supabaseFromModule ?? null;
 let hasLoggedAuthHeader = false;
 
@@ -47,7 +48,9 @@ const getAllowedOrigins = (
 ): string[] => {
   const origins = new Set<string>();
 
-  defaultAllowedOrigins.forEach((o) => origins.add(normalizeOrigin(o)));
+  defaultAllowedOrigins.forEach((o) => {
+    origins.add(normalizeOrigin(o));
+  });
 
   const envOrigins = [
     c.env?.NEXT_PUBLIC_APP_URL,
@@ -56,7 +59,9 @@ const getAllowedOrigins = (
 
   envOrigins
     .filter((o): o is string => Boolean(o))
-    .forEach((o) => origins.add(normalizeOrigin(o)));
+    .forEach((o) => {
+      origins.add(normalizeOrigin(o));
+    });
 
   return Array.from(origins);
 };

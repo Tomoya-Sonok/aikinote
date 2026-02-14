@@ -255,7 +255,7 @@ app.post("/", async (c) => {
 
   try {
     body = await c.req.json();
-  } catch (error) {
+  } catch (_error) {
     return c.json(
       {
         success: false,
@@ -460,7 +460,7 @@ app.post("/", async (c) => {
       data: insertedUser,
       message: "ユーザー登録が完了しました。認証メールを確認してください。",
     });
-  } catch (error) {
+  } catch (_error) {
     if (createdUserId) {
       if (userInserted) {
         await supabase.from("User").delete().eq("id", createdUserId);
