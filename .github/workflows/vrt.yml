@@ -83,7 +83,7 @@ jobs:
         working-directory: frontend
         run: |
           # main ブランチに playwright が未導入の場合のフォールバック
-          if ! node -e "require.resolve('playwright')" 2>/dev/null; then
+          if ! grep -q '"playwright"' package.json; then
             pnpm add -D --no-lockfile playwright
           fi
           npx playwright install --with-deps chromium
