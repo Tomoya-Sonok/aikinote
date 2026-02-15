@@ -114,7 +114,8 @@ jobs:
           const url = process.env.STORYBOOK_URL || "http://localhost:6006";
           const dir = process.env.SCREENSHOT_DIR || "__screenshots__";
           for (let i = 0; i < 30; i++) {
-            try { const r = await fetch(`${url}/index.json`); if (r.ok) break; } catch {}
+            try { const r = await fetch(`${url}/index.json`); if (r.ok) break; } catch { /* サーバー起動待ち */ }
+            if (i === 29) { console.error('サーバーが起動しませんでした'); process.exit(1); }
             await new Promise(r => setTimeout(r, 1000));
           }
           const res = await fetch(`${url}/index.json`);
