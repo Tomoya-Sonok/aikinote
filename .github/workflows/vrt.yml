@@ -43,8 +43,7 @@ jobs:
       - name: スクリーンショット撮影
         working-directory: frontend
         run: |
-          npx http-server storybook-static --port 6006 --silent &
-          sleep 3
+          python3 -m http.server 6006 --directory storybook-static &
           node scripts/capture-screenshots.mjs
         env:
           STORYBOOK_URL: http://localhost:6006
@@ -92,7 +91,7 @@ jobs:
         run: |
           # @storybook/nextjs が Next.js 16 非対応の場合、@storybook/nextjs-vite に切替
           if grep -q '"@storybook/nextjs"' package.json && ! grep -q '"@storybook/nextjs-vite"' package.json; then
-            pnpm add -D --no-lockfile @storybook/nextjs-vite storybook@^9.1.17 vite
+            pnpm add -D --no-lockfile @storybook/nextjs-vite@9.1.17 storybook@9.1.17 vite
             sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/main.ts
             sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/preview.ts
           fi
@@ -104,8 +103,7 @@ jobs:
       - name: スクリーンショット撮影
         working-directory: frontend
         run: |
-          npx http-server storybook-static --port 6006 --silent &
-          sleep 3
+          python3 -m http.server 6006 --directory storybook-static &
           if [ -f scripts/capture-screenshots.mjs ]; then
             node scripts/capture-screenshots.mjs
           else
@@ -115,6 +113,10 @@ jobs:
           import { join } from "node:path";
           const url = process.env.STORYBOOK_URL || "http://localhost:6006";
           const dir = process.env.SCREENSHOT_DIR || "__screenshots__";
+          for (let i = 0; i < 30; i++) {
+            try { const r = await fetch(`${url}/index.json`); if (r.ok) break; } catch {}
+            await new Promise(r => setTimeout(r, 1000));
+          }
           const res = await fetch(`${url}/index.json`);
           const { entries } = await res.json();
           const stories = Object.entries(entries).filter(([, e]) => e.type === "story");

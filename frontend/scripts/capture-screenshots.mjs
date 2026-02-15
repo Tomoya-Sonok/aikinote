@@ -9,7 +9,23 @@ const STORYBOOK_URL = process.env.STORYBOOK_URL || "http://localhost:6006";
 const OUTPUT_DIR =
   process.env.SCREENSHOT_DIR || join(__dirname, "../__screenshots__");
 
+async function waitForServer(url, maxRetries = 30, interval = 1000) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return;
+    } catch {
+      // サーバーがまだ起動していない
+    }
+    console.log(`サーバーの起動を待機中... (${i + 1}/${maxRetries})`);
+    await new Promise((r) => setTimeout(r, interval));
+  }
+  throw new Error(`サーバー ${url} が起動しませんでした`);
+}
+
 async function main() {
+  await waitForServer(`${STORYBOOK_URL}/index.json`);
+
   const res = await fetch(`${STORYBOOK_URL}/index.json`);
   if (!res.ok) {
     throw new Error(`index.json の取得に失敗しました: ${res.status}`);
