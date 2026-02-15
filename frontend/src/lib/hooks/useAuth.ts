@@ -288,7 +288,7 @@ export function useAuth() {
       // エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
       setUser(null);
 
-      router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
+      router.push("/?logged_out=true"); // ログアウト成功のトースト表示のためクエリパラメータを付与
     } catch (err) {
       console.warn(
         "signOutUser: Supabaseサインアウトでタイムアウト/エラーが発生しましたが、ローカルログアウトを実行します",
@@ -296,7 +296,7 @@ export function useAuth() {
       );
       // エラーが発生してもユーザー状態をクリアしてリダイレクト
       setUser(null);
-      router.push("/"); // TODO: ログアウト直後に「ログインが必要です」と表示されるんじゃなくてトップページに遷移するように修正
+      router.push("/?logged_out=true"); // ログアウト成功のトースト表示のためクエリパラメータを付与
       // タイムアウトの場合は特にエラーとして扱わない
       if (err instanceof Error && err.message.includes("タイムアウト")) {
         // タイムアウトの場合は特にログ出力しない

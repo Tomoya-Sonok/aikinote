@@ -9,6 +9,7 @@ interface ToastMessage {
   message: string;
   type: "success" | "error" | "info";
   duration?: number;
+  className?: string;
 }
 
 interface ToastContextType {
@@ -16,6 +17,7 @@ interface ToastContextType {
     message: string,
     type?: "success" | "error" | "info",
     duration?: number,
+    className?: string,
   ) => void;
 }
 
@@ -36,9 +38,10 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     message: string,
     type: "success" | "error" | "info" = "info",
     duration = 3000,
+    className = "",
   ) => {
     const id = `${Date.now()}-${Math.random()}`;
-    const newToast: ToastMessage = { id, message, type, duration };
+    const newToast: ToastMessage = { id, message, type, duration, className };
 
     setToasts((prev) => [...prev, newToast]);
   };
@@ -57,6 +60,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
           type={toast.type}
           duration={toast.duration}
           onClose={() => removeToast(toast.id)}
+          className={toast.className}
         />
       ))}
     </ToastContext.Provider>

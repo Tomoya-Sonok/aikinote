@@ -238,6 +238,7 @@
   },
   "auth": {
     "login": "ログイン",
+    "logoutSuccess": "ログアウトしました",
     "signup": "新規登録",
     "title": "練習の記録を始めましょう",
     "description": "合気道の練習を記録し、共有するアプリケーション",
@@ -420,7 +421,8 @@
   },
   "pageCreate": {
     "title": "ページ作成",
-    "save": "保存"
+    "save": "保存",
+    "success": "ページを作成しました"
   },
   "trainingCard": {
     "edit": "編集",

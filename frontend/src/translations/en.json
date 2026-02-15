@@ -238,6 +238,7 @@
   },
   "auth": {
     "login": "Login",
+    "logoutSuccess": "Logged out successfully",
     "signup": "Sign Up",
     "email": "Email",
     "password": "Password",
@@ -418,7 +419,8 @@
   },
   "pageCreate": {
     "title": "Create Page",
-    "save": "Save"
+    "save": "Save",
+    "success": "Page created successfully"
   },
   "trainingCard": {
     "edit": "Edit",

@@ -17,6 +17,7 @@ import {
   PageEditModal,
 } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
+import { useToast } from "@/contexts/ToastContext";
 import { type UpdatePagePayload } from "@/lib/api/client";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
@@ -28,6 +29,7 @@ export function PersonalPagesPage() {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
+  const { showToast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Custom Hooks
@@ -70,6 +72,7 @@ export function PersonalPagesPage() {
     setIsProcessing(false);
     if (success) {
       setPageCreateModalOpen(false);
+      showToast(t("pageCreate.success"), "success");
     }
   };
 
