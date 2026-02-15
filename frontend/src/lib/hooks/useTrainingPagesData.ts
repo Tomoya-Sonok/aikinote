@@ -15,19 +15,21 @@ import { type TrainingPageData } from "@/types/training";
 
 export function useTrainingPagesData() {
   const t = useTranslations();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const [dataLoading, setDataLoading] = useState(true);
   const [allTrainingPageData, setAllTrainingPageData] = useState<
     TrainingPageData[]
   >([]);
 
   const fetchAllData = useCallback(async () => {
+    if (authLoading) return;
+
     if (!user?.id) {
-      setLoading(false);
+      setDataLoading(false);
       return;
     }
 
-    setLoading(true);
+    setDataLoading(true);
 
     try {
       let allPages: TrainingPageData[] = [];
@@ -78,9 +80,9 @@ export function useTrainingPagesData() {
       console.error("Failed to fetch training page data:", err);
       setAllTrainingPageData([]);
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
-  }, [user, t]);
+  }, [user, t, authLoading]);
 
   useEffect(() => {
     void fetchAllData();
@@ -204,7 +206,7 @@ export function useTrainingPagesData() {
   );
 
   return {
-    loading,
+    loading: authLoading || dataLoading,
     allTrainingPageData,
     addPage,
     updatePageData,

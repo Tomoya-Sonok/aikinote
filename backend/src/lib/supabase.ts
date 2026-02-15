@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+// biome-ignore lint/suspicious/noExplicitAny: simplified type
 let supabase!: SupabaseClient<any>;
 
 // 環境変数からSupabase接続情報を取得（Node.js用の初期化）
@@ -19,6 +20,7 @@ if (supabaseUrl && supabaseServiceKey) {
   });
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: simplified type
 export const setSupabaseClient = (client: SupabaseClient<any>): void => {
   supabase = client;
 };

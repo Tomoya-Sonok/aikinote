@@ -1,0 +1,19 @@
+
+.logoutToast {
+  /*
+    Viewportの幅を強制的に守らせ、
+    bodyコンテンツが幅広の場合でも画面外に押し出されるのを防ぐ
+  */
+  right: 10px !important;
+  max-width: calc(100vw - 20px) !important;
+  box-sizing: border-box;
+}
+
+@media (min-width: 431px) {
+  .logoutToast {
+    right: auto !important;
+    left: 20px !important;
+    max-width: 300px !important;
+    transform: none !important;
+  }
+}

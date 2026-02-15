@@ -31,6 +31,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
     formState: { errors },
     getValues,
   } = useForm<ResetPasswordFormData>({
+    // biome-ignore lint/suspicious/noExplicitAny: library type mismatch
     resolver: zodResolver(resetPasswordSchema as any),
     mode: "onChange",
   });

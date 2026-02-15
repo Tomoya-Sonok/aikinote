@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import styles from "./ScrollIndicator.module.css";
 
 interface ScrollIndicatorProps {
@@ -9,6 +10,11 @@ interface ScrollIndicatorProps {
 
 export function ScrollIndicator({ label }: ScrollIndicatorProps) {
   const [isHidden, setIsHidden] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -35,12 +41,26 @@ export function ScrollIndicator({ label }: ScrollIndicatorProps) {
 
   const handleClick = useCallback(() => {
     if (typeof window === "undefined") return;
-    const offset = window.innerHeight * 0.75;
-    window.scrollBy({
-      top: offset,
-      left: 0,
-      behavior: "smooth",
+
+    // 現在のスクロール位置より下にある最初のセクションを探す
+    const sections = Array.from(document.querySelectorAll("section"));
+    
+    // getBoundingClientRect().top はViewport上端からの距離
+    // これが正の値（かつ一定の閾値以上）であれば、現在の表示領域より下にあると判定できる
+    const targetSection = sections.find((section) => {
+      const rect = section.getBoundingClientRect();
+      return rect.top > 100; // 100pxのバッファ（ヘッダー分などを考慮）
     });
+
+    if (targetSection) {
+      targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // 次のセクションがない場合は単純に少しスクロール（フォールバック）
+      window.scrollBy({
+        top: window.innerHeight * 0.75,
+        behavior: "smooth",
+      });
+    }
   }, []);
 
   const className = useMemo(
@@ -51,7 +71,9 @@ export function ScrollIndicator({ label }: ScrollIndicatorProps) {
     [isHidden],
   );
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <button
       type="button"
       className={className}
@@ -64,6 +86,7 @@ export function ScrollIndicator({ label }: ScrollIndicatorProps) {
         <span className={styles.chevron} />
       </span>
       <span className={styles.label}>{label}</span>
-    </button>
+    </button>,
+    document.body,
   );
 }

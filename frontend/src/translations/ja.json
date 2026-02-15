@@ -213,6 +213,9 @@
     "add": "追加",
     "tagNameRequired": "タグ名を入力してください",
     "tagNameTooLong": "タグ名は20文字以内で入力してください",
+    "titleTooLong": "タイトルは35文字以内で入力してください",
+    "contentTooLong": "稽古内容は3000文字以内で入力してください",
+    "commentTooLong": "コメントは1000文字以内で入力してください",
     "tagNameInvalid": "タグ名は全角・半角英数字のみ使用可能です",
     "invalidCategory": "無効なカテゴリです",
     "loginRequired": "ログインが必要です",
@@ -235,6 +238,7 @@
   },
   "auth": {
     "login": "ログイン",
+    "logoutSuccess": "ログアウトしました",
     "signup": "新規登録",
     "title": "練習の記録を始めましょう",
     "description": "合気道の練習を記録し、共有するアプリケーション",
@@ -417,7 +421,8 @@
   },
   "pageCreate": {
     "title": "ページ作成",
-    "save": "保存"
+    "save": "保存",
+    "success": "ページを作成しました"
   },
   "trainingCard": {
     "edit": "編集",
