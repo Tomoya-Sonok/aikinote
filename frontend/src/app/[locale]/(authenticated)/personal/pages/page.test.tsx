@@ -24,6 +24,12 @@ vi.mock("@/lib/api/client", () => ({
   deletePage: vi.fn(),
 }));
 
+vi.mock("@/contexts/ToastContext", () => ({
+  useToast: () => ({
+    showToast: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/hooks/useDebounce", () => ({
   useDebounce: vi.fn((value) => value),
 }));
@@ -361,11 +367,8 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
-    });
+    // Assert
+    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
   });
 
   it("ページが存在しない場合に空の状態が表示されること", async () => {

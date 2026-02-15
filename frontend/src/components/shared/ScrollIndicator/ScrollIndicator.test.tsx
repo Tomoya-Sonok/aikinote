@@ -41,6 +41,19 @@ describe("ScrollIndicator", () => {
         IntersectionObserver: typeof IntersectionObserver;
       }
     ).IntersectionObserver = MockIntersectionObserver;
+    
+    Element.prototype.scrollIntoView = vi.fn();
+    Element.prototype.getBoundingClientRect = vi.fn(() => ({
+      top: 200, // Viewportより下にある想定
+      bottom: 0,
+      left: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    }));
   });
 
   afterEach(() => {
@@ -51,15 +64,33 @@ describe("ScrollIndicator", () => {
     });
   });
 
-  it("クリックで画面高の75%分スクロールする", async () => {
+  it("クリックで画面高の75%分スクロールする（フォールバック）", async () => {
+    // セクションがない場合は window.scrollBy が呼ばれる
     render(<ScrollIndicator label="続きを見る" />);
 
     await userEvent.click(screen.getByRole("button", { name: "続きを見る" }));
 
     expect(window.scrollBy).toHaveBeenCalledWith({
       top: 600,
-      left: 0,
       behavior: "smooth",
     });
+  });
+
+  it("セクションがある場合は次のセクションへスクロールする", async () => {
+    // セクションをDOMに追加
+    const section = document.createElement("section");
+    document.body.appendChild(section);
+
+    render(<ScrollIndicator label="続きを見る" />);
+
+    await userEvent.click(screen.getByRole("button", { name: "続きを見る" }));
+
+    expect(section.scrollIntoView).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "start",
+    });
+
+    // テスト後にクリーンアップ
+    document.body.removeChild(section);
   });
 });
