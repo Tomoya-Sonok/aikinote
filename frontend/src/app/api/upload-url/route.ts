@@ -11,7 +11,7 @@ const uploadUrlSchema = z.object({
     .regex(/^image\/(jpeg|jpg|png|webp)$/, "無効なコンテンツタイプです"),
   fileSize: z
     .number()
-    .max(1024 * 1024, "ファイルサイズは1MB未満である必要があります"),
+    .max(5 * 1024 * 1024, "ファイルサイズは5MB未満である必要があります"),
 });
 
 export async function POST(request: NextRequest) {
@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ファイルサイズの検証（1MB制限）
-    if (fileSize > 1024 * 1024) {
+    // ファイルサイズの検証（5MB制限）
+    if (fileSize > 5 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "ファイルサイズは1MB未満である必要があります" },
+        { error: "ファイルサイズは5MB未満である必要があります" },
         { status: 400 },
       );
     }

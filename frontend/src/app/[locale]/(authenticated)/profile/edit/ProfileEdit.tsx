@@ -21,6 +21,7 @@ import type { UserProfile } from "@/components/features/personal/MyPageContent/M
 import { useToast } from "@/contexts/ToastContext";
 import { getUserProfile, updateUserProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { compressImage } from "@/lib/utils/compressImage";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
 
@@ -241,12 +242,24 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
       }
     };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setProfileImageFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      try {
+        // 画像をリサイズ・圧縮してからセット
+        const compressedFile = await compressImage(file, {
+          maxWidth: 512,
+          maxHeight: 512,
+          quality: 0.85,
+          outputType: "image/jpeg",
+          maxFileSize: 1024 * 1024, // 1MB
+        });
+        setProfileImageFile(compressedFile);
+        const url = URL.createObjectURL(compressedFile);
+        setPreviewUrl(url);
+      } catch {
+        showToast(t("profileEdit.communicationFailed"), "error");
+      }
     }
   };
 

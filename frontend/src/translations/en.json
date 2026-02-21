@@ -355,9 +355,9 @@
     "mypage": "My Page",
     "uploadInProgress": "Uploading...",
     "changePhoto": "Change Photo",
-    "fileRequirements": "JPG, PNG, or WebP • Max 1MB",
+    "fileRequirements": "JPG, PNG, or WebP • Max 5MB",
     "validImageFile": "Please select a valid image file (JPG, PNG, or WebP)",
-    "fileSizeLimit": "File size must be under 1MB",
+    "fileSizeLimit": "File size must be under 5MB",
     "uploadUrlFailed": "Failed to get upload URL",
     "uploadFailed": "Upload failed",
     "profileUpdateFailed": "Failed to update profile image"

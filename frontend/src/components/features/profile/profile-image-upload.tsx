@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { compressImage } from "@/lib/utils/compressImage";
 import styles from "./profile-image-upload.module.css";
 
 interface ProfileImageUploadProps {
@@ -33,9 +34,9 @@ export function ProfileImageUpload({
       return "有効な画像ファイルを選択してください（JPG、PNG、またはWebP）";
     }
 
-    // ファイルサイズのチェック（1MB制限）
-    if (file.size > 1024 * 1024) {
-      return "ファイルサイズは1MB未満である必要があります";
+    // ファイルサイズのチェック（5MB制限）
+    if (file.size > 5 * 1024 * 1024) {
+      return "ファイルサイズは5MB未満である必要があります";
     }
 
     return null;
@@ -149,16 +150,25 @@ export function ProfileImageUpload({
     setUploadProgress(0);
 
     try {
-      // ステップ1: 署名付きアップロードURLを取得
-      const { uploadUrl, fileKey } = await getUploadUrl(file);
+      // ステップ1: 画像をリサイズ・圧縮
+      const compressedFile = await compressImage(file, {
+        maxWidth: 512,
+        maxHeight: 512,
+        quality: 0.85,
+        outputType: "image/jpeg",
+        maxFileSize: 1024 * 1024, // 1MB
+      });
 
-      // ステップ2: S3にファイルをアップロード
-      await uploadToS3(file, uploadUrl);
+      // ステップ2: 署名付きアップロードURLを取得
+      const { uploadUrl, fileKey } = await getUploadUrl(compressedFile);
 
-      // ステップ3: データベースのユーザープロフィールを更新
+      // ステップ3: S3にファイルをアップロード
+      await uploadToS3(compressedFile, uploadUrl);
+
+      // ステップ4: データベースのユーザープロフィールを更新
       const { imageUrl } = await updateProfileImage(fileKey);
 
-      // ステップ4: 親コンポーネントに通知
+      // ステップ5: 親コンポーネントに通知
       onUploadSuccess(imageUrl);
     } catch (error) {
       onUploadError(
@@ -238,7 +248,7 @@ export function ProfileImageUpload({
         </div>
       )}
 
-      <div className={styles.note}>JPG、PNG、またはWebP • 最大1MB</div>
+      <div className={styles.note}>JPG、PNG、またはWebP • 最大5MB</div>
     </div>
   );
 }
