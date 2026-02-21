@@ -100,16 +100,6 @@ export async function GET(request: NextRequest) {
   if (code) {
     const cookieStore = await cookies();
 
-    // デバッグログ: クッキーの確認
-    const cookieNames = cookieStore.getAll().map((c) => c.name);
-    const verifierCookie = cookieNames.find((n) => n.includes("code-verifier"));
-    console.log("[Auth Callback] Request URL:", requestUrl.toString());
-    console.log("[Auth Callback] Cookies present:", cookieNames);
-    console.log(
-      "[Auth Callback] Verifier cookie found:",
-      verifierCookie || "None",
-    );
-
     const localeFromCookie = cookieStore.get("NEXT_LOCALE")?.value;
     const locale = localeFromCookie ?? routing.defaultLocale;
     const buildUrl = (pathWithLeadingSlash: string) =>
@@ -117,11 +107,6 @@ export async function GET(request: NextRequest) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    console.log("[Auth Callback] Supabase Config:", {
-      url: supabaseUrl ? "Present" : "Missing",
-      key: supabaseAnonKey ? "Present" : "Missing",
-    });
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Supabase environment variables are not configured");
@@ -203,8 +188,6 @@ export async function GET(request: NextRequest) {
               // ユーザータグ初期化（エラーが発生してもリダイレクトは続行）
               await initializeUserTagsIfNeeded(data.user.id);
             }
-          } else {
-            console.log("ユーザーは既に存在します:", data.user.email);
           }
         } catch (userCreationError) {
           console.error("ユーザー作成処理でエラー:", userCreationError);

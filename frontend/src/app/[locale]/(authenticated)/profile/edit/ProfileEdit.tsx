@@ -74,14 +74,9 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
       if (!result.success) {
         throw new Error(result.error || t("profileEdit.communicationFailed"));
       }
-      console.log("✅ [DEBUG] ProfileEdit: プロフィール更新成功:", result);
 
       // ユーザー情報を再取得してセッションを更新
-      console.log("🔄 [DEBUG] ProfileEdit: refreshUser()を呼び出し開始");
-      const refreshedUser = await refreshUser();
-      console.log("🔄 [DEBUG] ProfileEdit: refreshUser()完了", {
-        refreshedUser,
-      });
+      await refreshUser();
 
       showToast(t("profileEdit.updateSuccess"), "success");
 

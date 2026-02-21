@@ -43,12 +43,6 @@ export function ProfileImageUpload({
   };
 
   const getUploadUrl = async (file: File): Promise<UploadResponse> => {
-    console.log("アップロードURL取得リクエスト:", {
-      filename: file.name,
-      contentType: file.type,
-      fileSize: file.size,
-    });
-
     const response = await fetch("/api/upload-url", {
       method: "POST",
       headers: {
@@ -61,21 +55,13 @@ export function ProfileImageUpload({
       }),
     });
 
-    console.log(
-      "アップロードURL API レスポンス:",
-      response.status,
-      response.statusText,
-    );
-
     if (!response.ok) {
       const errorData = await response.json();
       console.error("アップロードURL取得エラー:", errorData);
       throw new Error(errorData.error || "アップロードURLの取得に失敗しました");
     }
 
-    const result = await response.json();
-    console.log("アップロードURL取得成功:", result);
-    return result;
+    return response.json();
   };
 
   const uploadToS3 = async (file: File, uploadUrl: string): Promise<void> => {

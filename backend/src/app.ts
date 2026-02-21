@@ -28,7 +28,6 @@ const app = new Hono<{ Bindings: AppBindings; Variables: AppVariables }>();
 
 // biome-ignore lint/suspicious/noExplicitAny: simplified type
 let supabaseClient: SupabaseClient<any> | null = supabaseFromModule ?? null;
-let hasLoggedAuthHeader = false;
 
 const fetchGlobals =
   typeof fetch !== "undefined"
@@ -68,15 +67,6 @@ const getAllowedOrigins = (
 
 const getProcessEnv = (key: string): string | undefined => {
   return typeof process !== "undefined" ? process.env?.[key] : undefined;
-};
-
-const maybeLogAuthHeader = (path: string, authorization: string | null) => {
-  if (hasLoggedAuthHeader) return;
-  console.log("[auth-header]", {
-    path,
-    hasAuthorization: Boolean(authorization),
-  });
-  hasLoggedAuthHeader = true;
 };
 
 const resolveSupabaseClient = (
@@ -129,8 +119,6 @@ app.use(
 );
 
 app.use(async (c, next) => {
-  maybeLogAuthHeader(c.req.path, c.req.header("Authorization") ?? null);
-
   const envVars = {
     SUPABASE_URL: c.env?.SUPABASE_URL ?? getProcessEnv("SUPABASE_URL"),
     SUPABASE_SERVICE_ROLE_KEY:

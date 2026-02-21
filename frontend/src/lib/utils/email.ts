@@ -25,19 +25,6 @@ export async function sendVerificationEmail({
   username,
   verificationToken,
 }: SendVerificationEmailParams) {
-  console.log("=== Email Environment Variables Check ===");
-  console.log(
-    "RESEND_API_KEY:",
-    process.env.RESEND_API_KEY
-      ? `${process.env.RESEND_API_KEY.slice(0, 10)}...`
-      : "UNDEFINED",
-  );
-  console.log(
-    "RESEND_FROM_EMAIL:",
-    process.env.RESEND_FROM_EMAIL || "UNDEFINED",
-  );
-  console.log("==========================================");
-
   const verificationUrl = getRedirectUrl(
     `/verify-email?token=${verificationToken}`,
   );
