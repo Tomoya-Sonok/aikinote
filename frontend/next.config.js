@@ -20,6 +20,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Phosphor Icons 最適化
+  experimental: {
+    optimizePackageImports: ["@phosphor-icons/react"],
+  },
+
   // SSGを完全に無効化し、すべてをSSRに変更
   output: "standalone",
   trailingSlash: false,

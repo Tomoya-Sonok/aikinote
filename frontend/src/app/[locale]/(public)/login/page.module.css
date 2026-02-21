@@ -1,36 +1,38 @@
 /* ログインフォーム全体のコンテナ */
 .container {
-  background-color: #efecec;
+  background-color: var(--aikinote-bg, #f9f8f6);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 16px;
 }
 
 /* タイトル */
 .title {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
-  color: #000000;
-  margin-bottom: 8px;
+  color: var(--aikinote-black, #2c2c2c);
+  margin-bottom: 12px;
   align-self: start;
   margin-left: 4px;
+  letter-spacing: 0.06em;
 }
 
 /* フォームカード */
 .formCard {
-  background-color: #ffffff;
-  border-radius: 24px;
-  padding: 24px;
+  background-color: var(--aikinote-white, #fdfcfa);
+  border-radius: 8px;
+  padding: 28px;
   width: 100%;
   max-width: 450px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
+  border: 0.5px solid var(--border-color, #e8e4df);
 }
 
 @media (min-width: 768px) {
@@ -40,20 +42,20 @@
 
   .formCard {
     max-width: 580px;
-    padding: 32px;
+    padding: 36px;
   }
 }
 
 .contentsWrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .fieldGroup {
@@ -63,10 +65,11 @@
 }
 
 .fieldLabel {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 16px;
-  font-weight: 500;
-  color: #141414;
+  font-weight: 400;
+  color: var(--aikinote-black, #2c2c2c);
+  letter-spacing: 0.04em;
 }
 
 .inputContainer {
@@ -75,27 +78,30 @@
 
 .inputField {
   width: 100%;
-  height: 30px;
-  background-color: #efecec;
-  border: none;
-  border-radius: 24px;
-  padding: 5px 9px;
-  font-family: "Zen Old Mincho", serif;
+  height: 36px;
+  background-color: var(--aikinote-white, #fdfcfa);
+  border: 0.5px solid var(--border-color, #e8e4df);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-family: var(--font-zen-old-mincho);
   font-size: 14px;
-  color: #707070;
+  color: var(--aikinote-black, #2c2c2c);
   outline: none;
+  transition: border-color 0.4s ease-out;
 }
 
 .inputField::placeholder {
-  color: #707070;
+  color: var(--aikinote-gray, #8b8178);
 }
 
 .inputField:focus {
-  box-shadow: 0 0 0 2px #838383;
+  border-color: var(--primary-color, #5b7a5e);
+  box-shadow: 0 0 0 1px rgba(91, 122, 94, 0.15);
 }
 
 .inputField.error {
-  box-shadow: 0 0 0 2px #fd4545;
+  border-color: var(--error-color, #c15b5b);
+  box-shadow: 0 0 0 1px rgba(193, 91, 91, 0.15);
 }
 
 .passwordToggle {
@@ -105,17 +111,17 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #707070;
-  font-family: "Zen Old Mincho", serif;
+  color: var(--aikinote-gray, #8b8178);
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   cursor: pointer;
 }
 
 .errorMessage {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: #fd4545;
+  color: var(--error-color, #c15b5b);
   margin-top: 4px;
 }
 
@@ -125,28 +131,29 @@
 }
 
 .button {
-  height: 35px;
-  border-radius: 24px;
+  height: 40px;
+  border-radius: 6px;
   border: none;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 14px;
   line-height: 1.448;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.4s ease-out;
   width: 100%;
+  letter-spacing: 0.04em;
 }
 
 .primaryButton {
-  background-color: #838383;
-  color: #ffffff;
+  background-color: var(--primary-color, #5b7a5e);
+  color: var(--aikinote-white, #fdfcfa);
 }
 
 .primaryButton:hover:not(:disabled) {
-  background-color: #6d6d6d;
+  background-color: var(--primary-dark, #4a6a4d);
 }
 
 .primaryButton:disabled {
-  background-color: #c6c6c6;
+  background-color: var(--aikinote-light-gray, #b5afa6);
   cursor: not-allowed;
 }
 
@@ -158,22 +165,24 @@
 
 .googleButton {
   width: 100%;
-  height: 35px;
-  background-color: #ffffff;
-  border: 1px solid #c9c9c9;
-  border-radius: 24px;
+  height: 40px;
+  background-color: var(--aikinote-white, #fdfcfa);
+  border: 0.5px solid var(--border-color, #e8e4df);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 14px;
-  color: #000000;
+  color: var(--aikinote-black, #2c2c2c);
   cursor: pointer;
+  transition: all 0.4s ease-out;
 }
 
 .googleButton:hover {
-  background-color: #f5f5f5;
+  background-color: var(--aikinote-hover-gray, #f0ece7);
+  border-color: var(--aikinote-gray, #8b8178);
 }
 
 .googleButton:disabled {
@@ -187,13 +196,14 @@
 }
 
 .forgotPasswordLink {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: #000000;
+  color: var(--aikinote-black, #2c2c2c);
   text-align: center;
   text-decoration: underline;
-  text-decoration-color: #000000;
+  text-decoration-color: var(--aikinote-gray, #8b8178);
+  text-underline-offset: 3px;
 }
 
 .forgotPasswordLink:hover {
@@ -205,16 +215,17 @@
 }
 
 .signupPromptText {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: #000000;
+  color: var(--aikinote-black, #2c2c2c);
 }
 
 .signupLink {
-  color: #000000;
+  color: var(--aikinote-black, #2c2c2c);
   text-decoration: underline;
-  text-decoration-color: #000000;
+  text-decoration-color: var(--aikinote-gray, #8b8178);
+  text-underline-offset: 3px;
 }
 
 .signupLink:hover {

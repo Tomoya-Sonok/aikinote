@@ -1,33 +1,32 @@
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --primary-color: #3b82f6;
-  --primary-dark: #2563eb;
-  --secondary-color: #10b981;
-  --accent-color: #f59e0b;
-  --error-color: #ef4444;
-  --text-color: #1f2937;
-  --text-light: #6b7280;
-  --border-color: #e5e7eb;
-  --background-light: #f9fafb;
+  /* プライマリ・セマンティックカラー（伝統色） */
+  --primary-color: #838383;
+  --primary-dark: #6d6d6d;
+  --secondary-color: #8b8178;
+  --accent-color: #c4956a;
+  --error-color: #f12b2b;
+  --text-color: #202020;
+  --text-light: #8b8178;
+  --border-color: #e8e4df;
+  --background-light: #f5f3ef;
 
-  /* Figmaデザインに基づくカラー */
+  /* AikiNote カラー */
   --aikinote-bg: #efecec;
-  --aikinote-white: #ffffff;
-  --aikinote-black: #000000;
-  --aikinote-gray: #838383;
-  --aikinote-light-gray: #a4a4a4;
-  --aikinote-text-light: #877f7f;
-  --aikinote-hover-gray: #eef0f4;
+  --aikinote-white: #fdfcfa;
+  --aikinote-black: #2c2c2c;
+  --aikinote-gray: #8b8178;
+  --aikinote-light-gray: #b5afa6;
+  --aikinote-text-light: #8b8178;
+  --aikinote-hover-gray: #f0ece7;
 
-  /* フォント変数 */
+  /* ── フォント変数 ── */
   --font-zen-old-mincho:
     "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
   --font-inter:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Helvetica Neue", Arial, sans-serif;
 
-  /* フォントサイズ変数 */
+  /* ── フォントサイズ変数 ── */
   --font-size-small: 14px;
   --font-size-medium: 16px;
   --font-size-large: 20px;

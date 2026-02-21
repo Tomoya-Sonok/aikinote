@@ -3,16 +3,16 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 16px 0;
+  padding: 18px 0;
   border: none;
   background: none;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 0.5px solid var(--border-color, #e8e4df);
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.4s ease-out;
 }
 
 .item:hover {
-  background-color: #f9fafb;
+  background-color: var(--aikinote-hover-gray, #f0ece7);
 }
 
 .item:last-child {
@@ -23,18 +23,19 @@
   font-size: var(--font-size-base);
   font-weight: 400;
   text-align: left;
+  letter-spacing: 0.04em;
 }
 
 .arrow {
   font-size: var(--font-size-lg);
-  color: #9ca3af;
+  color: var(--aikinote-light-gray, #b5afa6);
   font-weight: 300;
 }
 
 .default .text {
-  color: #1f2937;
+  color: var(--aikinote-black, #2c2c2c);
 }
 
 .danger .text {
-  color: #ef4444;
+  color: var(--error-color, #c15b5b);
 }
