@@ -181,12 +181,6 @@ export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
               variant="primary"
               onClick={emailPasswordForm.handleSubmit(
                 handleEmailPasswordSubmit,
-                (errors) => {
-                  console.log(
-                    "=== Form submitted with VALIDATION ERRORS ===",
-                    errors,
-                  );
-                },
               )}
               disabled={isProcessing}
               className={`${styles.button} ${styles.primaryButton}`}

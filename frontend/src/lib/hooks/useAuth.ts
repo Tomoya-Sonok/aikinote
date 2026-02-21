@@ -382,43 +382,25 @@ export function useAuth() {
   );
 
   const refreshUser = useCallback(async () => {
-    console.log("🔄 [DEBUG] refreshUser: ユーザー情報の再取得を開始");
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      console.log("🔄 [DEBUG] refreshUser: セッション取得結果", {
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userId: session?.user?.id,
-      });
 
       if (session?.user) {
-        console.log("🔄 [DEBUG] refreshUser: fetchUserProfileを呼び出し中...");
         const userProfile = await fetchUserProfile(session.user.id);
-        console.log("🔄 [DEBUG] refreshUser: fetchUserProfile結果", {
-          hasProfile: !!userProfile,
-          username: userProfile?.username,
-          dojo_style_name: userProfile?.dojo_style_name,
-          email: userProfile?.email,
-        });
 
         if (userProfile) {
-          console.log("🔄 [DEBUG] refreshUser: setUserでstateを更新中...");
           setUser(userProfile);
-          console.log("🔄 [DEBUG] refreshUser: state更新完了");
           return userProfile;
         }
       }
 
-      console.log(
-        "🔄 [DEBUG] refreshUser: セッションまたはプロフィールが無効、userをnullに設定",
-      );
       setUser(null);
       return null;
     } catch (error) {
       console.error(
-        "🔄 [DEBUG] refreshUser: ユーザー情報の再取得エラー:",
+        "refreshUser: ユーザー情報の再取得エラー:",
         error,
       );
       return null;

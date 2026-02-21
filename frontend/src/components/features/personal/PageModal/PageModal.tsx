@@ -246,11 +246,6 @@ export const PageModal: FC<PageModalProps> = ({
       return;
     }
 
-    console.log("Submitting tag:", {
-      name: trimmedInput,
-      category: mappedCategory,
-    });
-
     handleCreateTag({
       name: trimmedInput,
       category: mappedCategory,

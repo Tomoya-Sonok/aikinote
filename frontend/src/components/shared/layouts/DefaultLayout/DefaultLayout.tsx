@@ -25,12 +25,6 @@ export function DefaultLayout({
 }: DefaultLayoutProps) {
   const { user } = useAuth();
 
-  console.log("🏗️ [DEBUG] DefaultLayout: レンダリング中", {
-    hasUser: !!user,
-    username: user?.username,
-    dojo_style_name: user?.dojo_style_name,
-  });
-
   return (
     <div className={styles.layout}>
       {showHeader && (

@@ -22,17 +22,11 @@ export async function fetchUserProfile(
   const { baseUrl = "", timeout = 5000 } = options || {};
 
   try {
-    console.log("📡 [DEBUG] fetchUserProfile: API経由でユーザー取得開始", {
-      userId,
-      baseUrl,
-    });
-
     // タイムアウト付きでfetch実行
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     const apiUrl = `${baseUrl}/api/user/${userId}`;
-    console.log("📡 [DEBUG] fetchUserProfile: APIを呼び出し中", { apiUrl });
 
     const response = await fetch(apiUrl, {
       signal: controller.signal,
@@ -40,14 +34,8 @@ export async function fetchUserProfile(
 
     clearTimeout(timeoutId);
 
-    console.log("📡 [DEBUG] fetchUserProfile: APIレスポンス受信", {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-    });
-
     if (!response.ok) {
-      console.error("📡 [DEBUG] fetchUserProfile: APIレスポンスエラー", {
+      console.error("fetchUserProfile: APIレスポンスエラー", {
         status: response.status,
         statusText: response.statusText,
       });
@@ -55,39 +43,22 @@ export async function fetchUserProfile(
     }
 
     const result: ApiResponse<UserSession> = await response.json();
-    console.log("📡 [DEBUG] fetchUserProfile: JSON解析結果", {
-      success: result.success,
-      hasData: result.success ? !!result.data : false,
-      rawData: result.success ? result.data : undefined,
-    });
 
     if (result.success && result.data) {
       // データの型チェック
       const userData = result.data;
-      console.log("📡 [DEBUG] fetchUserProfile: ユーザーデータ詳細", {
-        id: userData.id,
-        email: userData.email,
-        username: userData.username,
-        profile_image_url: userData.profile_image_url,
-        dojo_style_name: userData.dojo_style_name,
-      });
 
       if (userData.id && userData.email && userData.username) {
-        const userSession = {
+        return {
           id: userData.id,
           email: userData.email,
           username: userData.username,
           profile_image_url: userData.profile_image_url || null,
           dojo_style_name: userData.dojo_style_name || null,
         };
-        console.log(
-          "📡 [DEBUG] fetchUserProfile: 最終的なUserSession",
-          userSession,
-        );
-        return userSession;
       } else {
         console.error(
-          "📡 [DEBUG] fetchUserProfile: 不正なユーザーデータ形式",
+          "fetchUserProfile: 不正なユーザーデータ形式",
           userData,
         );
         return null;
@@ -97,20 +68,20 @@ export async function fetchUserProfile(
         ? "ユーザーデータが見つかりません"
         : result.error;
       console.error(
-        "📡 [DEBUG] fetchUserProfile: API経由でユーザー取得失敗:",
+        "fetchUserProfile: API経由でユーザー取得失敗:",
         errorMessage,
       );
       return null;
     }
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      console.error("📡 [DEBUG] fetchUserProfile: タイムアウトエラー", {
+      console.error("fetchUserProfile: タイムアウトエラー", {
         userId,
         timeout,
       });
     } else {
       console.error(
-        "📡 [DEBUG] fetchUserProfile: API呼び出し中にエラー:",
+        "fetchUserProfile: API呼び出し中にエラー:",
         error,
       );
     }
@@ -159,7 +130,7 @@ export async function createUserProfile(userData: {
     try {
       result = await response.json();
     } catch (error) {
-      console.error("📡 [DEBUG] createUserProfile: JSON解析エラー", {
+      console.error("createUserProfile: JSON解析エラー", {
         status: response.status,
         statusText: response.statusText,
         error,
