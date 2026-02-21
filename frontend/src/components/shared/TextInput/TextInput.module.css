@@ -1,22 +1,23 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   font-family: var(--font-zen-old-mincho);
 }
 
 .label {
   font-size: var(--font-size-xs);
   font-weight: 400;
-  color: #000000;
+  color: var(--aikinote-black, #1a1a2e);
   line-height: 1.45;
   display: flex;
   align-items: center;
   gap: 2px;
+  letter-spacing: 0.05em;
 }
 
 .required {
-  color: #ff0000;
+  color: var(--error-color, #c03c3c);
   font-size: var(--font-size-xs);
   padding-left: 4px;
 }
@@ -25,31 +26,31 @@
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-xs);
   line-height: 1.45;
-  padding: 8px 12px;
-  border: 1px solid #6b95eb;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color, #d8d4cc);
   border-radius: 4px;
-  background: #ffffff;
-  color: #000000;
+  background: var(--aikinote-white, #faf8f4);
+  color: var(--aikinote-black, #1a1a2e);
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.3s ease;
 }
 
 .input:focus {
-  border-color: #4a7bd8;
-  box-shadow: 0 0 0 2px rgba(107, 149, 235, 0.2);
+  border-color: var(--primary-color, #c03c3c);
+  box-shadow: 0 0 0 1px rgba(192, 60, 60, 0.15);
 }
 
 .input.error {
-  border-color: #ff0000;
+  border-color: var(--error-color, #c03c3c);
 }
 
 .input.error:focus {
-  border-color: #ff0000;
-  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+  border-color: var(--error-color, #c03c3c);
+  box-shadow: 0 0 0 1px rgba(192, 60, 60, 0.2);
 }
 
 .errorMessage {
   font-size: var(--font-size-xs);
-  color: #ff0000;
+  color: var(--error-color, #c03c3c);
   font-family: var(--font-zen-old-mincho);
 }

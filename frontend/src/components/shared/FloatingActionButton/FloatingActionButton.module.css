@@ -5,7 +5,7 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: var(--aikinote-gray);
+  background: var(--primary-color, #c03c3c);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,20 +14,20 @@
   z-index: 99;
   border: none;
   padding: 0;
-  box-shadow: 0 4px 12px 6px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(192, 60, 60, 0.3);
+  transition: all 0.3s ease;
 }
 
 .fab:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 28px rgba(192, 60, 60, 0.4);
 }
 
 .icon {
   width: 32px;
   height: 33px;
   margin-bottom: 2px;
-  filter: brightness(0) invert(1); /* 白色にする */
+  filter: brightness(0) invert(1);
 }
 
 .label {
@@ -35,7 +35,7 @@
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.2;
-  color: var(--aikinote-white);
+  color: var(--aikinote-white, #faf8f4);
   text-align: center;
   white-space: nowrap;
 }

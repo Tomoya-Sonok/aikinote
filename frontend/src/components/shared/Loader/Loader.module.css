@@ -4,15 +4,15 @@
   position: relative;
 }
 
-/* スピナー本体 - 武道的な円（禅円）をイメージ */
+/* スピナー本体 — 墨の筆致を模した回転 */
 .spinner {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid var(--aikinote-bg);
-  border-top: 2px solid var(--aikinote-gray);
+  border: 2px solid var(--border-color, #d8d4cc);
+  border-top: 2px solid var(--primary-color, #c03c3c);
   border-radius: 50%;
-  animation: zen-rotation 2s ease-in-out infinite;
+  animation: brush-spin 1.2s ease-in-out infinite;
   opacity: 0.9;
 }
 
@@ -20,14 +20,14 @@
 .large .spinner {
   width: 32px;
   height: 32px;
-  border-width: 3px;
+  border-width: 2.5px;
 }
 
 /* 小さいサイズ */
 .small .spinner {
   width: 16px;
   height: 16px;
-  border-width: 2px;
+  border-width: 1.5px;
 }
 
 /* 中央揃えコンテナ */
@@ -41,62 +41,49 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  background: rgba(245, 242, 237, 0.95);
 }
 
 /* テキスト付きの場合 */
 .withText {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .text {
   font-size: var(--font-size-sm);
-  color: var(--aikinote-gray);
+  color: var(--aikinote-gray, #6b6b80);
   font-family: var(--font-zen-old-mincho);
   font-weight: 400;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
-/* 禅的な呼吸のようなゆっくりとした回転アニメーション */
-@keyframes zen-rotation {
+/* 筆致的な回転 — 力強く不均一な動き */
+@keyframes brush-spin {
   0% {
     transform: rotate(0deg);
-    opacity: 0.6;
-  }
-  25% {
-    opacity: 0.9;
   }
   50% {
-    transform: rotate(180deg);
-    opacity: 0.8;
-  }
-  75% {
-    opacity: 0.9;
+    transform: rotate(200deg);
   }
   100% {
     transform: rotate(360deg);
-    opacity: 0.6;
   }
-}
-
-/* 中央配置時の背景 - 半透明で落ち着いた背景 */
-.centered {
-  background: rgba(255, 255, 255, 0.95);
 }
 
 /* ダークモード対応 */
 @media (prefers-color-scheme: dark) {
   .spinner {
-    border-color: rgba(131, 131, 131, 0.3);
-    border-top-color: var(--aikinote-gray);
+    border-color: rgba(107, 107, 128, 0.3);
+    border-top-color: var(--primary-color, #c03c3c);
   }
 
   .text {
-    color: var(--aikinote-gray);
+    color: var(--aikinote-gray, #6b6b80);
   }
 
   .centered {
-    background: rgba(239, 236, 236, 0.95);
+    background: rgba(245, 242, 237, 0.95);
   }
 }

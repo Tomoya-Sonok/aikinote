@@ -7,28 +7,31 @@
 
 .searchIcon {
   position: absolute;
-  left: 11px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
+  color: var(--aikinote-gray, #6b6b80);
 }
 
 .searchInput {
   width: 100%;
-  padding: 8px 16px 8px 39px;
-  border: none;
-  border-radius: 24px;
-  background: var(--aikinote-bg, #f5f5f5);
+  padding: 10px 16px 10px 40px;
+  border: 1px solid var(--border-color, #d8d4cc);
+  border-radius: 4px;
+  background: var(--aikinote-white, #faf8f4);
   font-family: var(--font-zen-old-mincho, inherit);
   font-size: var(--font-size-sm);
-  color: var(--aikinote-black, #000);
+  color: var(--aikinote-black, #1a1a2e);
   outline: none;
+  transition: border-color 0.3s ease;
 }
 
 .searchInput::placeholder {
-  color: var(--aikinote-black, #000);
+  color: var(--aikinote-light-gray, #a8a8b8);
 }
 
 .searchInput:focus {
-  background-color: #eeeeee;
+  border-color: var(--primary-color, #c03c3c);
+  background-color: var(--aikinote-white, #faf8f4);
 }

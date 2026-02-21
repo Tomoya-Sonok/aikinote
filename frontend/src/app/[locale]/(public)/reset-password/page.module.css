@@ -1,46 +1,48 @@
 .container {
-  background-color: #efecec;
+  background-color: var(--aikinote-bg, #f5f2ed);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 12px;
-  gap: 16px;
+  padding: 0 16px;
+  gap: 20px;
 }
 
 .title {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
-  color: #000000;
+  color: var(--aikinote-black, #1a1a2e);
   text-align: center;
+  letter-spacing: 0.08em;
 }
 
 .subtitle {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: #707070;
+  color: var(--aikinote-gray, #6b6b80);
   text-align: center;
 }
 
 .formCard {
-  background-color: #ffffff;
-  border-radius: 24px;
-  padding: 24px;
+  background-color: var(--aikinote-white, #faf8f4);
+  border-radius: 4px;
+  padding: 28px;
   width: 100%;
   max-width: 450px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  border: 1px solid var(--border-color, #d8d4cc);
 }
 
 .iconWrapper {
   width: 48px;
   height: 48px;
-  border-radius: 24px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,8 +50,8 @@
 }
 
 .errorIconWrapper {
-  background-color: #fdeaea;
-  color: #fd4545;
+  background-color: rgba(192, 60, 60, 0.1);
+  color: var(--error-color, #c03c3c);
 }
 
 .icon {
@@ -58,18 +60,18 @@
 }
 
 .errorTitle {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 16px;
   line-height: 1.448;
-  color: #141414;
+  color: var(--aikinote-black, #1a1a2e);
   text-align: center;
 }
 
 .infoText {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: #707070;
+  color: var(--aikinote-gray, #6b6b80);
   text-align: center;
 }
 
@@ -77,20 +79,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 35px;
+  height: 42px;
   width: 100%;
-  border-radius: 24px;
-  background-color: #838383;
-  color: #ffffff;
-  font-family: "Zen Old Mincho", serif;
+  border-radius: 4px;
+  background-color: var(--primary-color, #c03c3c);
+  color: var(--aikinote-white, #faf8f4);
+  font-family: var(--font-zen-old-mincho);
   font-size: 14px;
   line-height: 1.448;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
 }
 
 .linkButton:hover {
-  background-color: #6d6d6d;
+  background-color: var(--primary-dark, #a83232);
+  transform: translateY(-1px);
 }
 
 @media (min-width: 768px) {
@@ -100,6 +104,6 @@
 
   .formCard {
     max-width: 580px;
-    padding: 32px;
+    padding: 36px;
   }
 }

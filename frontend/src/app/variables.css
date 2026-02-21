@@ -1,57 +1,36 @@
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --primary-color: #3b82f6;
-  --primary-dark: #2563eb;
-  --secondary-color: #10b981;
-  --accent-color: #f59e0b;
-  --error-color: #ef4444;
-  --text-color: #1f2937;
-  --text-light: #6b7280;
-  --border-color: #e5e7eb;
-  --background-light: #f9fafb;
+  /* === 千夜画風スタイル — 現代の画譜 === */
 
-  /* Figmaデザインに基づくカラー */
-  --aikinote-bg: #efecec;
-  --aikinote-white: #ffffff;
-  --aikinote-black: #000000;
-  --aikinote-gray: #838383;
-  --aikinote-light-gray: #a4a4a4;
-  --aikinote-text-light: #877f7f;
-  --aikinote-hover-gray: #eef0f4;
+  /* --- カラーパレット（藍墨と朱の対比） --- */
+  --aikinote-bg: #f5f2ed;           /* 鳥の子色 — 和紙のような温かみ */
+  --aikinote-white: #faf8f4;        /* 白練色 — 柔らかい白 */
+  --aikinote-black: #1a1a2e;        /* 藍墨色 — 深い藍を含む黒 */
+  --aikinote-gray: #6b6b80;         /* 藤鼠色 — 青みを帯びたグレー */
+  --aikinote-light-gray: #a8a8b8;   /* 薄藤色 */
+  --aikinote-hover-gray: #ece8e0;   /* 練色 */
+  --aikinote-text-light: #6b6b80;   /* 藤鼠色 */
 
-  /* フォント変数 */
-  --font-zen-old-mincho:
-    "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
-  --font-inter:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Helvetica Neue", Arial, sans-serif;
+  --primary-color: #c03c3c;         /* 朱色 — 浮世絵の朱 */
+  --primary-dark: #a83232;          /* 紅色 — ダーク朱 */
+  --secondary-color: #1a1a2e;       /* 藍墨色 */
+  --accent-color: #d4a853;          /* 金茶色 — 金箔のアクセント */
+  --border-color: #d8d4cc;          /* 灰白色 — 和紙の境界 */
+  --error-color: #c03c3c;           /* 朱色（エラーもデザイン統一） */
 
-  /* フォントサイズ変数 */
-  --font-size-small: 14px;
-  --font-size-medium: 16px;
-  --font-size-large: 20px;
-  --current-font-size: var(--font-size-medium);
+  /* --- フォント --- */
+  --font-zen-old-mincho: "Zen Old Mincho", "游明朝", "Yu Mincho", serif;
+  --font-inter: "Inter", "Helvetica Neue", Arial, sans-serif;
 
-  /* スケーリング対応のタイポグラフィ */
-  --font-size-xs: calc(var(--current-font-size) * 0.75);
-  --font-size-sm: calc(var(--current-font-size) * 0.875);
-  --font-size-base: var(--current-font-size);
-  --font-size-lg: calc(var(--current-font-size) * 1.125);
-  --font-size-xl: calc(var(--current-font-size) * 1.25);
-  --font-size-2xl: calc(var(--current-font-size) * 1.5);
-  --font-size-3xl: calc(var(--current-font-size) * 1.875);
-}
+  /* --- フォントサイズ --- */
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
 
-/* フォントサイズ切り替え用のデータ属性 */
-[data-font-size="small"] {
-  --current-font-size: var(--font-size-small);
-}
-
-[data-font-size="medium"] {
-  --current-font-size: var(--font-size-medium);
-}
-
-[data-font-size="large"] {
-  --current-font-size: var(--font-size-large);
+  /* --- デフォルトフォントサイズ --- */
+  --default-font-size: 16px;
+  --current-font-size: var(--default-font-size);
 }

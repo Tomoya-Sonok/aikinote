@@ -11,9 +11,9 @@
   position: sticky;
   top: 0;
   z-index: 10000;
-  background: #ffffff;
+  background: var(--aikinote-white, #faf8f4);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  border-bottom: 1px solid var(--border-color, #d8d4cc);
 }
 
 .headerInner {
@@ -174,10 +174,11 @@
 }
 
 .section {
-  background: var(--aikinote-white, #ffffff);
-  border-radius: 24px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-  padding: 32px 28px;
+  background: var(--aikinote-white, #faf8f4);
+  border-radius: 4px;
+  border: 1px solid var(--border-color, #d8d4cc);
+  box-shadow: 0 6px 24px rgba(26, 26, 46, 0.05);
+  padding: 36px 32px;
   scroll-margin-top: 68px;
 }
 
@@ -202,7 +203,7 @@
 }
 
 .searchSection {
-  background: linear-gradient(180deg, #ffffff, #f9fafb);
+  background: linear-gradient(180deg, var(--aikinote-white, #faf8f4), var(--aikinote-bg, #f5f2ed));
 }
 
 .searchContent {
@@ -439,22 +440,23 @@
 }
 
 .primaryCta {
-  background: var(--aikinote-black, #000000);
-  border-radius: 999px;
-  color: var(--aikinote-white, #ffffff);
+  background: var(--primary-color, #c03c3c);
+  border-radius: 4px;
+  color: var(--aikinote-white, #faf8f4);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   min-height: 52px;
   padding: 16px 32px;
   text-decoration: none;
   transform: translateY(0);
+  letter-spacing: 0.05em;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .heroVisual {
@@ -564,8 +566,8 @@
   top: 50%;
   transform: translateY(-50%);
   width: 48px;
-  background: linear-gradient(135deg, #6a6a6a, #9a9a9a);
-  box-shadow: 0 18px 24px rgba(30, 30, 30, 0.2);
+  background: linear-gradient(135deg, var(--primary-color, #c03c3c), var(--accent-color, #d4a853));
+  box-shadow: 0 12px 20px rgba(192, 60, 60, 0.15);
 }
 
 .sectionActions {
@@ -592,10 +594,10 @@
 
 .stepBadge {
   align-items: center;
-  background: linear-gradient(135deg, #6a6a6a, #9a9a9a);
+  background: linear-gradient(135deg, var(--primary-color, #c03c3c), var(--accent-color, #d4a853));
   border-radius: 50%;
-  box-shadow: 0 18px 32px rgba(30, 30, 30, 0.25);
-  color: var(--aikinote-white, #ffffff);
+  box-shadow: 0 12px 24px rgba(192, 60, 60, 0.15);
+  color: var(--aikinote-white, #faf8f4);
   display: inline-flex;
   font-size: 22px;
   font-weight: 700;
@@ -684,28 +686,29 @@
 }
 
 .secondaryCta {
-  border: 2px solid var(--aikinote-black, #000000);
-  border-radius: 999px;
-  color: var(--aikinote-black, #000000);
+  border: 1px solid var(--aikinote-black, #1a1a2e);
+  border-radius: 4px;
+  color: var(--aikinote-black, #1a1a2e);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   min-height: 52px;
   padding: 14px 32px;
   text-decoration: none;
   transform: translateY(0);
+  letter-spacing: 0.05em;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .footer {
-  background: var(--aikinote-black, #000000);
-  color: var(--aikinote-white, #ffffff);
+  background: var(--secondary-color, #1a1a2e);
+  color: var(--aikinote-white, #faf8f4);
   margin-top: auto;
-  padding: 32px 20px 72px;
+  padding: 40px 20px 80px;
 }
 
 .footerInner {
@@ -968,7 +971,7 @@
 .footerLink:focus-visible,
 .footerCta:focus-visible,
 .floatingCta:focus-visible {
-  outline: 3px solid var(--accent-color, #f59e0b);
+  outline: 2px solid var(--accent-color, #d4a853);
   outline-offset: 4px;
 }
 
@@ -982,10 +985,10 @@
 }
 
 .mockNotebook {
-  background: linear-gradient(180deg, #ffffff, #f5f5f4);
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 28px;
-  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.12);
+  background: linear-gradient(180deg, var(--aikinote-white, #faf8f4), var(--aikinote-bg, #f5f2ed));
+  border: 1px solid var(--border-color, #d8d4cc);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(26, 26, 46, 0.08);
   padding: 36px 32px;
   width: min(420px, 100%);
   min-width: 300px;
@@ -1041,7 +1044,7 @@
 }
 
 .pencilBody {
-  background: #fcd34d;
+  background: var(--primary-color, #c03c3c);
   border-radius: 12px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
   display: inline-block;

@@ -1,28 +1,42 @@
 @import "./variables.css";
 
 * {
-  box-sizing: border-box;
-  padding: 0;
   margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  height: 100%;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  color: var(--aikinote-black, #1a1a2e);
+  background: var(--aikinote-bg, #f5f2ed);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--current-font-size);
-  line-height: 1.5;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "palt" 1;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
 }
 
 a {
@@ -30,37 +44,22 @@ a {
   text-decoration: none;
 }
 
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
-
-main {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-h2 {
-  margin-bottom: 4px;
+ul,
+ol {
+  list-style: none;
 }
 
 .container {
-  padding: 0 1rem;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
-@media (min-width: 768px) {
-  .container {
-    padding: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+/* 選択時のスタイル — 朱色で選択 */
+::selection {
+  background-color: rgba(192, 60, 60, 0.15);
+  color: var(--aikinote-black, #1a1a2e);
 }

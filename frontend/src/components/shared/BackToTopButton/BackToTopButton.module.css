@@ -2,7 +2,7 @@
   position: absolute;
   bottom: -45px;
   right: 10px;
-  color: var(--aikinote-white, #ffffff);
+  color: var(--aikinote-white, #faf8f4);
   font-size: 16px;
   font-weight: 600;
   text-decoration: underline;
@@ -14,10 +14,11 @@
   border: none;
   padding: 0;
   cursor: pointer;
+  letter-spacing: 0.05em;
 }
 
 .button:focus-visible {
-  outline: 3px solid var(--accent-color, #f59e0b);
+  outline: 2px solid var(--accent-color, #d4a853);
   outline-offset: 4px;
 }
 
