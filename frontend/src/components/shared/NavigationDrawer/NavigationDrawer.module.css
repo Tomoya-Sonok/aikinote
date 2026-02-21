@@ -5,9 +5,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(44, 44, 44, 0.3);
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
 /* ドロワー本体 */
@@ -18,16 +18,16 @@
   height: 100vh;
   width: 280px;
   max-width: 85vw;
-  background: var(--aikinote-white);
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  background: var(--aikinote-white, #fdfcfa);
+  box-shadow: -2px 0 24px rgba(44, 44, 44, 0.06);
   z-index: 1001;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
 
-  /* 日本的な境界線 */
-  border-left: 2px solid var(--aikinote-bg);
+  /* 極細の日本的境界線 */
+  border-left: 0.5px solid var(--border-color, #e8e4df);
 }
 
 .drawer.open {
@@ -39,22 +39,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--aikinote-bg);
-  background: linear-gradient(
-    135deg,
-    var(--aikinote-white) 0%,
-    rgba(239, 236, 236, 0.3) 100%
-  );
+  padding: 20px 24px 16px;
+  border-bottom: 0.5px solid var(--border-color, #e8e4df);
+  background: var(--aikinote-white, #fdfcfa);
 }
 
 .title {
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-lg);
   font-weight: 400;
-  color: var(--aikinote-black);
+  color: var(--aikinote-black, #2c2c2c);
   margin: 0;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .closeButton {
@@ -62,7 +58,7 @@
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--aikinote-gray);
+  color: var(--aikinote-gray, #8b8178);
   font-size: var(--font-size-xl);
   font-weight: 300;
   cursor: pointer;
@@ -70,30 +66,29 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.2s ease;
+  transition: all 0.4s ease-out;
 }
 
 .closeButton:hover {
-  background: var(--aikinote-bg);
-  color: var(--aikinote-black);
-  transform: scale(1.05);
+  background: var(--aikinote-hover-gray, #f0ece7);
+  color: var(--aikinote-black, #2c2c2c);
 }
 
 .closeButton:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
 /* コンテンツエリア */
 .content {
   flex: 1;
-  padding: 20px 0;
+  padding: 24px 0;
   overflow-y: auto;
 }
 
 .menu {
   display: flex;
   flex-direction: column;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 /* フェードインアニメーション */
@@ -113,15 +108,15 @@
   }
 
   .header {
-    padding: 20px 24px 16px;
+    padding: 24px 28px 20px;
   }
 
   .content {
-    padding: 24px 0;
+    padding: 28px 0;
   }
 
   .menu {
-    padding: 0 24px;
+    padding: 0 28px;
   }
 }
 
@@ -130,15 +125,15 @@
   outline: none;
 }
 
-/* 禅的な静寂を表現する微細なアニメーション */
+/* 静かに現れるアニメーション */
 .drawer.open .menu {
-  animation: gentleSlideIn 0.5s ease-out 0.1s both;
+  animation: gentleSlideIn 0.6s ease-out 0.15s both;
 }
 
 @keyframes gentleSlideIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;

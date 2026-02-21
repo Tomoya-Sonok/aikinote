@@ -1,33 +1,36 @@
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 255, 255, 255;
-  --primary-color: #3b82f6;
-  --primary-dark: #2563eb;
-  --secondary-color: #10b981;
-  --accent-color: #f59e0b;
-  --error-color: #ef4444;
-  --text-color: #1f2937;
-  --text-light: #6b7280;
-  --border-color: #e5e7eb;
-  --background-light: #f9fafb;
+  /* ── 喜安屋スタイル：「静寂の宿」カラーパレット ── */
+  --foreground-rgb: 44, 44, 44;
+  --background-rgb: 249, 248, 246;
 
-  /* Figmaデザインに基づくカラー */
-  --aikinote-bg: #efecec;
-  --aikinote-white: #ffffff;
-  --aikinote-black: #000000;
-  --aikinote-gray: #838383;
-  --aikinote-light-gray: #a4a4a4;
-  --aikinote-text-light: #877f7f;
-  --aikinote-hover-gray: #eef0f4;
+  /* プライマリ・セマンティックカラー（伝統色） */
+  --primary-color: #5b7a5e; /* 老松色 */
+  --primary-dark: #4a6a4d; /* 老松・濃 */
+  --secondary-color: #8b8178; /* 丁子茶 */
+  --accent-color: #c4956a; /* 丁子色 */
+  --error-color: #c15b5b; /* 蘇芳 */
+  --text-color: #2c2c2c; /* 墨色 */
+  --text-light: #8b8178; /* 利休鼠 */
+  --border-color: #e8e4df; /* 薄香色 */
+  --background-light: #f5f3ef; /* 白茶 */
 
-  /* フォント変数 */
+  /* AikiNote 固有カラー（喜安屋の生成色ベース） */
+  --aikinote-bg: #f9f8f6; /* 生成色 */
+  --aikinote-white: #fdfcfa; /* 練色 */
+  --aikinote-black: #2c2c2c; /* 墨色 */
+  --aikinote-gray: #8b8178; /* 丁子茶 */
+  --aikinote-light-gray: #b5afa6; /* 灰汁色 */
+  --aikinote-text-light: #8b8178; /* 利休鼠 */
+  --aikinote-hover-gray: #f0ece7; /* 薄い生成色 */
+
+  /* ── フォント変数 ── */
   --font-zen-old-mincho:
     "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
   --font-inter:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Helvetica Neue", Arial, sans-serif;
 
-  /* フォントサイズ変数 */
+  /* ── フォントサイズ変数 ── */
   --font-size-small: 14px;
   --font-size-medium: 16px;
   --font-size-large: 20px;

@@ -11,7 +11,7 @@
   box-shadow: none;
   cursor: pointer;
   text-decoration: none;
-  color: var(--aikinote-black, #000000);
+  color: var(--aikinote-black, #2c2c2c);
   z-index: 9999;
 }
 
@@ -28,8 +28,8 @@
 .chevron {
   width: 12px;
   height: 12px;
-  border-right: 2px solid #111827;
-  border-bottom: 2px solid #111827;
+  border-right: 1.5px solid var(--aikinote-black, #2c2c2c);
+  border-bottom: 1.5px solid var(--aikinote-black, #2c2c2c);
   transform: rotate(45deg);
   opacity: 0.25;
   animation: pulse 1.6s infinite;
@@ -64,8 +64,9 @@
 
 .label {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
+  letter-spacing: 0.04em;
 }
 
 @media (min-width: 768px) {

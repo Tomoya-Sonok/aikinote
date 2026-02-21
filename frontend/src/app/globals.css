@@ -22,7 +22,10 @@ body {
   background: rgb(var(--background-rgb));
   font-family: var(--font-zen-old-mincho);
   font-size: var(--current-font-size);
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -47,6 +50,7 @@ main {
 
 h2 {
   margin-bottom: 4px;
+  letter-spacing: 0.06em;
 }
 
 .container {
