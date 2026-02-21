@@ -1,7 +1,7 @@
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
 import { useState } from "react";
+import { TagIcon, CalendarDotsIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
@@ -80,16 +80,15 @@ export const FilterArea: FC<FilterAreaProps> = ({
           className={styles.filterItemButton}
           onClick={onOpenTagSelection}
         >
-          <Image
-            src="/icons/tag-icon.svg"
-            alt={t("filter.tagAlt")}
-            width={24}
-            height={24}
+          <TagIcon
+            size={20}
+            weight="light"
+            color="var(--aikinote-black)"
             className={styles.filterIcon}
           />
           <span className={styles.filterLabel}>{t("filter.tagLabel")}</span>
           <span className={styles.filterValue}>{tagDisplayValue}</span>
-          <span className={styles.arrow}>＞</span>
+          <CaretRightIcon size={16} weight="light" color="var(--aikinote-black)" className={styles.arrow} />
         </button>
 
         {/* Date Filter Button */}
@@ -98,16 +97,15 @@ export const FilterArea: FC<FilterAreaProps> = ({
           className={styles.filterItemButton}
           onClick={handleOpenDatePicker}
         >
-          <Image
-            src="/icons/calendar-icon.svg"
-            alt={t("filter.dateAlt")}
-            width={24}
-            height={24}
+          <CalendarDotsIcon
+            size={20}
+            weight="light"
+            color="var(--aikinote-black)"
             className={styles.filterIcon}
           />
           <span className={styles.filterLabel}>{t("filter.dateLabel")}</span>
           <span className={styles.filterValue}>{dateDisplayValue}</span>
-          <span className={styles.arrow}>＞</span>
+          <CaretRightIcon size={16} weight="light" color="var(--aikinote-black)" className={styles.arrow} />
         </button>
       </div>
 

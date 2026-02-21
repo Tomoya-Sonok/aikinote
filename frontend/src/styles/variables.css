@@ -1,27 +1,23 @@
 :root {
-  /* ── 喜安屋スタイル：「静寂の宿」カラーパレット ── */
-  --foreground-rgb: 44, 44, 44;
-  --background-rgb: 249, 248, 246;
-
   /* プライマリ・セマンティックカラー（伝統色） */
-  --primary-color: #5b7a5e; /* 老松色 */
-  --primary-dark: #4a6a4d; /* 老松・濃 */
-  --secondary-color: #8b8178; /* 丁子茶 */
-  --accent-color: #c4956a; /* 丁子色 */
-  --error-color: #c15b5b; /* 蘇芳 */
-  --text-color: #2c2c2c; /* 墨色 */
-  --text-light: #8b8178; /* 利休鼠 */
-  --border-color: #e8e4df; /* 薄香色 */
-  --background-light: #f5f3ef; /* 白茶 */
+  --primary-color: #838383;
+  --primary-dark: #6d6d6d;
+  --secondary-color: #8b8178;
+  --accent-color: #c4956a;
+  --error-color: #f12b2b;
+  --text-color: #202020;
+  --text-light: #8b8178;
+  --border-color: #e8e4df;
+  --background-light: #f5f3ef;
 
-  /* AikiNote 固有カラー（喜安屋の生成色ベース） */
-  --aikinote-bg: #f9f8f6; /* 生成色 */
-  --aikinote-white: #fdfcfa; /* 練色 */
-  --aikinote-black: #2c2c2c; /* 墨色 */
-  --aikinote-gray: #8b8178; /* 丁子茶 */
-  --aikinote-light-gray: #b5afa6; /* 灰汁色 */
-  --aikinote-text-light: #8b8178; /* 利休鼠 */
-  --aikinote-hover-gray: #f0ece7; /* 薄い生成色 */
+  /* AikiNote カラー */
+  --aikinote-bg: #efecec;
+  --aikinote-white: #fdfcfa;
+  --aikinote-black: #2c2c2c;
+  --aikinote-gray: #8b8178;
+  --aikinote-light-gray: #b5afa6;
+  --aikinote-text-light: #8b8178;
+  --aikinote-hover-gray: #f0ece7;
 
   /* ── フォント変数 ── */
   --font-zen-old-mincho:

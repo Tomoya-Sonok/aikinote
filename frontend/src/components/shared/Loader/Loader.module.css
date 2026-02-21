@@ -41,7 +41,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  background: rgba(249, 248, 246, 0.95);
+  background: var(--aikinote-bg, #f9f8f6);
 }
 
 /* テキスト付きの場合 */
@@ -93,6 +93,6 @@
   }
 
   .centered {
-    background: rgba(249, 248, 246, 0.95);
+    background: var(--aikinote-bg, #f9f8f6);
   }
 }

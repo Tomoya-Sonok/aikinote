@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { DefaultProfileIcon } from "@/components/shared/icons/DefaultProfileIcon";
+import { GearIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { NavigationDrawer } from "@/components/shared/NavigationDrawer";
 import type { UserSession } from "@/lib/auth";
 import { useTooltipVisibility } from "@/lib/hooks/useTooltipVisibility";
@@ -125,7 +125,12 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                 unoptimized
               />
             ) : (
-              <DefaultProfileIcon size={40} className={styles.avatarFallback} />
+              <UserCircleIcon
+                size={40}
+                weight="light"
+                color="var(--aikinote-black)"
+                className={styles.avatarFallback}
+              />
             )}
             <div className={styles.userInfo}>
               <span className={styles.userName}>{user.username}</span>
@@ -147,12 +152,10 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
               aria-label="設定を開く"
               aria-describedby={isTooltipVisible ? tooltipId : undefined}
             >
-              <Image
-                src="/icons/settings-icon.svg"
-                alt="設定"
-                width={20}
-                height={20}
-                className={styles.settingsIcon}
+              <GearIcon
+                size={20}
+                weight="fill"
+                color="var(--primary-color)"
               />
             </button>
             {isTooltipVisible && (

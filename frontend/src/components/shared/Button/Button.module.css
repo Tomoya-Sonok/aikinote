@@ -51,12 +51,17 @@
 }
 
 .icon {
-  background: var(--aikinote-white, #fdfcfa);
+  background: transparent;
   color: var(--aikinote-black, #2c2c2c);
-  padding: 6px;
+  padding: 4px;
   border-radius: 6px;
-  width: 20px;
-  height: 20px;
+  min-width: 28px;
+  min-height: 28px;
+  width: auto;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .danger {

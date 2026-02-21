@@ -13,6 +13,7 @@ import {
   type NewPasswordFormData,
   newPasswordSchema,
 } from "@/lib/utils/validation";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 import styles from "./ResetPasswordForm.module.css";
 
 interface ResetPasswordFormProps {
@@ -60,20 +61,12 @@ export function ResetPasswordForm({
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.iconWrapper}>
-            <svg
+            <CheckCircleIcon
+              size={32}
+              weight="light"
+              color="var(--aikinote-black)"
               className={styles.icon}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <title>{t("auth.passwordChangeCompleteIcon")}</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            />
           </div>
           <h2 className={styles.title}>{t("auth.passwordChangeComplete")}</h2>
           <p className={styles.description}>

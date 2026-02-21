@@ -1,6 +1,6 @@
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { FC, KeyboardEvent } from "react";
+import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/shared/Button/Button";
 import { Tag } from "@/components/shared/Tag/Tag";
 import styles from "./TrainingCard.module.css";
@@ -54,22 +54,20 @@ export const TrainingCard: FC<TrainingCardProps> = ({
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.actions}>
           {onEdit && (
-            <Button variant="icon" onClick={handleEdit}>
-              <Image
-                src="/icons/edit-icon.svg"
-                alt={t("trainingCard.edit")}
-                width={13}
-                height={13}
+            <Button variant="icon" onClick={handleEdit} className={styles.actionButton}>
+              <PencilSimpleIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
               />
             </Button>
           )}
           {onDelete && (
-            <Button variant="icon" onClick={handleDelete}>
-              <Image
-                src="/icons/trash-icon.svg"
-                alt={t("trainingCard.delete")}
-                width={13}
-                height={15}
+            <Button variant="icon" onClick={handleDelete} className={styles.actionButton}>
+              <TrashIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
               />
             </Button>
           )}

@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--aikinote-bg, #f9f8f6);
+  background: transparent;
 }
 
 .contentWrapper {

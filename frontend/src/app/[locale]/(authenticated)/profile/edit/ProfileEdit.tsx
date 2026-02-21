@@ -14,8 +14,7 @@ import {
 } from "react";
 import { ZodError } from "zod";
 import { Button } from "@/components/shared/Button/Button";
-import { EditIcon } from "@/components/shared/icons/EditIcon";
-import { TrashIcon } from "@/components/shared/icons/TrashIcon";
+import { ImagesSquareIcon, PencilSimpleIcon, TrashIcon as PhosphorTrashIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { Loader } from "@/components/shared/Loader/Loader";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { useToast } from "@/contexts/ToastContext";
@@ -305,10 +304,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   unoptimized
                 />
               ) : (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af">
-                  <title>{t("profileEdit.profileImageAlt")}</title>
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
+                <UserCircleIcon size={48} weight="light" color="var(--aikinote-black)" />
               )}
             </div>
             <div className={styles.editIcon}>
@@ -318,7 +314,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 onChange={handleImageChange}
                 className={styles.fileInput}
               />
-              <EditIcon size={16} color="#6b7280" />
+              <ImagesSquareIcon size={16} weight="light" color="var(--aikinote-black)" />
             </div>
           </label>
           <div className={styles.imageUpload}>
@@ -351,7 +347,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   cursor: profileImageFile ? "pointer" : "not-allowed",
                 }}
               >
-                <TrashIcon size={16} color="#6b7280" />
+                <PhosphorTrashIcon size={16} weight="light" color="var(--aikinote-black)" />
               </button>
             </div>
           </div>

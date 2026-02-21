@@ -89,12 +89,13 @@
   background: var(--aikinote-white, #fdfcfa);
   transition: all 0.4s ease-out;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: 0 1px 4px rgba(44, 44, 44, 0.04);
 }
 
 .settingsButton:hover {
   background: var(--aikinote-hover-gray, #f0ece7);
   border-color: var(--aikinote-gray, #8b8178);
+  box-shadow: 0 2px 8px rgba(44, 44, 44, 0.06);
 }
 
 .settingsButton:active {

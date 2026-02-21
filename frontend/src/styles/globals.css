@@ -18,14 +18,29 @@ html {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
+  color: rgb(var(--text-color));
+  background-color: var(--aikinote-bg);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--current-font-size);
   line-height: 1.6;
   letter-spacing: 0.04em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* 和紙テクスチャ — 疑似要素で低opacityオーバーレイ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url('/textures/washi-texture-bg.jpg');
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  opacity: 0.15;
+  mix-blend-mode: multiply;
 }
 
 a {

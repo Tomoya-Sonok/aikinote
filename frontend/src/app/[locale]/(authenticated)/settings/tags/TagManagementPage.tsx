@@ -10,7 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { EditIcon } from "@/components/shared/icons/EditIcon";
+import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
@@ -682,7 +682,7 @@ export function TagManagementPage({ locale }: TagManagementPageProps) {
                       category: t(`tagManagement.categories.${category}`),
                     })}
                   >
-                    <EditIcon size={18} aria-hidden="true" />
+                    <PencilSimpleIcon size={18} weight="light" color="var(--aikinote-black)" aria-hidden="true" />
                   </button>
                 </div>
 
