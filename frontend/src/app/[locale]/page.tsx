@@ -3,9 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Fragment, type ReactNode } from "react";
-import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
+import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import { ScrollIndicator } from "@/components/shared/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
@@ -182,7 +182,7 @@ export default async function RootPage({ params }: RootPageProps) {
                 <p className={styles.leadLabel}>{t("hero.lead")}</p>
                 <h1 className={styles.heroTitle}>
                   {heroTitleLines.map((line, index) => (
-                    <Fragment key={`${line}-${index}`}>
+                    <Fragment key={line}>
                       {line}
                       {index < heroTitleLines.length - 1 && <br />}
                     </Fragment>
@@ -334,7 +334,7 @@ export default async function RootPage({ params }: RootPageProps) {
                   </h2>
                   <p className={styles.searchSubtitle}>
                     {searchSubtitleLines.map((line, index) => (
-                      <Fragment key={`${line}-${index}`}>
+                      <Fragment key={line}>
                         {line}
                         {index < searchSubtitleLines.length - 1 && <br />}
                       </Fragment>

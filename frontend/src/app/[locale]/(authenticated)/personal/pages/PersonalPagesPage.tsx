@@ -3,11 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
-import { Loader } from "@/components/shared/Loader";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FilterArea } from "@/components/features/personal/FilterArea/FilterArea";
-import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
 import {
   type PageCreateData,
   PageCreateModal,
@@ -17,6 +13,10 @@ import {
   PageEditModal,
 } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
+import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
+import { Loader } from "@/components/shared/Loader";
 import { type UpdatePagePayload } from "@/lib/api/client";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";

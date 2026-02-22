@@ -12,8 +12,8 @@ import {
 } from "react";
 import { EditIcon } from "@/components/shared/icons/EditIcon";
 import { Loader } from "@/components/shared/Loader/Loader";
-import { Tag } from "@/components/shared/Tag/Tag";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
+import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import {
   createTag,

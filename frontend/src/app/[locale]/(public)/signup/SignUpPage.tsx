@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
+import { EmailVerificationWaitingForm } from "@/components/features/auth/EmailVerificationWaitingForm";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
-import { EmailVerificationWaitingForm } from "@/components/features/auth/EmailVerificationWaitingForm";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import {

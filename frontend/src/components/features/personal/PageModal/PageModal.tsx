@@ -4,9 +4,9 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
+import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
-import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import { useToast } from "@/contexts/ToastContext";
 import {
   type CreateTagPayload,

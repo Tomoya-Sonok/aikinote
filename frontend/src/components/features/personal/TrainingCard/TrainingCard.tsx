@@ -41,7 +41,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
     }
   };
 
-  const handleCardKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+  const handleCardKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       onClick?.();
@@ -91,15 +91,14 @@ export const TrainingCard: FC<TrainingCardProps> = ({
 
   if (onClick) {
     return (
-      <div
+      <button
+        type="button"
         className={`${styles.card} ${styles.clickable}`}
         onClick={handleCardClick}
         onKeyDown={handleCardKeyDown}
-        role="button"
-        tabIndex={0}
       >
         {cardContent}
-      </div>
+      </button>
     );
   }
 

@@ -67,23 +67,29 @@ vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
   ),
 }));
 
-vi.mock("@/components/shared/FloatingActionButton/FloatingActionButton", () => ({
-  FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
-    <button
-      type="button"
-      data-testid="floating-action-button"
-      onClick={onClick}
-    >
-      +
-    </button>
-  ),
-}));
+vi.mock(
+  "@/components/shared/FloatingActionButton/FloatingActionButton",
+  () => ({
+    FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
+      <button
+        type="button"
+        data-testid="floating-action-button"
+        onClick={onClick}
+      >
+        +
+      </button>
+    ),
+  }),
+);
 
-vi.mock("@/components/features/personal/PageCreateModal/PageCreateModal", () => ({
-  PageCreateModal: () => (
-    <div data-testid="page-create-modal">PageCreateModal</div>
-  ),
-}));
+vi.mock(
+  "@/components/features/personal/PageCreateModal/PageCreateModal",
+  () => ({
+    PageCreateModal: () => (
+      <div data-testid="page-create-modal">PageCreateModal</div>
+    ),
+  }),
+);
 
 vi.mock("@/components/features/personal/PageEditModal/PageEditModal", () => ({
   PageEditModal: () => <div data-testid="page-edit-modal">PageEditModal</div>,
