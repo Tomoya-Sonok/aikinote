@@ -10,7 +10,7 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 10000;
+  z-index: var(--z-header);
   background: var(--aikinote-white, #fdfcfa);
   backdrop-filter: blur(8px);
   border-bottom: 0.5px solid var(--border-color, #e8e4df);
@@ -134,7 +134,7 @@
   position: absolute;
   right: 0;
   top: calc(100% + 8px);
-  z-index: 20;
+  z-index: 1;
 }
 
 .localePanel {

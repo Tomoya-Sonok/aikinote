@@ -9,7 +9,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-sm);
   box-shadow: 0 4px 16px rgba(44, 44, 44, 0.1);
-  z-index: 10000;
+  z-index: var(--z-toast);
   transform: translateY(-100%);
   opacity: 0;
   transition: all 0.4s ease-out;

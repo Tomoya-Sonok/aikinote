@@ -1,7 +1,7 @@
 .header {
   position: sticky;
   top: 0;
-  z-index: 10000;
+  z-index: var(--z-header);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -116,7 +116,7 @@
   font-size: var(--font-size-sm);
   border-radius: 6px;
   padding: 8px 14px;
-  z-index: 10001;
+  z-index: calc(var(--z-header) + 1);
   cursor: pointer;
   white-space: nowrap;
   text-align: center;

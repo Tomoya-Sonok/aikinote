@@ -40,7 +40,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: var(--z-modal);
   background: var(--aikinote-bg, #f9f8f6);
 }
 

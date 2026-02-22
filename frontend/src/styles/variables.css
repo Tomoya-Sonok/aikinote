@@ -32,6 +32,16 @@
   --font-size-large: 20px;
   --current-font-size: var(--font-size-medium);
 
+  /* ── z-index レイヤー管理 ── */
+  /* グローバルな重なり順：値が大きいほど前面 */
+  --z-fab: 1; /* FloatingActionButton, ScrollIndicator */
+  --z-tab: 1; /* TabNavigation（FABと同レイヤー） */
+  --z-header: 2; /* DefaultHeader, LP Header */
+  --z-drawer: 3; /* NavigationDrawer, LandingMenuDrawer */
+  --z-modal: 4; /* モーダル系（PageModal, DatePicker, TagFilter, PageCreate, PageEdit, Loader） */
+  --z-confirm: 4; /* ConfirmDialog（モーダルと同レイヤー） */
+  --z-toast: 5; /* Toast 通知（最前面） */
+
   /* スケーリング対応のタイポグラフィ */
   --font-size-xs: calc(var(--current-font-size) * 0.75);
   --font-size-sm: calc(var(--current-font-size) * 0.875);

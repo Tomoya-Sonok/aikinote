@@ -42,6 +42,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
       modalTitle={t("pageCreate.title")}
       actionButtonText={t("pageCreate.save")}
       shouldCreateInitialTags={true}
+      autoFocusTitle={true}
     />
   );
 };

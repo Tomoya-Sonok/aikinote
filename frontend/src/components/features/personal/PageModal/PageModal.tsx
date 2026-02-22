@@ -35,6 +35,7 @@ interface PageModalProps {
   modalTitle: string;
   actionButtonText: string;
   shouldCreateInitialTags?: boolean;
+  autoFocusTitle?: boolean;
 }
 
 const defaultFormData: PageFormData = {
@@ -54,6 +55,7 @@ export const PageModal: FC<PageModalProps> = ({
   modalTitle,
   actionButtonText,
   shouldCreateInitialTags = false,
+  autoFocusTitle = false,
 }) => {
   const t = useTranslations();
   const { showToast } = useToast();
@@ -161,9 +163,9 @@ export const PageModal: FC<PageModalProps> = ({
     fetchTags();
   }, [fetchTags]);
 
-  // モーダルが開いた時にタイトルフィールドにフォーカス
+  // モーダルが開いた時にタイトルフィールドにフォーカス（PageCreateModalのみ）
   useEffect(() => {
-    if (isOpen && titleInputRef.current) {
+    if (autoFocusTitle && isOpen && titleInputRef.current) {
       // 少し遅延を設けてモーダルの表示が完了してからフォーカス
       const timeoutId = setTimeout(() => {
         titleInputRef.current?.focus();
@@ -171,7 +173,7 @@ export const PageModal: FC<PageModalProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [isOpen]);
+  }, [autoFocusTitle, isOpen]);
 
   // タグをカテゴリ別に分類
   useEffect(() => {

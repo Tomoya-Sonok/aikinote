@@ -52,7 +52,7 @@
   height: 100vh;
   width: 100vw;
   background: var(--aikinote-white, #ffffff);
-  z-index: 10000;
+  z-index: var(--z-drawer);
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
