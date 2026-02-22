@@ -1,0 +1,4 @@
+pnpm --filter ./frontend run build
+pnpm --filter ./backend run build
+pnpm --filter ./frontend run test:ci
+pnpm --filter ./backend run test:ci
