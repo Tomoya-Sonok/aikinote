@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { INITIAL_USER_TAGS } from "@/constants/tags";
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types/api";
@@ -11,9 +10,6 @@ import { publicProcedure } from "./index";
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-const MOCK_USER_ID = "ec40977c-1de8-4784-ac78-e3ff3a5cb915";
-
-const isDevelopment = process.env.NODE_ENV === "development";
 
 type UserTag = {
   id: string;
@@ -360,20 +356,6 @@ export const initializeUserTagsProcedure = publicProcedure
     }),
   )
   .mutation(async ({ input }) => {
-    if (isDevelopment && input.userId === MOCK_USER_ID) {
-      return {
-        success: true as const,
-        data: INITIAL_USER_TAGS.map((template, index) => ({
-          id: `mock-initial-tag-${index + 1}`,
-          user_id: input.userId,
-          category: template.category,
-          name: template.name,
-          created_at: new Date().toISOString(),
-        })),
-        message: "初期タグを作成しました",
-      };
-    }
-
     const result = await initializeUserTagsIfNeeded(input.userId);
     if (!result.success) {
       throw new Error("初期タグの作成に失敗しました");
