@@ -122,13 +122,7 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
             <p className={styles.menuDrawerFooterItem}>{privacyLabel}</p>
             <p className={styles.menuDrawerFooterItem}>
               {helpPrefix}
-              <button
-                type="button"
-                className={styles.menuDrawerHelpLink}
-                onClick={(event) => {
-                  event.preventDefault();
-                }}
-              >
+              <button type="button" className={styles.menuDrawerHelpLink}>
                 {helpLinkLabel}
               </button>
             </p>
