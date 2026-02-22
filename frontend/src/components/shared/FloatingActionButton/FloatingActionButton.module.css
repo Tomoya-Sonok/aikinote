@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 99;
+  z-index: var(--z-fab);
   border: none;
   padding: 0;
   box-shadow: 0 4px 16px rgba(91, 122, 94, 0.2);
