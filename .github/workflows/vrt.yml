@@ -10,6 +10,8 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  pages: write
+  id-token: write
 
 jobs:
   screenshot-actual:
@@ -93,7 +95,29 @@ jobs:
           if grep -q '"@storybook/nextjs"' package.json && ! grep -q '"@storybook/nextjs-vite"' package.json; then
             pnpm add -D --no-lockfile @storybook/nextjs-vite@9.1.17 storybook@9.1.17 vite
             sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/main.ts
-            sed -i 's|@storybook/nextjs|@storybook/nextjs-vite|g' .storybook/preview.ts
+            # ストーリーファイルの import も更新
+            find src -name "*.stories.tsx" -exec sed -i 's|from "@storybook/nextjs"|from "@storybook/nextjs-vite"|g' {} +
+          fi
+          # preview.ts に NextIntlClientProvider デコレータがない場合は追加
+          if [ -f .storybook/preview.ts ] && ! grep -q 'NextIntlClientProvider' .storybook/preview.ts; then
+            mv .storybook/preview.ts .storybook/preview.tsx
+            cat > .storybook/preview.tsx << 'PREVIEW'
+          import type { Preview } from "@storybook/nextjs-vite";
+          import { NextIntlClientProvider } from "next-intl";
+          import React from "react";
+          import ja from "../src/translations/ja.json";
+          const preview: Preview = {
+            decorators: [
+              (Story) => (
+                <NextIntlClientProvider locale="ja" messages={ja}>
+                  <Story />
+                </NextIntlClientProvider>
+              ),
+            ],
+            parameters: { controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } } },
+          };
+          export default preview;
+          PREVIEW
           fi
 
       - name: Storybook のビルド
@@ -150,6 +174,9 @@ jobs:
     name: スクリーンショット比較
     needs: [screenshot-actual, screenshot-expected]
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: actual スクリーンショットのダウンロード
         uses: actions/download-artifact@v4
@@ -198,13 +225,25 @@ jobs:
             echo "passed=0" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: 差分レポートのアップロード
+      - name: 差分レポートのアップロード（Artifacts）
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: vrt-report
           path: diff
           retention-days: 30
+
+      - name: GitHub Pages の設定
+        uses: actions/configure-pages@v4
+
+      - name: 差分レポートを GitHub Pages にアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: diff
+
+      - name: GitHub Pages にデプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: PR にコメント
         uses: actions/github-script@v7
@@ -217,6 +256,7 @@ jobs:
             const passed = '${{ steps.summary.outputs.passed }}';
             const hasDiff = Number(changed) > 0 || Number(newItems) > 0 || Number(deleted) > 0;
             const icon = hasDiff ? '⚠️' : '✅';
+            const reportUrl = '${{ steps.deployment.outputs.page_url }}';
 
             const body = [
               `## ${icon} Visual Regression Test 結果`,
@@ -229,10 +269,12 @@ jobs:
               `| 🗑️ 削除 | ${deleted} |`,
               '',
               hasDiff
-                ? '> UI に差分が検出されました。意図した変更かどうか、Artifacts の `vrt-report` をダウンロードして確認してください。'
+                ? '> UI に差分が検出されました。意図した変更かどうか確認してください。'
                 : '> UI に差分は検出されませんでした。',
               '',
-              '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
+              reportUrl
+                ? `📊 **[VRT レポートを確認する](${reportUrl})**`
+                : '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
             ].join('\n');
 
             // 既存のVRTコメントを探して更新、なければ新規作成

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { BackToTopButton } from "./BackToTopButton";
 
 const meta: Meta<typeof BackToTopButton> = {
