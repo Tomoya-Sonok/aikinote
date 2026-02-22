@@ -102,22 +102,28 @@ jobs:
           if [ -f .storybook/preview.ts ] && ! grep -q 'NextIntlClientProvider' .storybook/preview.ts; then
             mv .storybook/preview.ts .storybook/preview.tsx
             cat > .storybook/preview.tsx << 'PREVIEW'
-          import type { Preview } from "@storybook/nextjs-vite";
-          import { NextIntlClientProvider } from "next-intl";
-          import React from "react";
-          import ja from "../src/translations/ja.json";
-          const preview: Preview = {
-            decorators: [
-              (Story) => (
-                <NextIntlClientProvider locale="ja" messages={ja}>
-                  <Story />
-                </NextIntlClientProvider>
-              ),
-            ],
-            parameters: { controls: { matchers: { color: /(background|color)$/i, date: /Date$/i } } },
-          };
-          export default preview;
-          PREVIEW
+import type { Preview } from "@storybook/nextjs-vite";
+import { NextIntlClientProvider } from "next-intl";
+import React from "react";
+import ja from "../src/translations/ja.json";
+
+const preview: Preview = {
+  decorators: [
+    (Story) => (
+      <NextIntlClientProvider locale="ja" messages={ja}>
+        <Story />
+      </NextIntlClientProvider>
+    ),
+  ],
+  parameters: {
+    controls: {
+      matchers: { color: /(background|color)$/i, date: /Date$/i },
+    },
+  },
+};
+
+export default preview;
+PREVIEW
           fi
 
       - name: Storybook のビルド
@@ -272,7 +278,7 @@ jobs:
                 ? '> UI に差分が検出されました。意図した変更かどうか確認してください。'
                 : '> UI に差分は検出されませんでした。',
               '',
-              reportUrl
+              reportUrl && reportUrl !== ''
                 ? `📊 **[VRT レポートを確認する](${reportUrl})**`
                 : '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
             ].join('\n');
