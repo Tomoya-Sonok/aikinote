@@ -60,11 +60,7 @@ export default async function SocialPostsPage({
 
             <div className={styles.textWrapper}>
               <p className={styles.description}>{t("description")}</p>
-              <p className={styles.notice}>
-                {t("comingSoon")}
-                <br />
-                {t("notification")}
-              </p>
+              <p className={styles.notice}>{t("notification")}</p>
             </div>
           </div>
         </div>

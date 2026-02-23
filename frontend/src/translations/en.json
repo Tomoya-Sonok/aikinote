@@ -432,7 +432,6 @@
   "socialPosts": {
     "title": "Group Posts",
     "description": "A page where you can view and interact with posts from other users.",
-    "comingSoon": "This page will be released very soon.",
     "notification": "As soon as it is released, we will notify you via our official LINE app and your registered email address."
   },
   "tagFilter": {
