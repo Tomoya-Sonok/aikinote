@@ -190,9 +190,7 @@ export function PersonalPagesPage() {
         currentSelectedDate={selectedDate}
         currentSelectedTags={selectedTags}
         onOpenTagSelection={() => setIsTagModalOpen(true)}
-        onOpenDateSelection={() => {
-          // TODO: 日付選択モーダルの実装
-        }}
+        onOpenDateSelection={() => {}}
       />
 
       <div className={styles.pageListWrapper}>

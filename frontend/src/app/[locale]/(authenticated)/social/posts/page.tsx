@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
@@ -39,13 +40,33 @@ export default async function SocialPostsPage({
     <DefaultLayout>
       <div className={styles.container}>
         <div className={styles.content}>
-          <h1>{t("title")}</h1>
-          <p className={styles.description}>{t("description")}</p>
-          <p className={styles.notice}>
-            {t("comingSoon")}
-            <br />
-            {t("notification")}
-          </p>
+          <div className={styles.card}>
+            <div className={styles.header}>
+              <span className={styles.badge}>Coming Soon</span>
+              <h1>{t("title")}</h1>
+            </div>
+
+            <div className={styles.imageWrapper}>
+              <Image
+                src="/images/lp_upcoming_sns_features.png"
+                alt="AikiNote Upcoming SNS Features"
+                width={800}
+                height={600}
+                sizes="(max-width: 768px) 100vw, 800px"
+                className={styles.image}
+                priority
+              />
+            </div>
+
+            <div className={styles.textWrapper}>
+              <p className={styles.description}>{t("description")}</p>
+              <p className={styles.notice}>
+                {t("comingSoon")}
+                <br />
+                {t("notification")}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </DefaultLayout>
