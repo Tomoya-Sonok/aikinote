@@ -374,7 +374,9 @@
     "pageDeleteFailed": "ページの削除に失敗しました",
     "pageCount": "これまでに作成したページ数は",
     "pageCountSuffix": "ページです",
-    "recentPages": "最近作成したページ",
+    "pagesList": "ページ一覧",
+    "sortNewest": "新しい順",
+    "sortOldest": "古い順",
     "showingAll": "全{total}件表示中",
     "showingPartial": "全{total}件中{displayed}件表示中",
     "loadMore": "もっと見る"
@@ -431,9 +433,8 @@
   },
   "socialPosts": {
     "title": "みんなで 投稿一覧",
-    "description": "AikiNoteユーザーの投稿を閲覧できるページです。",
-    "comingSoon": "こちらのページは、初回リリース後に実装予定です。",
-    "notification": "リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせします。"
+    "description": "他のユーザーの投稿を閲覧したり交流できるページです。",
+    "notification": "リリース完了次第、LINE公式アプリからのメッセージ配信およびご登録いただいたメールアドレス宛てのメールにてお知らせします。"
   },
   "tagFilter": {
     "title": "タグで絞り込み",

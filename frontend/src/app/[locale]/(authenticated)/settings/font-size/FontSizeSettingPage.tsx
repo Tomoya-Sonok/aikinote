@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { FontSizeSetting } from "@/components/features/setting/FontSizeSetting/FontSizeSetting";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useToast } from "@/contexts/ToastContext";
 
 interface FontSizeSettingPageProps {

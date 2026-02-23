@@ -41,7 +41,7 @@ describe("ScrollIndicator", () => {
         IntersectionObserver: typeof IntersectionObserver;
       }
     ).IntersectionObserver = MockIntersectionObserver;
-    
+
     Element.prototype.scrollIntoView = vi.fn();
     Element.prototype.getBoundingClientRect = vi.fn(() => ({
       top: 200, // Viewportより下にある想定

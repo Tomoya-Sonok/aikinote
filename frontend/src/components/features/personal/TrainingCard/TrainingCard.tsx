@@ -1,6 +1,6 @@
+import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC, KeyboardEvent } from "react";
-import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/shared/Button/Button";
 import { Tag } from "@/components/shared/Tag/Tag";
 import styles from "./TrainingCard.module.css";
@@ -54,7 +54,11 @@ export const TrainingCard: FC<TrainingCardProps> = ({
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.actions}>
           {onEdit && (
-            <Button variant="icon" onClick={handleEdit} className={styles.actionButton}>
+            <Button
+              variant="icon"
+              onClick={handleEdit}
+              className={styles.actionButton}
+            >
               <PencilSimpleIcon
                 size={16}
                 weight="light"
@@ -63,7 +67,11 @@ export const TrainingCard: FC<TrainingCardProps> = ({
             </Button>
           )}
           {onDelete && (
-            <Button variant="icon" onClick={handleDelete} className={styles.actionButton}>
+            <Button
+              variant="icon"
+              onClick={handleDelete}
+              className={styles.actionButton}
+            >
               <TrashIcon
                 size={16}
                 weight="light"

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,7 +14,6 @@ import {
   type NewPasswordFormData,
   newPasswordSchema,
 } from "@/lib/utils/validation";
-import { CheckCircleIcon } from "@phosphor-icons/react";
 import styles from "./ResetPasswordForm.module.css";
 
 interface ResetPasswordFormProps {

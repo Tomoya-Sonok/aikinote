@@ -1,6 +1,6 @@
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import styles from "./SearchInput.module.css";
 
 interface SearchInputProps {

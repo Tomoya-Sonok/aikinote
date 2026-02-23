@@ -10,7 +10,6 @@ import { publicProcedure } from "./index";
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-
 type UserTag = {
   id: string;
   user_id: string;

@@ -57,10 +57,7 @@ export async function fetchUserProfile(
           dojo_style_name: userData.dojo_style_name || null,
         };
       } else {
-        console.error(
-          "fetchUserProfile: 不正なユーザーデータ形式",
-          userData,
-        );
+        console.error("fetchUserProfile: 不正なユーザーデータ形式", userData);
         return null;
       }
     } else {
@@ -80,10 +77,7 @@ export async function fetchUserProfile(
         timeout,
       });
     } else {
-      console.error(
-        "fetchUserProfile: API呼び出し中にエラー:",
-        error,
-      );
+      console.error("fetchUserProfile: API呼び出し中にエラー:", error);
     }
     return null;
   }

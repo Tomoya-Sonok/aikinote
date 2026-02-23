@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { EnvelopeIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
@@ -12,7 +13,6 @@ import {
   type ResetPasswordFormData,
   resetPasswordSchema,
 } from "@/lib/utils/validation";
-import { EnvelopeIcon } from "@phosphor-icons/react";
 import styles from "./ForgotPasswordForm.module.css";
 
 interface ForgotPasswordFormProps {

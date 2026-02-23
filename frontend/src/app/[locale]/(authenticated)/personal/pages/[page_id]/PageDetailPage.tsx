@@ -3,13 +3,13 @@
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { Loader } from "@/components/shared/Loader";
-import { Tag } from "@/components/shared/Tag/Tag";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import {
   type PageEditData,
   PageEditModal,
 } from "@/components/features/personal/PageEditModal/PageEditModal";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { Loader } from "@/components/shared/Loader";
+import { Tag } from "@/components/shared/Tag/Tag";
 import {
   deletePage,
   getPage,

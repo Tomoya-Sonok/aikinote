@@ -203,7 +203,11 @@
 }
 
 .searchSection {
-  background: linear-gradient(180deg, var(--aikinote-white, #fdfcfa), var(--background-light, #f5f3ef));
+  background: linear-gradient(
+    180deg,
+    var(--aikinote-white, #fdfcfa),
+    var(--background-light, #f5f3ef)
+  );
 }
 
 .searchContent {
@@ -566,7 +570,11 @@
   top: 50%;
   transform: translateY(-50%);
   width: 48px;
-  background: linear-gradient(135deg, var(--primary-color, #5b7a5e), var(--secondary-color, #8b8178));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #5b7a5e),
+    var(--secondary-color, #8b8178)
+  );
   box-shadow: 0 12px 20px rgba(44, 44, 44, 0.1);
 }
 
@@ -594,7 +602,11 @@
 
 .stepBadge {
   align-items: center;
-  background: linear-gradient(135deg, var(--primary-color, #5b7a5e), var(--secondary-color, #8b8178));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #5b7a5e),
+    var(--secondary-color, #8b8178)
+  );
   border-radius: 50%;
   box-shadow: 0 12px 24px rgba(44, 44, 44, 0.1);
   color: var(--aikinote-white, #fdfcfa);
@@ -985,7 +997,11 @@
 }
 
 .mockNotebook {
-  background: linear-gradient(180deg, var(--aikinote-white, #fdfcfa), var(--background-light, #f5f3ef));
+  background: linear-gradient(
+    180deg,
+    var(--aikinote-white, #fdfcfa),
+    var(--background-light, #f5f3ef)
+  );
   border: 0.5px solid var(--border-color, #e8e4df);
   border-radius: 8px;
   box-shadow: 0 16px 32px rgba(44, 44, 44, 0.06);

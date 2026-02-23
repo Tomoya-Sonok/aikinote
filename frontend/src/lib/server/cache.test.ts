@@ -1,11 +1,11 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchUserProfileFromHono } from "@/lib/server/auth";
+import { fetchUserProfileFromHono } from "./auth";
 import {
   getCachedUserProfile,
   getUserProfileCacheTag,
   revalidateUserProfile,
-} from "@/lib/server/cache";
+} from "./cache";
 
 // モジュール全体のモック
 vi.mock("next/cache", () => ({
@@ -13,7 +13,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: vi.fn((fn) => fn), // 単に実行するだけにモック
 }));
 
-vi.mock("@/lib/server/auth", () => ({
+vi.mock("./auth", () => ({
   fetchUserProfileFromHono: vi.fn(),
 }));
 

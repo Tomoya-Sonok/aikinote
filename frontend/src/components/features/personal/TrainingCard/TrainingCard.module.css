@@ -15,7 +15,9 @@
   text-align: left;
   font-family: inherit;
   width: 100%;
-  transition: border-color 0.4s ease-out, box-shadow 0.4s ease-out;
+  transition:
+    border-color 0.4s ease-out,
+    box-shadow 0.4s ease-out;
 }
 
 .card.clickable:hover {

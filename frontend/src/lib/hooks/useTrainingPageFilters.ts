@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { type SortOrder } from "@/types/sortOrder";
 import { type TrainingPageData } from "@/types/training";
 
 const PAGE_LIMIT = 25;
@@ -11,6 +12,7 @@ export function useTrainingPageFilters(
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [displayedItemsCount, setDisplayedItemsCount] = useState(PAGE_LIMIT);
 
   useEffect(() => {
@@ -53,8 +55,20 @@ export function useTrainingPageFilters(
       filtered = filtered.filter((page) => page.date === selectedDate);
     }
 
-    return filtered;
-  }, [allTrainingPageData, debouncedSearchQuery, selectedTags, selectedDate]);
+    // ソート: date フィールドで並び替え
+    const sorted = [...filtered].sort((a, b) => {
+      const comparison = a.date.localeCompare(b.date);
+      return sortOrder === "newest" ? -comparison : comparison;
+    });
+
+    return sorted;
+  }, [
+    allTrainingPageData,
+    debouncedSearchQuery,
+    selectedTags,
+    selectedDate,
+    sortOrder,
+  ]);
 
   const displayedTrainingPageData = useMemo(() => {
     return filteredTrainingPageData.slice(0, displayedItemsCount);
@@ -73,6 +87,8 @@ export function useTrainingPageFilters(
     setSelectedDate,
     selectedTags,
     setSelectedTags,
+    sortOrder,
+    setSortOrder,
     displayedTrainingPageData,
     hasMore,
     loadMore,

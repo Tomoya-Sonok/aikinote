@@ -372,7 +372,9 @@
     "pageDeleteFailed": "Failed to delete page",
     "pageCount": "Total pages created so far:",
     "pageCountSuffix": "pages",
-    "recentPages": "Recently created pages",
+    "pagesList": "Pages List",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
     "showingAll": "Showing all {total} items",
     "showingPartial": "Showing {displayed} of {total} items",
     "loadMore": "Load more"
@@ -429,9 +431,8 @@
   },
   "socialPosts": {
     "title": "Group Posts",
-    "description": "A page where you can view posts from AikiNote users.",
-    "comingSoon": "This page will be implemented after the initial release.",
-    "notification": "We will notify you via your registered email address once the release date is determined."
+    "description": "A page where you can view and interact with posts from other users.",
+    "notification": "As soon as it is released, we will notify you via our official LINE app and your registered email address."
   },
   "tagFilter": {
     "title": "Filter by Tags",

@@ -1,13 +1,16 @@
 "use client";
 
+import {
+  CaretDownIcon,
+  CaretUpIcon,
+  CheckIcon,
+  SortAscendingIcon,
+  SortDescendingIcon,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
-import { Loader } from "@/components/shared/Loader";
-import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FilterArea } from "@/components/features/personal/FilterArea/FilterArea";
-import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
 import {
   type PageCreateData,
   PageCreateModal,
@@ -17,12 +20,17 @@ import {
   PageEditModal,
 } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
+import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
+import { Loader } from "@/components/shared/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import { type UpdatePagePayload } from "@/lib/api/client";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
 import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+import { type SortOrder } from "@/types/sortOrder";
 import styles from "./page.module.css";
 
 export function PersonalPagesPage() {
@@ -31,6 +39,8 @@ export function PersonalPagesPage() {
   const locale = useLocale();
   const { showToast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   // Custom Hooks
   const { availableTags } = useTrainingTags();
@@ -43,6 +53,8 @@ export function PersonalPagesPage() {
     setSelectedDate,
     selectedTags,
     setSelectedTags,
+    sortOrder,
+    setSortOrder,
     displayedTrainingPageData,
     hasMore,
     loadMore,
@@ -61,6 +73,30 @@ export function PersonalPagesPage() {
     isTagModalOpen,
     setIsTagModalOpen,
   } = useTrainingPageModals();
+
+  // ソートドロップダウン外クリックで閉じる
+  const handleClickOutside = useCallback((event: MouseEvent) => {
+    if (
+      sortDropdownRef.current &&
+      !sortDropdownRef.current.contains(event.target as Node)
+    ) {
+      setIsSortDropdownOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isSortDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSortDropdownOpen, handleClickOutside]);
+
+  const handleSortSelect = (order: SortOrder) => {
+    setSortOrder(order);
+    setIsSortDropdownOpen(false);
+  };
 
   const handleCreatePage = () => {
     setPageCreateModalOpen(true);
@@ -130,6 +166,10 @@ export function PersonalPagesPage() {
     );
   }
 
+  const SortIcon =
+    sortOrder === "newest" ? SortDescendingIcon : SortAscendingIcon;
+  const CaretIcon = isSortDropdownOpen ? CaretUpIcon : CaretDownIcon;
+
   return (
     <div className={styles.container}>
       <div className={styles.statsSection}>
@@ -150,14 +190,71 @@ export function PersonalPagesPage() {
         currentSelectedDate={selectedDate}
         currentSelectedTags={selectedTags}
         onOpenTagSelection={() => setIsTagModalOpen(true)}
-        onOpenDateSelection={() => {
-          // TODO: 日付選択モーダルの実装
-        }}
+        onOpenDateSelection={() => {}}
       />
 
       <div className={styles.pageListWrapper}>
         <div className={styles.pageListDescription}>
-          <h2 className={styles.pageTitle}>{t("personalPages.recentPages")}</h2>
+          <div className={styles.pageListHeader}>
+            <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+            <div className={styles.sortDropdownContainer} ref={sortDropdownRef}>
+              <button
+                type="button"
+                className={styles.sortButton}
+                onClick={() => setIsSortDropdownOpen((prev) => !prev)}
+                data-testid="sort-button"
+              >
+                <SortIcon
+                  size={16}
+                  weight="light"
+                  className={styles.sortIcon}
+                />
+                <span className={styles.sortLabel}>
+                  {sortOrder === "newest"
+                    ? t("personalPages.sortNewest")
+                    : t("personalPages.sortOldest")}
+                </span>
+                <CaretIcon
+                  size={12}
+                  weight="bold"
+                  className={styles.sortCaret}
+                />
+              </button>
+              {isSortDropdownOpen && (
+                <div
+                  className={styles.sortDropdown}
+                  data-testid="sort-dropdown"
+                >
+                  <button
+                    type="button"
+                    className={`${styles.sortOption} ${sortOrder === "newest" ? styles.sortOptionActive : ""}`}
+                    onClick={() => handleSortSelect("newest")}
+                    data-testid="sort-option-newest"
+                  >
+                    <span className={styles.sortOptionCheck}>
+                      {sortOrder === "newest" && (
+                        <CheckIcon size={14} weight="bold" />
+                      )}
+                    </span>
+                    {t("personalPages.sortNewest")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.sortOption} ${sortOrder === "oldest" ? styles.sortOptionActive : ""}`}
+                    onClick={() => handleSortSelect("oldest")}
+                    data-testid="sort-option-oldest"
+                  >
+                    <span className={styles.sortOptionCheck}>
+                      {sortOrder === "oldest" && (
+                        <CheckIcon size={14} weight="bold" />
+                      )}
+                    </span>
+                    {t("personalPages.sortOldest")}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
           <p className={styles.pageCount} data-testid="page-count">
             {allTrainingPageData.length === displayedTrainingPageData.length
               ? t("personalPages.showingAll", {

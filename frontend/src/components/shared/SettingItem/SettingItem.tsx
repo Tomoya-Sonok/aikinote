@@ -1,5 +1,5 @@
-import type { FC, ReactNode } from "react";
 import { CaretRightIcon } from "@phosphor-icons/react";
+import type { FC, ReactNode } from "react";
 import styles from "./SettingItem.module.css";
 
 interface SettingItemProps {
@@ -22,7 +22,12 @@ export const SettingItem: FC<SettingItemProps> = ({
       onClick={onClick}
     >
       <span className={styles.text}>{children}</span>
-      <CaretRightIcon size={16} weight="light" color="var(--aikinote-black)" className={styles.arrow} />
+      <CaretRightIcon
+        size={16}
+        weight="light"
+        color="var(--aikinote-black)"
+        className={styles.arrow}
+      />
     </button>
   );
 };
