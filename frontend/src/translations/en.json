@@ -372,7 +372,9 @@
     "pageDeleteFailed": "Failed to delete page",
     "pageCount": "Total pages created so far:",
     "pageCountSuffix": "pages",
-    "recentPages": "Recently created pages",
+    "pagesList": "Pages List",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
     "showingAll": "Showing all {total} items",
     "showingPartial": "Showing {displayed} of {total} items",
     "loadMore": "Load more"

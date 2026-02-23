@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  ImagesSquareIcon,
+  PencilSimpleIcon,
+  TrashIcon as PhosphorTrashIcon,
+  UserCircleIcon,
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,10 +19,9 @@ import {
   useState,
 } from "react";
 import { ZodError } from "zod";
-import { Button } from "@/components/shared/Button/Button";
-import { ImagesSquareIcon, PencilSimpleIcon, TrashIcon as PhosphorTrashIcon, UserCircleIcon } from "@phosphor-icons/react";
-import { Loader } from "@/components/shared/Loader/Loader";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
+import { Button } from "@/components/shared/Button/Button";
+import { Loader } from "@/components/shared/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import { getUserProfile, updateUserProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -304,7 +309,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   unoptimized
                 />
               ) : (
-                <UserCircleIcon size={48} weight="light" color="var(--aikinote-black)" />
+                <UserCircleIcon
+                  size={48}
+                  weight="light"
+                  color="var(--aikinote-black)"
+                />
               )}
             </div>
             <div className={styles.editIcon}>
@@ -314,7 +323,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 onChange={handleImageChange}
                 className={styles.fileInput}
               />
-              <ImagesSquareIcon size={16} weight="light" color="var(--aikinote-black)" />
+              <ImagesSquareIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
+              />
             </div>
           </label>
           <div className={styles.imageUpload}>
@@ -347,7 +360,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   cursor: profileImageFile ? "pointer" : "not-allowed",
                 }}
               >
-                <PhosphorTrashIcon size={16} weight="light" color="var(--aikinote-black)" />
+                <PhosphorTrashIcon
+                  size={16}
+                  weight="light"
+                  color="var(--aikinote-black)"
+                />
               </button>
             </div>
           </div>

@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { LanguageSetting } from "@/components/features/setting/LanguageSetting/LanguageSetting";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useToast } from "@/contexts/ToastContext";
 import { useLanguageStore } from "@/stores/languageStore";
 

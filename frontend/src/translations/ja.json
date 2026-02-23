@@ -374,7 +374,9 @@
     "pageDeleteFailed": "ページの削除に失敗しました",
     "pageCount": "これまでに作成したページ数は",
     "pageCountSuffix": "ページです",
-    "recentPages": "最近作成したページ",
+    "pagesList": "ページ一覧",
+    "sortNewest": "新しい順",
+    "sortOldest": "古い順",
     "showingAll": "全{total}件表示中",
     "showingPartial": "全{total}件中{displayed}件表示中",
     "loadMore": "もっと見る"

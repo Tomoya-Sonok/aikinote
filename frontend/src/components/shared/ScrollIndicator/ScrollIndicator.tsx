@@ -44,7 +44,7 @@ export function ScrollIndicator({ label }: ScrollIndicatorProps) {
 
     // 現在のスクロール位置より下にある最初のセクションを探す
     const sections = Array.from(document.querySelectorAll("section"));
-    
+
     // getBoundingClientRect().top はViewport上端からの距離
     // これが正の値（かつ一定の閾値以上）であれば、現在の表示領域より下にあると判定できる
     const targetSection = sections.find((section) => {

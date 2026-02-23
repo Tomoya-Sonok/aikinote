@@ -1,5 +1,6 @@
 "use client";
 
+import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import {
   type DragEvent,
@@ -10,10 +11,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { PencilSimpleIcon } from "@phosphor-icons/react";
 import { Loader } from "@/components/shared/Loader/Loader";
-import { Tag } from "@/components/shared/Tag/Tag";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
+import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import {
   createTag,
@@ -682,7 +682,12 @@ export function TagManagementPage({ locale }: TagManagementPageProps) {
                       category: t(`tagManagement.categories.${category}`),
                     })}
                   >
-                    <PencilSimpleIcon size={18} weight="light" color="var(--aikinote-black)" aria-hidden="true" />
+                    <PencilSimpleIcon
+                      size={18}
+                      weight="light"
+                      color="var(--aikinote-black)"
+                      aria-hidden="true"
+                    />
                   </button>
                 </div>
 

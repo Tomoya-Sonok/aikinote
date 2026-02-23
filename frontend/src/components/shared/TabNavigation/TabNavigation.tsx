@@ -1,14 +1,10 @@
 "use client";
 
+import type { Icon } from "@phosphor-icons/react";
+import { ChatsIcon, PencilSimpleIcon, UserIcon } from "@phosphor-icons/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import type { Icon } from "@phosphor-icons/react";
-import {
-  PencilSimpleIcon,
-  ChatsIcon,
-  UserIcon,
-} from "@phosphor-icons/react";
 import styles from "./TabNavigation.module.css";
 
 interface TabItem {

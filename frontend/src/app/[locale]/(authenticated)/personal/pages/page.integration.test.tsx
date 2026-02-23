@@ -51,17 +51,20 @@ vi.mock("@/components/shared/TabNavigation/TabNavigation", () => ({
 }));
 
 // FloatingActionButton をモック
-vi.mock("@/components/shared/FloatingActionButton/FloatingActionButton", () => ({
-  FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
-    <button
-      type="button"
-      data-testid="floating-action-button"
-      onClick={onClick}
-    >
-      Add
-    </button>
-  ),
-}));
+vi.mock(
+  "@/components/shared/FloatingActionButton/FloatingActionButton",
+  () => ({
+    FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
+      <button
+        type="button"
+        data-testid="floating-action-button"
+        onClick={onClick}
+      >
+        Add
+      </button>
+    ),
+  }),
+);
 
 // TrainingCard をモック
 vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
@@ -79,24 +82,27 @@ vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
 }));
 
 // PageCreateModal をモック
-vi.mock("@/components/features/personal/PageCreateModal/PageCreateModal", () => ({
-  PageCreateModal: ({
-    isOpen,
-    onClose,
-  }: {
-    isOpen: boolean;
-    onClose: () => void;
-  }) => (
-    <div
-      data-testid="page-create-modal"
-      style={{ display: isOpen ? "block" : "none" }}
-    >
-      <button type="button" data-testid="close-modal" onClick={onClose}>
-        Close
-      </button>
-    </div>
-  ),
-}));
+vi.mock(
+  "@/components/features/personal/PageCreateModal/PageCreateModal",
+  () => ({
+    PageCreateModal: ({
+      isOpen,
+      onClose,
+    }: {
+      isOpen: boolean;
+      onClose: () => void;
+    }) => (
+      <div
+        data-testid="page-create-modal"
+        style={{ display: isOpen ? "block" : "none" }}
+      >
+        <button type="button" data-testid="close-modal" onClick={onClose}>
+          Close
+        </button>
+      </div>
+    ),
+  }),
+);
 
 describe("PersonalPagesPage - クライアントサイドフィルタリング統合テスト", () => {
   const mockTrainingPages = [

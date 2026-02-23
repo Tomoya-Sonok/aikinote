@@ -399,10 +399,7 @@ export function useAuth() {
       setUser(null);
       return null;
     } catch (error) {
-      console.error(
-        "refreshUser: ユーザー情報の再取得エラー:",
-        error,
-      );
+      console.error("refreshUser: ユーザー情報の再取得エラー:", error);
       return null;
     }
   }, [supabase.auth]);

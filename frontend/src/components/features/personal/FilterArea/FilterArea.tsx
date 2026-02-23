@@ -1,7 +1,11 @@
+import {
+  CalendarDotsIcon,
+  CaretRightIcon,
+  TagIcon,
+} from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
 import { useState } from "react";
-import { TagIcon, CalendarDotsIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
@@ -88,7 +92,12 @@ export const FilterArea: FC<FilterAreaProps> = ({
           />
           <span className={styles.filterLabel}>{t("filter.tagLabel")}</span>
           <span className={styles.filterValue}>{tagDisplayValue}</span>
-          <CaretRightIcon size={16} weight="light" color="var(--aikinote-black)" className={styles.arrow} />
+          <CaretRightIcon
+            size={16}
+            weight="light"
+            color="var(--aikinote-black)"
+            className={styles.arrow}
+          />
         </button>
 
         {/* Date Filter Button */}
@@ -105,7 +114,12 @@ export const FilterArea: FC<FilterAreaProps> = ({
           />
           <span className={styles.filterLabel}>{t("filter.dateLabel")}</span>
           <span className={styles.filterValue}>{dateDisplayValue}</span>
-          <CaretRightIcon size={16} weight="light" color="var(--aikinote-black)" className={styles.arrow} />
+          <CaretRightIcon
+            size={16}
+            weight="light"
+            color="var(--aikinote-black)"
+            className={styles.arrow}
+          />
         </button>
       </div>
 

@@ -1,8 +1,8 @@
 "use client";
 
+import { CaretLeftIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import type { MouseEventHandler, ReactNode } from "react";
-import { CaretLeftIcon } from "@phosphor-icons/react";
 import styles from "./MinimalLayout.module.css";
 
 interface MinimalLayoutProps {
@@ -42,7 +42,12 @@ export function MinimalLayout({
             aria-label="戻る"
             onClick={handleClick}
           >
-            <CaretLeftIcon size={20} weight="light" color="var(--aikinote-black)" aria-hidden="true" />
+            <CaretLeftIcon
+              size={20}
+              weight="light"
+              color="var(--aikinote-black)"
+              aria-hidden="true"
+            />
           </button>
           {headerTitle && (
             <span className={styles.headerTitle}>{headerTitle}</span>

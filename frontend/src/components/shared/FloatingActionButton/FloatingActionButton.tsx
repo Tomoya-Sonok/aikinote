@@ -1,6 +1,6 @@
+import { NotePencilIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
-import { NotePencilIcon } from "@phosphor-icons/react";
 import styles from "./FloatingActionButton.module.css";
 
 interface FloatingActionButtonProps {
