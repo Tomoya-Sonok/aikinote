@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
@@ -28,13 +27,14 @@ export default async function Page({
 }) {
   const { locale } = await params;
   const profileT = await getTranslations({ locale, namespace: "profileEdit" });
-  const loginPath = `/${locale}/login`;
   const settingsPath = `/${locale}/mypage`;
 
   const user = await getCurrentUser();
 
+  // TypeScriptの型を解決するため
+  // Layout側でブロックされるため実際には到達しない
   if (!user) {
-    redirect(loginPath);
+    throw new Error("User must be authenticated");
   }
 
   const initialProfile = {

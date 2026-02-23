@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser } from "@/lib/server/auth";
 import { PersonalPagesPage } from "./PersonalPagesPage";
 
 export const metadata = buildMetadata({
@@ -9,18 +7,7 @@ export const metadata = buildMetadata({
   description: "個人で作成した稽古ページを一覧で管理できます。",
 });
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect(`/${locale}/login`);
-  }
-
+export default async function Page() {
   return (
     <DefaultLayout showTooltip={true}>
       <PersonalPagesPage />

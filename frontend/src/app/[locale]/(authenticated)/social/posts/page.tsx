@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -28,13 +26,6 @@ export default async function SocialPostsPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "socialPosts" });
-  const loginPath = `/${locale}/login`;
-
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect(loginPath);
-  }
 
   return (
     <DefaultLayout>
