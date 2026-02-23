@@ -33,7 +33,7 @@ export default async function ProfileEditPage({
   const user = await getCurrentUser();
 
   if (!user) {
-    throw new Error("User must be authenticated");
+    redirect(loginPath);
   }
 
   const { data: userProfile, error } = await getUserProfile(user.id);
