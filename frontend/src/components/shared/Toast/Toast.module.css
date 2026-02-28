@@ -5,7 +5,7 @@
   left: 10px;
   padding: 14px 20px;
   border-radius: 6px;
-  color: var(--aikinote-white, #fdfcfa);
+  color: var(--aikinote-white);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-sm);
   box-shadow: 0 4px 16px rgba(44, 44, 44, 0.1);
@@ -24,15 +24,15 @@
 }
 
 .toast.success {
-  background-color: var(--primary-color, #5b7a5e);
+  background-color: var(--primary-color);
 }
 
 .toast.error {
-  background-color: var(--error-color, #c15b5b);
+  background-color: var(--error-color);
 }
 
 .toast.info {
-  background-color: var(--aikinote-gray, #8b8178);
+  background-color: var(--aikinote-gray);
 }
 
 @media (min-width: 431px) {

@@ -12,8 +12,8 @@
 }
 
 .primary {
-  background-color: var(--primary-color, #5b7a5e);
-  color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--primary-color);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 6px;
   padding: 0 20px;
@@ -27,13 +27,13 @@
 }
 
 .primary:hover {
-  background-color: var(--primary-dark, #4a6a4d);
+  background-color: var(--primary-dark);
 }
 
 .secondary {
   background-color: transparent;
-  color: var(--aikinote-black, #2c2c2c);
-  border: 0.5px solid var(--border-color, #e8e4df);
+  color: var(--aikinote-black);
+  border: 0.5px solid var(--border-color);
   border-radius: 6px;
   padding: 0 20px;
   font-family: var(--font-zen-old-mincho);
@@ -46,13 +46,13 @@
 }
 
 .secondary:hover {
-  background-color: var(--aikinote-hover-gray, #f0ece7);
-  border-color: var(--aikinote-gray, #8b8178);
+  background-color: var(--aikinote-hover-gray);
+  border-color: var(--aikinote-gray);
 }
 
 .icon {
   background: transparent;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   padding: 4px;
   border-radius: 6px;
   min-width: 28px;
@@ -65,8 +65,8 @@
 }
 
 .danger {
-  background-color: var(--error-color, #c15b5b);
-  color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--error-color);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 6px;
   padding: 0 20px;

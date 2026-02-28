@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { EmailVerificationWaitingForm } from "@/components/features/auth/EmailVerificationWaitingForm";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
+import { StepDots } from "@/components/shared/StepDots";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import {
@@ -109,12 +110,12 @@ export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
               />
             </div>
           </div>
-          <div className={styles.stepDots}>
-            <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-            <div className={styles.stepDot} />
-            <div className={styles.stepDot} />
-            <div className={styles.stepDot} />
-          </div>
+          <StepDots
+            states={["active", "inactive", "inactive", "inactive"]}
+            dotSize={12}
+            activeColor="var(--primary-color)"
+            inactiveColor="var(--border-color)"
+          />
         </div>
 
         {error && <div className={styles.errorMessage}>{error}</div>}
@@ -255,12 +256,12 @@ export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
               />
             </div>
           </div>
-          <div className={styles.stepDots}>
-            <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-            <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-            <div className={styles.stepDot} />
-            <div className={styles.stepDot} />
-          </div>
+          <StepDots
+            states={["active", "active", "inactive", "inactive"]}
+            dotSize={12}
+            activeColor="var(--primary-color)"
+            inactiveColor="var(--border-color)"
+          />
         </div>
 
         {error && <div className={styles.errorMessage}>{error}</div>}

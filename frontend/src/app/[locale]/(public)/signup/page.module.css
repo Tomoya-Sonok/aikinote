@@ -1,6 +1,6 @@
 /* サインアップフォーム全体のコンテナ */
 .container {
-  background-color: var(--aikinote-bg, #f9f8f6);
+  background-color: var(--aikinote-bg);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   margin-bottom: 12px;
   align-self: start;
   margin-left: 4px;
@@ -23,7 +23,7 @@
 
 /* フォームカード */
 .formCard {
-  background-color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--aikinote-white);
   border-radius: 8px;
   padding: 28px;
   width: 100%;
@@ -33,7 +33,7 @@
   display: flex;
   flex-direction: column;
   gap: 28px;
-  border: 0.5px solid var(--border-color, #e8e4df);
+  border: 0.5px solid var(--border-color);
 }
 
 .stepInfo {
@@ -54,20 +54,20 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   letter-spacing: 0.04em;
 }
 
 .progressContainer {
   height: 4px;
-  background-color: var(--border-color, #e8e4df);
+  background-color: var(--border-color);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .progressBar {
   height: 100%;
-  background-color: var(--primary-color, #5b7a5e);
+  background-color: var(--primary-color);
   border-radius: 2px;
   transition: width 0.4s ease-out;
 }
@@ -89,27 +89,6 @@
   width: 100%;
 }
 
-/* ステップドット */
-.stepDots {
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  top: 56px;
-  left: 18px;
-  right: 18px;
-}
-
-.stepDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: var(--border-color, #e8e4df);
-}
-
-.stepDotActive {
-  background-color: var(--primary-color, #5b7a5e);
-}
-
 .contentsWrapper {
   display: flex;
   flex-direction: column;
@@ -127,7 +106,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 16px;
   font-weight: 400;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   margin-bottom: 8px;
   display: block;
   letter-spacing: 0.04em;
@@ -140,28 +119,28 @@
 .inputField {
   width: 100%;
   height: 36px;
-  background-color: var(--aikinote-white, #fdfcfa);
-  border: 0.5px solid var(--border-color, #e8e4df);
+  background-color: var(--aikinote-white);
+  border: 0.5px solid var(--border-color);
   border-radius: 4px;
   padding: 6px 12px;
   font-family: var(--font-zen-old-mincho);
   font-size: 14px;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   outline: none;
   transition: border-color 0.4s ease-out;
 }
 
 .inputField::placeholder {
-  color: var(--aikinote-gray, #8b8178);
+  color: var(--aikinote-gray);
 }
 
 .inputField:focus {
-  border-color: var(--primary-color, #5b7a5e);
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 1px rgba(91, 122, 94, 0.15);
 }
 
 .inputField.error {
-  border-color: var(--error-color, #c15b5b);
+  border-color: var(--error-color);
   box-shadow: 0 0 0 1px rgba(193, 91, 91, 0.15);
 }
 
@@ -173,7 +152,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--aikinote-gray, #8b8178);
+  color: var(--aikinote-gray);
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   cursor: pointer;
@@ -184,7 +163,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: var(--aikinote-gray, #8b8178);
+  color: var(--aikinote-gray);
   margin-top: 8px;
 }
 
@@ -193,7 +172,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: var(--error-color, #c15b5b);
+  color: var(--error-color);
   margin-top: 4px;
 }
 
@@ -218,28 +197,28 @@
 }
 
 .primaryButton {
-  background-color: var(--primary-color, #5b7a5e);
-  color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--primary-color);
+  color: var(--aikinote-white);
 }
 
 .primaryButton:hover:not(:disabled) {
-  background-color: var(--primary-dark, #4a6a4d);
+  background-color: var(--primary-dark);
 }
 
 .primaryButton:disabled {
-  background-color: var(--aikinote-light-gray, #b5afa6);
+  background-color: var(--aikinote-light-gray);
   cursor: not-allowed;
 }
 
 .secondaryButton {
   background-color: transparent;
-  color: var(--aikinote-black, #2c2c2c);
-  border: 0.5px solid var(--border-color, #e8e4df);
+  color: var(--aikinote-black);
+  border: 0.5px solid var(--border-color);
 }
 
 .secondaryButton:hover {
-  background-color: var(--aikinote-hover-gray, #f0ece7);
-  border-color: var(--aikinote-gray, #8b8178);
+  background-color: var(--aikinote-hover-gray);
+  border-color: var(--aikinote-gray);
 }
 
 .loginPrompt {
@@ -250,13 +229,13 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.448;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
 }
 
 .loginLink {
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   text-decoration: underline;
-  text-decoration-color: var(--aikinote-gray, #8b8178);
+  text-decoration-color: var(--aikinote-gray);
   text-underline-offset: 3px;
 }
 
@@ -274,15 +253,15 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.333;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   margin-top: 24px;
 }
 
 .startButton {
   width: 177.61px;
   height: 40px;
-  background-color: var(--primary-color, #5b7a5e);
-  color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--primary-color);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 6px;
   font-family: var(--font-zen-old-mincho);
@@ -294,7 +273,7 @@
 }
 
 .startButton:hover {
-  background-color: var(--primary-dark, #4a6a4d);
+  background-color: var(--primary-dark);
 }
 
 .otherActions {
@@ -307,8 +286,8 @@
 .googleButton {
   width: 100%;
   height: 40px;
-  background-color: var(--aikinote-white, #fdfcfa);
-  border: 0.5px solid var(--border-color, #e8e4df);
+  background-color: var(--aikinote-white);
+  border: 0.5px solid var(--border-color);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -316,14 +295,14 @@
   gap: 8px;
   font-family: var(--font-zen-old-mincho);
   font-size: 14px;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   cursor: pointer;
   transition: all 0.4s ease-out;
 }
 
 .googleButton:hover {
-  background-color: var(--aikinote-hover-gray, #f0ece7);
-  border-color: var(--aikinote-gray, #8b8178);
+  background-color: var(--aikinote-hover-gray);
+  border-color: var(--aikinote-gray);
 }
 
 .googleIcon {
@@ -343,10 +322,5 @@
 
   .secondaryButton {
     width: 74px;
-  }
-
-  .stepDots {
-    top: 64px;
-    left: 20px;
   }
 }

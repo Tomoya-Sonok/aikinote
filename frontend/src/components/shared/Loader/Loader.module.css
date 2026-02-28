@@ -9,8 +9,8 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 1.5px solid var(--border-color, #e8e4df);
-  border-top: 1.5px solid var(--primary-color, #5b7a5e);
+  border: 1.5px solid var(--border-color);
+  border-top: 1.5px solid var(--primary-color);
   border-radius: 50%;
   animation: zen-rotation 2s ease-in-out infinite;
   opacity: 0.9;
@@ -41,7 +41,7 @@
   justify-content: center;
   align-items: center;
   z-index: var(--z-modal);
-  background: var(--aikinote-bg, #f9f8f6);
+  background: var(--aikinote-bg);
 }
 
 /* テキスト付きの場合 */
@@ -53,7 +53,7 @@
 
 .text {
   font-size: var(--font-size-sm);
-  color: var(--aikinote-gray, #8b8178);
+  color: var(--aikinote-gray);
   font-family: var(--font-zen-old-mincho);
   font-weight: 400;
   letter-spacing: 0.06em;
@@ -85,14 +85,14 @@
 @media (prefers-color-scheme: dark) {
   .spinner {
     border-color: rgba(139, 129, 120, 0.3);
-    border-top-color: var(--primary-color, #5b7a5e);
+    border-top-color: var(--primary-color);
   }
 
   .text {
-    color: var(--aikinote-gray, #8b8178);
+    color: var(--aikinote-gray);
   }
 
   .centered {
-    background: var(--aikinote-bg, #f9f8f6);
+    background: var(--aikinote-bg);
   }
 }

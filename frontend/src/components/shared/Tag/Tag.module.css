@@ -15,19 +15,19 @@
 }
 
 .default {
-  background: var(--aikinote-black, #2c2c2c);
-  color: var(--aikinote-white, #fdfcfa);
+  background: var(--aikinote-black);
+  color: var(--aikinote-white);
 }
 
 .selected {
-  background: var(--primary-color, #5b7a5e);
-  color: var(--aikinote-white, #fdfcfa);
+  background: var(--primary-color);
+  color: var(--aikinote-white);
 }
 
 .selectable {
-  background: var(--aikinote-white, #fdfcfa);
-  color: var(--aikinote-black, #2c2c2c);
-  border: 0.5px solid var(--border-color, #e8e4df);
+  background: var(--aikinote-white);
+  color: var(--aikinote-black);
+  border: 0.5px solid var(--border-color);
 }
 
 .clickable {

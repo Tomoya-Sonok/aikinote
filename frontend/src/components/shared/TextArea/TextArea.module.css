@@ -8,7 +8,7 @@
 .label {
   font-size: var(--font-size-xs);
   font-weight: 400;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   line-height: 1.45;
   display: flex;
   align-items: center;
@@ -17,7 +17,7 @@
 }
 
 .required {
-  color: var(--error-color, #c15b5b);
+  color: var(--error-color);
   font-size: var(--font-size-xs);
   padding-left: 4px;
 }
@@ -27,10 +27,10 @@
   font-size: var(--font-size-xs);
   line-height: 1.6;
   padding: 10px 14px;
-  border: 0.5px solid var(--border-color, #e8e4df);
+  border: 0.5px solid var(--border-color);
   border-radius: 4px;
-  background: var(--aikinote-white, #fdfcfa);
-  color: var(--aikinote-black, #2c2c2c);
+  background: var(--aikinote-white);
+  color: var(--aikinote-black);
   outline: none;
   transition: border-color 0.4s ease-out;
   resize: vertical;
@@ -38,21 +38,21 @@
 }
 
 .textarea:focus {
-  border-color: var(--primary-color, #5b7a5e);
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 1px rgba(91, 122, 94, 0.15);
 }
 
 .textarea.error {
-  border-color: var(--error-color, #c15b5b);
+  border-color: var(--error-color);
 }
 
 .textarea.error:focus {
-  border-color: var(--error-color, #c15b5b);
+  border-color: var(--error-color);
   box-shadow: 0 0 0 1px rgba(193, 91, 91, 0.15);
 }
 
 .errorMessage {
   font-size: var(--font-size-xs);
-  color: var(--error-color, #c15b5b);
+  color: var(--error-color);
   font-family: var(--font-zen-old-mincho);
 }
