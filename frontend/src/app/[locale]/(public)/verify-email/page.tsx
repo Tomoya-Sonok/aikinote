@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { EmailVerificationForm } from "@/components/features/auth/EmailVerificationForm";
 import { Loader } from "@/components/shared/Loader";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
+import { StepDots } from "@/components/shared/StepDots";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
@@ -56,12 +57,7 @@ async function EmailVerificationContent({
                 />
               </div>
             </div>
-            <div className={styles.stepDots}>
-              <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-              <div className={styles.stepDot} />
-              <div className={styles.stepDot} />
-              <div className={styles.stepDot} />
-            </div>
+            <StepDots states={["active", "inactive", "inactive", "inactive"]} />
           </div>
           <div className={styles.loginPrompt}>
             <span className={styles.loginPromptText}>

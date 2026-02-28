@@ -39,7 +39,7 @@
   height: 40px;
   border-radius: 9999px;
   object-fit: cover;
-  border: 0.5px solid var(--border-color, #e8e4df);
+  border: 0.5px solid var(--border-color);
 }
 
 .avatarFallback {
@@ -47,7 +47,7 @@
   height: 40px;
   border-radius: 9999px;
   background: linear-gradient(135deg, #5b7a5e, #7a9a7d);
-  color: var(--aikinote-white, #fdfcfa);
+  color: var(--aikinote-white);
   font-size: var(--font-size-lg);
   font-weight: 700;
   display: flex;
@@ -65,13 +65,13 @@
 .userName {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--aikinote-black);
   line-height: 1.2;
 }
 
 .userDojoStyleName {
   font-size: var(--font-size-xs);
-  color: var(--aikinote-text-light, #8b8178);
+  color: var(--aikinote-text-light);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -85,16 +85,16 @@
   width: 40px;
   height: 40px;
   border-radius: 9999px;
-  border: 0.5px solid var(--border-color, #e8e4df);
-  background: var(--aikinote-white, #fdfcfa);
+  border: 0.5px solid var(--border-color);
+  background: var(--aikinote-white);
   transition: all 0.4s ease-out;
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(44, 44, 44, 0.04);
 }
 
 .settingsButton:hover {
-  background: var(--aikinote-hover-gray, #f0ece7);
-  border-color: var(--aikinote-gray, #8b8178);
+  background: var(--aikinote-hover-gray);
+  border-color: var(--aikinote-gray);
   box-shadow: 0 2px 8px rgba(44, 44, 44, 0.06);
 }
 
@@ -111,8 +111,8 @@
   position: absolute;
   top: calc(100% + 8px);
   transform: translateX(-40%);
-  background-color: var(--aikinote-gray, #8b8178);
-  color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--aikinote-gray);
+  color: var(--aikinote-white);
   font-size: var(--font-size-sm);
   border-radius: 6px;
   padding: 8px 14px;
@@ -133,7 +133,7 @@
   transform: translateX(-50%) rotate(45deg);
   width: 8px;
   height: 8px;
-  background-color: var(--aikinote-gray, #8b8178);
+  background-color: var(--aikinote-gray);
   border-radius: 2px 0 0 0;
   transition: all 0.4s ease-out;
 }
