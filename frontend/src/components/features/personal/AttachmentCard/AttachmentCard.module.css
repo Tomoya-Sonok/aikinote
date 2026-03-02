@@ -3,9 +3,9 @@
   position: relative;
   border-radius: 8px;
   overflow: hidden;
-  background-color: #fafafa;
+  background-color: var(--aikinote-white);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
   transition: box-shadow 0.2s ease;
 }
 
@@ -22,7 +22,7 @@
   border-radius: 50%;
   border: none;
   background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: var(--aikinote-white);
   font-size: 12px;
   cursor: pointer;
   display: flex;
@@ -39,7 +39,7 @@
 .meta {
   padding: 8px 10px;
   font-size: 11px;
-  color: #888;
+  color: var(--aikinote-text-light);
   font-family: var(--font-zen-old-mincho);
   white-space: nowrap;
   overflow: hidden;
@@ -51,7 +51,7 @@
 
 .youtubeTitle {
   font-size: 12px;
-  color: #333;
+  color: var(--aikinote-black);
   line-height: 1.4;
   padding: 6px 10px;
   font-family: var(--font-zen-old-mincho);
