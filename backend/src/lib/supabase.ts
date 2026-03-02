@@ -250,7 +250,7 @@ export const getTrainingPages = async ({
       return [];
     }
 
-    // 各ページに関連するタグを取得（N+1問題は残存）
+    // 各ページに関連するタグを取得（TODO: N+1問題は残存している、要対応）
     const pagesWithTags: { page: TrainingPageRow; tags: UserTagRow[] }[] = [];
     for (const page of pages) {
       const { data: pageTags, error: tagsError } = await supabase
@@ -788,6 +788,155 @@ export const deleteTrainingPage = async (
     }
   } catch (error) {
     console.error("TrainingPage削除エラー:", error);
+    throw error;
+  }
+};
+
+// ページ添付ファイル型定義
+export interface PageAttachmentRow {
+  id: string; // uuid PK
+  page_id: string; // uuid FK → TrainingPage
+  user_id: string; // uuid FK → User
+  type: "image" | "video" | "youtube"; // 添付タイプ
+  url: string; // CloudFront URL or YouTube URL
+  thumbnail_url: string | null; // YouTube サムネイル等
+  original_filename: string | null; // 元ファイル名
+  file_size_bytes: number | null; // ファイルサイズ（バイト）
+  sort_order: number; // 表示順
+  created_at: string; // timestamp
+}
+
+// ページ添付一覧取得関数
+export const getPageAttachments = async (
+  pageId: string,
+  userId: string,
+): Promise<PageAttachmentRow[]> => {
+  try {
+    // ページの所有者チェック
+    const { data: page, error: pageError } = await supabase
+      .from("TrainingPage")
+      .select("id")
+      .eq("id", pageId)
+      .eq("user_id", userId)
+      .single();
+
+    if (pageError || !page) {
+      throw new Error("ページが見つからないか、アクセス権限がありません");
+    }
+
+    const { data: attachments, error } = await supabase
+      .from("page_attachments")
+      .select("*")
+      .eq("page_id", pageId)
+      .eq("user_id", userId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      throw new Error(`添付ファイルの取得に失敗しました: ${error.message}`);
+    }
+
+    return attachments || [];
+  } catch (error) {
+    console.error("ページ添付取得エラー:", error);
+    throw error;
+  }
+};
+
+// ページ添付作成関数
+export const createPageAttachment = async (
+  attachmentData: Omit<PageAttachmentRow, "id" | "created_at" | "sort_order">,
+): Promise<PageAttachmentRow> => {
+  try {
+    // ページの所有者チェック
+    const { data: page, error: pageError } = await supabase
+      .from("TrainingPage")
+      .select("id")
+      .eq("id", attachmentData.page_id)
+      .eq("user_id", attachmentData.user_id)
+      .single();
+
+    if (pageError || !page) {
+      throw new Error("ページが見つからないか、添付の追加権限がありません");
+    }
+
+    // 現在の最大sort_orderを取得
+    const { data: existingAttachments } = await supabase
+      .from("page_attachments")
+      .select("sort_order")
+      .eq("page_id", attachmentData.page_id)
+      .order("sort_order", { ascending: false })
+      .limit(1);
+
+    const nextSortOrder =
+      existingAttachments && existingAttachments.length > 0
+        ? (existingAttachments[0].sort_order ?? 0) + 1
+        : 0;
+
+    const { data: newAttachment, error } = await supabase
+      .from("page_attachments")
+      .insert([
+        {
+          page_id: attachmentData.page_id,
+          user_id: attachmentData.user_id,
+          type: attachmentData.type,
+          url: attachmentData.url,
+          thumbnail_url: attachmentData.thumbnail_url,
+          original_filename: attachmentData.original_filename,
+          file_size_bytes: attachmentData.file_size_bytes,
+          sort_order: nextSortOrder,
+        },
+      ])
+      .select("*")
+      .single();
+
+    if (error) {
+      throw new Error(`添付ファイルの作成に失敗しました: ${error.message}`);
+    }
+
+    return newAttachment;
+  } catch (error) {
+    console.error("ページ添付作成エラー:", error);
+    throw error;
+  }
+};
+
+// ページ添付削除関数
+export const deletePageAttachment = async (
+  attachmentId: string,
+  userId: string,
+): Promise<PageAttachmentRow | null> => {
+  try {
+    // 添付の所有者チェック
+    const { data: attachment, error: fetchError } = await supabase
+      .from("page_attachments")
+      .select("*")
+      .eq("id", attachmentId)
+      .eq("user_id", userId)
+      .single();
+
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
+        return null; // 見つからない場合
+      }
+      throw new Error(`添付ファイル取得に失敗しました: ${fetchError.message}`);
+    }
+
+    const { error: deleteError } = await supabase
+      .from("page_attachments")
+      .delete()
+      .eq("id", attachmentId)
+      .eq("user_id", userId);
+
+    if (deleteError) {
+      throw new Error(
+        `添付ファイルの削除に失敗しました: ${deleteError.message}`,
+      );
+    }
+
+    return attachment ?? null;
+  } catch (error) {
+    console.error("ページ添付削除エラー:", error);
     throw error;
   }
 };

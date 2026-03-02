@@ -162,7 +162,108 @@ export function extractFileKeyFromUrl(s3Url: string): string | null {
 // アップロードされたファイルの公開URL生成（CloudFrontまたは公開バケットを想定）
 export function generatePublicUrl(fileKey: string): string {
   // CloudFrontドメインを使用（環境変数で設定可能）
-  const cloudFrontDomain =
-    process.env.CLOUDFRONT_DOMAIN || "d2zhlmel6ws1p9.cloudfront.net";
+  const cloudFrontDomain = process.env.CLOUDFRONT_DOMAIN;
+  if (!cloudFrontDomain) {
+    throw new Error("CLOUDFRONT_DOMAIN 環境変数が設定されていません");
+  }
   return `https://${cloudFrontDomain}/${fileKey}`;
+}
+
+// ---- ページ添付ファイル関連 ----
+
+// サポートされるメディア形式（画像 + 動画）
+const SUPPORTED_IMAGE_FORMATS = ["jpg", "jpeg", "png", "webp"] as const;
+const SUPPORTED_VIDEO_FORMATS = ["mp4", "mov", "webm"] as const;
+const SUPPORTED_MEDIA_FORMATS = [
+  ...SUPPORTED_IMAGE_FORMATS,
+  ...SUPPORTED_VIDEO_FORMATS,
+] as const;
+type SupportedMediaFormat = (typeof SUPPORTED_MEDIA_FORMATS)[number];
+
+// メディアファイル形式の検証（画像 + 動画）
+export function validateMediaType(filename: string): boolean {
+  const extension = filename.toLowerCase().split(".").pop();
+  return SUPPORTED_MEDIA_FORMATS.includes(extension as SupportedMediaFormat);
+}
+
+// ファイルが画像か動画かを判定
+export function getMediaCategory(filename: string): "image" | "video" | null {
+  const extension = filename.toLowerCase().split(".").pop();
+  if (
+    SUPPORTED_IMAGE_FORMATS.includes(
+      extension as (typeof SUPPORTED_IMAGE_FORMATS)[number],
+    )
+  ) {
+    return "image";
+  }
+  if (
+    SUPPORTED_VIDEO_FORMATS.includes(
+      extension as (typeof SUPPORTED_VIDEO_FORMATS)[number],
+    )
+  ) {
+    return "video";
+  }
+  return null;
+}
+
+// サイズ制限定数
+export const ATTACHMENT_SIZE_LIMITS = {
+  image: 5 * 1024 * 1024, // 5MB
+  video: 50 * 1024 * 1024, // 50MB
+} as const;
+
+// ページ添付ファイル用の一意なファイルキー生成
+export function generateAttachmentKey(
+  userId: string,
+  originalFilename: string,
+): string {
+  const extension = originalFilename.toLowerCase().split(".").pop();
+  const uuid = uuidv4();
+  return `users/${userId}/page-attachments/${uuid}.${extension}`;
+}
+
+// ページ添付ファイルアップロード用の署名付きURL生成
+export async function generateAttachmentUploadSignedUrl(
+  userId: string,
+  filename: string,
+  contentType: string,
+  fileSize: number,
+): Promise<{ uploadUrl: string; fileKey: string }> {
+  if (!validateMediaType(filename)) {
+    throw new Error(
+      "サポートされていないファイル形式です。jpg、jpeg、png、webp、mp4、mov、webmのみ許可されています。",
+    );
+  }
+
+  const mediaCategory = getMediaCategory(filename);
+  if (!mediaCategory) {
+    throw new Error("ファイル形式を判定できません。");
+  }
+
+  const sizeLimit = ATTACHMENT_SIZE_LIMITS[mediaCategory];
+  if (fileSize > sizeLimit) {
+    const limitMB = sizeLimit / (1024 * 1024);
+    throw new Error(`ファイルサイズが制限（${limitMB}MB）を超えています。`);
+  }
+
+  const fileKey = generateAttachmentKey(userId, filename);
+  const { bucketName } = loadAwsConfig();
+
+  const command = new PutObjectCommand({
+    Bucket: bucketName,
+    Key: fileKey,
+    ContentType: contentType,
+    Tagging: "public=true",
+    Metadata: {
+      "uploaded-by": userId,
+      "upload-type": "page-attachment",
+    },
+  });
+
+  // 15分で期限切れになる署名付きURLを生成
+  const uploadUrl = await getSignedUrl(getS3Client(), command, {
+    expiresIn: 15 * 60,
+  });
+
+  return { uploadUrl, fileKey };
 }

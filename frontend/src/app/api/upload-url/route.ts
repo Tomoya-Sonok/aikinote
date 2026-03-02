@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { generateUploadSignedUrl, validateImageType } from "@/lib/aws-s3";
+import {
+  ATTACHMENT_SIZE_LIMITS,
+  generateAttachmentUploadSignedUrl,
+  generateUploadSignedUrl,
+  validateImageType,
+  validateMediaType,
+} from "@/lib/aws-s3";
 import { getServerSupabase } from "@/lib/supabase/server";
 
-// リクエストボディのバリデーションスキーマ
-const uploadUrlSchema = z.object({
+// プロフィール画像用バリデーションスキーマ
+const profileImageSchema = z.object({
   filename: z.string().min(1, "ファイル名が必要です"),
   contentType: z
     .string()
@@ -12,14 +18,32 @@ const uploadUrlSchema = z.object({
   fileSize: z
     .number()
     .max(5 * 1024 * 1024, "ファイルサイズは5MB未満である必要があります"),
+  uploadType: z.literal("profile-image").optional().default("profile-image"),
+});
+
+// ページ添付ファイル用バリデーションスキーマ
+const pageAttachmentSchema = z.object({
+  filename: z.string().min(1, "ファイル名が必要です"),
+  contentType: z
+    .string()
+    .regex(
+      /^(image\/(jpeg|jpg|png|webp)|video\/(mp4|quicktime|webm))$/,
+      "無効なコンテンツタイプです",
+    ),
+  fileSize: z
+    .number()
+    .max(ATTACHMENT_SIZE_LIMITS.video, "ファイルサイズが制限を超えています"),
+  uploadType: z.literal("page-attachment"),
+});
+
+// リクエスト判定用スキーマ
+const uploadTypeDiscriminator = z.object({
+  uploadType: z.enum(["profile-image", "page-attachment"]).optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
-    // リクエストボディの解析と検証
     const body = await request.json();
-    const validatedData = uploadUrlSchema.parse(body);
-    const { filename, contentType, fileSize } = validatedData;
 
     // Supabaseクライアントの初期化
     const supabase = await getServerSupabase();
@@ -34,7 +58,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    // ファイル形式の検証
+    // uploadTypeに応じて処理を分岐
+    const { uploadType } = uploadTypeDiscriminator.parse(body);
+
+    if (uploadType === "page-attachment") {
+      // ---- ページ添付ファイル ----
+      const validatedData = pageAttachmentSchema.parse(body);
+      const { filename, contentType, fileSize } = validatedData;
+
+      if (!validateMediaType(filename)) {
+        return NextResponse.json(
+          {
+            error:
+              "サポートされていないファイル形式です。jpg、jpeg、png、webp、mp4、mov、webmのみ許可されています。",
+          },
+          { status: 400 },
+        );
+      }
+
+      const { uploadUrl, fileKey } = await generateAttachmentUploadSignedUrl(
+        user.id,
+        filename,
+        contentType,
+        fileSize,
+      );
+
+      return NextResponse.json({
+        uploadUrl,
+        fileKey,
+        expiresIn: 15 * 60,
+      });
+    }
+
+    // ---- プロフィール画像（デフォルト） ----
+    const validatedData = profileImageSchema.parse(body);
+    const { filename, contentType } = validatedData;
+
     if (!validateImageType(filename)) {
       return NextResponse.json(
         {
@@ -45,15 +104,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ファイルサイズの検証（5MB制限）
-    if (fileSize > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "ファイルサイズは5MB未満である必要があります" },
-        { status: 400 },
-      );
-    }
-
-    // 署名付きURLの生成
     const { uploadUrl, fileKey } = await generateUploadSignedUrl(
       user.id,
       filename,
@@ -63,7 +113,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       uploadUrl,
       fileKey,
-      expiresIn: 15 * 60, // 15分（秒単位）
+      expiresIn: 15 * 60,
     });
   } catch (error) {
     console.error("アップロードURL生成エラー:", error);
@@ -73,6 +123,10 @@ export async function POST(request: NextRequest) {
         { error: "無効なリクエストデータ", details: error.issues },
         { status: 400 },
       );
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     return NextResponse.json({ error: "サーバー内部エラー" }, { status: 500 });

@@ -129,6 +129,7 @@ export function PersonalPagesPage() {
         waza: pageToEdit.tags.filter((tag) =>
           availableTags.find((t) => t.name === tag && t.category === "技"),
         ),
+        attachments: [],
       };
       openEditModal(editData);
     }

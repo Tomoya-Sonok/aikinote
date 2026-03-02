@@ -24,7 +24,7 @@
 }
 
 .toast.success {
-  background-color: var(--primary-color);
+  background-color: var(--success-color);
 }
 
 .toast.error {
