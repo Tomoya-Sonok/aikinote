@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
+import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import {
   type PageEditData,
   PageEditModal,
@@ -37,6 +39,7 @@ export function PageDetailPage() {
   const [availableTags, setAvailableTags] = useState<ApiTag[]>([]);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeletingPage, setDeletingPage] = useState(false);
+  const [attachments, setAttachments] = useState<AttachmentData[]>([]);
   const router = useRouter();
   const params = useParams();
   const { user, loading: authLoading } = useAuth();
@@ -61,6 +64,21 @@ export function PageDetailPage() {
               tags: response.data.tags.map((tag) => tag.name),
             };
             setPageData(convertedData);
+
+            // 添付一覧を取得
+            try {
+              const attachRes = await fetch(
+                `/api/page-attachments?page_id=${pageId}`,
+              );
+              if (attachRes.ok) {
+                const attachJson = await attachRes.json();
+                if (attachJson.success && attachJson.data) {
+                  setAttachments(attachJson.data);
+                }
+              }
+            } catch (attachErr) {
+              console.warn("添付一覧の取得に失敗:", attachErr);
+            }
           } else {
             setPageData(null);
           }
@@ -120,6 +138,25 @@ export function PageDetailPage() {
           tags: response.data.tags.map((tag) => tag.name),
         };
         setPageData(convertedData);
+
+        // 添付一覧を再取得（PageEditModalでの追加/削除を反映）
+        // モーダル側の添付保存処理が完了するのを少し待つ
+        setTimeout(async () => {
+          try {
+            const attachRes = await fetch(
+              `/api/page-attachments?page_id=${pageId}`,
+            );
+            if (attachRes.ok) {
+              const attachJson = await attachRes.json();
+              if (attachJson.success && attachJson.data) {
+                setAttachments(attachJson.data);
+              }
+            }
+          } catch (attachErr) {
+            console.warn("添付一覧の再取得に失敗:", attachErr);
+          }
+        }, 500);
+
         setPageEditModalOpen(false);
       } else {
         console.error(
@@ -229,6 +266,7 @@ export function PageDetailPage() {
         waza: pageData.tags.filter((tag) =>
           availableTags.find((t) => t.name === tag && t.category === "技"),
         ),
+        attachments,
       }
     : null;
 
@@ -260,6 +298,25 @@ export function PageDetailPage() {
             <h2 className={styles.sectionTitle}>{t("pageDetail.comment")}</h2>
             <div className={styles.divider} />
             <div className={styles.content}>{comments}</div>
+          </div>
+        )}
+
+        {/* 添付ファイルセクション */}
+        {attachments.length > 0 && (
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>
+              {t("pageModal.attachments.title")}
+            </h2>
+            <div className={styles.divider} />
+            <div className={styles.attachmentsList}>
+              {attachments.map((attachment) => (
+                <AttachmentCard
+                  key={attachment.id}
+                  attachment={attachment}
+                  showDeleteButton={false}
+                />
+              ))}
+            </div>
           </div>
         )}
 

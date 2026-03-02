@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
+import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
 import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
 interface PageCreateModalProps {
@@ -15,6 +16,7 @@ export interface PageCreateData {
   waza: string[];
   content: string;
   comment: string;
+  attachments: AttachmentData[];
 }
 
 export const PageCreateModal: FC<PageCreateModalProps> = ({
@@ -31,6 +33,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
       waza: formData.waza,
       content: formData.content,
       comment: formData.comment,
+      attachments: formData.attachments,
     });
   };
 

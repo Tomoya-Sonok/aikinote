@@ -1,0 +1,138 @@
+/* 添付アップロードコンポーネント */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #555;
+  font-family: var(--font-zen-old-mincho);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fileButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  background-color: #fafafa;
+  color: #666;
+  font-size: 12px;
+  font-family: var(--font-zen-old-mincho);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fileButton:hover {
+  border-color: #999;
+  background-color: #f0f0f0;
+}
+
+.fileButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+/* YouTube URL入力 */
+.youtubeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.youtubeInputRow {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.youtubeInput {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-zen-old-mincho);
+  height: 32px;
+}
+
+.youtubeInput:focus {
+  outline: none;
+  border-color: #999;
+}
+
+.youtubeInput::placeholder {
+  color: var(--aikinote-text-light);
+}
+
+.youtubeLoading {
+  font-size: 11px;
+  color: var(--aikinote-text-light);
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+/* プログレスバー */
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progressInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--aikinote-text-light);
+  font-family: var(--font-zen-old-mincho);
+}
+
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  background-color: #e8e8e8;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #a0a0a0, #6a6a6a);
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+/* 添付一覧 */
+.attachmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.errorText {
+  font-size: 11px;
+  color: var(--error-color);
+  font-family: var(--font-zen-old-mincho);
+}
+
+.note {
+  font-size: 10px;
+  color: var(--aikinote-text-light);
+  font-family: var(--font-zen-old-mincho);
+}

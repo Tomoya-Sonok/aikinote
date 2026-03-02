@@ -39,6 +39,17 @@ const testMessages = {
     initialTagsCreated: "初期タグを作成しました",
     initialTagsCreateFailed: "初期タグの作成に失敗しました",
     unknownError: "不明なエラー",
+    attachments: {
+      title: "添付ファイル",
+      addFile: "画像・動画を追加",
+      youtubeUrlPlaceholder: "YouTube URLを貼り付け",
+      uploading: "アップロード中...",
+      uploadFailed: "アップロードに失敗しました",
+      deleteConfirm: "この添付ファイルを削除しますか？",
+      fileTooLarge: "ファイルサイズが制限を超えています",
+      unsupportedFormat: "サポートされていないファイル形式です",
+      note: "画像: JPG/PNG/WebP（最大5MB）、動画: MP4/MOV/WebM（最大50MB）",
+    },
   },
   common: {
     save: "保存",

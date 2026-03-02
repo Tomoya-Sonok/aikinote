@@ -15,6 +15,8 @@ import {
   initializeUserTags,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
+import { AttachmentUpload } from "../AttachmentUpload/AttachmentUpload";
 import styles from "./PageModal.module.css";
 
 export interface PageFormData {
@@ -25,6 +27,7 @@ export interface PageFormData {
   waza: string[];
   content: string;
   comment: string;
+  attachments: AttachmentData[];
 }
 
 interface PageModalProps {
@@ -45,6 +48,7 @@ const defaultFormData: PageFormData = {
   waza: [],
   content: "",
   comment: "",
+  attachments: [],
 };
 
 export const PageModal: FC<PageModalProps> = ({
@@ -505,6 +509,36 @@ export const PageModal: FC<PageModalProps> = ({
               }}
               rows={3}
               error={errors.comment}
+            />
+          </div>
+
+          <div className={styles.section}>
+            <AttachmentUpload
+              attachments={formData.attachments}
+              onAttachmentAdd={(attachment) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  attachments: [...prev.attachments, attachment],
+                }));
+              }}
+              onAttachmentDelete={async (id) => {
+                // UIから即座に削除
+                setFormData((prev) => ({
+                  ...prev,
+                  attachments: prev.attachments.filter((a) => a.id !== id),
+                }));
+
+                // DB保存済みの添付（temp-で始まらないID）はAPIで削除
+                if (!id.startsWith("temp-")) {
+                  try {
+                    await fetch(`/api/page-attachments?id=${id}`, {
+                      method: "DELETE",
+                    });
+                  } catch (err) {
+                    console.warn("添付の削除に失敗:", err);
+                  }
+                }
+              }}
             />
           </div>
         </div>

@@ -94,6 +94,12 @@
   word-break: break-word;
 }
 
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .buttonsContainer {
   display: flex;
   gap: 8px;

@@ -224,7 +224,18 @@
     "tagsFetchFailed": "Failed to fetch tags",
     "initialTagsCreated": "Initial tags created",
     "initialTagsCreateFailed": "Failed to create initial tags",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "attachments": {
+      "title": "Attachments",
+      "addFile": "Add image/video",
+      "youtubeUrlPlaceholder": "Paste YouTube URL",
+      "uploading": "Uploading...",
+      "uploadFailed": "Upload failed",
+      "deleteConfirm": "Delete this attachment?",
+      "fileTooLarge": "File size exceeds the limit",
+      "unsupportedFormat": "Unsupported file format",
+      "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 50MB)"
+    }
   },
   "navigation": {
     "settings": "Settings",
