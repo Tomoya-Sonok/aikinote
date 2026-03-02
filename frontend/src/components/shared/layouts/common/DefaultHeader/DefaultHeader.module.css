@@ -46,7 +46,7 @@
   width: 40px;
   height: 40px;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #5b7a5e, #7a9a7d);
+  background: var(--aikinote-light-gray);
   color: var(--aikinote-white);
   font-size: var(--font-size-lg);
   font-weight: 700;

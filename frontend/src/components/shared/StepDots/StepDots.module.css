@@ -2,7 +2,7 @@
   display: flex;
   justify-content: space-between;
   position: absolute;
-  top: 60px;
+  top: 56px;
   left: 18px;
   right: 18px;
 }
@@ -20,7 +20,7 @@
 
 @media (min-width: 768px) {
   .stepDots {
-    top: 68px;
+    top: 64px;
     left: 30px;
     right: 28px;
   }
