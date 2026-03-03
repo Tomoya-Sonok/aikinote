@@ -10,8 +10,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  pages: write
-  id-token: write
 
 jobs:
   screenshot-actual:
@@ -184,9 +182,6 @@ jobs:
     name: スクリーンショット比較
     needs: [screenshot-actual, screenshot-expected]
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: actual スクリーンショットのダウンロード
         uses: actions/download-artifact@v4
@@ -243,18 +238,6 @@ jobs:
           path: diff
           retention-days: 30
 
-      - name: GitHub Pages の設定
-        uses: actions/configure-pages@v4
-
-      - name: 差分レポートを GitHub Pages にアップロード
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: diff
-
-      - name: GitHub Pages にデプロイ
-        id: deployment
-        uses: actions/deploy-pages@v4
-
       - name: PR にコメント
         uses: actions/github-script@v7
         if: always()
@@ -265,7 +248,8 @@ jobs:
             const deleted = '${{ steps.summary.outputs.deleted }}';
             const passed = '${{ steps.summary.outputs.passed }}';
             const hasDiff = Number(changed) > 0 || Number(newItems) > 0 || Number(deleted) > 0;
-            const reportUrl = '${{ steps.deployment.outputs.page_url }}';
+
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
             let body;
             if (hasDiff) {
@@ -281,9 +265,7 @@ jobs:
                 '',
                 '> UI に差分が検出されました。意図した変更かどうか確認してください。',
                 '',
-                reportUrl && reportUrl !== ''
-                  ? `📊 **[VRT レポートを確認する](${reportUrl})**`
-                  : '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
+                `📊 **[VRT レポートを確認する](${runUrl})**（Artifacts の \`vrt-report\` をダウンロード → \`index.html\` をブラウザで開く）`,
               ].join('\n');
             } else {
               body = '## ✨ UI差分はありませんでした！';
@@ -296,7 +278,7 @@ jobs:
               issue_number: context.issue.number,
             });
             const existing = comments.find(c =>
-              c.body?.includes('Visual Regression Test')
+              c.body?.includes('Visual Regression Test') || c.body?.includes('UI差分はありませんでした')
             );
 
             if (existing) {
