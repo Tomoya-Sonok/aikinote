@@ -205,7 +205,7 @@
     "uke": "Uke",
     "waza": "Technique",
     "content": "Training Content",
-    "comment": "Comments (additional notes, video URLs, etc.)",
+    "comment": "Comments",
     "required": "required",
     "titleRequired": "Title is required",
     "contentRequired": "Training content is required",

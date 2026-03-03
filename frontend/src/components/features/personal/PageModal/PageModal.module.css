@@ -181,3 +181,21 @@
     padding: 16px 42px 32px;
   }
 }
+
+@media (min-width: 768px) {
+  .modal {
+    width: 600px;
+    max-width: calc(100vw - 36px);
+    height: 726px;
+    max-height: calc(100vh - 134px);
+  }
+
+  .header,
+  .content {
+    padding: 24px 42px;
+  }
+
+  .footer {
+    padding: 16px 42px 32px;
+  }
+}

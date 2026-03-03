@@ -74,8 +74,8 @@
 }
 
 .deleteButton {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   background: #f3f4f6;
   border-radius: 8px;
   display: flex;
