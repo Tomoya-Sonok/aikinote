@@ -47,20 +47,20 @@ const getAllowedOrigins = (
 ): string[] => {
   const origins = new Set<string>();
 
-  defaultAllowedOrigins.forEach((o) => {
+  for (const o of defaultAllowedOrigins) {
     origins.add(normalizeOrigin(o));
-  });
+  }
 
   const envOrigins = [
     c.env?.NEXT_PUBLIC_APP_URL,
     getProcessEnv("NEXT_PUBLIC_APP_URL"),
   ];
 
-  envOrigins
-    .filter((o): o is string => Boolean(o))
-    .forEach((o) => {
+  for (const o of envOrigins) {
+    if (o) {
       origins.add(normalizeOrigin(o));
-    });
+    }
+  }
 
   return Array.from(origins);
 };

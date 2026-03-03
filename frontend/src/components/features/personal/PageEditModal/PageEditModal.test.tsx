@@ -83,7 +83,7 @@ const testInitialData = {
   tori: ["投げ"],
   uke: ["受け身"],
   waza: ["技名"],
-  content: "既存の本文",
+  content: "既存の内容",
   comment: "既存のコメント",
   attachments: [],
 };
@@ -208,7 +208,7 @@ describe("PageEditModal", () => {
       tori: ["投げ"],
       uke: ["受け身"],
       waza: ["技名"],
-      content: "既存の本文",
+      content: "既存の内容",
       comment: "既存のコメント",
       user_id: "test-user-123",
     });

@@ -361,7 +361,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 }}
               >
                 <PhosphorTrashIcon
-                  size={16}
+                  size={24}
                   weight="light"
                   color="var(--aikinote-black)"
                 />

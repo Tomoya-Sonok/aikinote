@@ -110,7 +110,7 @@
 }
 
 .backButton {
-  background-color: #c9c9c9;
+  background-color: var(--secondary-color);
   color: #000000;
   border: none;
   border-radius: 24px;

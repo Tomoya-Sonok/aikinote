@@ -108,11 +108,13 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
               ))}
             </ul>
           </nav>
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: Stop propagation for drawer layout */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: Stop propagation for drawer layout */}
           <div
             className={styles.menuDrawerFooter}
             onClick={(event) => {
+              event.stopPropagation();
+            }}
+            onKeyDown={(event) => {
               event.stopPropagation();
             }}
           >

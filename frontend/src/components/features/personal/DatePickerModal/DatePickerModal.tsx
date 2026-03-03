@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import styles from "./DatePickerModal.module.css";
 
 interface DatePickerModalProps {
@@ -217,7 +218,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
     return days;
   };
 
-  return (
+  return createPortal(
     <div
       className={styles.overlay}
       onClick={handleOverlayClick}
@@ -292,6 +293,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

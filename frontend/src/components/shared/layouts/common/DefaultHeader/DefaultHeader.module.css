@@ -116,7 +116,7 @@
   font-size: var(--font-size-sm);
   border-radius: 6px;
   padding: 8px 14px;
-  z-index: calc(var(--z-header) + 1);
+  z-index: var(--z-header-dropdown);
   cursor: pointer;
   white-space: nowrap;
   text-align: center;

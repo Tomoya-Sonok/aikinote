@@ -2,7 +2,7 @@
   /* プライマリ・セマンティックカラー（伝統色） */
   --primary-color: #838383;
   --primary-dark: #6d6d6d;
-  --secondary-color: #8b8178;
+  --secondary-color: #c9c9c9;
   --accent-color: #c4956a;
   --success-color: #2e7d32;
   --error-color: #f12b2b;
@@ -35,13 +35,16 @@
 
   /* ── z-index レイヤー管理 ── */
   /* グローバルな重なり順：値が大きいほど前面 */
-  --z-fab: 1; /* FloatingActionButton, ScrollIndicator */
-  --z-tab: 1; /* TabNavigation（FABと同レイヤー） */
-  --z-header: 2; /* DefaultHeader, LP Header */
-  --z-drawer: 3; /* NavigationDrawer, LandingMenuDrawer */
-  --z-modal: 4; /* モーダル系（PageModal, DatePicker, TagFilter, PageCreate, PageEdit, Loader） */
-  --z-confirm: 4; /* ConfirmDialog（モーダルと同レイヤー） */
-  --z-toast: 5; /* Toast 通知（最前面） */
+  /* 10の倍数で間隔を確保 → ローカルスタッキングコンテキストとの衝突を防止 */
+  --z-fab: 10; /* FloatingActionButton, ScrollIndicator */
+  --z-tab: 10; /* TabNavigation（FABと同レイヤー） */
+  --z-header: 20; /* DefaultHeader, LP Header */
+  --z-header-dropdown: 30; /* ヘッダー内ドロップダウン・ツールチップ */
+  --z-drawer: 30; /* NavigationDrawer オーバーレイ, LandingMenuDrawer */
+  --z-drawer-panel: 31; /* NavigationDrawer パネル本体（オーバーレイより前面） */
+  --z-modal: 40; /* モーダル系（PageModal, DatePicker, TagFilter, PageCreate, PageEdit, Loader） */
+  --z-confirm: 40; /* ConfirmDialog（モーダルと同レイヤー） */
+  --z-toast: 50; /* Toast 通知（最前面） */
 
   /* スケーリング対応のタイポグラフィ */
   --font-size-xs: calc(var(--current-font-size) * 0.75);
