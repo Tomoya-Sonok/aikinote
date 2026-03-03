@@ -9,7 +9,7 @@
     "start": "next start -H 0.0.0.0",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:ci": "vitest run --coverage",
+    "test:ci": "vitest run --silent",
     "check": "biome check .",
     "check:fix": "biome check . --write",
     "sb": "storybook dev -p 6006",

@@ -12,7 +12,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:watch": "vitest --watch",
-    "test:ci": "vitest run --coverage",
+    "test:ci": "vitest run --silent",
     "check": "biome check .",
     "check:fix": "biome check . --write"
   },
