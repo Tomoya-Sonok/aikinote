@@ -449,7 +449,7 @@ describe("ページ一覧画面", () => {
         page: {
           id: `page${startIndex + i}`,
           title: `稽古ページ${startIndex + i}`,
-          content: "本文",
+          content: "内容",
           comment: "",
           user_id: "test-user-id",
           created_at: "2023-01-01T00:00:00.000Z",
@@ -608,7 +608,7 @@ describe("ページ一覧画面", () => {
         page: {
           id: `page${i + 1}`,
           title: `稽古ページ${i + 1}`,
-          content: "本文",
+          content: "内容",
           comment: "",
           user_id: "test-user-id",
           created_at: "2023-01-01T00:00:00.000Z",
@@ -659,7 +659,7 @@ describe("ページ一覧画面", () => {
         page: {
           id: `page${i + 1}`,
           title: `稽古ページ${i + 1}`,
-          content: "本文",
+          content: "内容",
           comment: "",
           user_id: "test-user-id",
           created_at: "2023-01-01T00:00:00.000Z",

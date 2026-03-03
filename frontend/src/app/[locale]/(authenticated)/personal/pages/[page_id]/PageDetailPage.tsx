@@ -285,7 +285,7 @@ export function PageDetailPage() {
           </div>
         </div>
 
-        {/* 本文セクション */}
+        {/* 内容セクション */}
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("pageDetail.content")}</h2>
           <div className={styles.divider} />
