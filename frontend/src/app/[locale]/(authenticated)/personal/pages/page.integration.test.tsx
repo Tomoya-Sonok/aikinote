@@ -38,6 +38,13 @@ vi.mock("next/navigation", () => ({
 // API クライアントをモック
 vi.mock("@/lib/api/client");
 
+// ToastContext をモック
+vi.mock("@/contexts/ToastContext", () => ({
+  useToast: () => ({
+    showToast: vi.fn(),
+  }),
+}));
+
 // TabNavigation をモック
 vi.mock("@/components/shared/TabNavigation/TabNavigation", () => ({
   TabNavigation: () => <div data-testid="tab-navigation" />,

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC, KeyboardEvent } from "react";
 import { Button } from "@/components/shared/Button/Button";
@@ -41,7 +41,7 @@ export const TrainingCard: FC<TrainingCardProps> = ({
     }
   };
 
-  const handleCardKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+  const handleCardKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       onClick?.();
@@ -54,22 +54,28 @@ export const TrainingCard: FC<TrainingCardProps> = ({
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.actions}>
           {onEdit && (
-            <Button variant="icon" onClick={handleEdit}>
-              <Image
-                src="/icons/edit-icon.svg"
-                alt={t("trainingCard.edit")}
-                width={13}
-                height={13}
+            <Button
+              variant="icon"
+              onClick={handleEdit}
+              className={styles.actionButton}
+            >
+              <PencilSimpleIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
               />
             </Button>
           )}
           {onDelete && (
-            <Button variant="icon" onClick={handleDelete}>
-              <Image
-                src="/icons/trash-icon.svg"
-                alt={t("trainingCard.delete")}
-                width={13}
-                height={15}
+            <Button
+              variant="icon"
+              onClick={handleDelete}
+              className={styles.actionButton}
+            >
+              <TrashIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
               />
             </Button>
           )}
@@ -91,14 +97,16 @@ export const TrainingCard: FC<TrainingCardProps> = ({
 
   if (onClick) {
     return (
-      <button
-        type="button"
+      // biome-ignore lint/a11y/useSemanticElements: Cannot use <button> due to nested interactive elements
+      <div
         className={`${styles.card} ${styles.clickable}`}
         onClick={handleCardClick}
         onKeyDown={handleCardKeyDown}
+        role="button"
+        tabIndex={0}
       >
         {cardContent}
-      </button>
+      </div>
     );
   }
 

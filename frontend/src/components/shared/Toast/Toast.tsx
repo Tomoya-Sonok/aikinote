@@ -2,6 +2,7 @@
 
 import type { FC } from "react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import styles from "./Toast.module.css";
 
 interface ToastProps {
@@ -9,6 +10,7 @@ interface ToastProps {
   type?: "success" | "error" | "info";
   duration?: number;
   onClose: () => void;
+  className?: string;
 }
 
 export const Toast: FC<ToastProps> = ({
@@ -16,6 +18,7 @@ export const Toast: FC<ToastProps> = ({
   type = "info",
   duration = 3000,
   onClose,
+  className = "",
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -29,11 +32,16 @@ export const Toast: FC<ToastProps> = ({
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      className={`${styles.toast} ${styles[type]} ${isVisible ? styles.visible : ""}`}
+      className={`${styles.toast} ${styles[type]} ${
+        isVisible ? styles.visible : ""
+      } ${className}`}
     >
       {message}
-    </div>
+    </div>,
+    document.body,
   );
 };

@@ -1,11 +1,14 @@
 .container {
   background: white;
   border-radius: 24px;
-  padding: 32px 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  min-height: 100%;
+}
+
+.headerSection {
+  padding: 32px 24px 24px;
 }
 
 .title {
@@ -23,30 +26,33 @@
 .settingArea {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  flex: 1;
 }
 
 /* プレビューエリア */
 .preview {
-  padding: 16px;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  background: var(--aikinote-white);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  padding: 0 24px 24px;
+  flex: 1; /* allow pushing sticky component */
 }
 
-.previewText {
-  margin-bottom: 16px;
-  line-height: 1.7;
-  color: var(--aikinote-black);
-  font-size: var(--current-font-size);
+/* sticky container */
+.stickyBottom {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 24px;
+  border-top: 1px solid var(--border-color);
+  border-radius: 0 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  z-index: 10;
+  margin-top: auto;
 }
 
 /* スライダーコンテナ */
 .sliderContainer {
   position: relative;
-  padding: 24px 0;
 }
 
 /* Radix UI Slider スタイル */
@@ -142,7 +148,6 @@
 .actions {
   display: flex;
   justify-content: center;
-  margin-top: 16px;
 }
 
 /* レスポンシブ対応 */
@@ -152,11 +157,15 @@
   }
 
   .preview {
-    padding: 24px;
+    padding: 0 32px 32px;
   }
 
-  .sliderContainer {
-    padding: 0;
+  .headerSection {
+    padding: 32px 32px 24px;
+  }
+
+  .stickyBottom {
+    padding: 32px;
   }
 }
 

@@ -79,27 +79,6 @@
   width: 100%;
 }
 
-/* ステップドット */
-.stepDots {
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  top: 56px;
-  left: 18px;
-  right: 18px;
-}
-
-.stepDot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #838383;
-}
-
-.stepDotInactive {
-  background-color: #efecec;
-}
-
 /* ローディング状態 */
 .loadingSpinner {
   width: 48px;
@@ -305,10 +284,5 @@
 
   .button {
     max-width: 280px;
-  }
-
-  .stepDots {
-    top: 64px;
-    left: 20px;
   }
 }

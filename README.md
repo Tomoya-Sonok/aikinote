@@ -64,7 +64,7 @@
 | Category     | Technology Stack                                                                                                                                                                                                                                                                                                                                |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Frontend** | Next.js 14 (App Router) / React 18 / TypeScript / CSS Modules / next-intl / React Hook Form / Zustand |
-| **Backend**  | Hono (Node.js 20) / TypeScript / Zod / JSON Web Token / Supabase JavaScript SDK |
+| **Backend**  | Hono (Node.js 22) / TypeScript / Zod / JSON Web Token / Supabase JavaScript SDK |
 | **Database & Auth** | Supabase (PostgreSQL, Auth, Row Level Security) |
 | **Storage & Messaging** | Amazon S3 / CloudFront / Resend |
 | **Infrastructure** | Vercel (Frontend) / Cloudflare Workers (Backend) / Cloudflare DNS |
@@ -74,7 +74,7 @@
 
 ### 0. Prerequisites
 
-- **Node.js** 20.11.1
+- **Node.js** 22.22.0
 - **pnpm** 8.15.4
 - **Docker** and **Docker Compose**
 - **Supabase account** 

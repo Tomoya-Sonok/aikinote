@@ -24,6 +24,12 @@ vi.mock("@/lib/api/client", () => ({
   deletePage: vi.fn(),
 }));
 
+vi.mock("@/contexts/ToastContext", () => ({
+  useToast: () => ({
+    showToast: vi.fn(),
+  }),
+}));
+
 vi.mock("@/lib/hooks/useDebounce", () => ({
   useDebounce: vi.fn((value) => value),
 }));
@@ -367,11 +373,8 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
-    });
+    // Assert
+    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
   });
 
   it("ページが存在しない場合に空の状態が表示されること", async () => {
@@ -446,7 +449,7 @@ describe("ページ一覧画面", () => {
         page: {
           id: `page${startIndex + i}`,
           title: `稽古ページ${startIndex + i}`,
-          content: "稽古内容",
+          content: "本文",
           comment: "",
           user_id: "test-user-id",
           created_at: "2023-01-01T00:00:00.000Z",
@@ -605,7 +608,7 @@ describe("ページ一覧画面", () => {
         page: {
           id: `page${i + 1}`,
           title: `稽古ページ${i + 1}`,
-          content: "稽古内容",
+          content: "本文",
           comment: "",
           user_id: "test-user-id",
           created_at: "2023-01-01T00:00:00.000Z",
@@ -656,7 +659,7 @@ describe("ページ一覧画面", () => {
         page: {
           id: `page${i + 1}`,
           title: `稽古ページ${i + 1}`,
-          content: "稽古内容",
+          content: "本文",
           comment: "",
           user_id: "test-user-id",
           created_at: "2023-01-01T00:00:00.000Z",

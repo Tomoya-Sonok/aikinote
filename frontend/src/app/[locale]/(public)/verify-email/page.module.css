@@ -89,27 +89,6 @@
   width: 100%;
 }
 
-/* ステップドット */
-.stepDots {
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  top: 56px;
-  left: 18px;
-  right: 18px;
-}
-
-.stepDot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #efecec;
-}
-
-.stepDotActive {
-  background-color: #838383;
-}
-
 .contentsWrapper {
   display: flex;
   flex-direction: column;
@@ -269,10 +248,5 @@
 
   .secondaryButton {
     width: 74px;
-  }
-
-  .stepDots {
-    top: 64px;
-    left: 20px;
   }
 }

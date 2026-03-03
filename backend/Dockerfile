@@ -1,5 +1,5 @@
 # Development stage
-FROM node:20.11.1-alpine AS development
+FROM node:22.22.0-alpine AS development
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY . .
 CMD ["pnpm", "run", "dev:docker"]
 
 # Production stage
-FROM node:20.11.1-alpine AS production
+FROM node:22.22.0-alpine AS production
 
 WORKDIR /app
 

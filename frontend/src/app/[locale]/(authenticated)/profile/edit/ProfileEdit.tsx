@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  ImagesSquareIcon,
+  PencilSimpleIcon,
+  TrashIcon as PhosphorTrashIcon,
+  UserCircleIcon,
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -15,12 +21,11 @@ import {
 import { ZodError } from "zod";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { Button } from "@/components/shared/Button/Button";
-import { EditIcon } from "@/components/shared/icons/EditIcon";
-import { TrashIcon } from "@/components/shared/icons/TrashIcon";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import { getUserProfile, updateUserProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { compressImage } from "@/lib/utils/compressImage";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
 
@@ -73,14 +78,9 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
       if (!result.success) {
         throw new Error(result.error || t("profileEdit.communicationFailed"));
       }
-      console.log("✅ [DEBUG] ProfileEdit: プロフィール更新成功:", result);
 
       // ユーザー情報を再取得してセッションを更新
-      console.log("🔄 [DEBUG] ProfileEdit: refreshUser()を呼び出し開始");
-      const refreshedUser = await refreshUser();
-      console.log("🔄 [DEBUG] ProfileEdit: refreshUser()完了", {
-        refreshedUser,
-      });
+      await refreshUser();
 
       showToast(t("profileEdit.updateSuccess"), "success");
 
@@ -241,12 +241,24 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
       }
     };
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setProfileImageFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+      try {
+        // 画像をリサイズ・圧縮してからセット
+        const compressedFile = await compressImage(file, {
+          maxWidth: 512,
+          maxHeight: 512,
+          quality: 0.85,
+          outputType: "image/jpeg",
+          maxFileSize: 1024 * 1024, // 1MB
+        });
+        setProfileImageFile(compressedFile);
+        const url = URL.createObjectURL(compressedFile);
+        setPreviewUrl(url);
+      } catch {
+        showToast(t("profileEdit.communicationFailed"), "error");
+      }
     }
   };
 
@@ -297,10 +309,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   unoptimized
                 />
               ) : (
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="#9ca3af">
-                  <title>{t("profileEdit.profileImageAlt")}</title>
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
+                <UserCircleIcon
+                  size={48}
+                  weight="light"
+                  color="var(--aikinote-black)"
+                />
               )}
             </div>
             <div className={styles.editIcon}>
@@ -310,7 +323,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 onChange={handleImageChange}
                 className={styles.fileInput}
               />
-              <EditIcon size={16} color="#6b7280" />
+              <ImagesSquareIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
+              />
             </div>
           </label>
           <div className={styles.imageUpload}>
@@ -343,7 +360,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   cursor: profileImageFile ? "pointer" : "not-allowed",
                 }}
               >
-                <TrashIcon size={16} color="#6b7280" />
+                <PhosphorTrashIcon
+                  size={16}
+                  weight="light"
+                  color="var(--aikinote-black)"
+                />
               </button>
             </div>
           </div>

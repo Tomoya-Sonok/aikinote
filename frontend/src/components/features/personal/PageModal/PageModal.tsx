@@ -15,6 +15,8 @@ import {
   initializeUserTags,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
+import { AttachmentUpload } from "../AttachmentUpload/AttachmentUpload";
 import styles from "./PageModal.module.css";
 
 export interface PageFormData {
@@ -25,6 +27,7 @@ export interface PageFormData {
   waza: string[];
   content: string;
   comment: string;
+  attachments: AttachmentData[];
 }
 
 interface PageModalProps {
@@ -35,6 +38,7 @@ interface PageModalProps {
   modalTitle: string;
   actionButtonText: string;
   shouldCreateInitialTags?: boolean;
+  autoFocusTitle?: boolean;
 }
 
 const defaultFormData: PageFormData = {
@@ -44,6 +48,7 @@ const defaultFormData: PageFormData = {
   waza: [],
   content: "",
   comment: "",
+  attachments: [],
 };
 
 export const PageModal: FC<PageModalProps> = ({
@@ -54,6 +59,7 @@ export const PageModal: FC<PageModalProps> = ({
   modalTitle,
   actionButtonText,
   shouldCreateInitialTags = false,
+  autoFocusTitle = false,
 }) => {
   const t = useTranslations();
   const { showToast } = useToast();
@@ -161,9 +167,9 @@ export const PageModal: FC<PageModalProps> = ({
     fetchTags();
   }, [fetchTags]);
 
-  // モーダルが開いた時にタイトルフィールドにフォーカス
+  // モーダルが開いた時にタイトルフィールドにフォーカス（PageCreateModalのみ）
   useEffect(() => {
-    if (isOpen && titleInputRef.current) {
+    if (autoFocusTitle && isOpen && titleInputRef.current) {
       // 少し遅延を設けてモーダルの表示が完了してからフォーカス
       const timeoutId = setTimeout(() => {
         titleInputRef.current?.focus();
@@ -171,7 +177,7 @@ export const PageModal: FC<PageModalProps> = ({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [isOpen]);
+  }, [autoFocusTitle, isOpen]);
 
   // タグをカテゴリ別に分類
   useEffect(() => {
@@ -246,11 +252,6 @@ export const PageModal: FC<PageModalProps> = ({
       return;
     }
 
-    console.log("Submitting tag:", {
-      name: trimmedInput,
-      category: mappedCategory,
-    });
-
     handleCreateTag({
       name: trimmedInput,
       category: mappedCategory,
@@ -268,10 +269,18 @@ export const PageModal: FC<PageModalProps> = ({
 
     if (!formData.title.trim()) {
       newErrors.title = t("pageModal.titleRequired");
+    } else if (formData.title.length > 35) {
+      newErrors.title = t("pageModal.titleTooLong");
     }
 
     if (!formData.content.trim()) {
       newErrors.content = t("pageModal.contentRequired");
+    } else if (formData.content.length > 3000) {
+      newErrors.content = t("pageModal.contentTooLong");
+    }
+
+    if (formData.comment.length > 1000) {
+      newErrors.comment = t("pageModal.commentTooLong");
     }
 
     setErrors(newErrors);
@@ -321,9 +330,22 @@ export const PageModal: FC<PageModalProps> = ({
               label={t("pageModal.title")}
               required
               value={formData.title}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, title: e.target.value }))
-              }
+              onChange={(e) => {
+                const newTitle = e.target.value;
+                setFormData((prev) => ({ ...prev, title: newTitle }));
+                if (newTitle.length > 35) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    title: t("pageModal.titleTooLong"),
+                  }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.title;
+                    return newErrors;
+                  });
+                }
+              }}
               error={errors.title}
             />
           </div>
@@ -444,9 +466,22 @@ export const PageModal: FC<PageModalProps> = ({
               label={t("pageModal.content")}
               required
               value={formData.content}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, content: e.target.value }))
-              }
+              onChange={(e) => {
+                const newContent = e.target.value;
+                setFormData((prev) => ({ ...prev, content: newContent }));
+                if (newContent.length > 3000) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    content: t("pageModal.contentTooLong"),
+                  }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.content;
+                    return newErrors;
+                  });
+                }
+              }}
               error={errors.content}
               rows={5}
             />
@@ -456,10 +491,54 @@ export const PageModal: FC<PageModalProps> = ({
             <TextArea
               label={t("pageModal.comment")}
               value={formData.comment}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, comment: e.target.value }))
-              }
+              onChange={(e) => {
+                const newComment = e.target.value;
+                setFormData((prev) => ({ ...prev, comment: newComment }));
+                if (newComment.length > 1000) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    comment: t("pageModal.commentTooLong"),
+                  }));
+                } else {
+                  setErrors((prev) => {
+                    const newErrors = { ...prev };
+                    delete newErrors.comment;
+                    return newErrors;
+                  });
+                }
+              }}
               rows={3}
+              error={errors.comment}
+            />
+          </div>
+
+          <div className={styles.section}>
+            <AttachmentUpload
+              attachments={formData.attachments}
+              onAttachmentAdd={(attachment) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  attachments: [...prev.attachments, attachment],
+                }));
+              }}
+              onAttachmentDelete={async (id) => {
+                // UIから即座に削除
+                setFormData((prev) => ({
+                  ...prev,
+                  attachments: prev.attachments.filter((a) => a.id !== id),
+                }));
+
+                // DB保存済みの添付（temp-で始まらないID）はAPIで削除
+                if (!id.startsWith("temp-")) {
+                  try {
+                    await fetch(`/api/page-attachments?id=${id}`, {
+                      method: "DELETE",
+                    });
+                  } catch (err) {
+                    console.warn("添付の削除に失敗:", err);
+                  }
+                }
+              }}
             />
           </div>
         </div>

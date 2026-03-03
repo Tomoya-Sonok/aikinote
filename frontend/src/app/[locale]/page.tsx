@@ -2,9 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type ReactNode, Suspense } from "react";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
+import { LogoutToast } from "@/components/features/landing/LogoutToast/LogoutToast";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import { ScrollIndicator } from "@/components/shared/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
@@ -182,7 +183,7 @@ export default async function RootPage({ params }: RootPageProps) {
                 <p className={styles.leadLabel}>{t("hero.lead")}</p>
                 <h1 className={styles.heroTitle}>
                   {heroTitleLines.map((line, index) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: 翻訳テキストの行分割のため、行内容+indexの組み合わせで一意性を担保
+                    // biome-ignore lint/suspicious/noArrayIndexKey: Display-only split text
                     <Fragment key={`${line}-${index}`}>
                       {line}
                       {index < heroTitleLines.length - 1 && <br />}
@@ -335,7 +336,7 @@ export default async function RootPage({ params }: RootPageProps) {
                   </h2>
                   <p className={styles.searchSubtitle}>
                     {searchSubtitleLines.map((line, index) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: 翻訳テキストの行分割のため、行内容+indexの組み合わせで一意性を担保
+                      // biome-ignore lint/suspicious/noArrayIndexKey: Display-only split text
                       <Fragment key={`${line}-${index}`}>
                         {line}
                         {index < searchSubtitleLines.length - 1 && <br />}
@@ -504,6 +505,9 @@ export default async function RootPage({ params }: RootPageProps) {
         {t("floatingCta")}
       </Link>
       <ScrollIndicator label={t("cta.goDown")} />
+      <Suspense fallback={null}>
+        <LogoutToast />
+      </Suspense>
     </div>
   );
 }

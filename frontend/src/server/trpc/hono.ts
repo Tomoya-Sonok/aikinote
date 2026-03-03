@@ -33,21 +33,24 @@ export async function callHonoApi<T>(
 ): Promise<T> {
   const url = buildApiUrl(path);
 
+  const { headers: customHeaders, ...otherOptions } = options;
+
   let response: Response;
   try {
     response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
         "X-App-Url": getBaseUrl(),
-        ...options.headers,
+        ...customHeaders,
       },
       cache: "no-store",
-      ...options,
+      ...otherOptions,
     });
   } catch (err) {
     const cause = err instanceof Error ? err : undefined;
     const isConnRefused =
       cause?.message?.includes("ECONNREFUSED") ||
+      // biome-ignore lint/suspicious/noExplicitAny: dynamic error object
       (cause as any)?.cause?.code === "ECONNREFUSED";
 
     console.error("[callHonoApi] fetch failed:", {

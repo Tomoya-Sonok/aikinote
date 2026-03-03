@@ -33,6 +33,7 @@ export default async function Page({
 
   const user = await getCurrentUser();
 
+  // 認証チェック（Layoutでも行っているが、ビルド時や型解決のために必要）
   if (!user) {
     redirect(loginPath);
   }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { StepDots } from "@/components/shared/StepDots";
 import styles from "../EmailVerificationForm/EmailVerificationForm.module.css";
 
 /**
@@ -26,12 +27,7 @@ export function EmailVerificationWaitingForm() {
               />
             </div>
           </div>
-          <div className={styles.stepDots}>
-            <div className={styles.stepDot} />
-            <div className={styles.stepDot} />
-            <div className={styles.stepDot} />
-            <div className={`${styles.stepDot} ${styles.stepDotInactive}`} />
-          </div>
+          <StepDots states={["active", "active", "active", "inactive"]} />
         </div>
         <div className={styles.contentsWrapper}>
           <div className={styles.stepText}>

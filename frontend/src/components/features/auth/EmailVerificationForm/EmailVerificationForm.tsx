@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { StepDots } from "@/components/shared/StepDots";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./EmailVerificationForm.module.css";
 
@@ -77,12 +78,7 @@ export function EmailVerificationForm({
                 />
               </div>
             </div>
-            <div className={styles.stepDots}>
-              <div className={styles.stepDot} />
-              <div className={styles.stepDot} />
-              <div className={styles.stepDot} />
-              <div className={`${styles.stepDot} ${styles.stepDotInactive}`} />
-            </div>
+            <StepDots states={["active", "active", "active", "inactive"]} />
           </div>
           <h2 className={styles.loadingTitle}>
             {t("auth.emailVerificationInProgress")}
@@ -113,12 +109,7 @@ export function EmailVerificationForm({
                 />
               </div>
             </div>
-            <div className={styles.stepDots}>
-              <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-              <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-              <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-              <div className={`${styles.stepDot} ${styles.stepDotActive}`} />
-            </div>
+            <StepDots states={["active", "active", "active", "active"]} />
           </div>
 
           <div className={styles.successContainer}>
@@ -160,12 +151,7 @@ export function EmailVerificationForm({
                 />
               </div>
             </div>
-            <div className={styles.stepDots}>
-              <div className={styles.stepDot} />
-              <div className={styles.stepDot} />
-              <div className={styles.stepDot} />
-              <div className={`${styles.stepDot} ${styles.stepDotInactive}`} />
-            </div>
+            <StepDots states={["active", "active", "active", "inactive"]} />
           </div>
           <div className={styles.errorContentsWrapper}>
             <h2 className={styles.errorTitle}>

@@ -2,7 +2,7 @@
   position: absolute;
   bottom: -45px;
   right: 10px;
-  color: var(--aikinote-white, #ffffff);
+  color: var(--aikinote-white, #fdfcfa);
   font-size: 16px;
   font-weight: 600;
   text-decoration: underline;
@@ -14,18 +14,19 @@
   border: none;
   padding: 0;
   cursor: pointer;
+  letter-spacing: 0.04em;
 }
 
 .button:focus-visible {
-  outline: 3px solid var(--accent-color, #f59e0b);
+  outline: 2px solid var(--accent-color, #c4956a);
   outline-offset: 4px;
 }
 
 .icon {
   width: 12px;
   height: 12px;
-  border-right: 2px solid currentColor;
-  border-top: 2px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  border-top: 1.5px solid currentColor;
   transform: rotate(-45deg);
   display: inline-block;
   align-self: end;

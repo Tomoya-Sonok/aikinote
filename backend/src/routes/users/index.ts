@@ -103,12 +103,6 @@ const getBaseUrl = (
 ): string => {
   // 1. フロントエンドから渡された X-App-Url ヘッダーを最優先
   const xAppUrl = c.req.header("X-App-Url");
-  console.log("[DEBUG] getBaseUrl check:", {
-    xAppUrl,
-    env_NEXT_PUBLIC_APP_URL: getEnvValue(c, "NEXT_PUBLIC_APP_URL"),
-    env_APP_URL: getEnvValue(c, "APP_URL"),
-    env_VERCEL_URL: getEnvValue(c, "VERCEL_URL"),
-  });
 
   if (xAppUrl) {
     return xAppUrl.replace(/\/+$/, "");

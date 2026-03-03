@@ -280,6 +280,7 @@ describe("ページ詳細画面", () => {
         tori: ["立技"],
         uke: ["正面打ち"],
         waza: [],
+        attachments: [],
       };
       expect(MockPageEditModal).toHaveBeenCalledWith(
         expect.objectContaining({ initialData: expectedInitialData }),

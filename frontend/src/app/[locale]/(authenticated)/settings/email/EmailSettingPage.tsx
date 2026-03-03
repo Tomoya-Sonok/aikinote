@@ -73,6 +73,7 @@ export function EmailSettingPage({ locale }: EmailSettingPageProps) {
       setCurrentPassword("");
       setPendingEmail(result?.data?.pendingEmail ?? newEmail);
       setSuccessMessage(t("emailChange.requestSuccess"));
+      showToast(t("emailChange.requestSuccess"), "success");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : t("emailChange.requestFailed");

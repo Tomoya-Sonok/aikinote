@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { compressImage } from "@/lib/utils/compressImage";
 import styles from "./profile-image-upload.module.css";
 
 interface ProfileImageUploadProps {
@@ -33,21 +34,15 @@ export function ProfileImageUpload({
       return "有効な画像ファイルを選択してください（JPG、PNG、またはWebP）";
     }
 
-    // ファイルサイズのチェック（1MB制限）
-    if (file.size > 1024 * 1024) {
-      return "ファイルサイズは1MB未満である必要があります";
+    // ファイルサイズのチェック（5MB制限）
+    if (file.size > 5 * 1024 * 1024) {
+      return "ファイルサイズは5MB未満である必要があります";
     }
 
     return null;
   };
 
   const getUploadUrl = async (file: File): Promise<UploadResponse> => {
-    console.log("アップロードURL取得リクエスト:", {
-      filename: file.name,
-      contentType: file.type,
-      fileSize: file.size,
-    });
-
     const response = await fetch("/api/upload-url", {
       method: "POST",
       headers: {
@@ -60,21 +55,13 @@ export function ProfileImageUpload({
       }),
     });
 
-    console.log(
-      "アップロードURL API レスポンス:",
-      response.status,
-      response.statusText,
-    );
-
     if (!response.ok) {
       const errorData = await response.json();
       console.error("アップロードURL取得エラー:", errorData);
       throw new Error(errorData.error || "アップロードURLの取得に失敗しました");
     }
 
-    const result = await response.json();
-    console.log("アップロードURL取得成功:", result);
-    return result;
+    return response.json();
   };
 
   const uploadToS3 = async (file: File, uploadUrl: string): Promise<void> => {
@@ -149,16 +136,25 @@ export function ProfileImageUpload({
     setUploadProgress(0);
 
     try {
-      // ステップ1: 署名付きアップロードURLを取得
-      const { uploadUrl, fileKey } = await getUploadUrl(file);
+      // ステップ1: 画像をリサイズ・圧縮
+      const compressedFile = await compressImage(file, {
+        maxWidth: 512,
+        maxHeight: 512,
+        quality: 0.85,
+        outputType: "image/jpeg",
+        maxFileSize: 1024 * 1024, // 1MB
+      });
 
-      // ステップ2: S3にファイルをアップロード
-      await uploadToS3(file, uploadUrl);
+      // ステップ2: 署名付きアップロードURLを取得
+      const { uploadUrl, fileKey } = await getUploadUrl(compressedFile);
 
-      // ステップ3: データベースのユーザープロフィールを更新
+      // ステップ3: S3にファイルをアップロード
+      await uploadToS3(compressedFile, uploadUrl);
+
+      // ステップ4: データベースのユーザープロフィールを更新
       const { imageUrl } = await updateProfileImage(fileKey);
 
-      // ステップ4: 親コンポーネントに通知
+      // ステップ5: 親コンポーネントに通知
       onUploadSuccess(imageUrl);
     } catch (error) {
       onUploadError(
@@ -238,7 +234,7 @@ export function ProfileImageUpload({
         </div>
       )}
 
-      <div className={styles.note}>JPG、PNG、またはWebP • 最大1MB</div>
+      <div className={styles.note}>JPG、PNG、またはWebP • 最大5MB</div>
     </div>
   );
 }
