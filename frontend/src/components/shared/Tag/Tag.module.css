@@ -1,16 +1,17 @@
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px; /* Figmaに合わせて少し狭く */
-  border-radius: 24px;
+  padding: 3px 10px;
+  border-radius: 4px;
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-xs);
   font-weight: 400;
-  line-height: 1.45; /* Figmaの行間に合わせる */
-  transition: all 0.2s ease;
+  line-height: 1.45;
+  transition: all 0.4s ease-out;
   border: none;
-  height: 21px; /* Figmaの高さに合わせる */
+  height: 21px;
   box-sizing: border-box;
+  letter-spacing: 0.03em;
 }
 
 .default {
@@ -19,14 +20,14 @@
 }
 
 .selected {
-  background: var(--aikinote-gray);
+  background: var(--primary-color);
   color: var(--aikinote-white);
 }
 
 .selectable {
   background: var(--aikinote-white);
   color: var(--aikinote-black);
-  border: 1px solid var(--aikinote-black);
+  border: 0.5px solid var(--border-color);
 }
 
 .clickable {
@@ -34,6 +35,5 @@
 }
 
 .clickable:hover {
-  opacity: 0.8;
-  transform: translateY(-1px);
+  opacity: 0.85;
 }

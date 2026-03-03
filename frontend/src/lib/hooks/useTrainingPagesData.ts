@@ -15,19 +15,21 @@ import { type TrainingPageData } from "@/types/training";
 
 export function useTrainingPagesData() {
   const t = useTranslations();
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
+  const [dataLoading, setDataLoading] = useState(true);
   const [allTrainingPageData, setAllTrainingPageData] = useState<
     TrainingPageData[]
   >([]);
 
   const fetchAllData = useCallback(async () => {
+    if (authLoading) return;
+
     if (!user?.id) {
-      setLoading(false);
+      setDataLoading(false);
       return;
     }
 
-    setLoading(true);
+    setDataLoading(true);
 
     try {
       let allPages: TrainingPageData[] = [];
@@ -78,9 +80,9 @@ export function useTrainingPagesData() {
       console.error("Failed to fetch training page data:", err);
       setAllTrainingPageData([]);
     } finally {
-      setLoading(false);
+      setDataLoading(false);
     }
-  }, [user, t]);
+  }, [user, t, authLoading]);
 
   useEffect(() => {
     void fetchAllData();
@@ -108,8 +110,44 @@ export function useTrainingPagesData() {
         const response = await createPage(payload);
 
         if (response.success && response.data) {
+          const pageId = response.data.page.id;
+
+          // 添付メタデータをDBに保存
+          if (pageData.attachments && pageData.attachments.length > 0) {
+            for (const attachment of pageData.attachments) {
+              try {
+                // biome-ignore lint/suspicious/noExplicitAny: _fileKey は内部拡張プロパティ
+                const fileKey = (attachment as any)._fileKey as
+                  | string
+                  | undefined;
+
+                const attachmentPayload: Record<string, unknown> = {
+                  page_id: pageId,
+                  type: attachment.type,
+                  original_filename: attachment.original_filename ?? null,
+                  file_size_bytes: attachment.file_size_bytes ?? null,
+                  thumbnail_url: attachment.thumbnail_url ?? null,
+                };
+
+                if (attachment.type === "youtube") {
+                  attachmentPayload.url = attachment.url;
+                } else {
+                  attachmentPayload.file_key = fileKey;
+                }
+
+                await fetch("/api/page-attachments", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(attachmentPayload),
+                });
+              } catch (attachError) {
+                console.warn("添付メタデータの保存に失敗:", attachError);
+              }
+            }
+          }
+
           const newPage: TrainingPageData = {
-            id: response.data.page.id,
+            id: pageId,
             title: response.data.page.title,
             content: response.data.page.content,
             comment: response.data.page.comment,
@@ -204,7 +242,7 @@ export function useTrainingPagesData() {
   );
 
   return {
-    loading,
+    loading: authLoading || dataLoading,
     allTrainingPageData,
     addPage,
     updatePageData,

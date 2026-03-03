@@ -66,6 +66,7 @@ vi.mock("../PageModal/PageModal", () => ({
               waza: initialData?.waza ?? [],
               content: initialData?.content ?? "",
               comment: initialData?.comment ?? "",
+              attachments: [],
             })
           }
         >
@@ -82,13 +83,19 @@ const testInitialData = {
   tori: ["投げ"],
   uke: ["受け身"],
   waza: ["技名"],
-  content: "既存の稽古内容",
+  content: "既存の内容",
   comment: "既存のコメント",
+  attachments: [],
 };
 
 describe("PageEditModal", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // async handleSubmit 内の fetch 呼び出しをモック
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ success: true }),
+    });
   });
 
   it("モーダルが閉じている時はページ編集ダイアログが表示されない", async () => {
@@ -201,7 +208,7 @@ describe("PageEditModal", () => {
       tori: ["投げ"],
       uke: ["受け身"],
       waza: ["技名"],
-      content: "既存の稽古内容",
+      content: "既存の内容",
       comment: "既存のコメント",
       user_id: "test-user-123",
     });

@@ -4,8 +4,8 @@ import { useTranslations } from "next-intl";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
-import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
+import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./EmailSettingPage.module.css";
@@ -73,6 +73,7 @@ export function EmailSettingPage({ locale }: EmailSettingPageProps) {
       setCurrentPassword("");
       setPendingEmail(result?.data?.pendingEmail ?? newEmail);
       setSuccessMessage(t("emailChange.requestSuccess"));
+      showToast(t("emailChange.requestSuccess"), "success");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : t("emailChange.requestFailed");

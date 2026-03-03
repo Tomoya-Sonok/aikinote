@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import type { Icon } from "@phosphor-icons/react";
+import { ChatsIcon, PencilSimpleIcon, UserIcon } from "@phosphor-icons/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
@@ -9,7 +10,7 @@ import styles from "./TabNavigation.module.css";
 interface TabItem {
   id: string;
   label: string;
-  icon: string;
+  icon: Icon;
   href: string;
 }
 
@@ -25,19 +26,19 @@ export const TabNavigation: FC = () => {
     {
       id: "personal",
       label: t("components.personal"),
-      icon: "/icons/edit-icon.svg",
+      icon: PencilSimpleIcon,
       href: `/${locale}/personal/pages`,
     },
     {
       id: "social",
       label: t("components.group"),
-      icon: "/icons/message-chat-icon.svg",
+      icon: ChatsIcon,
       href: `/${locale}/social/posts`,
     },
     {
       id: "mypage",
       label: t("components.mypage"),
-      icon: "/icons/user-profile-icon.svg",
+      icon: UserIcon,
       href: `/${locale}/mypage`,
     },
   ];
@@ -66,25 +67,27 @@ export const TabNavigation: FC = () => {
 
   return (
     <div className={styles.tabContainer}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          className={`${styles.tab} ${activeTab === tab.id ? styles.active : ""}`}
-          onClick={() => handleTabChange(tab.id)}
-          type="button"
-        >
-          <div className={styles.tabContent}>
-            <Image
-              src={tab.icon}
-              alt={tab.label}
-              width={32}
-              height={32}
-              className={styles.icon}
-            />
-            <span className={styles.label}>{tab.label}</span>
-          </div>
-        </button>
-      ))}
+      {tabs.map((tab) => {
+        const IconComponent = tab.icon;
+        return (
+          <button
+            key={tab.id}
+            className={`${styles.tab} ${activeTab === tab.id ? styles.active : ""}`}
+            onClick={() => handleTabChange(tab.id)}
+            type="button"
+          >
+            <div className={styles.tabContent}>
+              <IconComponent
+                size={24}
+                weight="light"
+                color="var(--aikinote-black)"
+                className={styles.icon}
+              />
+              <span className={styles.label}>{tab.label}</span>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 };

@@ -20,9 +20,26 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Phosphor Icons 最適化
+  experimental: {
+    optimizePackageImports: ["@phosphor-icons/react"],
+  },
+
   // SSGを完全に無効化し、すべてをSSRに変更
   output: "standalone",
   trailingSlash: false,
+
+  // 外部画像ドメインの許可（CloudFront経由のS3画像）
+  images: {
+    remotePatterns: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN
+      ? [
+          {
+            protocol: "https",
+            hostname: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN,
+          },
+        ]
+      : [],
+  },
 
   // webpack設定
   webpack: (config) => {

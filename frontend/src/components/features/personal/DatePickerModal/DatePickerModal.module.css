@@ -8,7 +8,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 9999;
+  z-index: var(--z-modal);
   opacity: 1;
   transition: opacity 0.3s ease-out;
 }
@@ -46,7 +46,7 @@
   line-height: 1;
   cursor: pointer;
   color: #888;
-  z-index: 10;
+  z-index: 1;
   padding: 4px;
 }
 
@@ -198,7 +198,7 @@
 }
 
 .cancelButton {
-  background-color: #c9c9c9;
+  background-color: var(--secondary-color);
   color: #000000;
   border: none;
   border-radius: 24px;

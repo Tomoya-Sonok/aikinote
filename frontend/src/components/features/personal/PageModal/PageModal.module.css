@@ -6,7 +6,7 @@
   right: 0;
   bottom: 0;
   background: rgba(156, 156, 156, 0.46); /* Figmaのスクリム色 */
-  z-index: 1000;
+  z-index: var(--z-modal);
   /* dialogのセンタリングを確実にするため、flexは削除してabsolute positioningを使用 */
 }
 
@@ -19,7 +19,7 @@
   max-width: none;
   height: calc(100vh - 100px);
   max-height: none;
-  background: #ffffff;
+  background: var(--aikinote-white);
   border-radius: 24px;
   border: none;
   padding: 0;
@@ -32,13 +32,13 @@
 
 .header {
   padding: 24px 20px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .title {
   font-size: 20px;
   font-weight: 400;
-  color: #000000;
+  color: var(--aikinote-black);
   margin: 0;
   line-height: 1.45;
   font-family: var(--font-zen-old-mincho);
@@ -63,12 +63,12 @@
   display: flex;
   gap: 10px;
   justify-content: center;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-color);
 }
 
 .cancelButton {
-  background-color: #c9c9c9;
-  color: #000000;
+  background-color: var(--aikinote-light-gray);
+  color: var(--aikinote-black);
   border: none;
   border-radius: 24px;
   padding: 0 16px;
@@ -86,8 +86,8 @@
 }
 
 .actionButton {
-  background-color: #838383;
-  color: #ffffff;
+  background-color: var(--primary-color);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 24px;
   padding: 0 16px;
@@ -101,7 +101,7 @@
 }
 
 .actionButton:hover {
-  background-color: #6a6a6a;
+  background-color: var(--primary-dark);
 }
 
 .newTagInput {
@@ -110,15 +110,15 @@
   align-items: center;
   margin-top: 8px;
   padding: 8px;
-  background-color: #f9f9f9;
+  background-color: var(--background-light);
   border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-color);
 }
 
 .newTagInput input {
   flex: 1;
   padding: 4px 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: 12px;
   font-family: var(--font-zen-old-mincho);
@@ -127,7 +127,7 @@
 
 .newTagInput input:focus {
   outline: none;
-  border-color: #838383;
+  border-color: var(--primary-color);
 }
 
 .newTagInput button {
@@ -142,31 +142,49 @@
 }
 
 .newTagInput button:first-of-type {
-  background-color: #838383;
+  background-color: var(--primary-color);
   color: white;
 }
 
 .newTagInput button:first-of-type:hover {
-  background-color: #6a6a6a;
+  background-color: var(--primary-dark);
 }
 
 .newTagInput button:first-of-type:disabled {
-  background-color: #ccc;
+  background-color: var(--aikinote-light-gray);
   cursor: not-allowed;
 }
 
 .newTagInput button:last-of-type {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--border-color);
+  color: var(--aikinote-black);
 }
 
 .newTagInput button:last-of-type:hover {
-  background-color: #d0d0d0;
+  background-color: var(--aikinote-light-gray);
 }
 
 @media (min-width: 431px) {
   .modal {
     width: 355px;
+    max-width: calc(100vw - 36px);
+    height: 726px;
+    max-height: calc(100vh - 134px);
+  }
+
+  .header,
+  .content {
+    padding: 24px 42px;
+  }
+
+  .footer {
+    padding: 16px 42px 32px;
+  }
+}
+
+@media (min-width: 768px) {
+  .modal {
+    width: 600px;
     max-width: calc(100vw - 36px);
     height: 726px;
     max-height: calc(100vh - 134px);

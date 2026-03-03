@@ -205,7 +205,7 @@
     "uke": "Uke",
     "waza": "Technique",
     "content": "Training Content",
-    "comment": "Comments (additional notes, video URLs, etc.)",
+    "comment": "Comments",
     "required": "required",
     "titleRequired": "Title is required",
     "contentRequired": "Training content is required",
@@ -213,6 +213,9 @@
     "add": "Add",
     "tagNameRequired": "Please enter a tag name",
     "tagNameTooLong": "Tag name must be 20 characters or less",
+    "titleTooLong": "Title must be 35 characters or less",
+    "contentTooLong": "Content must be 3000 characters or less",
+    "commentTooLong": "Comment must be 1000 characters or less",
     "tagNameInvalid": "Tag name can only contain alphanumeric characters",
     "invalidCategory": "Invalid category",
     "loginRequired": "Login required",
@@ -221,7 +224,18 @@
     "tagsFetchFailed": "Failed to fetch tags",
     "initialTagsCreated": "Initial tags created",
     "initialTagsCreateFailed": "Failed to create initial tags",
-    "unknownError": "Unknown error"
+    "unknownError": "Unknown error",
+    "attachments": {
+      "title": "Attachments",
+      "addFile": "Add image/video",
+      "youtubeUrlPlaceholder": "Paste YouTube URL",
+      "uploading": "Uploading...",
+      "uploadFailed": "Upload failed",
+      "deleteConfirm": "Delete this attachment?",
+      "fileTooLarge": "File size exceeds the limit",
+      "unsupportedFormat": "Unsupported file format",
+      "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 50MB)"
+    }
   },
   "navigation": {
     "settings": "Settings",
@@ -235,6 +249,7 @@
   },
   "auth": {
     "login": "Login",
+    "logoutSuccess": "Logged out successfully",
     "signup": "Sign Up",
     "email": "Email",
     "password": "Password",
@@ -351,9 +366,9 @@
     "mypage": "My Page",
     "uploadInProgress": "Uploading...",
     "changePhoto": "Change Photo",
-    "fileRequirements": "JPG, PNG, or WebP • Max 1MB",
+    "fileRequirements": "JPG, PNG, or WebP • Max 5MB",
     "validImageFile": "Please select a valid image file (JPG, PNG, or WebP)",
-    "fileSizeLimit": "File size must be under 1MB",
+    "fileSizeLimit": "File size must be under 5MB",
     "uploadUrlFailed": "Failed to get upload URL",
     "uploadFailed": "Upload failed",
     "profileUpdateFailed": "Failed to update profile image"
@@ -368,7 +383,9 @@
     "pageDeleteFailed": "Failed to delete page",
     "pageCount": "Total pages created so far:",
     "pageCountSuffix": "pages",
-    "recentPages": "Recently created pages",
+    "pagesList": "Pages List",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
     "showingAll": "Showing all {total} items",
     "showingPartial": "Showing {displayed} of {total} items",
     "loadMore": "Load more"
@@ -415,7 +432,8 @@
   },
   "pageCreate": {
     "title": "Create Page",
-    "save": "Save"
+    "save": "Save",
+    "success": "Page created successfully"
   },
   "trainingCard": {
     "edit": "Edit",
@@ -424,9 +442,8 @@
   },
   "socialPosts": {
     "title": "Group Posts",
-    "description": "A page where you can view posts from AikiNote users.",
-    "comingSoon": "This page will be implemented after the initial release.",
-    "notification": "We will notify you via your registered email address once the release date is determined."
+    "description": "A page where you can view and interact with posts from other users.",
+    "notification": "As soon as it is released, we will notify you via our official LINE app and your registered email address."
   },
   "tagFilter": {
     "title": "Filter by Tags",

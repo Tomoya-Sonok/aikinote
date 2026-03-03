@@ -28,7 +28,7 @@ export const Default: Story = {
 
 export const Required: Story = {
   args: {
-    label: "稽古内容",
+    label: "内容",
     required: true,
     placeholder: "稽古の内容を詳しく記述してください",
     rows: 5,

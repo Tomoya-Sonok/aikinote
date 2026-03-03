@@ -22,7 +22,7 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #d1d5db;
+  background: var(--aikinote-light-gray);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,8 +74,8 @@
 }
 
 .deleteButton {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   background: #f3f4f6;
   border-radius: 8px;
   display: flex;
@@ -158,7 +158,7 @@
 }
 
 .cancelButton {
-  background: #d1d5db;
+  background: var(--aikinote-light-gray);
   color: #374151;
 }
 

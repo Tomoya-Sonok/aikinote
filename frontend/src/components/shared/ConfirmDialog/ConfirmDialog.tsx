@@ -1,6 +1,7 @@
 "use client";
 
 import { type KeyboardEvent, useEffect, useId, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/shared/Button/Button";
 import styles from "./ConfirmDialog.module.css";
 
@@ -51,7 +52,7 @@ export function ConfirmDialog({
     }
   };
 
-  return (
+  return createPortal(
     <div className={styles.overlay} role="presentation">
       <button
         type="button"
@@ -97,6 +98,7 @@ export function ConfirmDialog({
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

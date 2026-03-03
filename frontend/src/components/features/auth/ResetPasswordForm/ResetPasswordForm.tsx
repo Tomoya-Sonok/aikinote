@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
@@ -40,6 +41,7 @@ export function ResetPasswordForm({
     handleSubmit,
     formState: { errors },
   } = useForm<NewPasswordFormData>({
+    // biome-ignore lint/suspicious/noExplicitAny: library type mismatch
     resolver: zodResolver(newPasswordSchema as any),
     mode: "onChange",
   });
@@ -59,20 +61,12 @@ export function ResetPasswordForm({
       <div className={styles.card}>
         <div className={styles.header}>
           <div className={styles.iconWrapper}>
-            <svg
+            <CheckCircleIcon
+              size={32}
+              weight="light"
+              color="var(--aikinote-black)"
               className={styles.icon}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <title>{t("auth.passwordChangeCompleteIcon")}</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            />
           </div>
           <h2 className={styles.title}>{t("auth.passwordChangeComplete")}</h2>
           <p className={styles.description}>

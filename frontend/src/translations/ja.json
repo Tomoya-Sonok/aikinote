@@ -204,15 +204,18 @@
     "tori": "取り",
     "uke": "受け",
     "waza": "技",
-    "content": "稽古内容",
-    "comment": "その他・コメント（補足や動画URL等）",
+    "content": "内容",
+    "comment": "その他・コメント",
     "required": "必須",
     "titleRequired": "タイトルは必須です",
-    "contentRequired": "稽古内容は必須です",
+    "contentRequired": "内容は必須です",
     "addNewTag": "新しいタグ名を入力",
     "add": "追加",
     "tagNameRequired": "タグ名を入力してください",
     "tagNameTooLong": "タグ名は20文字以内で入力してください",
+    "titleTooLong": "タイトルは35文字以内で入力してください",
+    "contentTooLong": "内容は3000文字以内で入力してください",
+    "commentTooLong": "コメントは1000文字以内で入力してください",
     "tagNameInvalid": "タグ名は全角・半角英数字のみ使用可能です",
     "invalidCategory": "無効なカテゴリです",
     "loginRequired": "ログインが必要です",
@@ -221,7 +224,18 @@
     "tagsFetchFailed": "タグの取得に失敗しました",
     "initialTagsCreated": "初期タグを作成しました",
     "initialTagsCreateFailed": "初期タグの作成に失敗しました",
-    "unknownError": "不明なエラー"
+    "unknownError": "不明なエラー",
+    "attachments": {
+      "title": "添付ファイル",
+      "addFile": "画像・動画を追加",
+      "youtubeUrlPlaceholder": "YouTube URLを貼り付け",
+      "uploading": "アップロード中...",
+      "uploadFailed": "アップロードに失敗しました",
+      "deleteConfirm": "この添付ファイルを削除しますか？",
+      "fileTooLarge": "ファイルサイズが制限を超えています",
+      "unsupportedFormat": "サポートされていないファイル形式です",
+      "note": "画像: JPG/PNG/WebP（最大5MB）、動画: MP4/MOV/WebM（最大50MB）"
+    }
   },
   "navigation": {
     "settings": "設定",
@@ -235,6 +249,7 @@
   },
   "auth": {
     "login": "ログイン",
+    "logoutSuccess": "ログアウトしました",
     "signup": "新規登録",
     "title": "練習の記録を始めましょう",
     "description": "合気道の練習を記録し、共有するアプリケーション",
@@ -353,9 +368,9 @@
     "mypage": "マイページ",
     "uploadInProgress": "アップロード中...",
     "changePhoto": "写真を変更",
-    "fileRequirements": "JPG、PNG、またはWebP • 最大1MB",
+    "fileRequirements": "JPG、PNG、またはWebP • 最大5MB",
     "validImageFile": "有効な画像ファイルを選択してください（JPG、PNG、またはWebP）",
-    "fileSizeLimit": "ファイルサイズは1MB未満である必要があります",
+    "fileSizeLimit": "ファイルサイズは5MB未満である必要があります",
     "uploadUrlFailed": "アップロードURLの取得に失敗しました",
     "uploadFailed": "アップロードに失敗しました",
     "profileUpdateFailed": "プロフィール画像の更新に失敗しました"
@@ -370,7 +385,9 @@
     "pageDeleteFailed": "ページの削除に失敗しました",
     "pageCount": "これまでに作成したページ数は",
     "pageCountSuffix": "ページです",
-    "recentPages": "最近作成したページ",
+    "pagesList": "ページ一覧",
+    "sortNewest": "新しい順",
+    "sortOldest": "古い順",
     "showingAll": "全{total}件表示中",
     "showingPartial": "全{total}件中{displayed}件表示中",
     "loadMore": "もっと見る"
@@ -417,7 +434,8 @@
   },
   "pageCreate": {
     "title": "ページ作成",
-    "save": "保存"
+    "save": "保存",
+    "success": "ページを作成しました"
   },
   "trainingCard": {
     "edit": "編集",
@@ -426,9 +444,8 @@
   },
   "socialPosts": {
     "title": "みんなで 投稿一覧",
-    "description": "AikiNoteユーザーの投稿を閲覧できるページです。",
-    "comingSoon": "こちらのページは、初回リリース後に実装予定です。",
-    "notification": "リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせします。"
+    "description": "他のユーザーの投稿を閲覧したり交流できるページです。",
+    "notification": "リリース完了次第、LINE公式アプリからのメッセージ配信およびご登録いただいたメールアドレス宛てのメールにてお知らせします。"
   },
   "tagFilter": {
     "title": "タグで絞り込み",
@@ -441,7 +458,7 @@
     "edit": "編集",
     "delete": "削除",
     "deleteConfirm": "このページを削除してもよろしいですか？",
-    "content": "稽古内容",
+    "content": "内容",
     "comment": "その他・コメント",
     "updateFailed": "ページの更新に失敗しました",
     "deleteFailed": "ページの削除に失敗しました"

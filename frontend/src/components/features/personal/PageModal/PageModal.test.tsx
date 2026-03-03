@@ -48,7 +48,7 @@ const _testInitialData = {
   tori: ["投げ"],
   uke: ["受け身"],
   waza: ["技名"],
-  content: "テスト稽古内容",
+  content: "テスト内容",
   comment: "テストコメント",
 };
 

@@ -1,12 +1,8 @@
 .container {
-  font-family: var(--font-zen-old-mincho);
   display: flex;
   flex-direction: column;
-  min-height: calc(
-    100vh -
-    164px
-  ); /* ロゴエリア(72px + 40px padding) + margin(48px) を除く */
-  padding-bottom: 60px; /* タブナビゲーション分のスペース */
+  min-height: calc(100vh - 164px); /* Header + Navigation padding offsets */
+  padding-bottom: 60px;
 }
 
 .content {
@@ -14,26 +10,116 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  align-items: center;
   width: 100%;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.content h1 {
-  font-family: var(--font-zen-old-mincho);
-  font-size: var(--font-size-2xl);
-  font-weight: 400;
-  color: var(--aikinote-black);
-  margin-bottom: 24px;
+.card {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  margin: 24px 0;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 44px -10px rgba(0, 0, 0, 0.12);
+}
+
+.header {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  display: inline-block;
+  background-color: var(--accent-light, #fef3c7);
+  color: var(--accent-color, #d97706);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.2);
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--aikinote-black, #1f2937);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.imageWrapper {
+  width: 100%;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  margin-bottom: 32px;
+  aspect-ratio: 16 / 9;
+  background: var(--aikinote-bg, #f3f4f6);
+}
+
+.image {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover .image {
+  transform: scale(1.02);
+}
+
+.textWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.description {
+  font-size: 1.125rem;
+  color: var(--aikinote-black, #374151);
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .notice {
-  font-family: var(--font-zen-old-mincho);
-  font-size: var(--font-size-base);
-  font-weight: 400;
-  color: var(--aikinote-text-light);
+  font-size: 0.875rem;
+  color: var(--aikinote-text-light, #6b7280);
   line-height: 1.6;
-  text-align: left;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

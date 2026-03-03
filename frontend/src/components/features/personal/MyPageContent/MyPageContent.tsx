@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
-import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { ProfileCard } from "@/components/features/profile/ProfileCard/ProfileCard";
+import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { SettingsMenu } from "@/components/features/setting/SettingsMenu/SettingsMenu";
+import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
 import styles from "./MyPageContent.module.css";
 
 export interface UserProfile {
