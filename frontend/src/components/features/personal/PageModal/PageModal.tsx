@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/shared/Button/Button";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
@@ -305,7 +306,7 @@ export const PageModal: FC<PageModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
       className={styles.overlay}
       onClick={handleClose}
@@ -552,6 +553,7 @@ export const PageModal: FC<PageModalProps> = ({
           </Button>
         </div>
       </dialog>
-    </div>
+    </div>,
+    document.body,
   );
 };
