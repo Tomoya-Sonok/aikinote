@@ -40,7 +40,10 @@ jobs:
 
       - name: Storybook のビルド
         working-directory: frontend
-        run: pnpm build-storybook
+        run: |
+          # staticDirs による fs.cp の EEXIST エラーを回避（VRTではレイアウト検証のみ）
+          sed -i '/staticDirs/d' .storybook/main.ts || true
+          pnpm build-storybook
 
       - name: スクリーンショット撮影
         working-directory: frontend
@@ -126,7 +129,10 @@ jobs:
 
       - name: Storybook のビルド
         working-directory: frontend
-        run: pnpm build-storybook
+        run: |
+          # staticDirs による fs.cp の EEXIST エラーを回避（VRTではレイアウト検証のみ）
+          sed -i '/staticDirs/d' .storybook/main.ts || true
+          pnpm build-storybook
 
       - name: スクリーンショット撮影
         working-directory: frontend
