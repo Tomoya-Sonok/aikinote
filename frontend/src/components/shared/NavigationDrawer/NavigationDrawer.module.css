@@ -20,7 +20,7 @@
   max-width: 85vw;
   background: var(--aikinote-white, #fdfcfa);
   box-shadow: -2px 0 24px rgba(44, 44, 44, 0.06);
-  z-index: calc(var(--z-drawer) + 1);
+  z-index: var(--z-drawer-panel);
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
