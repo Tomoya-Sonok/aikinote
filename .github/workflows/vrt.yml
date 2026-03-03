@@ -102,28 +102,26 @@ jobs:
           if [ -f .storybook/preview.ts ] && ! grep -q 'NextIntlClientProvider' .storybook/preview.ts; then
             mv .storybook/preview.ts .storybook/preview.tsx
             cat > .storybook/preview.tsx << 'PREVIEW'
-import type { Preview } from "@storybook/nextjs-vite";
-import { NextIntlClientProvider } from "next-intl";
-import React from "react";
-import ja from "../src/translations/ja.json";
-
-const preview: Preview = {
-  decorators: [
-    (Story) => (
-      <NextIntlClientProvider locale="ja" messages={ja}>
-        <Story />
-      </NextIntlClientProvider>
-    ),
-  ],
-  parameters: {
-    controls: {
-      matchers: { color: /(background|color)$/i, date: /Date$/i },
-    },
-  },
-};
-
-export default preview;
-PREVIEW
+            import type { Preview } from "@storybook/nextjs-vite";
+            import { NextIntlClientProvider } from "next-intl";
+            import React from "react";
+            import ja from "../src/translations/ja.json";
+            const preview: Preview = {
+              decorators: [
+                (Story) => (
+                  <NextIntlClientProvider locale="ja" messages={ja}>
+                    <Story />
+                  </NextIntlClientProvider>
+                ),
+              ],
+              parameters: {
+                controls: {
+                  matchers: { color: /(background|color)$/i, date: /Date$/i },
+                },
+              },
+            };
+            export default preview;
+            PREVIEW
           fi
 
       - name: Storybook のビルド
@@ -261,27 +259,29 @@ PREVIEW
             const deleted = '${{ steps.summary.outputs.deleted }}';
             const passed = '${{ steps.summary.outputs.passed }}';
             const hasDiff = Number(changed) > 0 || Number(newItems) > 0 || Number(deleted) > 0;
-            const icon = hasDiff ? '⚠️' : '✅';
             const reportUrl = '${{ steps.deployment.outputs.page_url }}';
 
-            const body = [
-              `## ${icon} Visual Regression Test 結果`,
-              '',
-              '| 項目 | 件数 |',
-              '|------|------|',
-              `| ✅ 変更なし | ${passed} |`,
-              `| 🔄 変更あり | ${changed} |`,
-              `| 🆕 新規 | ${newItems} |`,
-              `| 🗑️ 削除 | ${deleted} |`,
-              '',
-              hasDiff
-                ? '> UI に差分が検出されました。意図した変更かどうか確認してください。'
-                : '> UI に差分は検出されませんでした。',
-              '',
-              reportUrl && reportUrl !== ''
-                ? `📊 **[VRT レポートを確認する](${reportUrl})**`
-                : '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
-            ].join('\n');
+            let body;
+            if (hasDiff) {
+              body = [
+                '## ⚠️ Visual Regression Test 結果',
+                '',
+                '| 項目 | 件数 |',
+                '|------|------|',
+                `| ✅ 変更なし | ${passed} |`,
+                `| 🔄 変更あり | ${changed} |`,
+                `| 🆕 新規 | ${newItems} |`,
+                `| 🗑️ 削除 | ${deleted} |`,
+                '',
+                '> UI に差分が検出されました。意図した変更かどうか確認してください。',
+                '',
+                reportUrl && reportUrl !== ''
+                  ? `📊 **[VRT レポートを確認する](${reportUrl})**`
+                  : '📎 詳細な差分レポートは Actions の Artifacts (`vrt-report`) からダウンロードできます。',
+              ].join('\n');
+            } else {
+              body = '## ✨ UI差分はありませんでした！';
+            }
 
             // 既存のVRTコメントを探して更新、なければ新規作成
             const { data: comments } = await github.rest.issues.listComments({
@@ -290,7 +290,7 @@ PREVIEW
               issue_number: context.issue.number,
             });
             const existing = comments.find(c =>
-              c.body?.includes('Visual Regression Test 結果')
+              c.body?.includes('Visual Regression Test')
             );
 
             if (existing) {
