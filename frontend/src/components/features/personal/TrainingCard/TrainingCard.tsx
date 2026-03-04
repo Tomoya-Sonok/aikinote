@@ -50,7 +50,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
               <Button
                 variant="icon"
                 onClick={handleEdit}
-                className={styles.actionButton}
+                style={{ padding: "8px" }}
               >
                 <PencilSimpleIcon
                   size={16}
@@ -63,7 +63,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
               <Button
                 variant="icon"
                 onClick={handleDelete}
-                className={styles.actionButton}
+                style={{ padding: "8px" }}
               >
                 <TrashIcon
                   size={16}

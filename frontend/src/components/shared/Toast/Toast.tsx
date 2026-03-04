@@ -11,6 +11,7 @@ interface ToastProps {
   duration?: number;
   onClose: () => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Toast: FC<ToastProps> = ({
@@ -19,6 +20,7 @@ export const Toast: FC<ToastProps> = ({
   duration = 3000,
   onClose,
   className = "",
+  style,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -39,6 +41,7 @@ export const Toast: FC<ToastProps> = ({
       className={`${styles.toast} ${styles[type]} ${
         isVisible ? styles.visible : ""
       } ${className}`}
+      style={style}
     >
       {message}
     </div>,

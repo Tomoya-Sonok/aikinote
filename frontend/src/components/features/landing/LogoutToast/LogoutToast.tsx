@@ -2,9 +2,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToast } from "@/contexts/ToastContext";
-import styles from "./LogoutToast.module.css";
 
 export function LogoutToast() {
   const searchParams = useSearchParams();
@@ -12,13 +11,34 @@ export function LogoutToast() {
   const { showToast } = useToast();
   const t = useTranslations("auth");
   const hasShownToast = useRef(false);
+  const [isWide, setIsWide] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 431px)");
+    setIsWide(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsWide(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     const isLoggedOut = searchParams.get("logged_out");
 
     if (isLoggedOut === "true" && !hasShownToast.current) {
       hasShownToast.current = true;
-      showToast(t("logoutSuccess"), "success", 3000, styles.logoutToast);
+
+      // !important を使わずメディアクエリをJSで制御する
+      // 詳細: Toast.module.css のベーススタイルと詳細度が同じのため
+      //       className では上書きできない → style prop（インライン）で解決
+      const toastStyle: React.CSSProperties = isWide
+        ? {} // PC幅: Toast.module.css の @media ルールに任せる
+        : {
+            right: "10px",
+            maxWidth: "calc(100vw - 20px)",
+            boxSizing: "border-box",
+          };
+
+      showToast(t("logoutSuccess"), "success", 3000, "", toastStyle);
 
       // URLからパラメータを削除（履歴に残さないようにreplaceを使用）
       const newUrl = new URL(window.location.href);
@@ -27,7 +47,7 @@ export function LogoutToast() {
         scroll: false,
       });
     }
-  }, [searchParams, router, showToast, t]);
+  }, [searchParams, router, showToast, t, isWide]);
 
   return null;
 }
