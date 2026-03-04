@@ -4,7 +4,7 @@ import {
   ImagesSquareIcon,
   PencilSimpleIcon,
   TrashIcon as PhosphorTrashIcon,
-  UserCircleIcon,
+  UserIcon,
 } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -268,9 +268,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     }
     setProfileImageFile(null);
     setPreviewUrl(null);
+    setFormData((prev) => ({ ...prev, profile_image_url: "" }));
   };
 
-  const currentImageUrl = previewUrl || user.profile_image_url;
+  const currentImageUrl = previewUrl || formData.profile_image_url;
+  const canDeleteImage = !!profileImageFile || !!formData.profile_image_url;
   const uploadInstructionLines = t("profileEdit.uploadInstructions").split(
     "\n",
   );
@@ -309,7 +311,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   unoptimized
                 />
               ) : (
-                <UserCircleIcon
+                <UserIcon
                   size={48}
                   weight="light"
                   color="var(--aikinote-black)"
@@ -343,7 +345,9 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
               <p
                 className={styles.fileInfo}
                 style={{
-                  color: profileImageFile ? "#000" : "#6b7280",
+                  color: profileImageFile
+                    ? "var(--aikinote-black)"
+                    : "var(--aikinote-text-light)",
                 }}
               >
                 {profileImageFile
@@ -354,10 +358,10 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 className={styles.deleteButton}
                 type="button"
                 onClick={handleDeleteImage}
-                disabled={!profileImageFile}
+                disabled={!canDeleteImage}
                 style={{
-                  opacity: profileImageFile ? 1 : 0.5,
-                  cursor: profileImageFile ? "pointer" : "not-allowed",
+                  opacity: canDeleteImage ? 1 : 0.5,
+                  cursor: canDeleteImage ? "pointer" : "not-allowed",
                 }}
               >
                 <PhosphorTrashIcon

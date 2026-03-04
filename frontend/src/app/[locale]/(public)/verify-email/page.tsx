@@ -57,7 +57,12 @@ async function EmailVerificationContent({
                 />
               </div>
             </div>
-            <StepDots states={["active", "inactive", "inactive", "inactive"]} />
+            <StepDots
+              states={["active", "inactive", "inactive", "inactive"]}
+              dotSize={12}
+              activeColor="var(--primary-color)"
+              inactiveColor="var(--border-color)"
+            />
           </div>
           <div className={styles.loginPrompt}>
             <span className={styles.loginPromptText}>

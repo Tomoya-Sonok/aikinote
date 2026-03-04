@@ -109,7 +109,12 @@ export function EmailVerificationForm({
                 />
               </div>
             </div>
-            <StepDots states={["active", "active", "active", "active"]} />
+            <StepDots
+              states={["active", "active", "active", "active"]}
+              dotSize={12}
+              activeColor="var(--primary-color)"
+              inactiveColor="var(--border-color)"
+            />
           </div>
 
           <div className={styles.successContainer}>
@@ -151,7 +156,12 @@ export function EmailVerificationForm({
                 />
               </div>
             </div>
-            <StepDots states={["active", "active", "active", "inactive"]} />
+            <StepDots
+              states={["active", "active", "active", "inactive"]}
+              dotSize={12}
+              activeColor="var(--primary-color)"
+              inactiveColor="var(--border-color)"
+            />
           </div>
           <div className={styles.errorContentsWrapper}>
             <h2 className={styles.errorTitle}>

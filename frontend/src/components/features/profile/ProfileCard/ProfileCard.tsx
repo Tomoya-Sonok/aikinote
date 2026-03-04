@@ -31,7 +31,7 @@ export const ProfileCard: FC<ProfileCardProps> = ({
         />
         <div
           className={
-            username.length > 10 ? styles.userInfo : styles.userInfoShort
+            username.length > 18 ? styles.userInfo : styles.userInfoShort
           }
         >
           <h1 className={styles.username}>{username}</h1>
