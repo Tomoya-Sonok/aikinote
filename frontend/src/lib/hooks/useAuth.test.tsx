@@ -21,6 +21,13 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+// ToastContextをモック
+vi.mock("@/contexts/ToastContext", () => ({
+  useToast: vi.fn(() => ({
+    showToast: vi.fn(),
+  })),
+}));
+
 // Supabaseクライアントをモック
 const mockSupabaseClient = {
   auth: {

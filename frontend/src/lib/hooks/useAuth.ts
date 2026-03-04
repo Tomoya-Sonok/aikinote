@@ -2,8 +2,9 @@
 
 import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useToast } from "@/contexts/ToastContext";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { getRedirectUrl } from "@/lib/utils/env";
@@ -34,6 +35,8 @@ export function useAuth() {
   const isInitializingRef = useRef(true);
   const router = useRouter();
   const locale = useLocale();
+  const t = useTranslations("auth");
+  const { showToast } = useToast();
   const supabase = useMemo(() => {
     return getClientSupabase();
   }, []);
@@ -288,7 +291,18 @@ export function useAuth() {
       // エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
       setUser(null);
 
-      router.push("/?logged_out=true"); // ログアウト成功のトースト表示のためクエリパラメータを付与
+      // PC幅・SP幅に応じて適切に表示されるように Toast にスタイルを渡す
+      const isWide = window.matchMedia("(min-width: 431px)").matches;
+      const toastStyle: React.CSSProperties = isWide
+        ? {}
+        : {
+            right: "10px",
+            maxWidth: "calc(100vw - 20px)",
+            boxSizing: "border-box",
+          };
+
+      showToast(t("logoutSuccess"), "success", 3000, "", toastStyle);
+      router.push("/");
     } catch (err) {
       console.warn(
         "signOutUser: Supabaseサインアウトでタイムアウト/エラーが発生しましたが、ローカルログアウトを実行します",
@@ -296,8 +310,16 @@ export function useAuth() {
       );
       // エラーが発生してもユーザー状態をクリアしてリダイレクト
       setUser(null);
-      router.push("/?logged_out=true"); // ログアウト成功のトースト表示のためクエリパラメータを付与
-      // タイムアウトの場合は特にエラーとして扱わない
+      const isWide = window.matchMedia("(min-width: 431px)").matches;
+      const toastStyle: React.CSSProperties = isWide
+        ? {}
+        : {
+            right: "10px",
+            maxWidth: "calc(100vw - 20px)",
+            boxSizing: "border-box",
+          };
+      showToast(t("logoutSuccess"), "success", 3000, "", toastStyle);
+      router.push("/");
       if (err instanceof Error && err.message.includes("タイムアウト")) {
         // タイムアウトの場合は特にログ出力しない
       } else {
@@ -308,7 +330,7 @@ export function useAuth() {
     } finally {
       setIsProcessing(false);
     }
-  }, [supabase.auth, router]);
+  }, [supabase.auth, router, showToast, t]);
 
   const forgotPassword = useCallback(async (data: ResetPasswordFormData) => {
     setIsProcessing(true);

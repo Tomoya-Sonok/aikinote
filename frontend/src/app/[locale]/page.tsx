@@ -2,10 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Fragment, type ReactNode, Suspense } from "react";
+import { Fragment, type ReactNode } from "react";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
-import { LogoutToast } from "@/components/features/landing/LogoutToast/LogoutToast";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import { ScrollIndicator } from "@/components/shared/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
@@ -505,9 +504,6 @@ export default async function RootPage({ params }: RootPageProps) {
         {t("floatingCta")}
       </Link>
       <ScrollIndicator label={t("cta.goDown")} />
-      <Suspense fallback={null}>
-        <LogoutToast />
-      </Suspense>
     </div>
   );
 }
