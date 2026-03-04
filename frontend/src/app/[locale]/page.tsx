@@ -27,9 +27,7 @@ interface FooterContent {
   facebook: string;
 }
 
-const PAIN_POINT_KEYS = ["first", "second", "third"] as const;
-const RECORDING_STEP_KEYS = ["first", "second", "third"] as const;
-const SEARCH_FEATURE_KEYS = ["first", "second", "third"] as const;
+const SECTION_KEYS = ["first", "second", "third"] as const;
 const FAQ_KEYS = [
   "easeOfUse",
   "security",
@@ -70,10 +68,7 @@ export default async function RootPage({ params }: RootPageProps) {
   const rootHref = isDefaultLocale ? "/" : `/${locale}`;
   const signupHref = `${localePrefix}/signup`;
   const currentYear = new Date().getFullYear();
-  const searchFeatureIcons: Record<
-    (typeof SEARCH_FEATURE_KEYS)[number],
-    string
-  > = {
+  const searchFeatureIcons: Record<(typeof SECTION_KEYS)[number], string> = {
     first: styles.featureIconTags,
     second: styles.featureIconFilter,
     third: styles.featureIconRecent,
@@ -239,7 +234,7 @@ export default async function RootPage({ params }: RootPageProps) {
                   </h2>
                 </div>
                 <ul className={styles.bulletList}>
-                  {PAIN_POINT_KEYS.map((key) => (
+                  {SECTION_KEYS.map((key) => (
                     <li key={key}>
                       {t.rich(`painPoints.items.${key}`, { bold })}
                     </li>
@@ -271,7 +266,7 @@ export default async function RootPage({ params }: RootPageProps) {
                   </h2>
                 </div>
                 <ol className={styles.stepList}>
-                  {RECORDING_STEP_KEYS.map((key) => (
+                  {SECTION_KEYS.map((key) => (
                     <li key={key}>
                       {t.rich(`solutionRecording.steps.${key}`, { bold })}
                     </li>
@@ -344,7 +339,7 @@ export default async function RootPage({ params }: RootPageProps) {
                   </p>
                 </div>
                 <ul className={styles.searchFeatures}>
-                  {SEARCH_FEATURE_KEYS.map((key) => (
+                  {SECTION_KEYS.map((key) => (
                     <li key={key} className={styles.searchFeatureItem}>
                       <span
                         className={`${styles.featureIcon} ${searchFeatureIcons[key]}`}
