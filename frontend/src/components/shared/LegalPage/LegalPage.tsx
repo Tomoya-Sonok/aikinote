@@ -1,9 +1,13 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { FC } from "react";
-import ReactMarkdown from "react-markdown";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import styles from "./LegalPage.module.css";
+
+const ReactMarkdown = dynamic(() => import("react-markdown"), {
+  loading: () => <div className={styles.body} />,
+});
 
 interface LegalPageProps {
   title: string;

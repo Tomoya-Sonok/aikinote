@@ -7,6 +7,7 @@ import { ProfileCard } from "@/components/features/profile/ProfileCard/ProfileCa
 import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { SettingsMenu } from "@/components/features/setting/SettingsMenu/SettingsMenu";
 import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
+import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./MyPageContent.module.css";
 
 export interface UserProfile {
@@ -34,13 +35,14 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   const t = useTranslations();
   const locale = useLocale();
   const router = useRouter();
+  const { signOutUser } = useAuth();
 
   const handleEditProfile = () => {
     router.push(`/${locale}/profile/edit`);
   };
 
   const handleLogout = async () => {
-    router.push(`/${locale}/logout`);
+    await signOutUser();
   };
 
   const handlePublicityClick = () => {};

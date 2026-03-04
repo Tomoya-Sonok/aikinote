@@ -10,11 +10,10 @@
 
 /* タイトル */
 .title {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 20px;
-  font-weight: 400;
   line-height: 1.448;
-  color: #000000;
+  color: var(--aikinote-black);
   margin-bottom: 8px;
   align-self: start;
   margin-left: 4px;
@@ -37,7 +36,7 @@
 .stepInfo {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   background-color: transparent;
 }
 
@@ -48,15 +47,15 @@
 }
 
 .stepText {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.5;
-  color: #141414;
+  color: var(--aikinote-black);
 }
 
 .progressContainer {
-  height: 8px;
+  height: 4px;
   background-color: #efecec;
   border-radius: 4px;
   overflow: hidden;
@@ -100,19 +99,17 @@
 }
 
 .loadingTitle {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 16px;
-  font-weight: 500;
-  color: #141414;
+  color: var(--aikinote-black);
   margin-bottom: 8px;
 }
 
 .loadingMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
-  font-weight: 500;
   line-height: 1.333;
-  color: #000000;
+  color: var(--aikinote-black);
 }
 
 /* 成功状態 */
@@ -124,7 +121,7 @@
 }
 
 .successTitle {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 16px;
   font-weight: 500;
   color: #141414;
@@ -132,11 +129,10 @@
 }
 
 .successMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
-  font-weight: 500;
   line-height: 1.333;
-  color: #000000;
+  color: var(--aikinote-black);
   margin-bottom: 32px;
 }
 
@@ -153,11 +149,10 @@
 }
 
 .completionMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
-  font-weight: 500;
   line-height: 1.333;
-  color: #000000;
+  color: var(--aikinote-black);
 }
 
 /* エラー状態 */
@@ -169,7 +164,7 @@
 }
 
 .errorTitle {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 16px;
   font-weight: 500;
   color: #141414;
@@ -177,11 +172,10 @@
 }
 
 .errorMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
-  font-weight: 500;
   line-height: 1.333;
-  color: #000000;
+  color: var(--aikinote-black);
   margin-bottom: 24px;
 }
 
@@ -190,7 +184,7 @@
 }
 
 .errorDetailsTitle {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 10px;
   color: #707070;
   margin-bottom: 8px;
@@ -203,7 +197,7 @@
 }
 
 .errorDetailsItem {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 10px;
   color: #707070;
   margin-bottom: 4px;
@@ -222,7 +216,7 @@
   height: 35px;
   border-radius: 24px;
   border: none;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 14px;
   line-height: 1.448;
   cursor: pointer;
@@ -245,7 +239,7 @@
 
 .secondaryButton {
   background-color: var(--secondary-color);
-  color: #000000;
+  color: var(--aikinote-black);
 }
 
 .secondaryButton:hover {
@@ -267,11 +261,10 @@
 
 /* メール送信完了メッセージ */
 .emailSentMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-zen-old-mincho);
   font-size: 12px;
-  font-weight: 500;
   line-height: 1.333;
-  color: #000000;
+  color: var(--aikinote-black);
   white-space: pre-line;
 }
 

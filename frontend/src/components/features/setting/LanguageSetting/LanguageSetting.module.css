@@ -20,42 +20,42 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border: 2px solid var(--aikinote-border);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
-  background: var(--aikinote-bg-secondary);
+  background: var(--background-light);
   cursor: pointer;
   transition: all 0.2s ease;
   min-height: 56px;
 }
 
 .languageOption:hover {
-  border-color: var(--aikinote-primary);
-  background: var(--aikinote-bg-hover);
+  border-color: var(--primary-color);
+  background: var(--aikinote-hover-gray);
 }
 
 .languageOptionActive {
-  border-color: #838383;
-  background: #838383;
+  border-color: var(--primary-color);
+  background: var(--primary-color);
 }
 
 .languageOptionActive:hover {
-  border-color: #6a6a6a;
-  background: #6a6a6a;
+  border-color: var(--primary-dark);
+  background: var(--primary-dark);
 }
 
 .languageLabel {
   font-size: 16px;
   font-weight: 500;
-  color: var(--aikinote-text-primary);
+  color: var(--text-color);
 }
 
 .languageOptionActive .languageLabel {
-  color: #ffffff;
+  color: var(--aikinote-white);
   font-weight: 600;
 }
 
 .activeIndicator {
-  color: #ffffff;
+  color: var(--aikinote-white);
   font-size: 18px;
   font-weight: bold;
   background: rgba(255, 255, 255, 0.2);

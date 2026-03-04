@@ -1,4 +1,4 @@
-import { UserCircleIcon } from "@phosphor-icons/react";
+import { UserIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
@@ -32,7 +32,7 @@ export const ProfileImage: FC<ProfileImageProps> = ({
           sizes="(min-width: 1201px) 33vw, (min-width: 769px) 50vw, 100vw"
         />
       ) : (
-        <UserCircleIcon
+        <UserIcon
           size={120}
           weight="light"
           color="var(--aikinote-black)"

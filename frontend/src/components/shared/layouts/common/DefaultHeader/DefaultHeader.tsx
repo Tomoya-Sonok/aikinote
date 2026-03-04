@@ -1,6 +1,6 @@
 "use client";
 
-import { GearIcon, UserCircleIcon } from "@phosphor-icons/react";
+import { GearIcon, UserIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -125,7 +125,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                 unoptimized
               />
             ) : (
-              <UserCircleIcon
+              <UserIcon
                 size={40}
                 weight="light"
                 color="var(--aikinote-black)"

@@ -27,7 +27,12 @@ export function EmailVerificationWaitingForm() {
               />
             </div>
           </div>
-          <StepDots states={["active", "active", "active", "inactive"]} />
+          <StepDots
+            states={["active", "active", "active", "inactive"]}
+            dotSize={12}
+            activeColor="var(--primary-color)"
+            inactiveColor="var(--border-color)"
+          />
         </div>
         <div className={styles.contentsWrapper}>
           <div className={styles.stepText}>

@@ -140,22 +140,19 @@ export function PageDetailPage() {
         setPageData(convertedData);
 
         // 添付一覧を再取得（PageEditModalでの追加/削除を反映）
-        // モーダル側の添付保存処理が完了するのを少し待つ
-        setTimeout(async () => {
-          try {
-            const attachRes = await fetch(
-              `/api/page-attachments?page_id=${pageId}`,
-            );
-            if (attachRes.ok) {
-              const attachJson = await attachRes.json();
-              if (attachJson.success && attachJson.data) {
-                setAttachments(attachJson.data);
-              }
+        try {
+          const attachRes = await fetch(
+            `/api/page-attachments?page_id=${pageId}`,
+          );
+          if (attachRes.ok) {
+            const attachJson = await attachRes.json();
+            if (attachJson.success && attachJson.data) {
+              setAttachments(attachJson.data);
             }
-          } catch (attachErr) {
-            console.warn("添付一覧の再取得に失敗:", attachErr);
           }
-        }, 500);
+        } catch (attachErr) {
+          console.warn("添付一覧の再取得に失敗:", attachErr);
+        }
 
         setPageEditModalOpen(false);
       } else {

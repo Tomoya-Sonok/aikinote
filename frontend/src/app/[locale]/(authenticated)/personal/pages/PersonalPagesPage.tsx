@@ -155,9 +155,12 @@ export function PersonalPagesPage() {
     closeDeleteDialog();
   };
 
-  const handleViewTraining = (id: string) => {
-    router.push(`/${locale}/personal/pages/${id}`);
-  };
+  const handleViewTraining = useCallback(
+    (id: string) => {
+      router.push(`/${locale}/personal/pages/${id}`);
+    },
+    [router, locale],
+  );
 
   if (loading) {
     return (

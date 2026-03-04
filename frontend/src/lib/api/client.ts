@@ -16,10 +16,10 @@ type QueryCacheEntry = {
 const queryCache = new Map<string, QueryCacheEntry>();
 
 const CACHE_TTL_MS = {
-  pagesList: 5_000,
-  pageById: 5_000,
-  tagsList: 8_000,
-  userProfile: 8_000,
+  pagesList: 30_000,
+  pageById: 30_000,
+  tagsList: 60_000,
+  userProfile: 60_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";

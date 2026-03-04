@@ -15,7 +15,7 @@
   height: 128px;
   border-radius: 50%;
   overflow: hidden;
-  background-color: #d9d9d9;
+  background-color: var(--secondary-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,7 +29,7 @@
 
 .avatarPlaceholder {
   font-size: 40px;
-  color: #9b9b9b;
+  color: var(--aikinote-text-light);
 }
 
 .uploadButton {
@@ -67,7 +67,7 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  color: #ffffff;
+  color: var(--aikinote-white);
 }
 
 .uploadText {
@@ -79,19 +79,19 @@
   width: 100%;
   height: 8px;
   border-radius: 4px;
-  background-color: #e5e5e5;
+  background-color: var(--border-color);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background-color: #838383;
+  background-color: var(--primary-color);
   transition: width 0.3s ease;
 }
 
 .note {
   font-family: "Zen Old Mincho", serif;
   font-size: 12px;
-  color: #707070;
+  color: var(--aikinote-gray);
   text-align: center;
 }
