@@ -546,5 +546,12 @@
     "usernameRequired": "ユーザー名を入力してください",
     "usernameMaxLength": "ユーザー名は20文字以下である必要があります",
     "usernameFormat": "ユーザー名は英数字、アンダースコア、ハイフンのみ使用できます"
+  },
+  "legal": {
+    "termsOfService": "利用規約",
+    "privacyPolicy": "プライバシーポリシー",
+    "legalInfo": "法的情報",
+    "agreeToTerms": "{terms} および {privacy} に同意の上、登録してください",
+    "agreeCheckbox": "上記に同意する"
   }
 }

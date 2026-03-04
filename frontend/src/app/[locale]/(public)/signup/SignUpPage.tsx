@@ -40,6 +40,7 @@ export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
   } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const { signUp, signInWithGoogle, isProcessing, error, clearError } =
     useAuth();
@@ -178,12 +179,45 @@ export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
               </p>
             </div>
 
+            <div className={styles.agreementSection}>
+              <label className={styles.agreementLabel}>
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className={styles.agreementCheckbox}
+                />
+                <span className={styles.agreementText}>
+                  <Link
+                    href={`/${resolvedLocale}/terms`}
+                    className={styles.legalLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("legal.termsOfService")}
+                  </Link>
+                  {resolvedLocale === "ja" ? " および " : " and "}
+                  <Link
+                    href={`/${resolvedLocale}/privacy`}
+                    className={styles.legalLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t("legal.privacyPolicy")}
+                  </Link>
+                  {resolvedLocale === "ja"
+                    ? " に同意の上、登録してください"
+                    : " to register"}
+                </span>
+              </label>
+            </div>
+
             <Button
               variant="primary"
               onClick={emailPasswordForm.handleSubmit(
                 handleEmailPasswordSubmit,
               )}
-              disabled={isProcessing}
+              disabled={isProcessing || !agreedToTerms}
               className={`${styles.button} ${styles.primaryButton}`}
             >
               {isProcessing ? (
