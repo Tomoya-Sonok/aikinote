@@ -544,5 +544,12 @@
     "usernameRequired": "Please enter a username",
     "usernameMaxLength": "Username must be 20 characters or less",
     "usernameFormat": "Username can only contain alphanumeric characters, underscores, and hyphens"
+  },
+  "legal": {
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "legalInfo": "Legal Information",
+    "agreeToTerms": "By registering, you agree to the {terms} and {privacy}",
+    "agreeCheckbox": "I agree to the above"
   }
 }

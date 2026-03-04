@@ -1,0 +1,88 @@
+/* コンテンツカード */
+.card {
+  background-color: var(--aikinote-white);
+  border: 0.5px solid var(--border-color);
+  border-radius: 8px;
+  padding: 32px 24px 40px;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* タイトル */
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-xl);
+  font-weight: 400;
+  color: var(--aikinote-black);
+  margin-bottom: 24px;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+/* Markdown 本文エリア */
+.body {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-sm);
+  color: var(--aikinote-black);
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+}
+
+/* Markdown 要素のスタイリング */
+.body h2 {
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  color: var(--aikinote-black);
+  margin-top: 36px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color);
+  letter-spacing: 0.06em;
+}
+
+.body h3 {
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  color: var(--aikinote-black);
+  margin-top: 24px;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.body p {
+  margin-bottom: 16px;
+}
+
+.body ul,
+.body ol {
+  margin-bottom: 16px;
+  padding-left: 1.5em;
+}
+
+.body li {
+  margin-bottom: 6px;
+}
+
+.body strong {
+  font-weight: 600;
+}
+
+.body a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+.body a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.8;
+}
+
+/* レスポンシブ: PC */
+@media (min-width: 768px) {
+  .card {
+    padding: 40px 36px 48px;
+  }
+}

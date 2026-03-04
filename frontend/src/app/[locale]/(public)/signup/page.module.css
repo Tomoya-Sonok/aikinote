@@ -324,3 +324,44 @@
     width: 74px;
   }
 }
+
+/* 同意確認セクション */
+.agreementSection {
+  margin-top: 4px;
+}
+
+.agreementLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.agreementCheckbox {
+  align-self: center;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.agreementText {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--aikinote-black);
+  letter-spacing: 0.02em;
+}
+
+.legalLink {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.legalLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.8;
+}
