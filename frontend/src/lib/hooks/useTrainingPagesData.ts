@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { type PageCreateData } from "@/components/features/personal/PageCreateModal/PageCreateModal";
 import {
   type CreatePagePayload,
@@ -13,6 +13,9 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { type TrainingPageData } from "@/types/training";
 
+// 楽観的更新用の一時的なプレフィックス
+const OPTIMISTIC_ID_PREFIX = "optimistic-";
+
 export function useTrainingPagesData() {
   const t = useTranslations();
   const { user, loading: authLoading } = useAuth();
@@ -20,6 +23,7 @@ export function useTrainingPagesData() {
   const [allTrainingPageData, setAllTrainingPageData] = useState<
     TrainingPageData[]
   >([]);
+  const optimisticIdCounter = useRef(0);
 
   const fetchAllData = useCallback(async () => {
     if (authLoading) return;
@@ -97,6 +101,19 @@ export function useTrainingPagesData() {
 
         const userId = user.id;
 
+        // 楽観的更新: 一時的なIDでプレースホルダーを即座に挿入
+        optimisticIdCounter.current += 1;
+        const optimisticId = `${OPTIMISTIC_ID_PREFIX}${optimisticIdCounter.current}`;
+        const optimisticPage: TrainingPageData = {
+          id: optimisticId,
+          title: pageData.title.trim(),
+          content: pageData.content,
+          comment: pageData.comment,
+          date: formatToLocalDateString(new Date().toISOString()),
+          tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+        };
+        setAllTrainingPageData((prev) => [optimisticPage, ...prev]);
+
         const payload: CreatePagePayload = {
           title: pageData.title.trim(),
           tori: pageData.tori,
@@ -146,7 +163,8 @@ export function useTrainingPagesData() {
             }
           }
 
-          const newPage: TrainingPageData = {
+          // 楽観的プレースホルダーを正式データに差し替え
+          const confirmedPage: TrainingPageData = {
             id: pageId,
             title: response.data.page.title,
             content: response.data.page.content,
@@ -155,11 +173,24 @@ export function useTrainingPagesData() {
             tags: response.data.tags.map((tag) => tag.name),
           };
 
-          setAllTrainingPageData((prev) => [newPage, ...prev]);
+          setAllTrainingPageData((prev) =>
+            prev.map((page) =>
+              page.id === optimisticId ? confirmedPage : page,
+            ),
+          );
           return true;
         }
+
+        // API失敗時: 楽観的プレースホルダーを除去
+        setAllTrainingPageData((prev) =>
+          prev.filter((page) => page.id !== optimisticId),
+        );
         return false;
       } catch (error) {
+        // エラー時: 楽観的更新をロールバック（プレースホルダーを除去）
+        setAllTrainingPageData((prev) =>
+          prev.filter((page) => !page.id.startsWith(OPTIMISTIC_ID_PREFIX)),
+        );
         console.error("Failed to create page:", error);
         alert(
           error instanceof Error
@@ -174,11 +205,29 @@ export function useTrainingPagesData() {
 
   const updatePageData = useCallback(
     async (pageData: UpdatePagePayload) => {
+      // 楽観的更新: 先にUIを更新
+      const previousData = allTrainingPageData;
+      const optimisticPage: TrainingPageData = {
+        id: pageData.id,
+        title: pageData.title,
+        content: pageData.content,
+        comment: pageData.comment,
+        date:
+          allTrainingPageData.find((p) => p.id === pageData.id)?.date ||
+          formatToLocalDateString(new Date().toISOString()),
+        tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+      };
+
+      setAllTrainingPageData((prev) =>
+        prev.map((page) => (page.id === pageData.id ? optimisticPage : page)),
+      );
+
       try {
         const response = await updatePage(pageData);
 
         if (response.success && response.data) {
-          const updatedPage: TrainingPageData = {
+          // APIレスポンスで正式データに差し替え
+          const confirmedPage: TrainingPageData = {
             id: response.data.page.id,
             title: response.data.page.title,
             content: response.data.page.content,
@@ -189,13 +238,18 @@ export function useTrainingPagesData() {
 
           setAllTrainingPageData((prev) =>
             prev.map((page) =>
-              page.id === updatedPage.id ? updatedPage : page,
+              page.id === confirmedPage.id ? confirmedPage : page,
             ),
           );
           return true;
         }
+
+        // API失敗時: ロールバック
+        setAllTrainingPageData(previousData);
         return false;
       } catch (error) {
+        // エラー時: ロールバック
+        setAllTrainingPageData(previousData);
         console.error("Failed to update page:", error);
         alert(
           error instanceof Error
@@ -205,7 +259,7 @@ export function useTrainingPagesData() {
         return false;
       }
     },
-    [t],
+    [allTrainingPageData, t],
   );
 
   const removePage = useCallback(
@@ -215,20 +269,25 @@ export function useTrainingPagesData() {
         return false;
       }
 
+      // 楽観的更新: 先にUIから削除
+      const previousData = allTrainingPageData;
+      setAllTrainingPageData((prev) =>
+        prev.filter((item) => item.id !== pageId),
+      );
+
       try {
         const response = await deletePage(pageId, user.id);
 
         if (response.success) {
-          setAllTrainingPageData((prev) =>
-            prev.filter((item) => item.id !== pageId),
-          );
           return true;
-        } else {
-          throw new Error(
-            response.error || t("personalPages.pageDeleteFailed"),
-          );
         }
+
+        // API失敗時: ロールバック
+        setAllTrainingPageData(previousData);
+        throw new Error(response.error || t("personalPages.pageDeleteFailed"));
       } catch (error) {
+        // エラー時: ロールバック
+        setAllTrainingPageData(previousData);
         console.error("Failed to delete page:", error);
         alert(
           error instanceof Error
@@ -238,7 +297,7 @@ export function useTrainingPagesData() {
         return false;
       }
     },
-    [user, t],
+    [user, t, allTrainingPageData],
   );
 
   return {
