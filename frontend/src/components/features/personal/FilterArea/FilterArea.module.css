@@ -12,6 +12,82 @@
   margin-top: 16px; /* SearchInputとの間隔 */
 }
 
+.filterHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchWrapper {
+  flex: 1;
+}
+
+.clearButtonContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.clearButton {
+  background: none;
+  border: none;
+  padding: 8px; /* 誤タップを防ぐ十分なタップ領域 */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--aikinote-text-light); /* またはアイコンのプライマリカラー */
+  transition: background-color 0.2s;
+  /* タッチハイライトを消す（カスタムスタイルで表現するため） */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.clearButton:active {
+  background-color: var(--background-light);
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 50%;
+  transform: translateX(50%);
+  background-color: var(--aikinote-black);
+  color: var(--aikinote-white);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--font-zen-old-mincho);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: var(--z-header-dropdown); /* project variables.css で定義済み */
+}
+
+.tooltip.visible {
+  opacity: 1;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--aikinote-black) transparent transparent transparent;
+}
+
+/* PC（マウスあり）環境でのみhoverでツールチップを表示 */
+@media (hover: hover) and (pointer: fine) {
+  .clearButtonContainer:hover .tooltip,
+  .clearButton:focus-visible + .tooltip {
+    opacity: 1;
+  }
+}
+
 .filterIcon {
   width: 24px;
   height: 24px;

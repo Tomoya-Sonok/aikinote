@@ -1,11 +1,12 @@
 import {
   CalendarDotsIcon,
   CaretRightIcon,
+  FunnelX,
   TagIcon,
 } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
@@ -33,6 +34,50 @@ export const FilterArea: FC<FilterAreaProps> = ({
 }) => {
   const t = useTranslations();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  const [showTooltip, setShowTooltip] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressActiveRef = useRef(false);
+  const LONG_PRESS_THRESHOLD_MS = 400;
+  const tooltipId = "clear-filters-tooltip";
+
+  const hasFilters =
+    currentSearchQuery !== "" ||
+    currentSelectedDate !== null ||
+    currentSelectedTags.length > 0;
+
+  const handleClearFilters = () => {
+    if (currentSearchQuery !== "") onSearchChange("");
+    if (currentSelectedDate !== null) onDateFilterChange(null);
+    if (currentSelectedTags.length > 0) _onTagFilterChange([]);
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") return;
+    isLongPressActiveRef.current = false;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      isLongPressActiveRef.current = true;
+      setShowTooltip(true);
+      timerRef.current = setTimeout(() => setShowTooltip(false), 2000);
+    }, LONG_PRESS_THRESHOLD_MS);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse") return;
+    if (!isLongPressActiveRef.current) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    }
+  };
+
+  const handleClearClick = (e: React.MouseEvent) => {
+    if (isLongPressActiveRef.current) {
+      e.preventDefault();
+      isLongPressActiveRef.current = false;
+      return;
+    }
+    handleClearFilters();
+  };
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
@@ -71,11 +116,41 @@ export const FilterArea: FC<FilterAreaProps> = ({
 
   return (
     <div className={styles.filterContainer}>
-      <SearchInput
-        value={currentSearchQuery}
-        onChange={handleSearchChange}
-        placeholder={t("filter.searchPlaceholder")}
-      />
+      <div className={styles.filterHeader}>
+        <div className={styles.searchWrapper}>
+          <SearchInput
+            value={currentSearchQuery}
+            onChange={handleSearchChange}
+            placeholder={t("filter.searchPlaceholder")}
+          />
+        </div>
+        {hasFilters && (
+          <div className={styles.clearButtonContainer}>
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={handleClearClick}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerUp}
+              onContextMenu={(e) => {
+                if (isLongPressActiveRef.current) e.preventDefault();
+              }}
+              aria-label={t("filter.clearFilters")}
+              aria-describedby={tooltipId}
+            >
+              <FunnelX size={24} weight="light" color="var(--aikinote-black)" />
+            </button>
+            <div
+              id={tooltipId}
+              role="tooltip"
+              className={`${styles.tooltip} ${showTooltip ? styles.visible : ""}`}
+            >
+              {t("filter.clearFilters")}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className={styles.filterRow}>
         {/* Tag Filter Button */}
