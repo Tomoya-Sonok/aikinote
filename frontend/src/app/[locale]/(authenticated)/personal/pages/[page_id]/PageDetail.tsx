@@ -30,7 +30,7 @@ interface ApiTag {
   category: string;
 }
 
-export function PageDetailPage() {
+export function PageDetail() {
   const t = useTranslations();
   const locale = useLocale();
   const [loading, setLoading] = useState(true);

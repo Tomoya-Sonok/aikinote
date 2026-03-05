@@ -33,7 +33,7 @@ import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import { type SortOrder } from "@/types/sortOrder";
 import styles from "./page.module.css";
 
-export function PersonalPagesPage() {
+export function PersonalPages() {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();

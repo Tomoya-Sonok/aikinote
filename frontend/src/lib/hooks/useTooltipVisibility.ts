@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-const TOOLTIP_STORAGE_KEY = "aikinote-font-size-tooltip-shown";
-
-export function useTooltipVisibility() {
+export function useTooltipVisibility(
+  storageKey: string = "aikinote-font-size-tooltip-shown",
+) {
   const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
 
   useEffect(() => {
@@ -10,19 +10,19 @@ export function useTooltipVisibility() {
     if (typeof window === "undefined") return;
 
     // LocalStorageから既に表示済みかどうかを確認
-    const hasShownTooltip = localStorage.getItem(TOOLTIP_STORAGE_KEY);
+    const hasShownTooltip = localStorage.getItem(storageKey);
 
     if (!hasShownTooltip) {
       // 初回訪問時にtooltipを表示
       setShouldShowTooltip(true);
     }
-  }, []);
+  }, [storageKey]);
 
   const hideTooltip = () => {
     setShouldShowTooltip(false);
     // LocalStorageにフラグを保存
     if (typeof window !== "undefined") {
-      localStorage.setItem(TOOLTIP_STORAGE_KEY, "true");
+      localStorage.setItem(storageKey, "true");
     }
   };
 

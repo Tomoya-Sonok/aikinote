@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { NotLoggedInLayout } from "@/components/shared/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import { SignUpPage } from "./SignUpPage";
+import { SignUp } from "./SignUp";
 
 interface SignupPageProps {
   params: Promise<{ locale: string }>;
@@ -24,7 +24,7 @@ export default async function Page({ params }: SignupPageProps) {
 
   return (
     <NotLoggedInLayout>
-      <SignUpPage locale={locale} />
+      <SignUp locale={locale} />
     </NotLoggedInLayout>
   );
 }

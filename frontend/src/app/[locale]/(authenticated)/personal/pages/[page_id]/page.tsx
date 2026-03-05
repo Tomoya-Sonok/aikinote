@@ -1,6 +1,6 @@
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { PageDetailPage } from "./PageDetailPage";
+import { PageDetail } from "./PageDetail";
 
 export const metadata = buildMetadata({
   title: "稽古ページ詳細",
@@ -10,7 +10,7 @@ export const metadata = buildMetadata({
 export default async function Page() {
   return (
     <DefaultLayout>
-      <PageDetailPage />
+      <PageDetail />
     </DefaultLayout>
   );
 }

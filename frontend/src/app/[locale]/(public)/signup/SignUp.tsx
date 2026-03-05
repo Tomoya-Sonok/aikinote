@@ -19,12 +19,12 @@ import {
 } from "@/lib/utils/validation";
 import styles from "./page.module.css";
 
-interface SignUpPageProps {
+interface SignUpProps {
   locale?: string;
   onSuccess?: () => void;
 }
 
-export function SignUpPage({ locale, onSuccess }: SignUpPageProps) {
+export function SignUp({ locale, onSuccess }: SignUpProps) {
   const [step, setStep] = useState<"email-password" | "username">(
     "email-password",
   );

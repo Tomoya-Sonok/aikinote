@@ -1,4 +1,4 @@
-import { FontSizeSettingPage } from "./FontSizeSettingPage";
+import { FontSizeSetting } from "./FontSizeSetting";
 
 export default async function Page({
   params,
@@ -7,5 +7,5 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <FontSizeSettingPage locale={locale} />;
+  return <FontSizeSetting locale={locale} />;
 }

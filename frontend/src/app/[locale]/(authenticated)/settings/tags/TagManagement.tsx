@@ -23,7 +23,7 @@ import {
   updateTagOrder,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import styles from "./TagManagementPage.module.css";
+import styles from "./TagManagement.module.css";
 
 interface TagItem {
   id: string;
@@ -119,11 +119,11 @@ const extractOrders = (groups: TagGroupMap): OrderMap => {
   };
 };
 
-interface TagManagementPageProps {
+interface TagManagementProps {
   locale: string;
 }
 
-export function TagManagementPage({ locale }: TagManagementPageProps) {
+export function TagManagement({ locale }: TagManagementProps) {
   const t = useTranslations();
   const { showToast } = useToast();
   const { user } = useAuth();

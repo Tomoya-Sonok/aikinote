@@ -14,12 +14,12 @@ import {
 } from "@/lib/utils/validation";
 import styles from "./page.module.css";
 
-interface LoginPageProps {
+interface LoginProps {
   locale?: string;
   onSuccess?: () => void;
 }
 
-export function LoginPage({ locale, onSuccess }: LoginPageProps) {
+export function Login({ locale, onSuccess }: LoginProps) {
   const t = useTranslations();
   const resolvedLocale = locale ?? "ja";
   const emailId = useId();

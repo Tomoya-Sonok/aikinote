@@ -11,11 +11,11 @@ export const createPageSchema = z.object({
   waza: z.array(z.string()).default([]),
   content: z
     .string()
-    .min(1, "稽古内容は必須です")
-    .max(2000, "稽古内容は2000文字以内で入力してください"),
+    .min(1, "内容は必須です")
+    .max(3000, "内容は3000文字以内で入力してください"),
   comment: z
     .string()
-    .max(1000, "コメントは1000文字以内で入力してください")
+    .max(1000, "その他・コメントは1000文字以内で入力してください")
     .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
 });
@@ -34,11 +34,11 @@ export const updatePageSchema = z.object({
   waza: z.array(z.string()).default([]),
   content: z
     .string()
-    .min(1, "稽古内容は必須です")
-    .max(2000, "稽古内容は2000文字以内で入力してください"),
+    .min(1, "内容は必須です")
+    .max(3000, "内容は3000文字以内で入力してください"),
   comment: z
     .string()
-    .max(1000, "コメントは1000文字以内で入力してください")
+    .max(1000, "その他・コメントは1000文字以内で入力してください")
     .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
 });

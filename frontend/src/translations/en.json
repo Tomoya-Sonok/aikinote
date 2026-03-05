@@ -391,6 +391,7 @@
     "loadMore": "Load more"
   },
   "filter": {
+    "clearFilters": "Clear filters",
     "searchPlaceholder": "Filter by keywords",
     "tagLabel": "Tag",
     "tagAlt": "Tag",

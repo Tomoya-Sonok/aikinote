@@ -6,7 +6,7 @@ import type { PageEditModalProps } from "@/components/features/personal/PageEdit
 import { deletePage, getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
-import { PageDetailPage } from "./PageDetailPage";
+import { PageDetail } from "./PageDetail";
 
 // モック設定
 vi.mock("next/navigation", () => ({
@@ -130,7 +130,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });
@@ -155,7 +155,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });
@@ -172,7 +172,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });
@@ -198,7 +198,7 @@ describe("ページ詳細画面", () => {
         await act(async () => {
           render(
             <I18nTestProvider>
-              <PageDetailPage />
+              <PageDetail />
             </I18nTestProvider>,
           );
         });
@@ -238,7 +238,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });
@@ -259,7 +259,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });
@@ -310,7 +310,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });
@@ -344,7 +344,7 @@ describe("ページ詳細画面", () => {
       await act(async () => {
         render(
           <I18nTestProvider>
-            <PageDetailPage />
+            <PageDetail />
           </I18nTestProvider>,
         );
       });

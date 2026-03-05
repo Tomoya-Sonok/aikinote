@@ -8,6 +8,7 @@ const testMessages = {
     searchIcon: "検索",
   },
   filter: {
+    clearFilters: "絞り込みをクリア",
     searchPlaceholder: "フリーワードで絞り込む",
     tagLabel: "タグ",
     tagAlt: "タグ",

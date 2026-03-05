@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
@@ -381,6 +381,7 @@ describe("FilterArea", () => {
       onSearchChange: vi.fn(),
       onDateFilterChange: vi.fn(),
       onTagFilterChange: vi.fn(),
+      currentSearchQuery: "",
       currentSelectedDate: null,
       currentSelectedTags: [],
       onOpenTagSelection: mockOnOpenTagSelection,
@@ -410,6 +411,7 @@ describe("FilterArea", () => {
       onSearchChange: vi.fn(),
       onDateFilterChange: vi.fn(),
       onTagFilterChange: vi.fn(),
+      currentSearchQuery: "",
       currentSelectedDate: null,
       currentSelectedTags: [],
       onOpenTagSelection: vi.fn(),
@@ -479,5 +481,208 @@ describe("FilterArea", () => {
 
     // Assert: ボタンが無効化されていない
     expect(dateButton).not.toBeDisabled();
+  });
+
+  describe("絞り込み条件クリア機能", () => {
+    it("条件未設定時は「絞り込みをクリア」ボタンが表示されない", () => {
+      const props = {
+        onSearchChange: vi.fn(),
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "",
+        currentSelectedDate: null,
+        currentSelectedTags: [],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const clearButton = screen.queryByRole("button", {
+        name: "絞り込みをクリア",
+      });
+      expect(clearButton).not.toBeInTheDocument();
+    });
+
+    it("検索クエリが設定されている場合、クリアボタンが表示される", () => {
+      const props = {
+        onSearchChange: vi.fn(),
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "テスト",
+        currentSelectedDate: null,
+        currentSelectedTags: [],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+      expect(clearButton).toBeInTheDocument();
+    });
+
+    it("日付が設定されている場合、クリアボタンが表示される", () => {
+      const props = {
+        onSearchChange: vi.fn(),
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "",
+        currentSelectedDate: "2024-01-01",
+        currentSelectedTags: [],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+      expect(clearButton).toBeInTheDocument();
+    });
+
+    it("タグが設定されている場合、クリアボタンが表示される", () => {
+      const props = {
+        onSearchChange: vi.fn(),
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "",
+        currentSelectedDate: null,
+        currentSelectedTags: ["基本動作"],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+      expect(clearButton).toBeInTheDocument();
+    });
+
+    it("短タップ（クリック）で全てのフィルターがクリアされる", async () => {
+      const mockOnSearchChange = vi.fn();
+      const mockOnDateFilterChange = vi.fn();
+      const mockOnTagFilterChange = vi.fn();
+      const props = {
+        onSearchChange: mockOnSearchChange,
+        onDateFilterChange: mockOnDateFilterChange,
+        onTagFilterChange: mockOnTagFilterChange,
+        currentSearchQuery: "テスト",
+        currentSelectedDate: "2024-01-01",
+        currentSelectedTags: ["基本動作"],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+
+      // Simulating a short tap
+      fireEvent.pointerDown(clearButton);
+      fireEvent.pointerUp(clearButton);
+
+      expect(mockOnSearchChange).toHaveBeenCalledWith("");
+      expect(mockOnDateFilterChange).toHaveBeenCalledWith(null);
+      expect(mockOnTagFilterChange).toHaveBeenCalledWith([]);
+    });
+
+    it("長押しするとツールチップが表示される", () => {
+      vi.useFakeTimers();
+      const props = {
+        onSearchChange: vi.fn(),
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "テスト",
+        currentSelectedDate: null,
+        currentSelectedTags: [],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const tooltip = screen.getByRole("tooltip", { hidden: true });
+      expect(tooltip.className).not.toMatch(/visible/);
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+
+      fireEvent.pointerDown(clearButton);
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(tooltip.className).toMatch(/visible/);
+
+      vi.useRealTimers();
+    });
+
+    it("長押し後に指を離すとツールチップが消え、クリア処理は呼ばれない", () => {
+      vi.useFakeTimers();
+      const mockOnSearchChange = vi.fn();
+      const props = {
+        onSearchChange: mockOnSearchChange,
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "テスト",
+        currentSelectedDate: null,
+        currentSelectedTags: [],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+
+      fireEvent.pointerDown(clearButton);
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      const tooltip = screen.getByRole("tooltip", { hidden: true });
+      expect(tooltip.className).toMatch(/visible/);
+
+      fireEvent.pointerUp(clearButton);
+
+      expect(mockOnSearchChange).not.toHaveBeenCalled();
+      expect(tooltip.className).not.toMatch(/visible/);
+
+      vi.useRealTimers();
+    });
   });
 });

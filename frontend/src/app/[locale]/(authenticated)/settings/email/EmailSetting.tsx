@@ -8,9 +8,9 @@ import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
-import styles from "./EmailSettingPage.module.css";
+import styles from "./EmailSetting.module.css";
 
-interface EmailSettingPageProps {
+interface EmailSettingProps {
   locale: string;
 }
 
@@ -20,7 +20,7 @@ type FormErrors = {
   general?: string;
 };
 
-export function EmailSettingPage({ locale }: EmailSettingPageProps) {
+export function EmailSetting({ locale }: EmailSettingProps) {
   const t = useTranslations();
   const { showToast } = useToast();
   const { user } = useAuth();

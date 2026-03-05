@@ -1,6 +1,6 @@
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { PersonalPagesPage } from "./PersonalPagesPage";
+import { PersonalPages } from "./PersonalPages";
 
 export const metadata = buildMetadata({
   title: "稽古ページ一覧",
@@ -10,7 +10,7 @@ export const metadata = buildMetadata({
 export default async function Page() {
   return (
     <DefaultLayout showTooltip={true}>
-      <PersonalPagesPage />
+      <PersonalPages />
     </DefaultLayout>
   );
 }

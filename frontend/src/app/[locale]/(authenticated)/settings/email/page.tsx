@@ -1,4 +1,4 @@
-import { EmailSettingPage } from "./EmailSettingPage";
+import { EmailSetting } from "./EmailSetting";
 
 export default async function Page({
   params,
@@ -7,5 +7,5 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <EmailSettingPage locale={locale} />;
+  return <EmailSetting locale={locale} />;
 }

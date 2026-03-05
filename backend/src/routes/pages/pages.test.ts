@@ -122,8 +122,8 @@ describe("ページ作成API", () => {
     expect(response.status).toBe(400);
   });
 
-  it("稽古内容が2000文字を超える場合にバリデーションエラーが返されること", async () => {
-    const longContent = "あ".repeat(2001);
+  it("稽古内容が3000文字を超える場合にバリデーションエラーが返されること", async () => {
+    const longContent = "あ".repeat(3001);
     const requestBody = {
       title: "テスト稽古ページ",
       content: longContent,

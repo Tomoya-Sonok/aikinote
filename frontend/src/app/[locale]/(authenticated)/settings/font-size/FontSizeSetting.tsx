@@ -2,15 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { FontSizeSetting } from "@/components/features/setting/FontSizeSetting/FontSizeSetting";
+import { FontSizeSetting as FontSizeSettingFeature } from "@/components/features/setting/FontSizeSetting/FontSizeSetting";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useToast } from "@/contexts/ToastContext";
 
-interface FontSizeSettingPageProps {
+interface FontSizeSettingProps {
   locale: string;
 }
 
-export function FontSizeSettingPage({ locale }: FontSizeSettingPageProps) {
+export function FontSizeSetting({ locale }: FontSizeSettingProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const t = useTranslations();
@@ -27,7 +27,7 @@ export function FontSizeSettingPage({ locale }: FontSizeSettingPageProps) {
       headerTitle={t("fontSize.title")}
       backHref={`/${locale}/personal/pages`}
     >
-      <FontSizeSetting onSave={handleSave} />
+      <FontSizeSettingFeature onSave={handleSave} />
     </MinimalLayout>
   );
 }

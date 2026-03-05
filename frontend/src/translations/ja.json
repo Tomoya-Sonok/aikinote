@@ -215,7 +215,7 @@
     "tagNameTooLong": "タグ名は20文字以内で入力してください",
     "titleTooLong": "タイトルは35文字以内で入力してください",
     "contentTooLong": "内容は3000文字以内で入力してください",
-    "commentTooLong": "コメントは1000文字以内で入力してください",
+    "commentTooLong": "その他・コメントは1000文字以内で入力してください",
     "tagNameInvalid": "タグ名は全角・半角英数字のみ使用可能です",
     "invalidCategory": "無効なカテゴリです",
     "loginRequired": "ログインが必要です",
@@ -393,6 +393,7 @@
     "loadMore": "もっと見る"
   },
   "filter": {
+    "clearFilters": "絞り込みをクリア",
     "searchPlaceholder": "フリーワードで絞り込む",
     "tagLabel": "タグ",
     "tagAlt": "タグ",

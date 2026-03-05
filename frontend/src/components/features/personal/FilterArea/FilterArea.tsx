@@ -1,11 +1,12 @@
 import {
   CalendarDotsIcon,
   CaretRightIcon,
+  FunnelXIcon,
   TagIcon,
 } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
@@ -33,6 +34,48 @@ export const FilterArea: FC<FilterAreaProps> = ({
 }) => {
   const t = useTranslations();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isLongPressActiveRef = useRef(false);
+
+  const tooltipId = "clear-filters-tooltip";
+
+  const hasFilters =
+    currentSearchQuery !== "" ||
+    currentSelectedDate !== null ||
+    currentSelectedTags.length > 0;
+
+  const clearTimer = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handlePointerDown = () => {
+    isLongPressActiveRef.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      isLongPressActiveRef.current = true;
+      setShowTooltip(true);
+    }, 500); // 500ms長押しでツールチップ表示
+  };
+
+  const handlePointerUp = () => {
+    clearTimer();
+    // 長押しが発動していなければ通常のクリック処理（すべてクリア）
+    if (!isLongPressActiveRef.current) {
+      if (currentSearchQuery !== "") onSearchChange("");
+      if (currentSelectedDate !== null) onDateFilterChange(null);
+      if (currentSelectedTags.length > 0) _onTagFilterChange([]);
+    }
+    // 指を離したらツールチップを隠す
+    setShowTooltip(false);
+  };
+
+  const handlePointerLeave = () => {
+    clearTimer();
+    setShowTooltip(false);
+  };
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
@@ -71,11 +114,41 @@ export const FilterArea: FC<FilterAreaProps> = ({
 
   return (
     <div className={styles.filterContainer}>
-      <SearchInput
-        value={currentSearchQuery}
-        onChange={handleSearchChange}
-        placeholder={t("filter.searchPlaceholder")}
-      />
+      <div className={styles.filterHeader}>
+        <div className={styles.searchWrapper}>
+          <SearchInput
+            value={currentSearchQuery}
+            onChange={handleSearchChange}
+            placeholder={t("filter.searchPlaceholder")}
+          />
+        </div>
+        {hasFilters && (
+          <div className={styles.clearButtonContainer}>
+            <button
+              type="button"
+              className={styles.clearButton}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerLeave}
+              aria-label={t("filter.clearFilters")}
+              aria-describedby={showTooltip ? tooltipId : undefined}
+            >
+              <FunnelXIcon
+                size={24}
+                weight="light"
+                color="var(--aikinote-black)"
+              />
+            </button>
+            <div
+              id={tooltipId}
+              role="tooltip"
+              className={`${styles.tooltip} ${showTooltip ? styles.visible : ""}`}
+            >
+              {t("filter.clearFilters")}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className={styles.filterRow}>
         {/* Tag Filter Button */}
