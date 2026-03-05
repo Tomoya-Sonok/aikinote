@@ -1,4 +1,4 @@
-import { TagManagementPage } from "./TagManagementPage";
+import { TagManagement } from "./TagManagement";
 
 export default async function Page({
   params,
@@ -7,5 +7,5 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <TagManagementPage locale={locale} />;
+  return <TagManagement locale={locale} />;
 }

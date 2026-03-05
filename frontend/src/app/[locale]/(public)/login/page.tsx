@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { NotLoggedInLayout } from "@/components/shared/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import { LoginPage } from "./LoginPage";
+import { Login } from "./Login";
 
 export async function generateMetadata({
   params,
@@ -33,7 +33,7 @@ export default async function Page({
 
   return (
     <NotLoggedInLayout>
-      <LoginPage locale={locale} />
+      <Login locale={locale} />
     </NotLoggedInLayout>
   );
 }

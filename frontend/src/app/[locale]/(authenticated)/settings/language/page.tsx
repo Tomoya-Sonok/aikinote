@@ -1,4 +1,4 @@
-import { LanguageSettingPage } from "./LanguageSettingPage";
+import { LanguageSetting } from "./LanguageSetting";
 
 export default async function Page({
   params,
@@ -7,5 +7,5 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <LanguageSettingPage locale={locale} />;
+  return <LanguageSetting locale={locale} />;
 }

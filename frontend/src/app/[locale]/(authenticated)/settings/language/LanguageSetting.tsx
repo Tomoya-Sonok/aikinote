@@ -2,16 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { LanguageSetting } from "@/components/features/setting/LanguageSetting/LanguageSetting";
+import { LanguageSetting as LanguageSettingFeature } from "@/components/features/setting/LanguageSetting/LanguageSetting";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { useToast } from "@/contexts/ToastContext";
 import { useLanguageStore } from "@/stores/languageStore";
 
-interface LanguageSettingPageProps {
+interface LanguageSettingProps {
   locale: string;
 }
 
-export function LanguageSettingPage({ locale }: LanguageSettingPageProps) {
+export function LanguageSetting({ locale }: LanguageSettingProps) {
   const router = useRouter();
   const { showToast } = useToast();
   const { getNavigationPath } = useLanguageStore();
@@ -30,7 +30,7 @@ export function LanguageSettingPage({ locale }: LanguageSettingPageProps) {
       headerTitle={t("language.title")}
       backHref={`/${locale}/personal/pages`}
     >
-      <LanguageSetting onSave={handleSave} />
+      <LanguageSettingFeature onSave={handleSave} />
     </MinimalLayout>
   );
 }
