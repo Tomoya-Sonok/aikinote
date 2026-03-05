@@ -1,8 +1,31 @@
 import { trpcClient } from "@/lib/trpc/client";
 
-const getErrorMessage = (error: unknown, fallback: string) => {
+const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) {
-    return error.message;
+    try {
+      // TRPC (Zod) のバリデーションエラーが JSON 文字列で返ってくる場合の対応
+      const parsed = JSON.parse(error.message);
+      if (Array.isArray(parsed) && parsed[0]?.message) {
+        return String(parsed[0].message);
+      }
+    } catch {
+      // JSON形式でない場合はそのまま処理を続ける
+    }
+
+    if (typeof error.message === "object") {
+      return JSON.stringify(error.message);
+    }
+
+    return String(error.message);
+  }
+
+  if (error && typeof error === "object" && "message" in error) {
+    const msg = (error as { message: unknown }).message;
+    return typeof msg === "string" ? msg : JSON.stringify(msg);
+  }
+
+  if (typeof error === "string") {
+    return error;
   }
 
   return fallback;
