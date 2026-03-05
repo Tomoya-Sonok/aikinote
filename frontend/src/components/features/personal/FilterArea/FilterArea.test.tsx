@@ -577,7 +577,6 @@ describe("FilterArea", () => {
     });
 
     it("短タップ（クリック）で全てのフィルターがクリアされる", async () => {
-      const user = userEvent.setup();
       const mockOnSearchChange = vi.fn();
       const mockOnDateFilterChange = vi.fn();
       const mockOnTagFilterChange = vi.fn();
@@ -601,16 +600,53 @@ describe("FilterArea", () => {
         name: "絞り込みをクリア",
       });
 
-      await user.click(clearButton);
+      // Simulating a short tap
+      fireEvent.pointerDown(clearButton);
+      fireEvent.pointerUp(clearButton);
 
       expect(mockOnSearchChange).toHaveBeenCalledWith("");
       expect(mockOnDateFilterChange).toHaveBeenCalledWith(null);
       expect(mockOnTagFilterChange).toHaveBeenCalledWith([]);
     });
 
-    it("モバイル環境の長押しでツールチップが表示され、クリック動作がキャンセルされる", async () => {
+    it("長押しするとツールチップが表示される", () => {
       vi.useFakeTimers();
-      const user = userEvent.setup({ delay: null });
+      const props = {
+        onSearchChange: vi.fn(),
+        onDateFilterChange: vi.fn(),
+        onTagFilterChange: vi.fn(),
+        currentSearchQuery: "テスト",
+        currentSelectedDate: null,
+        currentSelectedTags: [],
+        onOpenTagSelection: vi.fn(),
+        onOpenDateSelection: vi.fn(),
+      };
+
+      render(
+        <I18nTestProvider>
+          <FilterArea {...props} />
+        </I18nTestProvider>,
+      );
+
+      const tooltip = screen.getByRole("tooltip", { hidden: true });
+      expect(tooltip.className).not.toMatch(/visible/);
+
+      const clearButton = screen.getByRole("button", {
+        name: "絞り込みをクリア",
+      });
+
+      fireEvent.pointerDown(clearButton);
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(tooltip.className).toMatch(/visible/);
+
+      vi.useRealTimers();
+    });
+
+    it("長押し後に指を離すとツールチップが消え、クリア処理は呼ばれない", () => {
+      vi.useFakeTimers();
       const mockOnSearchChange = vi.fn();
       const props = {
         onSearchChange: mockOnSearchChange,
@@ -622,6 +658,7 @@ describe("FilterArea", () => {
         onOpenTagSelection: vi.fn(),
         onOpenDateSelection: vi.fn(),
       };
+
       render(
         <I18nTestProvider>
           <FilterArea {...props} />
@@ -631,61 +668,21 @@ describe("FilterArea", () => {
       const clearButton = screen.getByRole("button", {
         name: "絞り込みをクリア",
       });
-      const tooltip = screen.getByRole("tooltip", { hidden: true });
 
-      // 初期状態ではtooltip.visibleクラスがない
-      expect(tooltip).not.toHaveClass(/visible/);
-
-      // ポインターダウン（タッチデバイス想定）
-      fireEvent.pointerDown(clearButton, { pointerType: "touch" });
-
-      // LONG_PRESS_THRESHOLD_MS (400ms) 以上経過させる
+      fireEvent.pointerDown(clearButton);
       act(() => {
-        vi.advanceTimersByTime(400);
+        vi.advanceTimersByTime(500);
       });
 
-      // tooltipがvisibleになる
+      const tooltip = screen.getByRole("tooltip", { hidden: true });
       expect(tooltip.className).toMatch(/visible/);
 
-      // ポインターアップ
-      fireEvent.pointerUp(clearButton, { pointerType: "touch" });
+      fireEvent.pointerUp(clearButton);
 
-      // クリックイベントを発火（長押し判定でキャンセルされるはず）
-      fireEvent.click(clearButton);
-
-      // キャンセルされたため、onSearchChange は呼ばれない
       expect(mockOnSearchChange).not.toHaveBeenCalled();
-
-      // 2秒経過でツールチップが消える
-      act(() => {
-        vi.advanceTimersByTime(2000);
-      });
       expect(tooltip.className).not.toMatch(/visible/);
 
       vi.useRealTimers();
-    });
-
-    it("PC環境のホバーはCSSで処理されるため、DOM上にツールチップは存在する", () => {
-      const props = {
-        onSearchChange: vi.fn(),
-        onDateFilterChange: vi.fn(),
-        onTagFilterChange: vi.fn(),
-        currentSearchQuery: "テスト",
-        currentSelectedDate: null,
-        currentSelectedTags: [],
-        onOpenTagSelection: vi.fn(),
-        onOpenDateSelection: vi.fn(),
-      };
-      render(
-        <I18nTestProvider>
-          <FilterArea {...props} />
-        </I18nTestProvider>,
-      );
-
-      const tooltip = screen.getByText("絞り込みをクリア");
-      expect(tooltip).toBeInTheDocument();
-      // role="tooltip" であることも確認
-      expect(tooltip).toHaveAttribute("role", "tooltip");
     });
   });
 });

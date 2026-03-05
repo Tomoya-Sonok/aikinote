@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": [
     "**/*.test.ts",
@@ -9,7 +9,8 @@
     "**/*.integration.test.ts",
     "vitest.setup.ts",
     "mocks/**/*",
-    "src/mocks/**/*"
+    "src/mocks/**/*",
+    "src/test-utils/**/*"
   ],
   "exclude": ["node_modules", ".next", "dist"]
 }
