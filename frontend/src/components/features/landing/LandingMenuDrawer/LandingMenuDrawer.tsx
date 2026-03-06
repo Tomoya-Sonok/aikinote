@@ -122,15 +122,14 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
             <p className={styles.menuDrawerFooterItem}>{privacyLabel}</p>
             <p className={styles.menuDrawerFooterItem}>
               {helpPrefix}
-              <button
-                type="button"
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
+                target="_blank"
+                rel="noreferrer"
                 className={styles.menuDrawerHelpLink}
-                onClick={(event) => {
-                  event.preventDefault();
-                }}
               >
                 {helpLinkLabel}
-              </button>
+              </a>
             </p>
           </div>
         </div>

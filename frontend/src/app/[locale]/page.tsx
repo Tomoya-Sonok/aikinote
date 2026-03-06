@@ -6,7 +6,6 @@ import { Fragment, type ReactNode } from "react";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
-import { ScrollIndicator } from "@/components/shared/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
@@ -498,7 +497,6 @@ export default async function RootPage({ params }: RootPageProps) {
       <Link href={signupHref} className={styles.floatingCta}>
         {t("floatingCta")}
       </Link>
-      <ScrollIndicator label={t("cta.goDown")} />
     </div>
   );
 }
