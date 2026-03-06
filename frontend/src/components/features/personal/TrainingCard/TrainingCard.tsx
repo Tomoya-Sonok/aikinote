@@ -1,7 +1,6 @@
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { type FC, type KeyboardEvent, memo } from "react";
-import { Button } from "@/components/shared/Button/Button";
 import { Tag } from "@/components/shared/Tag/Tag";
 import styles from "./TrainingCard.module.css";
 
@@ -47,30 +46,26 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
           <h3 className={styles.title}>{title}</h3>
           <div className={styles.actions}>
             {onEdit && (
-              <Button
-                variant="icon"
+              <button
+                type="button"
+                className={styles.iconButton}
                 onClick={handleEdit}
-                style={{ padding: "8px" }}
               >
                 <PencilSimpleIcon
                   size={16}
                   weight="light"
-                  color="var(--aikinote-black)"
+                  color="var(--black)"
                 />
-              </Button>
+              </button>
             )}
             {onDelete && (
-              <Button
-                variant="icon"
+              <button
+                type="button"
+                className={styles.iconButton}
                 onClick={handleDelete}
-                style={{ padding: "8px" }}
               >
-                <TrashIcon
-                  size={16}
-                  weight="light"
-                  color="var(--aikinote-black)"
-                />
-              </Button>
+                <TrashIcon size={16} weight="light" color="var(--black)" />
+              </button>
             )}
           </div>
         </div>

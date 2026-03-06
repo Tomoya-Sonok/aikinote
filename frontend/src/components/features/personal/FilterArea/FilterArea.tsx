@@ -133,11 +133,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
               aria-label={t("filter.clearFilters")}
               aria-describedby={showTooltip ? tooltipId : undefined}
             >
-              <FunnelXIcon
-                size={24}
-                weight="light"
-                color="var(--aikinote-black)"
-              />
+              <FunnelXIcon size={24} weight="light" color="var(--black)" />
             </button>
             <div
               id={tooltipId}
@@ -160,7 +156,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <TagIcon
             size={20}
             weight="light"
-            color="var(--aikinote-black)"
+            color="var(--black)"
             className={styles.filterIcon}
           />
           <span className={styles.filterLabel}>{t("filter.tagLabel")}</span>
@@ -168,7 +164,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <CaretRightIcon
             size={16}
             weight="light"
-            color="var(--aikinote-black)"
+            color="var(--black)"
             className={styles.arrow}
           />
         </button>
@@ -182,7 +178,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <CalendarDotsIcon
             size={20}
             weight="light"
-            color="var(--aikinote-black)"
+            color="var(--black)"
             className={styles.filterIcon}
           />
           <span className={styles.filterLabel}>{t("filter.dateLabel")}</span>
@@ -190,7 +186,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <CaretRightIcon
             size={16}
             weight="light"
-            color="var(--aikinote-black)"
+            color="var(--black)"
             className={styles.arrow}
           />
         </button>

@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Button } from "@/components/shared/Button/Button";
 import styles from "./DatePickerModal.module.css";
 
 interface DatePickerModalProps {
@@ -276,20 +277,20 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
 
           {/* Action Buttons */}
           <div className={styles.actionButtons}>
-            <button
-              type="button"
-              className={styles.cancelButton}
+            <Button
+              variant="cancel"
               onClick={handleCancel}
+              className={styles.button}
             >
               {t("datePickerModal.cancel")}
-            </button>
-            <button
-              type="button"
-              className={styles.confirmButton}
+            </Button>
+            <Button
+              variant="primary"
               onClick={handleConfirm}
+              className={styles.button}
             >
               {t("datePickerModal.filter")}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

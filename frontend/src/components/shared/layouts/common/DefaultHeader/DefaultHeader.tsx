@@ -128,7 +128,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
               <UserIcon
                 size={40}
                 weight="light"
-                color="var(--aikinote-black)"
+                color="var(--black)"
                 className={styles.avatarFallback}
               />
             )}

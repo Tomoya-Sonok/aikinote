@@ -545,7 +545,7 @@ export const PageModal: FC<PageModalProps> = ({
         </div>
 
         <div className={styles.footer}>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="cancel" onClick={handleClose}>
             {t("common.cancel")}
           </Button>
           <Button variant="primary" onClick={handleSubmit}>

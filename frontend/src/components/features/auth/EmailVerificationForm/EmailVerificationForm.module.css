@@ -13,7 +13,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 20px;
   line-height: 1.448;
-  color: var(--aikinote-black);
+  color: var(--black);
   margin-bottom: 8px;
   align-self: start;
   margin-left: 4px;
@@ -51,7 +51,7 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--aikinote-black);
+  color: var(--black);
 }
 
 .progressContainer {
@@ -101,7 +101,7 @@
 .loadingTitle {
   font-family: var(--font-zen-old-mincho);
   font-size: 16px;
-  color: var(--aikinote-black);
+  color: var(--black);
   margin-bottom: 8px;
 }
 
@@ -109,7 +109,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.333;
-  color: var(--aikinote-black);
+  color: var(--black);
 }
 
 /* 成功状態 */
@@ -132,7 +132,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.333;
-  color: var(--aikinote-black);
+  color: var(--black);
   margin-bottom: 32px;
 }
 
@@ -152,7 +152,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.333;
-  color: var(--aikinote-black);
+  color: var(--black);
 }
 
 /* エラー状態 */
@@ -175,7 +175,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.333;
-  color: var(--aikinote-black);
+  color: var(--black);
   margin-bottom: 24px;
 }
 
@@ -239,7 +239,7 @@
 
 .secondaryButton {
   background-color: var(--secondary-color);
-  color: var(--aikinote-black);
+  color: var(--black);
 }
 
 .secondaryButton:hover {
@@ -264,7 +264,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   line-height: 1.333;
-  color: var(--aikinote-black);
+  color: var(--black);
   white-space: pre-line;
 }
 

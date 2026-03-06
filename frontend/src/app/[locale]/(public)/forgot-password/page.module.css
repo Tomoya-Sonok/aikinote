@@ -1,6 +1,6 @@
 /* パスワードリセットページ全体のコンテナ */
 .container {
-  background-color: var(--aikinote-bg, #f9f8f6);
+  background-color: var(--bg-base, #f9f8f6);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--black, #2c2c2c);
   margin-bottom: 12px;
   align-self: start;
   margin-left: 4px;
@@ -23,7 +23,7 @@
 
 /* フォームカード */
 .formCard {
-  background-color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--white, #fdfcfa);
   border-radius: 8px;
   padding: 28px;
   width: 100%;

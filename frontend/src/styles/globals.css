@@ -29,8 +29,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: rgb(var(--text-color));
-  background-color: var(--aikinote-bg);
+  color: rgb(var(--black));
+  background-color: var(--bg-base);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--current-font-size);
   letter-spacing: 0.04em;
@@ -39,7 +39,7 @@ body {
   overflow-x: hidden;
 }
 
-/* 和紙テクスチャ — 疑似要素で低opacityオーバーレイ */
+/* 和紙テクスチャ — 一時無効化中
 body::after {
   content: "";
   position: fixed;
@@ -52,6 +52,7 @@ body::after {
   opacity: 0.15;
   mix-blend-mode: multiply;
 }
+*/
 
 /* 5. Improve media defaults */
 img,

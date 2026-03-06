@@ -19,7 +19,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
       <NotePencilIcon
         size={32}
         weight="light"
-        color="var(--aikinote-white)"
+        color="var(--white)"
         className={styles.icon}
       />
       <span className={styles.label}>{defaultLabel}</span>

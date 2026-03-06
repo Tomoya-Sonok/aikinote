@@ -8,7 +8,7 @@
 .label {
   font-size: 14px;
   font-weight: 400;
-  color: var(--text-color);
+  color: var(--black);
   font-family: var(--font-zen-old-mincho);
 }
 
@@ -25,8 +25,8 @@
   padding: 6px 12px;
   border: 1px dashed var(--border-color);
   border-radius: 6px;
-  background-color: var(--aikinote-white);
-  color: var(--aikinote-gray);
+  background-color: var(--white);
+  color: var(--primary-color);
   font-size: 12px;
   font-family: var(--font-zen-old-mincho);
   cursor: pointer;
@@ -34,8 +34,8 @@
 }
 
 .fileButton:hover {
-  border-color: var(--aikinote-light-gray);
-  background-color: var(--aikinote-hover-gray);
+  border-color: var(--light-gray);
+  background-color: var(--hover-gray);
 }
 
 .fileButton:disabled {
@@ -72,16 +72,16 @@
 
 .youtubeInput:focus {
   outline: none;
-  border-color: var(--aikinote-light-gray);
+  border-color: var(--light-gray);
 }
 
 .youtubeInput::placeholder {
-  color: var(--aikinote-text-light);
+  color: var(--text-light);
 }
 
 .youtubeLoading {
   font-size: 11px;
-  color: var(--aikinote-text-light);
+  color: var(--text-light);
   display: flex;
   align-items: center;
   padding: 0 4px;
@@ -99,7 +99,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 11px;
-  color: var(--aikinote-text-light);
+  color: var(--text-light);
   font-family: var(--font-zen-old-mincho);
 }
 
@@ -113,11 +113,7 @@
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--aikinote-light-gray),
-    var(--primary-dark)
-  );
+  background: linear-gradient(90deg, var(--light-gray), var(--primary-dark));
   border-radius: 2px;
   transition: width 0.2s ease;
 }
@@ -137,6 +133,6 @@
 
 .note {
   font-size: 10px;
-  color: var(--aikinote-text-light);
+  color: var(--text-light);
   font-family: var(--font-zen-old-mincho);
 }

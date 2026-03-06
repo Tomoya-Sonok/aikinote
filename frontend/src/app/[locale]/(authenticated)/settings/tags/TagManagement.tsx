@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { Tag } from "@/components/shared/Tag/Tag";
@@ -685,7 +686,7 @@ export function TagManagement({ locale }: TagManagementProps) {
                     <PencilSimpleIcon
                       size={18}
                       weight="light"
-                      color="var(--aikinote-black)"
+                      color="var(--black)"
                       aria-hidden="true"
                     />
                   </button>
@@ -697,24 +698,22 @@ export function TagManagement({ locale }: TagManagementProps) {
                       {t("tagManagement.reorderHint")}
                     </p>
                     <div className={styles.reorderButtons}>
-                      <button
-                        type="button"
-                        className={styles.orderButtonPrimary}
+                      <Button
+                        variant="primary"
                         onClick={() => handleSaveOrder(category)}
                         disabled={!orderChanged || isSaving}
                       >
                         {isSaving
                           ? t("tagManagement.orderSaving")
                           : t("tagManagement.saveOrder")}
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.orderButtonSecondary}
+                      </Button>
+                      <Button
+                        variant="cancel"
                         onClick={() => handleCancelReorder(category)}
                         disabled={isSaving}
                       >
                         {t("tagManagement.undo")}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -833,22 +832,20 @@ export function TagManagement({ locale }: TagManagementProps) {
                     disabled={isSubmitting}
                     aria-label={t("pageModal.addNewTag")}
                   />
-                  <button
-                    type="button"
-                    className={styles.formButtonPrimary}
+                  <Button
+                    variant="primary"
                     onClick={() => handleCreateTag(category)}
                     disabled={isSubmitting}
                   >
                     {t("pageModal.add")}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.formButtonSecondary}
+                  </Button>
+                  <Button
+                    variant="cancel"
                     onClick={() => handleResetInput(category)}
                     disabled={isSubmitting}
                   >
                     {t("common.cancel")}
-                  </button>
+                  </Button>
                 </div>
               </section>
             );

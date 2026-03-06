@@ -78,7 +78,7 @@ export function ConfirmDialog({
         </p>
         <div className={styles.actions}>
           <Button
-            variant="secondary"
+            variant="cancel"
             size="medium"
             onClick={onCancel}
             disabled={isProcessing}

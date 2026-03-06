@@ -64,7 +64,7 @@
 .header h1 {
   font-size: 1.75rem;
   font-weight: 600;
-  color: var(--aikinote-black, #1f2937);
+  color: var(--black, #1f2937);
   letter-spacing: -0.02em;
   margin: 0;
 }
@@ -77,7 +77,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   margin-bottom: 32px;
   aspect-ratio: 16 / 9;
-  background: var(--aikinote-bg, #f3f4f6);
+  background: var(--bg-base, #f3f4f6);
 }
 
 .image {
@@ -99,14 +99,14 @@
 
 .description {
   font-size: 1.125rem;
-  color: var(--aikinote-black, #374151);
+  color: var(--black, #374151);
   font-weight: 500;
   line-height: 1.5;
 }
 
 .notice {
   font-size: 0.875rem;
-  color: var(--aikinote-text-light, #6b7280);
+  color: var(--text-light, #6b7280);
   line-height: 1.6;
   background: rgba(0, 0, 0, 0.03);
   padding: 16px;
