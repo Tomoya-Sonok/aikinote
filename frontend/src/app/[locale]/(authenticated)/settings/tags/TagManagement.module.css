@@ -44,11 +44,6 @@
     transform 0.2s ease;
 }
 
-.editButtonActive {
-  background-color: var(--black);
-  color: var(--white);
-}
-
 .editHint {
   font-size: var(--font-size-xs);
   color: var(--text-light);

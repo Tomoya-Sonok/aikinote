@@ -1,6 +1,6 @@
 "use client";
 
-import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { PencilSimpleIcon, XIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import {
   type DragEvent,
@@ -676,19 +676,28 @@ export function TagManagement({ locale }: TagManagementProps) {
                   </h2>
                   <button
                     type="button"
-                    className={`${styles.editButton} ${isEditing ? styles.editButtonActive : ""}`}
+                    className={styles.editButton}
                     onClick={() => handleToggleEditing(category)}
                     aria-pressed={isEditing}
                     aria-label={t("tagManagement.editAria", {
                       category: t(`tagManagement.categories.${category}`),
                     })}
                   >
-                    <PencilSimpleIcon
-                      size={18}
-                      weight="light"
-                      color="var(--black)"
-                      aria-hidden="true"
-                    />
+                    {isEditing ? (
+                      <XIcon
+                        size={18}
+                        weight="light"
+                        color="currentColor"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <PencilSimpleIcon
+                        size={18}
+                        weight="light"
+                        color="currentColor"
+                        aria-hidden="true"
+                      />
+                    )}
                   </button>
                 </div>
 
