@@ -3,7 +3,6 @@
 import { CaretLeftIcon } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import type { MouseEventHandler, ReactNode } from "react";
-import { Button } from "@/components/shared/Button/Button";
 import styles from "./MinimalLayout.module.css";
 
 interface MinimalLayoutProps {
@@ -36,8 +35,8 @@ export function MinimalLayout({
     <div className={styles.layout}>
       {showHeader && (
         <header className={styles.header}>
-          <Button
-            variant="ghost"
+          <button
+            type="button"
             className={styles.backButton}
             style={{ display: "flex" }}
             aria-label="戻る"
@@ -46,10 +45,10 @@ export function MinimalLayout({
             <CaretLeftIcon
               size={20}
               weight="light"
-              color="var(--black)"
+              color="var(--aikinote-black)"
               aria-hidden="true"
             />
-          </Button>
+          </button>
           {headerTitle && (
             <span className={styles.headerTitle}>{headerTitle}</span>
           )}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/shared/Button/Button";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -19,9 +18,9 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
         <main style={{ padding: "2rem" }}>
           <h1>エラーが発生しました</h1>
           <p>{error.message}</p>
-          <Button variant="primary" onClick={reset}>
+          <button type="button" onClick={reset}>
             再試行する
-          </Button>
+          </button>
         </main>
       </body>
     </html>

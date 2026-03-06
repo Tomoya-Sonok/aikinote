@@ -14,7 +14,7 @@
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
-  color: var(--black);
+  color: var(--aikinote-black);
   margin-bottom: 8px;
   align-self: start;
   margin-left: 4px;
@@ -52,7 +52,7 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 .progressContainer {
@@ -207,7 +207,7 @@
 
 .secondaryButton {
   background-color: var(--secondary-color);
-  color: var(--black);
+  color: var(--aikinote-black);
   width: 100%;
 }
 
@@ -219,7 +219,7 @@
   font-family: "Zen Old Mincho", serif;
   font-size: 12px;
   line-height: 1.448;
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 /* 成功画面 */
@@ -232,7 +232,7 @@
   font-size: 12px;
   font-weight: 500;
   line-height: 1.333;
-  color: var(--black);
+  color: var(--aikinote-black);
   margin-top: 24px;
 }
 

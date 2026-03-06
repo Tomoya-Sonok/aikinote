@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/shared/Button/Button";
 
 interface LocaleErrorProps {
   error: Error & { digest?: string };
@@ -17,9 +16,9 @@ export default function LocaleError({ error, reset }: LocaleErrorProps) {
     <div style={{ padding: "2rem" }}>
       <h1>エラーが発生しました</h1>
       <p>{error.message}</p>
-      <Button variant="primary" onClick={reset}>
+      <button type="button" onClick={reset}>
         再試行する
-      </Button>
+      </button>
     </div>
   );
 }

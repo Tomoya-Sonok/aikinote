@@ -35,7 +35,7 @@ export const ProfileImage: FC<ProfileImageProps> = ({
         <UserIcon
           size={120}
           weight="light"
-          color="var(--black)"
+          color="var(--aikinote-black)"
           className={styles.image}
         />
       )}

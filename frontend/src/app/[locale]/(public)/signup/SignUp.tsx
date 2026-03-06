@@ -161,13 +161,13 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
                   }`}
                   placeholder="Password123!"
                 />
-                <Button
-                  variant="ghost"
+                <button
+                  type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
                   className={styles.passwordToggle}
                 >
                   {showPassword ? t("auth.hide") : t("auth.show")}
-                </Button>
+                </button>
               </div>
               {emailPasswordForm.formState.errors.password && (
                 <p className={styles.errorMessage}>
@@ -229,8 +229,8 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
           </form>
 
           <div className={styles.otherActions}>
-            <Button
-              variant="secondary"
+            <button
+              type="button"
               onClick={handleGoogleSignUp}
               disabled={isProcessing}
               className={styles.googleButton}
@@ -255,7 +255,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
                 />
               </svg>
               {t("auth.signUpWithGoogle")}
-            </Button>
+            </button>
 
             <div className={styles.loginPrompt}>
               <span className={styles.loginPromptText}>

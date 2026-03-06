@@ -7,7 +7,7 @@
   justify-content: space-between;
   padding: 14px 20px;
   border-bottom: 0.5px solid var(--border-color, #e8e4df);
-  background: var(--white, #ffffff);
+  background: var(--aikinote-white, #fdfcfa);
 }
 
 .logoLink {
@@ -47,7 +47,7 @@
   height: 40px;
   border-radius: 9999px;
   background: #f5f5f9;
-  color: var(--white);
+  color: var(--aikinote-white);
   font-size: var(--font-size-lg);
   font-weight: 700;
   display: flex;
@@ -65,13 +65,13 @@
 .userName {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--black);
+  color: var(--aikinote-black);
   line-height: 1.2;
 }
 
 .userDojoStyleName {
   font-size: var(--font-size-xs);
-  color: var(--text-light);
+  color: var(--aikinote-text-light);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -86,15 +86,15 @@
   height: 40px;
   border-radius: 9999px;
   border: 0.5px solid var(--border-color);
-  background: var(--white);
+  background: var(--aikinote-white);
   transition: all 0.4s ease-out;
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(44, 44, 44, 0.04);
 }
 
 .settingsButton:hover {
-  background: var(--hover-gray);
-  border-color: var(--primary-color);
+  background: var(--aikinote-hover-gray);
+  border-color: var(--aikinote-gray);
   box-shadow: 0 2px 8px rgba(44, 44, 44, 0.06);
 }
 
@@ -111,8 +111,8 @@
   position: absolute;
   top: calc(100% + 8px);
   transform: translateX(-40%);
-  background-color: var(--primary-color);
-  color: var(--white);
+  background-color: var(--aikinote-gray);
+  color: var(--aikinote-white);
   font-size: var(--font-size-sm);
   border-radius: 6px;
   padding: 8px 14px;
@@ -133,7 +133,7 @@
   transform: translateX(-50%) rotate(45deg);
   width: 8px;
   height: 8px;
-  background-color: var(--primary-color);
+  background-color: var(--aikinote-gray);
   border-radius: 2px 0 0 0;
   transition: all 0.4s ease-out;
 }

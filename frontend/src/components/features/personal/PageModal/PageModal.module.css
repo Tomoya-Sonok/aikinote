@@ -19,7 +19,7 @@
   max-width: none;
   height: calc(100vh - 100px);
   max-height: none;
-  background: var(--white);
+  background: var(--aikinote-white);
   border-radius: 24px;
   border: none;
   padding: 0;
@@ -38,7 +38,7 @@
 .title {
   font-size: 20px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--aikinote-black);
   margin: 0;
   line-height: 1.45;
   font-family: var(--font-zen-old-mincho);
@@ -67,8 +67,8 @@
 }
 
 .cancelButton {
-  background-color: var(--light-gray);
-  color: var(--black);
+  background-color: var(--aikinote-light-gray);
+  color: var(--aikinote-black);
   border: none;
   border-radius: 24px;
   padding: 0 16px;
@@ -87,7 +87,7 @@
 
 .actionButton {
   background-color: var(--primary-color);
-  color: var(--white);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 24px;
   padding: 0 16px;
@@ -151,17 +151,17 @@
 }
 
 .newTagInput button:first-of-type:disabled {
-  background-color: var(--light-gray);
+  background-color: var(--aikinote-light-gray);
   cursor: not-allowed;
 }
 
 .newTagInput button:last-of-type {
   background-color: var(--border-color);
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 .newTagInput button:last-of-type:hover {
-  background-color: var(--light-gray);
+  background-color: var(--aikinote-light-gray);
 }
 
 @media (min-width: 431px) {

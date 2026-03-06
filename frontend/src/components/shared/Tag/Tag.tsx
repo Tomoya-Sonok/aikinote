@@ -8,8 +8,6 @@ interface TagProps {
   className?: string;
 }
 
-import { Button } from "@/components/shared/Button/Button";
-
 export const Tag: FC<TagProps> = ({
   children,
   variant = "default",
@@ -27,9 +25,9 @@ export const Tag: FC<TagProps> = ({
 
   if (onClick) {
     return (
-      <Button variant="ghost" className={baseClassName} onClick={onClick}>
+      <button type="button" className={baseClassName} onClick={onClick}>
         {children}
-      </Button>
+      </button>
     );
   }
 

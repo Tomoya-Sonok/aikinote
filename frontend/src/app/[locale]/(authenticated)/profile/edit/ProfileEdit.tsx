@@ -311,7 +311,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   unoptimized
                 />
               ) : (
-                <UserIcon size={48} weight="light" color="var(--black)" />
+                <UserIcon
+                  size={48}
+                  weight="light"
+                  color="var(--aikinote-black)"
+                />
               )}
             </div>
             <div className={styles.editIcon}>
@@ -321,7 +325,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 onChange={handleImageChange}
                 className={styles.fileInput}
               />
-              <ImagesSquareIcon size={16} weight="light" color="var(--black)" />
+              <ImagesSquareIcon
+                size={16}
+                weight="light"
+                color="var(--aikinote-black)"
+              />
             </div>
           </label>
           <div className={styles.imageUpload}>
@@ -338,8 +346,8 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 className={styles.fileInfo}
                 style={{
                   color: profileImageFile
-                    ? "var(--black)"
-                    : "var(--text-light)",
+                    ? "var(--aikinote-black)"
+                    : "var(--aikinote-text-light)",
                 }}
               >
                 {profileImageFile
@@ -359,7 +367,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 <PhosphorTrashIcon
                   size={24}
                   weight="light"
-                  color="var(--black)"
+                  color="var(--aikinote-black)"
                 />
               </button>
             </div>

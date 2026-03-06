@@ -15,18 +15,18 @@
 }
 
 .default {
-  background: var(--black);
-  color: var(--white);
+  background: var(--aikinote-black);
+  color: var(--aikinote-white);
 }
 
 .selected {
   background: var(--primary-color);
-  color: var(--white);
+  color: var(--aikinote-white);
 }
 
 .selectable {
-  background: var(--white);
-  color: var(--black);
+  background: var(--aikinote-white);
+  color: var(--aikinote-black);
   border: 0.5px solid var(--border-color);
 }
 

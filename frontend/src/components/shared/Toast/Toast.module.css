@@ -5,7 +5,7 @@
   left: 10px;
   padding: 14px 20px;
   border-radius: 6px;
-  color: var(--white);
+  color: var(--aikinote-white);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-sm);
   box-shadow: 0 4px 16px rgba(44, 44, 44, 0.1);
@@ -32,7 +32,7 @@
 }
 
 .toast.info {
-  background-color: var(--primary-color);
+  background-color: var(--aikinote-gray);
 }
 
 @media (min-width: 431px) {

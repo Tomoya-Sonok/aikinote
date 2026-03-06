@@ -9,7 +9,6 @@ import {
   type PageEditData,
   PageEditModal,
 } from "@/components/features/personal/PageEditModal/PageEditModal";
-import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { Loader } from "@/components/shared/Loader";
 import { Tag } from "@/components/shared/Tag/Tag";
@@ -233,13 +232,13 @@ export function PageDetail() {
         <div className={styles.contentArea}>
           <div className={styles.notFound}>{t("pageDetail.notFound")}</div>
           <div className={styles.buttonsContainer}>
-            <Button
-              variant="secondary"
+            <button
+              type="button"
               className={styles.backButton}
               onClick={handleBackToList}
             >
               {t("pageDetail.backToList")}
-            </Button>
+            </button>
           </div>
         </div>
       </div>
@@ -320,27 +319,27 @@ export function PageDetail() {
 
         {/* アクションボタン */}
         <div className={styles.buttonsContainer}>
-          <Button
-            variant="secondary"
+          <button
+            type="button"
             className={styles.backButton}
             onClick={handleBackToList}
           >
             {t("pageDetail.backToList")}
-          </Button>
-          <Button
-            variant="primary"
+          </button>
+          <button
+            type="button"
             className={styles.editButton}
             onClick={handleEdit}
           >
             {t("pageDetail.edit")}
-          </Button>
-          <Button
-            variant="danger"
+          </button>
+          <button
+            type="button"
             className={styles.deleteButton}
             onClick={handleDelete}
           >
             {t("pageDetail.delete")}
-          </Button>
+          </button>
         </div>
       </div>
 

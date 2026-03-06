@@ -13,7 +13,7 @@
 
 .primary {
   background-color: var(--primary-color);
-  color: var(--white);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 6px;
   padding: 0 20px;
@@ -32,7 +32,7 @@
 
 .secondary {
   background-color: transparent;
-  color: var(--black);
+  color: var(--aikinote-black);
   border: 0.5px solid var(--border-color);
   border-radius: 6px;
   padding: 0 20px;
@@ -46,13 +46,13 @@
 }
 
 .secondary:hover {
-  background-color: var(--hover-gray);
-  border-color: var(--primary-color);
+  background-color: var(--aikinote-hover-gray);
+  border-color: var(--aikinote-gray);
 }
 
 .icon {
   background: transparent;
-  color: var(--black);
+  color: var(--aikinote-black);
   padding: 4px;
   border-radius: 6px;
   min-width: 28px;
@@ -64,46 +64,9 @@
   justify-content: center;
 }
 
-.ghost {
-  background: transparent;
-  color: var(--black);
-  border: none;
-  border-radius: 6px;
-  padding: 0 20px;
-  font-family: var(--font-zen-old-mincho);
-  font-size: var(--font-size-sm);
-  line-height: 1.45;
-  cursor: pointer;
-  height: 36px;
-  font-weight: 400;
-}
-
-.ghost:hover {
-  background-color: var(--hover-gray);
-}
-
-.cancel {
-  background-color: var(--secondary-color);
-  color: var(--black);
-  border: none;
-  border-radius: 6px;
-  padding: 0 20px;
-  font-family: var(--font-zen-old-mincho);
-  font-size: var(--font-size-sm);
-  line-height: 1.45;
-  cursor: pointer;
-  height: 36px;
-  min-width: 82px;
-  font-weight: 400;
-}
-
-.cancel:hover {
-  opacity: 0.85;
-}
-
 .danger {
   background-color: var(--error-color);
-  color: var(--white);
+  color: var(--aikinote-white);
   border: none;
   border-radius: 6px;
   padding: 0 20px;

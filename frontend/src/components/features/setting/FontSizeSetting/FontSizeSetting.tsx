@@ -80,16 +80,16 @@ export const FontSizeSetting: FC<FontSizeSettingProps> = ({ onSave }) => {
 
             <div className={styles.labels}>
               {fontSizes.map((size) => (
-                <Button
-                  variant="ghost"
+                <button
                   key={size}
+                  type="button"
                   className={`${styles.label} ${
                     fontSize === size ? styles.labelActive : ""
                   }`}
                   onClick={() => handleLabelClick(size)}
                 >
                   {getFontSizeLabel(size)}
-                </Button>
+                </button>
               ))}
             </div>
           </div>

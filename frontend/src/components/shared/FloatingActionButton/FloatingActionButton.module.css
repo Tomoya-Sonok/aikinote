@@ -34,7 +34,7 @@
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.2;
-  color: var(--white);
+  color: var(--aikinote-white);
   text-align: center;
   white-space: nowrap;
 }

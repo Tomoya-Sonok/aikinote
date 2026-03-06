@@ -2,7 +2,7 @@
   position: absolute;
   bottom: -45px;
   right: 10px;
-  color: var(--white, #ffffff);
+  color: var(--aikinote-white, #fdfcfa);
   font-size: 16px;
   font-weight: 600;
   text-decoration: underline;

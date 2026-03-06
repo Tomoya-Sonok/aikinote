@@ -41,9 +41,9 @@ export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
         {/* 言語選択 */}
         <div className={styles.languageOptions}>
           {languageOptions.map((option) => (
-            <Button
-              variant="ghost"
+            <button
               key={option.value}
+              type="button"
               className={`${styles.languageOption} ${
                 selectedLanguage === option.value
                   ? styles.languageOptionActive
@@ -52,7 +52,7 @@ export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
               onClick={() => handleLanguageChange(option.value)}
             >
               <span className={styles.languageLabel}>{option.label}</span>
-            </Button>
+            </button>
           ))}
         </div>
 

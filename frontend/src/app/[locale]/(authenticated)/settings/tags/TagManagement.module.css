@@ -5,7 +5,7 @@
 }
 
 .card {
-  background-color: var(--white);
+  background-color: var(--aikinote-white);
   border-radius: 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 20px 16px;
@@ -24,7 +24,7 @@
 .categoryTitle {
   font-size: var(--font-size-lg);
   font-weight: 500;
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 .editButton {
@@ -34,9 +34,9 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  border: 1px solid var(--black);
-  background-color: var(--white);
-  color: var(--black);
+  border: 1px solid var(--aikinote-black);
+  background-color: var(--aikinote-white);
+  color: var(--aikinote-black);
   cursor: pointer;
   transition:
     background-color 0.2s ease,
@@ -45,13 +45,13 @@
 }
 
 .editButtonActive {
-  background-color: var(--black);
-  color: var(--white);
+  background-color: var(--aikinote-black);
+  color: var(--aikinote-white);
 }
 
 .editHint {
   font-size: var(--font-size-xs);
-  color: var(--text-light);
+  color: var(--aikinote-text-light);
 }
 
 .editControls {
@@ -98,7 +98,7 @@
 }
 
 .deleteMark {
-  color: var(--white);
+  color: var(--aikinote-white);
   margin-left: 2px;
   font-size: 16px;
   line-height: 1;
@@ -107,7 +107,7 @@
 
 .emptyMessage {
   font-size: var(--font-size-sm);
-  color: var(--text-light);
+  color: var(--aikinote-text-light);
 }
 
 .newTagForm {
@@ -177,7 +177,7 @@
   border-radius: 6px;
   font-size: var(--font-size-sm);
   font-family: var(--font-zen-old-mincho);
-  background-color: var(--black);
+  background-color: var(--aikinote-black);
   color: #ffffff;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -194,12 +194,12 @@
 
 .orderButtonSecondary {
   padding: 6px 16px;
-  border: 1px solid var(--black);
+  border: 1px solid var(--aikinote-black);
   border-radius: 6px;
   font-size: var(--font-size-sm);
   font-family: var(--font-zen-old-mincho);
-  background-color: var(--white);
-  color: var(--black);
+  background-color: var(--aikinote-white);
+  color: var(--aikinote-black);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }

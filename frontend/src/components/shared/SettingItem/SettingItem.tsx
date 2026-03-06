@@ -9,8 +9,6 @@ interface SettingItemProps {
   className?: string;
 }
 
-import { Button } from "@/components/shared/Button/Button";
-
 export const SettingItem: FC<SettingItemProps> = ({
   children,
   onClick,
@@ -18,8 +16,8 @@ export const SettingItem: FC<SettingItemProps> = ({
   className = "",
 }) => {
   return (
-    <Button
-      variant="ghost"
+    <button
+      type="button"
       className={`${styles.item} ${styles[variant]} ${className}`}
       onClick={onClick}
     >
@@ -27,9 +25,9 @@ export const SettingItem: FC<SettingItemProps> = ({
       <CaretRightIcon
         size={16}
         weight="light"
-        color="var(--black)"
+        color="var(--aikinote-black)"
         className={styles.arrow}
       />
-    </Button>
+    </button>
   );
 };

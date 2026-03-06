@@ -30,7 +30,7 @@
 
 .languageOption:hover {
   border-color: var(--primary-color);
-  background: var(--hover-gray);
+  background: var(--aikinote-hover-gray);
 }
 
 .languageOptionActive {
@@ -46,16 +46,16 @@
 .languageLabel {
   font-size: 16px;
   font-weight: 500;
-  color: var(--black);
+  color: var(--text-color);
 }
 
 .languageOptionActive .languageLabel {
-  color: var(--white);
+  color: var(--aikinote-white);
   font-weight: 600;
 }
 
 .activeIndicator {
-  color: var(--white);
+  color: var(--aikinote-white);
   font-size: 18px;
   font-weight: bold;
   background: rgba(255, 255, 255, 0.2);

@@ -11,7 +11,7 @@
   box-shadow: none;
   cursor: pointer;
   text-decoration: none;
-  color: var(--black, #2c2c2c);
+  color: var(--aikinote-black, #2c2c2c);
   z-index: var(--z-fab);
 }
 
@@ -28,8 +28,8 @@
 .chevron {
   width: 12px;
   height: 12px;
-  border-right: 1.5px solid var(--black, #2c2c2c);
-  border-bottom: 1.5px solid var(--black, #2c2c2c);
+  border-right: 1.5px solid var(--aikinote-black, #2c2c2c);
+  border-bottom: 1.5px solid var(--aikinote-black, #2c2c2c);
   transform: rotate(45deg);
   opacity: 0.25;
   animation: pulse 1.6s infinite;

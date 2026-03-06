@@ -498,6 +498,7 @@ export default async function RootPage({ params }: RootPageProps) {
       <Link href={signupHref} className={styles.floatingCta}>
         {t("floatingCta")}
       </Link>
+      <ScrollIndicator label={t("cta.goDown")} />
     </div>
   );
 }

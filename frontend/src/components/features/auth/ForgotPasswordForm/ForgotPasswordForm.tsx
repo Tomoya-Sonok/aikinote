@@ -57,7 +57,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
             <EnvelopeIcon
               size={32}
               weight="light"
-              color="var(--black)"
+              color="var(--aikinote-black)"
               className={styles.icon}
             />
           </div>

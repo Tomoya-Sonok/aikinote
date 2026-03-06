@@ -10,7 +10,7 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  color: var(--primary-color);
+  color: var(--aikinote-gray);
 }
 
 .searchInput {
@@ -18,19 +18,19 @@
   padding: 10px 16px 10px 40px;
   border: 0.5px solid var(--border-color);
   border-radius: 6px;
-  background: var(--white);
+  background: var(--aikinote-white);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-sm);
-  color: var(--black);
+  color: var(--aikinote-black);
   outline: none;
   transition: border-color 0.4s ease-out;
 }
 
 .searchInput::placeholder {
-  color: var(--primary-color);
+  color: var(--aikinote-gray);
 }
 
 .searchInput:focus {
   border-color: var(--primary-color);
-  background-color: var(--white);
+  background-color: var(--aikinote-white);
 }

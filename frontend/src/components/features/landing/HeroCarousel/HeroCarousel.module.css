@@ -12,7 +12,7 @@
   width: 100%;
   overflow: hidden;
   border-radius: 24px;
-  background: var(--white, #ffffff);
+  background: var(--aikinote-white, #ffffff);
   touch-action: pan-y;
   user-select: none;
 }
@@ -41,7 +41,7 @@
   width: 100%;
   height: auto;
   border-radius: 16px;
-  background: var(--white, #ffffff);
+  background: var(--aikinote-white, #ffffff);
 }
 
 .caption {

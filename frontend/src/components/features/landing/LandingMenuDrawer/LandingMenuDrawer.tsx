@@ -2,7 +2,6 @@
 
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/shared/Button/Button";
 import styles from "./LandingMenuDrawer.module.css";
 
 interface DrawerLink {
@@ -61,8 +60,8 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
 
   return (
     <>
-      <Button
-        variant="ghost"
+      <button
+        type="button"
         onClick={() => setIsOpen(true)}
         className={styles.menuButton}
         aria-label={menuLabel}
@@ -75,7 +74,7 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
           <span />
           <span />
         </span>
-      </Button>
+      </button>
       <aside
         className={`${styles.menuDrawer} ${
           isOpen ? styles.menuDrawerOpen : ""
@@ -85,14 +84,14 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
         id={drawerId}
         onClick={handleClose}
       >
-        <Button
-          variant="ghost"
+        <button
+          type="button"
           onClick={handleClose}
           className={styles.menuDrawerClose}
           aria-label={closeLabel}
         >
           ×
-        </Button>
+        </button>
         <div className={styles.menuDrawerContent}>
           <nav className={styles.menuDrawerNav} aria-label={ariaLabel}>
             <ul className={styles.menuDrawerList}>
@@ -123,15 +122,15 @@ export const LandingMenuDrawer: FC<LandingMenuDrawerProps> = ({
             <p className={styles.menuDrawerFooterItem}>{privacyLabel}</p>
             <p className={styles.menuDrawerFooterItem}>
               {helpPrefix}
-              <Button
-                variant="ghost"
+              <button
+                type="button"
                 className={styles.menuDrawerHelpLink}
-                onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                onClick={(event) => {
                   event.preventDefault();
                 }}
               >
                 {helpLinkLabel}
-              </Button>
+              </button>
             </p>
           </div>
         </div>

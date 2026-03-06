@@ -15,7 +15,7 @@
   font-size: var(--font-size-sm);
   font-weight: 400;
   line-height: 1.4;
-  color: var(--black);
+  color: var(--aikinote-black);
   margin: 0;
   display: flex;
   align-items: baseline;
@@ -27,7 +27,7 @@
   font-size: var(--font-size-3xl);
   font-weight: 400;
   line-height: 1.4;
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 .pageListWrapper {
@@ -51,7 +51,7 @@
   font-size: var(--font-size-sm);
   font-weight: 400;
   line-height: 1.4;
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 .sortDropdownContainer {
@@ -69,12 +69,12 @@
   cursor: pointer;
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-xs);
-  color: var(--black);
+  color: var(--aikinote-black);
   transition: background-color 0.2s ease;
 }
 
 .sortButton:hover {
-  background-color: var(--hover-gray);
+  background-color: var(--aikinote-hover-gray);
 }
 
 .sortIcon {
@@ -87,7 +87,7 @@
 
 .sortCaret {
   flex-shrink: 0;
-  color: var(--primary-color);
+  color: var(--aikinote-gray);
 }
 
 .sortDropdown {
@@ -95,7 +95,7 @@
   top: calc(100% + 4px);
   right: 0;
   min-width: 130px;
-  background: var(--white);
+  background: var(--aikinote-white);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -114,13 +114,13 @@
   cursor: pointer;
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-xs);
-  color: var(--black);
+  color: var(--aikinote-black);
   text-align: left;
   transition: background-color 0.15s ease;
 }
 
 .sortOption:hover {
-  background-color: var(--hover-gray);
+  background-color: var(--aikinote-hover-gray);
 }
 
 .sortOption + .sortOption {
@@ -138,7 +138,7 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: var(--black);
+  color: var(--aikinote-black);
 }
 
 .pageCount {
@@ -146,7 +146,7 @@
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.4;
-  color: var(--text-light);
+  color: var(--aikinote-text-light);
   margin: 0;
 }
 
@@ -164,7 +164,7 @@
 
 .loadMoreButton {
   background-color: var(--primary-color);
-  color: var(--white);
+  color: var(--aikinote-white); /* 白いテキスト */
   padding: 10px 20px;
   border: none;
   border-radius: 5px;

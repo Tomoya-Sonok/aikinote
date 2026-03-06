@@ -12,7 +12,7 @@
 }
 
 .item:hover {
-  background-color: var(--hover-gray, #f0ece7);
+  background-color: var(--aikinote-hover-gray, #f0ece7);
 }
 
 .item:last-child {
@@ -28,12 +28,12 @@
 
 .arrow {
   font-size: var(--font-size-lg);
-  color: var(--light-gray, #b5afa6);
+  color: var(--aikinote-light-gray, #b5afa6);
   font-weight: 300;
 }
 
 .default .text {
-  color: var(--black, #2c2c2c);
+  color: var(--aikinote-black, #2c2c2c);
 }
 
 .danger .text {

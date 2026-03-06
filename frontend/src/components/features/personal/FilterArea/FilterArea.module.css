@@ -1,5 +1,5 @@
 .filterContainer {
-  background: var(--white);
+  background: var(--aikinote-white);
   border-radius: 24px;
   padding: 24px 32px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -38,7 +38,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--text-light); /* またはアイコンのプライマリカラー */
+  color: var(--aikinote-text-light); /* またはアイコンのプライマリカラー */
   transition: background-color 0.2s;
   /* タッチハイライトを消す（カスタムスタイルで表現するため） */
   -webkit-tap-highlight-color: transparent;
@@ -53,8 +53,8 @@
   bottom: calc(100% + 5px);
   right: 90%;
   transform: translateX(50%);
-  background-color: var(--primary-color);
-  color: var(--white);
+  background-color: var(--aikinote-gray);
+  color: var(--aikinote-white);
   padding: 8px 14px;
   border-radius: 6px;
   font-size: var(--font-size-sm);
@@ -79,7 +79,7 @@
   transform: translateX(-50%) rotate(45deg);
   width: 8px;
   height: 8px;
-  background-color: var(--primary-color);
+  background-color: var(--aikinote-gray);
   border-radius: 0 0 2px 0;
   transition: all 0.4s ease-out;
 }
@@ -102,7 +102,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 14px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--aikinote-black);
   min-width: 40px;
   text-align: left;
 }
@@ -111,7 +111,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 12px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--aikinote-black);
   flex: 1;
   text-align: left;
   overflow: hidden;
@@ -123,7 +123,7 @@
   font-family: var(--font-zen-old-mincho);
   font-size: 14px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--aikinote-black);
   margin-left: auto;
 }
 
@@ -149,7 +149,7 @@
 .dateInput {
   font-family: var(--font-zen-old-mincho);
   font-size: 14px;
-  color: var(--black);
+  color: var(--aikinote-black);
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 4px 8px;

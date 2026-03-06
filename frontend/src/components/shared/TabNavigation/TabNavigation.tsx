@@ -5,7 +5,6 @@ import { ChatsIcon, PencilSimpleIcon, UserIcon } from "@phosphor-icons/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { Button } from "@/components/shared/Button/Button";
 import styles from "./TabNavigation.module.css";
 
 interface TabItem {
@@ -71,22 +70,22 @@ export const TabNavigation: FC = () => {
       {tabs.map((tab) => {
         const IconComponent = tab.icon;
         return (
-          <Button
+          <button
             key={tab.id}
-            variant="ghost"
             className={`${styles.tab} ${activeTab === tab.id ? styles.active : ""}`}
             onClick={() => handleTabChange(tab.id)}
+            type="button"
           >
             <div className={styles.tabContent}>
               <IconComponent
                 size={24}
                 weight="light"
-                color="var(--black)"
+                color="var(--aikinote-black)"
                 className={styles.icon}
               />
               <span className={styles.label}>{tab.label}</span>
             </div>
-          </Button>
+          </button>
         );
       })}
     </div>

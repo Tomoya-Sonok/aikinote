@@ -7,7 +7,6 @@ import {
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
 import { useRef, useState } from "react";
-import { Button } from "@/components/shared/Button/Button";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
@@ -125,8 +124,8 @@ export const FilterArea: FC<FilterAreaProps> = ({
         </div>
         {hasFilters && (
           <div className={styles.clearButtonContainer}>
-            <Button
-              variant="ghost"
+            <button
+              type="button"
               className={styles.clearButton}
               onPointerDown={handlePointerDown}
               onPointerUp={handlePointerUp}
@@ -134,8 +133,12 @@ export const FilterArea: FC<FilterAreaProps> = ({
               aria-label={t("filter.clearFilters")}
               aria-describedby={showTooltip ? tooltipId : undefined}
             >
-              <FunnelXIcon size={24} weight="light" color="var(--black)" />
-            </Button>
+              <FunnelXIcon
+                size={24}
+                weight="light"
+                color="var(--aikinote-black)"
+              />
+            </button>
             <div
               id={tooltipId}
               role="tooltip"
@@ -149,15 +152,15 @@ export const FilterArea: FC<FilterAreaProps> = ({
 
       <div className={styles.filterRow}>
         {/* Tag Filter Button */}
-        <Button
-          variant="ghost"
+        <button
+          type="button"
           className={styles.filterItemButton}
           onClick={onOpenTagSelection}
         >
           <TagIcon
             size={20}
             weight="light"
-            color="var(--black)"
+            color="var(--aikinote-black)"
             className={styles.filterIcon}
           />
           <span className={styles.filterLabel}>{t("filter.tagLabel")}</span>
@@ -165,21 +168,21 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <CaretRightIcon
             size={16}
             weight="light"
-            color="var(--black)"
+            color="var(--aikinote-black)"
             className={styles.arrow}
           />
-        </Button>
+        </button>
 
         {/* Date Filter Button */}
-        <Button
-          variant="ghost"
+        <button
+          type="button"
           className={styles.filterItemButton}
           onClick={handleOpenDatePicker}
         >
           <CalendarDotsIcon
             size={20}
             weight="light"
-            color="var(--black)"
+            color="var(--aikinote-black)"
             className={styles.filterIcon}
           />
           <span className={styles.filterLabel}>{t("filter.dateLabel")}</span>
@@ -187,10 +190,10 @@ export const FilterArea: FC<FilterAreaProps> = ({
           <CaretRightIcon
             size={16}
             weight="light"
-            color="var(--black)"
+            color="var(--aikinote-black)"
             className={styles.arrow}
           />
-        </Button>
+        </button>
       </div>
 
       {/* Date Picker Modal */}
