@@ -83,3 +83,6 @@ logs/
 
 # Cloudflare Workers local secrets
 .dev.vars
+
+# Migrations
+database/migrations/
