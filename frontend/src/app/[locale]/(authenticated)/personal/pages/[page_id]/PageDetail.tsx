@@ -14,6 +14,7 @@ import { Loader } from "@/components/shared/Loader";
 import { Tag } from "@/components/shared/Tag/Tag";
 import {
   deletePage,
+  getAttachments,
   getPage,
   getTags,
   type UpdatePagePayload,
@@ -67,14 +68,9 @@ export function PageDetail() {
 
             // 添付一覧を取得
             try {
-              const attachRes = await fetch(
-                `/api/page-attachments?page_id=${pageId}`,
-              );
-              if (attachRes.ok) {
-                const attachJson = await attachRes.json();
-                if (attachJson.success && attachJson.data) {
-                  setAttachments(attachJson.data);
-                }
+              const attachJson = await getAttachments(pageId);
+              if (attachJson.success && attachJson.data) {
+                setAttachments(attachJson.data);
               }
             } catch (attachErr) {
               console.warn("添付一覧の取得に失敗:", attachErr);
@@ -141,14 +137,9 @@ export function PageDetail() {
 
         // 添付一覧を再取得（PageEditModalでの追加/削除を反映）
         try {
-          const attachRes = await fetch(
-            `/api/page-attachments?page_id=${pageId}`,
-          );
-          if (attachRes.ok) {
-            const attachJson = await attachRes.json();
-            if (attachJson.success && attachJson.data) {
-              setAttachments(attachJson.data);
-            }
+          const attachJson = await getAttachments(pageId);
+          if (attachJson.success && attachJson.data) {
+            setAttachments(attachJson.data);
           }
         } catch (attachErr) {
           console.warn("添付一覧の再取得に失敗:", attachErr);
