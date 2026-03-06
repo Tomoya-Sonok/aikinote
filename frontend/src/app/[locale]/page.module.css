@@ -11,7 +11,7 @@
   position: sticky;
   top: 0;
   z-index: var(--z-header);
-  background: var(--white, #fdfcfa);
+  background: var(--white, #ffffff);
   backdrop-filter: blur(8px);
   border-bottom: 0.5px solid var(--border-color, #e8e4df);
 }
@@ -174,7 +174,7 @@
 }
 
 .section {
-  background: var(--white, #fdfcfa);
+  background: var(--white, #ffffff);
   border-radius: 8px;
   border: 0.5px solid var(--border-color, #e8e4df);
   box-shadow: 0 4px 16px rgba(44, 44, 44, 0.04);
@@ -203,11 +203,7 @@
 }
 
 .searchSection {
-  background: linear-gradient(
-    180deg,
-    var(--white, #fdfcfa),
-    var(--background-light, #f5f3ef)
-  );
+  background: var(--white);
 }
 
 .searchContent {
@@ -277,72 +273,16 @@
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: linear-gradient(180deg, #f9fafb, #edf1f7);
-  border: 1px solid var(--border-color, #e5e7eb);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
-  position: relative;
+  background: linear-gradient(
+    180deg,
+    var(--white, #ffffff),
+    var(--background-light, #f5f3ef)
+  );
+  border: 1px solid var(--border-color, #e8e4df);
+  box-shadow: 0 6px 12px rgba(44, 44, 44, 0.05);
   display: grid;
   place-items: center;
   flex-shrink: 0;
-}
-
-.featureIcon::before,
-.featureIcon::after {
-  content: "";
-  position: absolute;
-}
-
-.featureIconTags::before {
-  width: 22px;
-  height: 3px;
-  background: #4b5563;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -10px);
-  border-radius: 4px;
-  box-shadow:
-    0 8px 0 #9ca3af,
-    0 16px 0 #cbd5e1;
-}
-
-.featureIconFilter::before {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #4b5563;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.featureIconFilter::after {
-  width: 12px;
-  height: 2px;
-  background: #4b5563;
-  bottom: 12px;
-  right: 10px;
-  transform: rotate(45deg);
-}
-
-.featureIconRecent::before {
-  width: 26px;
-  height: 26px;
-  border: 2px solid #4b5563;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.featureIconRecent::after {
-  width: 12px;
-  height: 2px;
-  background: #4b5563;
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-30%, -10%) rotate(45deg);
 }
 
 .searchFeatureText {
