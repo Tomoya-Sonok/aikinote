@@ -85,6 +85,7 @@
   padding: 16px 0 0 0;
   border-top: 1px solid #f0f0f0;
   margin-top: 16px;
+  flex-shrink: 0;
 }
 
 .button {

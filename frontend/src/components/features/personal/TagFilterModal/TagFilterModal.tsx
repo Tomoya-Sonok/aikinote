@@ -138,24 +138,24 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
               showAddButton={false}
             />
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className={styles.actionButtons}>
-            <Button
-              variant="cancel"
-              onClick={handleCancel}
-              className={styles.button}
-            >
-              {t("tagFilterModal.cancel")}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleConfirm}
-              className={styles.button}
-            >
-              {t("tagFilterModal.filter")}
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <div className={styles.actionButtons}>
+          <Button
+            variant="cancel"
+            onClick={handleCancel}
+            className={styles.button}
+          >
+            {t("tagFilterModal.cancel")}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            className={styles.button}
+          >
+            {t("tagFilterModal.filter")}
+          </Button>
         </div>
       </div>
     </div>,

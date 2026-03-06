@@ -274,24 +274,24 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
             </div>
             <div className={styles.daysGrid}>{renderCalendarDays()}</div>
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className={styles.actionButtons}>
-            <Button
-              variant="cancel"
-              onClick={handleCancel}
-              className={styles.button}
-            >
-              {t("datePickerModal.cancel")}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleConfirm}
-              className={styles.button}
-            >
-              {t("datePickerModal.filter")}
-            </Button>
-          </div>
+        {/* Action Buttons */}
+        <div className={styles.actionButtons}>
+          <Button
+            variant="cancel"
+            onClick={handleCancel}
+            className={styles.button}
+          >
+            {t("datePickerModal.cancel")}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            className={styles.button}
+          >
+            {t("datePickerModal.filter")}
+          </Button>
         </div>
       </div>
     </div>,
