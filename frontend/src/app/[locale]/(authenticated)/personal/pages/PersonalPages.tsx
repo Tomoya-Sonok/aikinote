@@ -44,21 +44,35 @@ export function PersonalPages() {
 
   // Custom Hooks
   const { availableTags } = useTrainingTags();
-  const { loading, allTrainingPageData, addPage, updatePageData, removePage } =
-    useTrainingPagesData();
   const {
     searchQuery,
     setSearchQuery,
+    debouncedSearchQuery,
     selectedDate,
     setSelectedDate,
     selectedTags,
     setSelectedTags,
     sortOrder,
     setSortOrder,
-    displayedTrainingPageData,
+  } = useTrainingPageFilters();
+
+  const {
+    loading,
+    allTrainingPageData,
+    totalCount,
     hasMore,
     loadMore,
-  } = useTrainingPageFilters(allTrainingPageData);
+    addPage,
+    updatePageData,
+    removePage,
+  } = useTrainingPagesData({
+    query: debouncedSearchQuery,
+    tags: selectedTags,
+    date: selectedDate,
+    sortOrder,
+  });
+
+  const displayedTrainingPageData = allTrainingPageData;
   const {
     isPageCreateModalOpen,
     setPageCreateModalOpen,
@@ -179,9 +193,7 @@ export function PersonalPages() {
       <div className={styles.statsSection}>
         <p className={styles.statsText} data-testid="page-stats">
           {t("personalPages.pageCount")}
-          <span className={styles.statsNumber}>
-            {allTrainingPageData.length}
-          </span>
+          <span className={styles.statsNumber}>{totalCount}</span>
           {t("personalPages.pageCountSuffix")}
         </p>
       </div>
@@ -260,12 +272,12 @@ export function PersonalPages() {
             </div>
           </div>
           <p className={styles.pageCount} data-testid="page-count">
-            {allTrainingPageData.length === displayedTrainingPageData.length
+            {totalCount === displayedTrainingPageData.length
               ? t("personalPages.showingAll", {
-                  total: allTrainingPageData.length,
+                  total: totalCount,
                 })
               : t("personalPages.showingPartial", {
-                  total: allTrainingPageData.length,
+                  total: totalCount,
                   displayed: displayedTrainingPageData.length,
                 })}
           </p>

@@ -42,6 +42,7 @@ type PageWithTags = {
 
 type PagesList = {
   training_pages: PageWithTags[];
+  total_count: number;
 };
 
 type UserProfile = {
@@ -132,6 +133,7 @@ export const getPagesProcedure = publicProcedure
       query: z.string().optional(),
       tags: z.array(z.string()).optional(),
       date: z.string().optional(),
+      sortOrder: z.enum(["newest", "oldest"]).optional(),
     }),
   )
   .query(async ({ input }) => {
@@ -145,6 +147,7 @@ export const getPagesProcedure = publicProcedure
     if (input.tags && input.tags.length > 0)
       query.set("tags", input.tags.join(","));
     if (input.date) query.set("date", input.date);
+    if (input.sortOrder) query.set("sort_order", input.sortOrder);
 
     return callHonoApi<ApiResponse<PagesList>>(
       `/api/pages?${query.toString()}`,

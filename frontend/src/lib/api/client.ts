@@ -120,6 +120,7 @@ export interface GetPagesParams {
   query?: string;
   tags?: string[];
   date?: string;
+  sortOrder?: "newest" | "oldest";
 }
 
 // ページ一覧取得API関数
@@ -130,6 +131,7 @@ export const getPages = async ({
   query,
   tags,
   date,
+  sortOrder,
 }: GetPagesParams) => {
   try {
     const input = {
@@ -139,6 +141,7 @@ export const getPages = async ({
       query,
       tags,
       date,
+      sortOrder,
     };
 
     return await cachedQuery(

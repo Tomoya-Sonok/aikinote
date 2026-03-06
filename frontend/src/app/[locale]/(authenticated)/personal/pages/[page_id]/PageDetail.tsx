@@ -2,8 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
-import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
+import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import {
   type PageEditData,
@@ -14,102 +13,31 @@ import { Loader } from "@/components/shared/Loader";
 import { Tag } from "@/components/shared/Tag/Tag";
 import {
   deletePage,
-  getAttachments,
-  getPage,
-  getTags,
   type UpdatePagePayload,
   updatePage,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
+import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import type { TrainingPageData } from "@/types/training";
 import styles from "./page.module.css";
-
-// APIから取得するタグの型
-interface ApiTag {
-  id: string;
-  name: string;
-  category: string;
-}
 
 export function PageDetail() {
   const t = useTranslations();
   const locale = useLocale();
-  const [loading, setLoading] = useState(true);
-  const [pageData, setPageData] = useState<TrainingPageData | null>(null);
-  const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
-  const [availableTags, setAvailableTags] = useState<ApiTag[]>([]);
-  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDeletingPage, setDeletingPage] = useState(false);
-  const [attachments, setAttachments] = useState<AttachmentData[]>([]);
   const router = useRouter();
   const params = useParams();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
   const pageId = params.page_id as string;
 
-  useEffect(() => {
-    if (authLoading) return;
+  const { loading, pageData, setPageData, attachments, fetchAttachments } =
+    usePageDetailData(pageId);
 
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        if (pageId && user?.id) {
-          const response = await getPage(pageId, user.id);
+  const { availableTags } = useTrainingTags();
 
-          if (response.success && response.data) {
-            const convertedData: TrainingPageData = {
-              id: response.data.page.id,
-              title: response.data.page.title,
-              content: response.data.page.content,
-              comment: response.data.page.comment,
-              date: response.data.page.created_at,
-              tags: response.data.tags.map((tag) => tag.name),
-            };
-            setPageData(convertedData);
-
-            // 添付一覧を取得
-            try {
-              const attachJson = await getAttachments(pageId);
-              if (attachJson.success && attachJson.data) {
-                setAttachments(attachJson.data);
-              }
-            } catch (attachErr) {
-              console.warn("添付一覧の取得に失敗:", attachErr);
-            }
-          } else {
-            setPageData(null);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to fetch page data:", err);
-        setPageData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchTags = async () => {
-      if (!user?.id) return;
-      try {
-        const response = await getTags(user.id);
-        if (!response.success) {
-          console.error(
-            "Failed to fetch tags:",
-            "error" in response ? response.error : undefined,
-          );
-          return;
-        }
-
-        if (response.data) {
-          setAvailableTags(response.data as ApiTag[]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch tags:", err);
-      }
-    };
-
-    fetchData();
-    fetchTags();
-  }, [pageId, user?.id, authLoading]);
+  const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeletingPage, setDeletingPage] = useState(false);
 
   const handleBackToList = () => {
     router.push(`/${locale}/personal/pages`);
@@ -136,14 +64,7 @@ export function PageDetail() {
         setPageData(convertedData);
 
         // 添付一覧を再取得（PageEditModalでの追加/削除を反映）
-        try {
-          const attachJson = await getAttachments(pageId);
-          if (attachJson.success && attachJson.data) {
-            setAttachments(attachJson.data);
-          }
-        } catch (attachErr) {
-          console.warn("添付一覧の再取得に失敗:", attachErr);
-        }
+        await fetchAttachments();
 
         setPageEditModalOpen(false);
       } else {

@@ -105,6 +105,7 @@ export const getPagesSchema = z.object({
   query: z.string().optional(),
   tags: z.string().optional(), // "tag1,tag2,tag3" のような形式
   date: z.string().optional(), // "YYYY-MM-DD" の形式
+  sort_order: z.enum(["newest", "oldest"]).optional().default("newest"),
 });
 
 export type GetPagesInput = z.infer<typeof getPagesSchema>;
@@ -119,6 +120,7 @@ export type GetPageInput = z.infer<typeof getPageSchema>;
 // ページ一覧レスポンスの型
 export const pagesListResponseSchema = z.object({
   training_pages: z.array(pageWithTagsResponseSchema),
+  total_count: z.number().int().min(0),
 });
 
 export type PagesListResponse = z.infer<typeof pagesListResponseSchema>;

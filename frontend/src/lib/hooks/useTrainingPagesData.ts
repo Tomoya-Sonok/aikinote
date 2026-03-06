@@ -17,81 +17,122 @@ import { type TrainingPageData } from "@/types/training";
 // 楽観的更新用の一時的なプレフィックス
 const OPTIMISTIC_ID_PREFIX = "optimistic-";
 
-export function useTrainingPagesData() {
+export interface FetchOptions {
+  query?: string;
+  tags?: string[];
+  date?: string | null;
+  sortOrder?: "newest" | "oldest";
+}
+
+export function useTrainingPagesData(options: FetchOptions = {}) {
   const t = useTranslations();
   const { user, loading: authLoading } = useAuth();
   const [dataLoading, setDataLoading] = useState(true);
   const [allTrainingPageData, setAllTrainingPageData] = useState<
     TrainingPageData[]
   >([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const optimisticIdCounter = useRef(0);
+  const lastOptionsRef = useRef<string>("");
+  const allDataRef = useRef<TrainingPageData[]>([]);
+  useEffect(() => {
+    allDataRef.current = allTrainingPageData;
+  }, [allTrainingPageData]);
 
-  const fetchAllData = useCallback(async () => {
-    if (authLoading) return;
+  const fetchData = useCallback(
+    async (isLoadMore = false) => {
+      if (authLoading) return;
 
-    if (!user?.id) {
-      setDataLoading(false);
-      return;
-    }
+      if (!user?.id) {
+        setDataLoading(false);
+        return;
+      }
 
-    setDataLoading(true);
+      const currentOptionsStr = JSON.stringify(options);
+      if (
+        !isLoadMore &&
+        currentOptionsStr === lastOptionsRef.current &&
+        allDataRef.current.length > 0
+      ) {
+        return; // 既に同じオプションでフェッチ済み
+      }
 
-    try {
-      let allPages: TrainingPageData[] = [];
-      let offset = 0;
-      const limit = 100;
-      let hasMoreData = true;
+      if (!isLoadMore) {
+        setDataLoading(true);
+        lastOptionsRef.current = currentOptionsStr;
+      }
 
-      // 全ページを取得するまでループ
-      while (hasMoreData) {
+      try {
+        const limit = 25;
+        const offset = isLoadMore
+          ? allDataRef.current.filter(
+              (p) => !p.id.startsWith(OPTIMISTIC_ID_PREFIX),
+            ).length
+          : 0;
+
         const response = await getPages({
           userId: user.id,
           limit,
           offset,
-          query: "",
-          tags: [],
-          date: undefined,
+          query: options.query || "",
+          tags: options.tags || [],
+          date: options.date || undefined,
+          sortOrder: options.sortOrder || "newest",
         });
 
-        if (!response.success) {
+        if (!response.success || !response.data) {
           throw new Error(
-            ("error" in response && response.error) ||
+            (response && "error" in response && response.error) ||
               t("personalPages.dataFetchFailed"),
           );
         }
 
-        if (!response.data) {
-          throw new Error(t("personalPages.dataFetchFailed"));
+        const pagesBatch: TrainingPageData[] = response.data.training_pages.map(
+          (item) => ({
+            id: item.page.id,
+            title: item.page.title,
+            content: item.page.content,
+            comment: item.page.comment,
+            date: formatToLocalDateString(item.page.created_at),
+            tags: item.tags.map((tag) => tag.name),
+          }),
+        );
+
+        if (isLoadMore) {
+          setAllTrainingPageData((prev) => {
+            const next = [...prev, ...pagesBatch];
+            setHasMore(next.length < response.data!.total_count);
+            return next;
+          });
+        } else {
+          setAllTrainingPageData(pagesBatch);
+          setHasMore(pagesBatch.length < response.data.total_count);
         }
 
-        const pagesBatch = response.data.training_pages.map((item) => ({
-          id: item.page.id,
-          title: item.page.title,
-          content: item.page.content,
-          comment: item.page.comment,
-          date: formatToLocalDateString(item.page.created_at),
-          tags: item.tags.map((tag) => tag.name),
-        }));
-
-        allPages = [...allPages, ...pagesBatch];
-
-        // 取得したページ数がlimitより少ない場合、これ以上データがない
-        hasMoreData = pagesBatch.length === limit;
-        offset += limit;
+        setTotalCount(response.data.total_count);
+      } catch (err) {
+        console.error("Failed to fetch training page data:", err);
+        if (!isLoadMore) {
+          setAllTrainingPageData([]);
+          setHasMore(false);
+        }
+      } finally {
+        setDataLoading(false);
       }
-
-      setAllTrainingPageData(allPages);
-    } catch (err) {
-      console.error("Failed to fetch training page data:", err);
-      setAllTrainingPageData([]);
-    } finally {
-      setDataLoading(false);
-    }
-  }, [user, t, authLoading]);
+    },
+    [user, t, authLoading, options],
+  );
 
   useEffect(() => {
-    void fetchAllData();
-  }, [fetchAllData]);
+    // オプションが変更されたら初回フェッチ
+    void fetchData(false);
+  }, [fetchData]);
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || dataLoading) return;
+    void fetchData(true);
+  }, [hasMore, dataLoading, fetchData]);
 
   const addPage = useCallback(
     async (pageData: PageCreateData) => {
@@ -332,6 +373,9 @@ export function useTrainingPagesData() {
   return {
     loading: authLoading || dataLoading,
     allTrainingPageData,
+    totalCount,
+    hasMore,
+    loadMore,
     addPage,
     updatePageData,
     removePage,

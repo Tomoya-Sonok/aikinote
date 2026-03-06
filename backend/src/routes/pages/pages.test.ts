@@ -448,9 +448,10 @@ describe("ページ一覧取得API", () => {
       },
     ];
 
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
-      mockPagesWithTags,
-    );
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: mockPagesWithTags,
+      totalCount: mockPagesWithTags.length,
+    });
 
     const request = new Request(
       "http://localhost/?user_id=test-user-id&limit=20",
@@ -527,9 +528,10 @@ describe("ページ一覧取得API", () => {
       },
     ];
 
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
-      mockPagesWithTags,
-    );
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: mockPagesWithTags,
+      totalCount: 1,
+    });
 
     const request = new Request(
       "http://localhost/?user_id=test-user-id&limit=100",
@@ -552,6 +554,7 @@ describe("ページ一覧取得API", () => {
       query: undefined,
       tags: undefined,
       date: undefined,
+      sortOrder: "newest",
     });
   });
 
@@ -559,9 +562,10 @@ describe("ページ一覧取得API", () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
-      mockPagesWithTags,
-    );
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: mockPagesWithTags,
+      totalCount: 0,
+    });
 
     const request = new Request(
       "http://localhost/?user_id=test-user-id&limit=20&offset=40",
@@ -584,6 +588,7 @@ describe("ページ一覧取得API", () => {
       query: undefined,
       tags: undefined,
       date: undefined,
+      sortOrder: "newest",
     });
   });
 
@@ -591,9 +596,10 @@ describe("ページ一覧取得API", () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
-      mockPagesWithTags,
-    );
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: mockPagesWithTags,
+      totalCount: 0,
+    });
 
     const request = new Request(
       "http://localhost/?user_id=test-user-id&query=基本動作",
@@ -616,6 +622,7 @@ describe("ページ一覧取得API", () => {
       query: "基本動作",
       tags: undefined,
       date: undefined,
+      sortOrder: "newest",
     });
   });
 
@@ -623,9 +630,10 @@ describe("ページ一覧取得API", () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
-      mockPagesWithTags,
-    );
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: mockPagesWithTags,
+      totalCount: 0,
+    });
 
     const request = new Request(
       "http://localhost/?user_id=test-user-id&tags=立技,正面打ち",
@@ -648,6 +656,7 @@ describe("ページ一覧取得API", () => {
       query: undefined,
       tags: "立技,正面打ち",
       date: undefined,
+      sortOrder: "newest",
     });
   });
 
@@ -655,9 +664,10 @@ describe("ページ一覧取得API", () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue(
-      mockPagesWithTags,
-    );
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: mockPagesWithTags,
+      totalCount: 0,
+    });
 
     const request = new Request(
       "http://localhost/?user_id=test-user-id&date=2023-01-01",
@@ -680,6 +690,7 @@ describe("ページ一覧取得API", () => {
       query: undefined,
       tags: undefined,
       date: "2023-01-01",
+      sortOrder: "newest",
     });
   });
 
@@ -701,7 +712,10 @@ describe("ページ一覧取得API", () => {
   });
 
   it("ページが存在しない場合に空の配列が返されること", async () => {
-    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue([]);
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: [],
+      totalCount: 0,
+    });
 
     const request = new Request("http://localhost/?user_id=test-user-id", {
       method: "GET",
