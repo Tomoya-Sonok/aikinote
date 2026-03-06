@@ -54,13 +54,15 @@ export function ConfirmDialog({
 
   return createPortal(
     <div className={styles.overlay} role="presentation">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         className={styles.overlayDismiss}
         onClick={handleBackdropClick}
         aria-label={cancelLabel}
         disabled={isProcessing}
-      />
+      >
+        <span className="sr-only">Close</span>
+      </Button>
       <div
         className={styles.dialog}
         role="dialog"

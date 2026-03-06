@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { SettingItem } from "@/components/shared/SettingItem/SettingItem";
 import styles from "./NavigationDrawer.module.css";
 
@@ -51,25 +52,27 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   return (
     <>
       {/* オーバーレイ */}
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         className={styles.overlay}
         aria-label={t("navigation.close")}
         onClick={onClose}
-      />
+      >
+        <span className="sr-only">Close</span>
+      </Button>
 
       {/* ドロワー本体 */}
       <div className={`${styles.drawer} ${isOpen ? styles.open : ""}`}>
         <div className={styles.header}>
           <h2 className={styles.title}>{t("navigation.settings")}</h2>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className={styles.closeButton}
             aria-label={t("navigation.close")}
           >
             ×
-          </button>
+          </Button>
         </div>
 
         <div className={styles.content}>

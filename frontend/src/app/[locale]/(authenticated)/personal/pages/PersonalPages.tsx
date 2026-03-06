@@ -21,6 +21,7 @@ import {
 } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
 import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
+import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/shared/Loader";
@@ -74,7 +75,6 @@ export function PersonalPages() {
     setIsTagModalOpen,
   } = useTrainingPageModals();
 
-  // ソートドロップダウン外クリックで閉じる
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (
       sortDropdownRef.current &&
@@ -202,8 +202,8 @@ export function PersonalPages() {
           <div className={styles.pageListHeader}>
             <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
             <div className={styles.sortDropdownContainer} ref={sortDropdownRef}>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 className={styles.sortButton}
                 onClick={() => setIsSortDropdownOpen((prev) => !prev)}
                 data-testid="sort-button"
@@ -223,7 +223,7 @@ export function PersonalPages() {
                   weight="bold"
                   className={styles.sortCaret}
                 />
-              </button>
+              </Button>
               {isSortDropdownOpen && (
                 <div
                   className={styles.sortDropdown}

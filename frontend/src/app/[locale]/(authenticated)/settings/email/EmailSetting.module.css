@@ -6,7 +6,7 @@
 .card {
   width: 100%;
   max-width: 580px;
-  background: var(--aikinote-white, #ffffff);
+  background: var(--white, #ffffff);
   border-radius: 16px;
   padding: 20px;
   display: flex;

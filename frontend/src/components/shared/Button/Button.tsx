@@ -4,8 +4,8 @@ import styles from "./Button.module.css";
 interface ButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
   children: ReactNode;
-  variant?: "primary" | "secondary" | "icon" | "danger";
-  size?: "small" | "medium" | "large";
+  variant?: "primary" | "secondary" | "icon" | "danger" | "ghost" | "cancel";
+  size?: "small" | "medium" | "large" | "full";
   className?: string;
 }
 

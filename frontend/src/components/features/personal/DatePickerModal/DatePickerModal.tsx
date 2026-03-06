@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Button } from "@/components/shared/Button/Button";
 import styles from "./DatePickerModal.module.css";
 
 interface DatePickerModalProps {
@@ -164,9 +165,9 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
     for (let i = firstDayOfWeek - 1; i >= 0; i--) {
       const day = prevMonthDays - i;
       days.push(
-        <button
+        <Button
+          variant="ghost"
           key={`prev-${day}`}
-          type="button"
           className={`${styles.dayButton} ${styles.otherMonth}`}
           onClick={() => {
             const prevMonth = new Date(year, month - 1, day);
@@ -175,7 +176,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           }}
         >
           {day}
-        </button>,
+        </Button>,
       );
     }
 
@@ -185,14 +186,14 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
       const selectedClass = isSelected(day) ? styles.selected : "";
 
       days.push(
-        <button
+        <Button
+          variant="ghost"
           key={`current-${day}`}
-          type="button"
           className={`${styles.dayButton} ${todayClass} ${selectedClass}`}
           onClick={() => handleDateClick(day)}
         >
           {day}
-        </button>,
+        </Button>,
       );
     }
 
@@ -200,9 +201,9 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
     const remainingDays = 42 - days.length;
     for (let day = 1; day <= remainingDays; day++) {
       days.push(
-        <button
+        <Button
+          variant="ghost"
           key={`next-${day}`}
-          type="button"
           className={`${styles.dayButton} ${styles.otherMonth}`}
           onClick={() => {
             const nextMonth = new Date(year, month + 1, day);
@@ -211,7 +212,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           }}
         >
           {day}
-        </button>,
+        </Button>,
       );
     }
 
@@ -228,39 +229,39 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
       tabIndex={-1}
     >
       <div className={styles.modal}>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={handleCancel}
           className={styles.closeButton}
           aria-label={t("datePickerModal.close")}
         >
           ×
-        </button>
+        </Button>
         <div className={styles.header}>
           <h3 className={styles.title}>{title || t("filter.selectDate")}</h3>
         </div>
         <div className={styles.content}>
           <div className={styles.navigation}>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               className={styles.navButton}
               onClick={() => navigateMonth("prev")}
               aria-label={t("datePickerModal.prevMonth")}
             >
               ←
-            </button>
+            </Button>
             <div className={styles.monthYear}>
               {year}
               {t("datePickerModal.year")} {monthNames[month]}
             </div>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               className={styles.navButton}
               onClick={() => navigateMonth("next")}
               aria-label={t("datePickerModal.nextMonth")}
             >
               →
-            </button>
+            </Button>
           </div>
 
           <div className={styles.calendar}>
@@ -276,20 +277,20 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
 
           {/* Action Buttons */}
           <div className={styles.actionButtons}>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               className={styles.cancelButton}
               onClick={handleCancel}
             >
               {t("datePickerModal.cancel")}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="primary"
               className={styles.confirmButton}
               onClick={handleConfirm}
             >
               {t("datePickerModal.filter")}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

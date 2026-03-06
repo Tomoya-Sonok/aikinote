@@ -64,7 +64,7 @@ export function ResetPasswordForm({
             <CheckCircleIcon
               size={32}
               weight="light"
-              color="var(--aikinote-black)"
+              color="var(--black)"
               className={styles.icon}
             />
           </div>
@@ -113,13 +113,13 @@ export function ResetPasswordForm({
               placeholder={t("auth.newPasswordPlaceholder")}
               onFocus={clearError}
             />
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => setShowPassword((prev) => !prev)}
               className={styles.passwordToggle}
             >
               {showPassword ? t("auth.hide") : t("auth.show")}
-            </button>
+            </Button>
           </div>
           {errors.password && (
             <p className={styles.errorMessage}>{errors.password.message}</p>
@@ -142,13 +142,13 @@ export function ResetPasswordForm({
               placeholder={t("auth.confirmPasswordPlaceholder")}
               onFocus={clearError}
             />
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
               className={styles.passwordToggle}
             >
               {showConfirmPassword ? t("auth.hide") : t("auth.show")}
-            </button>
+            </Button>
           </div>
           {errors.confirmPassword && (
             <p className={styles.errorMessage}>

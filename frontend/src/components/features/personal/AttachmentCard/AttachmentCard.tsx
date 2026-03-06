@@ -7,6 +7,7 @@ import {
   YoutubeLogo,
 } from "@phosphor-icons/react";
 import type { FC } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { MediaPlayer } from "../MediaPlayer/MediaPlayer";
 import styles from "./AttachmentCard.module.css";
 
@@ -48,14 +49,14 @@ export const AttachmentCard: FC<AttachmentCardProps> = ({
   return (
     <div className={styles.card}>
       {showDeleteButton && onDelete && (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           className={styles.deleteButton}
           onClick={() => onDelete(attachment.id)}
           aria-label="削除"
         >
           <X size={14} weight="bold" />
-        </button>
+        </Button>
       )}
 
       <MediaPlayer

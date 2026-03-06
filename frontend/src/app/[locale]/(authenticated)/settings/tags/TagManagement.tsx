@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { Tag } from "@/components/shared/Tag/Tag";
@@ -673,8 +674,8 @@ export function TagManagement({ locale }: TagManagementProps) {
                   <h2 className={styles.categoryTitle}>
                     {t(`tagManagement.categories.${category}`)}
                   </h2>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     className={`${styles.editButton} ${isEditing ? styles.editButtonActive : ""}`}
                     onClick={() => handleToggleEditing(category)}
                     aria-pressed={isEditing}
@@ -685,10 +686,10 @@ export function TagManagement({ locale }: TagManagementProps) {
                     <PencilSimpleIcon
                       size={18}
                       weight="light"
-                      color="var(--aikinote-black)"
+                      color="var(--black)"
                       aria-hidden="true"
                     />
-                  </button>
+                  </Button>
                 </div>
 
                 {isEditing && (
@@ -697,8 +698,8 @@ export function TagManagement({ locale }: TagManagementProps) {
                       {t("tagManagement.reorderHint")}
                     </p>
                     <div className={styles.reorderButtons}>
-                      <button
-                        type="button"
+                      <Button
+                        variant="primary"
                         className={styles.orderButtonPrimary}
                         onClick={() => handleSaveOrder(category)}
                         disabled={!orderChanged || isSaving}
@@ -706,15 +707,15 @@ export function TagManagement({ locale }: TagManagementProps) {
                         {isSaving
                           ? t("tagManagement.orderSaving")
                           : t("tagManagement.saveOrder")}
-                      </button>
-                      <button
-                        type="button"
+                      </Button>
+                      <Button
+                        variant="secondary"
                         className={styles.orderButtonSecondary}
                         onClick={() => handleCancelReorder(category)}
                         disabled={isSaving}
                       >
                         {t("tagManagement.undo")}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -788,8 +789,8 @@ export function TagManagement({ locale }: TagManagementProps) {
                           <Tag variant="default">
                             <span>{tag.name}</span>
                             {isEditing && (
-                              <button
-                                type="button"
+                              <Button
+                                variant="ghost"
                                 className={styles.deleteButton}
                                 onClick={() =>
                                   handleDeleteTag(category, tag.id)
@@ -802,7 +803,7 @@ export function TagManagement({ locale }: TagManagementProps) {
                                 >
                                   ×
                                 </span>
-                              </button>
+                              </Button>
                             )}
                           </Tag>
                         </li>
@@ -833,22 +834,22 @@ export function TagManagement({ locale }: TagManagementProps) {
                     disabled={isSubmitting}
                     aria-label={t("pageModal.addNewTag")}
                   />
-                  <button
-                    type="button"
+                  <Button
+                    variant="primary"
                     className={styles.formButtonPrimary}
                     onClick={() => handleCreateTag(category)}
                     disabled={isSubmitting}
                   >
                     {t("pageModal.add")}
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="secondary"
                     className={styles.formButtonSecondary}
                     onClick={() => handleResetInput(category)}
                     disabled={isSubmitting}
                   >
                     {t("common.cancel")}
-                  </button>
+                  </Button>
                 </div>
               </section>
             );

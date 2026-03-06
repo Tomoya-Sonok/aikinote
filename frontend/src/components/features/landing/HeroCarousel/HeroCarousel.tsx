@@ -3,6 +3,7 @@
 import Image from "next/image";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { useRef, useState } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import styles from "./HeroCarousel.module.css";
 
 interface HeroCarouselItem {
@@ -151,15 +152,17 @@ export function HeroCarousel({ items }: HeroCarouselProps) {
       </div>
       <div className={styles.dots} role="tablist">
         {items.map((item, index) => (
-          <button
+          <Button
+            variant="ghost"
             key={`${item.src}-dot`}
-            type="button"
             className={`${styles.dot} ${index === currentIndex ? styles.dotActive : ""}`}
             onClick={() => handleSelect(index)}
             aria-label={item.dotLabel}
             aria-selected={index === currentIndex}
             role="tab"
-          />
+          >
+            <span className={styles.srOnly} />
+          </Button>
         ))}
       </div>
     </div>

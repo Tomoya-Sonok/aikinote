@@ -104,13 +104,13 @@ export function Login({ locale, onSuccess }: LoginProps) {
                   placeholder={t("auth.passwordPlaceholder")}
                   onFocus={clearError}
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
                   onClick={() => setShowPassword((prev) => !prev)}
                   className={styles.passwordToggle}
                 >
                   {showPassword ? t("auth.hide") : t("auth.show")}
-                </button>
+                </Button>
               </div>
               {form.formState.errors.password && (
                 <p className={styles.errorMessage}>
@@ -143,8 +143,8 @@ export function Login({ locale, onSuccess }: LoginProps) {
           </Link>
 
           <div className={styles.otherActions}>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={handleGoogleSignIn}
               disabled={isProcessing}
               className={styles.googleButton}
@@ -169,7 +169,7 @@ export function Login({ locale, onSuccess }: LoginProps) {
                 />
               </svg>
               {t("auth.googleLogin")}
-            </button>
+            </Button>
 
             <div className={styles.signupPrompt}>
               <span className={styles.signupPromptText}>

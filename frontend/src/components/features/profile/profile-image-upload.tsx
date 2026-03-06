@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { compressImage } from "@/lib/utils/compressImage";
 import styles from "./profile-image-upload.module.css";
 
@@ -206,8 +207,8 @@ export function ProfileImageUpload({
           <div className={styles.avatarPlaceholder}>👤</div>
         )}
 
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={handleUploadClick}
           disabled={disabled || isUploading}
           className={uploadButtonClassName}
@@ -222,7 +223,7 @@ export function ProfileImageUpload({
               <span className={styles.uploadText}>写真を変更</span>
             )}
           </div>
-        </button>
+        </Button>
       </div>
 
       {isUploading && (

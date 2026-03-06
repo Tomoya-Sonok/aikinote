@@ -1,6 +1,7 @@
 "use client";
 
 import type { FC } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import styles from "./BackToTopButton.module.css";
 
 interface BackToTopButtonProps {
@@ -24,9 +25,9 @@ export const BackToTopButton: FC<BackToTopButtonProps> = ({ label }) => {
   };
 
   return (
-    <button type="button" className={styles.button} onClick={handleClick}>
+    <Button variant="ghost" className={styles.button} onClick={handleClick}>
       <span className={styles.icon} aria-hidden="true" />
       {label}
-    </button>
+    </Button>
   );
 };

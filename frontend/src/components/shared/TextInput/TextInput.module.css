@@ -8,7 +8,7 @@
 .label {
   font-size: var(--font-size-xs);
   font-weight: 400;
-  color: var(--aikinote-black);
+  color: var(--black);
   line-height: 1.45;
   display: flex;
   align-items: center;
@@ -29,8 +29,8 @@
   padding: 10px 14px;
   border: 0.5px solid var(--border-color);
   border-radius: 4px;
-  background: var(--aikinote-white);
-  color: var(--aikinote-black);
+  background: var(--white);
+  color: var(--black);
   outline: none;
   transition: border-color 0.4s ease-out;
 }

@@ -6,13 +6,13 @@
 .title {
   font-size: var(--font-size-lg);
   font-weight: 400;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--black, #2c2c2c);
   margin: 0 0 20px 0;
   letter-spacing: 0.06em;
 }
 
 .content {
-  background-color: var(--aikinote-white, #fdfcfa);
+  background-color: var(--white, #ffffff);
   border-radius: 8px;
   padding: 20px;
   border: 0.5px solid var(--border-color, #e8e4df);

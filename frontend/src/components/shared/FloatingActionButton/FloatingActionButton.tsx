@@ -1,6 +1,7 @@
 import { NotePencilIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import styles from "./FloatingActionButton.module.css";
 
 interface FloatingActionButtonProps {
@@ -15,14 +16,14 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
   const t = useTranslations();
   const defaultLabel = label || t("components.createPage");
   return (
-    <button className={styles.fab} onClick={onClick} type="button">
+    <Button variant="icon" className={styles.fab} onClick={onClick}>
       <NotePencilIcon
         size={32}
         weight="light"
-        color="var(--aikinote-white)"
+        color="var(--white)"
         className={styles.icon}
       />
       <span className={styles.label}>{defaultLabel}</span>
-    </button>
+    </Button>
   );
 };

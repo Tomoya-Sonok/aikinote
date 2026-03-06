@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Button } from "@/components/shared/Button/Button";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import styles from "./TagFilterModal.module.css";
 
@@ -98,14 +99,14 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
       tabIndex={-1}
     >
       <div className={styles.modal}>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={handleCancel}
           className={styles.closeButton}
           aria-label={t("tagFilterModal.close")}
         >
           ×
-        </button>
+        </Button>
         <div className={styles.header}>
           <h3 className={styles.title}>{title || t("tagFilterModal.title")}</h3>
         </div>
@@ -140,20 +141,20 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
 
           {/* Action Buttons */}
           <div className={styles.actionButtons}>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               className={styles.cancelButton}
               onClick={handleCancel}
             >
               {t("tagFilterModal.cancel")}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="primary"
               className={styles.confirmButton}
               onClick={handleConfirm}
             >
               {t("tagFilterModal.filter")}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

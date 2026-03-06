@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Button } from "@/components/shared/Button/Button";
 import styles from "./ScrollIndicator.module.css";
 
 interface ScrollIndicatorProps {
@@ -74,8 +75,8 @@ export function ScrollIndicator({ label }: ScrollIndicatorProps) {
   if (!mounted) return null;
 
   return createPortal(
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       className={className}
       onClick={handleClick}
       aria-label={label}
@@ -86,7 +87,7 @@ export function ScrollIndicator({ label }: ScrollIndicatorProps) {
         <span className={styles.chevron} />
       </span>
       <span className={styles.label}>{label}</span>
-    </button>,
+    </Button>,
     document.body,
   );
 }

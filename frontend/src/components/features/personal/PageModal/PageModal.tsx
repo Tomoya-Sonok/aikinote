@@ -374,16 +374,16 @@ export const PageModal: FC<PageModalProps> = ({
                   }}
                   maxLength={20}
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
                   onClick={() => handleSubmitNewTag("tori")}
                   disabled={loading}
                 >
                   {t("pageModal.add")}
-                </button>
-                <button type="button" onClick={handleCancelNewTag}>
+                </Button>
+                <Button variant="secondary" onClick={handleCancelNewTag}>
                   {t("common.cancel")}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -411,16 +411,16 @@ export const PageModal: FC<PageModalProps> = ({
                   }}
                   maxLength={20}
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
                   onClick={() => handleSubmitNewTag("uke")}
                   disabled={loading}
                 >
                   {t("pageModal.add")}
-                </button>
-                <button type="button" onClick={handleCancelNewTag}>
+                </Button>
+                <Button variant="secondary" onClick={handleCancelNewTag}>
                   {t("common.cancel")}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -448,16 +448,16 @@ export const PageModal: FC<PageModalProps> = ({
                   }}
                   maxLength={20}
                 />
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
                   onClick={() => handleSubmitNewTag("waza")}
                   disabled={loading}
                 >
                   {t("pageModal.add")}
-                </button>
-                <button type="button" onClick={handleCancelNewTag}>
+                </Button>
+                <Button variant="secondary" onClick={handleCancelNewTag}>
                   {t("common.cancel")}
-                </button>
+                </Button>
               </div>
             )}
           </div>

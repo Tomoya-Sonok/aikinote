@@ -4,6 +4,7 @@ import { Image as ImageIcon, VideoCamera } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useCallback, useRef, useState } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
 import { AttachmentCard } from "../AttachmentCard/AttachmentCard";
 import styles from "./AttachmentUpload.module.css";
@@ -233,8 +234,8 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
 
       {/* ファイルアップロードボタン */}
       <div className={styles.actions}>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           className={styles.fileButton}
           onClick={handleUploadClick}
           disabled={disabled || isUploading}
@@ -242,7 +243,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           <ImageIcon size={16} />
           <VideoCamera size={16} />
           {t("pageModal.attachments.addFile")}
-        </button>
+        </Button>
       </div>
 
       {/* アップロード進捗 */}

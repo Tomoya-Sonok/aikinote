@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/shared/Button/Button";
 import { NavigationDrawer } from "@/components/shared/NavigationDrawer";
 import type { UserSession } from "@/lib/auth";
 import { useTooltipVisibility } from "@/lib/hooks/useTooltipVisibility";
@@ -128,7 +129,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
               <UserIcon
                 size={40}
                 weight="light"
-                color="var(--aikinote-black)"
+                color="var(--black)"
                 className={styles.avatarFallback}
               />
             )}
@@ -145,18 +146,18 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 
         {showSettings && (
           <div className={styles.settingsWrapper}>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={handleSettingsClick}
               className={styles.settingsButton}
               aria-label="設定を開く"
               aria-describedby={isTooltipVisible ? tooltipId : undefined}
             >
               <GearIcon size={20} weight="fill" color="var(--primary-color)" />
-            </button>
+            </Button>
             {isTooltipVisible && (
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 id={tooltipId}
                 className={styles.fontSizeTooltip}
                 onClick={(event) => {
@@ -166,7 +167,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                 aria-label={t("navigation.fontSizeTooltip")}
               >
                 {t("navigation.fontSizeTooltip")}
-              </button>
+              </Button>
             )}
           </div>
         )}

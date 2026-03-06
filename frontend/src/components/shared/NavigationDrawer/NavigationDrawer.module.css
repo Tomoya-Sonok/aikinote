@@ -18,7 +18,7 @@
   height: 100vh;
   width: 280px;
   max-width: 85vw;
-  background: var(--aikinote-white, #fdfcfa);
+  background: var(--white, #ffffff);
   box-shadow: -2px 0 24px rgba(44, 44, 44, 0.06);
   z-index: var(--z-drawer-panel);
   transform: translateX(100%);
@@ -41,14 +41,14 @@
   justify-content: space-between;
   padding: 20px 24px 16px;
   border-bottom: 0.5px solid var(--border-color, #e8e4df);
-  background: var(--aikinote-white, #fdfcfa);
+  background: var(--white, #ffffff);
 }
 
 .title {
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-lg);
   font-weight: 400;
-  color: var(--aikinote-black, #2c2c2c);
+  color: var(--black, #2c2c2c);
   margin: 0;
   letter-spacing: 0.08em;
 }
@@ -58,7 +58,7 @@
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--aikinote-gray, #8b8178);
+  color: var(--primary-color, #8b8178);
   font-size: var(--font-size-xl);
   font-weight: 300;
   cursor: pointer;
@@ -70,8 +70,8 @@
 }
 
 .closeButton:hover {
-  background: var(--aikinote-hover-gray, #f0ece7);
-  color: var(--aikinote-black, #2c2c2c);
+  background: var(--hover-gray, #f0ece7);
+  color: var(--black, #2c2c2c);
 }
 
 .closeButton:active {
