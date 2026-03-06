@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
+import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
 import { type PageFormData, PageModal } from "../PageModal/PageModal";
 
@@ -37,6 +38,11 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
     });
   };
 
+  const titlePlaceholder = t("pageCreate.titlePlaceholder", {
+    date: formatToLocalDateString(new Date().toISOString()),
+  });
+  const contentPlaceholder = t("pageCreate.contentPlaceholder");
+
   return (
     <PageModal
       isOpen={isOpen}
@@ -46,6 +52,8 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
       actionButtonText={t("pageCreate.save")}
       shouldCreateInitialTags={true}
       autoFocusTitle={true}
+      titlePlaceholder={titlePlaceholder}
+      contentPlaceholder={contentPlaceholder}
     />
   );
 };

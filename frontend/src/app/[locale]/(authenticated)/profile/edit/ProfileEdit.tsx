@@ -311,11 +311,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                   unoptimized
                 />
               ) : (
-                <UserIcon
-                  size={48}
-                  weight="light"
-                  color="var(--aikinote-black)"
-                />
+                <UserIcon size={48} weight="light" color="var(--black)" />
               )}
             </div>
             <div className={styles.editIcon}>
@@ -325,11 +321,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 onChange={handleImageChange}
                 className={styles.fileInput}
               />
-              <ImagesSquareIcon
-                size={16}
-                weight="light"
-                color="var(--aikinote-black)"
-              />
+              <ImagesSquareIcon size={16} weight="light" color="var(--black)" />
             </div>
           </label>
           <div className={styles.imageUpload}>
@@ -346,8 +338,8 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 className={styles.fileInfo}
                 style={{
                   color: profileImageFile
-                    ? "var(--aikinote-black)"
-                    : "var(--aikinote-text-light)",
+                    ? "var(--black)"
+                    : "var(--text-light)",
                 }}
               >
                 {profileImageFile
@@ -367,7 +359,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
                 <PhosphorTrashIcon
                   size={24}
                   weight="light"
-                  color="var(--aikinote-black)"
+                  color="var(--black)"
                 />
               </button>
             </div>
@@ -430,7 +422,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
         </div>
       </div>
       <div className={styles.actions}>
-        <Button variant="secondary" onClick={handleCancel}>
+        <Button variant="cancel" onClick={handleCancel}>
           {t("profileEdit.cancel")}
         </Button>
         <Button variant="primary" onClick={handleSave}>

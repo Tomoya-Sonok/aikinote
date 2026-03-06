@@ -41,7 +41,7 @@
   justify-content: center;
   align-items: center;
   z-index: var(--z-modal);
-  background: var(--aikinote-bg);
+  background: var(--bg-base);
 }
 
 /* テキスト付きの場合 */
@@ -53,7 +53,7 @@
 
 .text {
   font-size: var(--font-size-sm);
-  color: var(--aikinote-gray);
+  color: var(--primary-color);
   font-family: var(--font-zen-old-mincho);
   font-weight: 400;
   letter-spacing: 0.06em;
@@ -89,10 +89,10 @@
   }
 
   .text {
-    color: var(--aikinote-gray);
+    color: var(--primary-color);
   }
 
   .centered {
-    background: var(--aikinote-bg);
+    background: var(--bg-base);
   }
 }

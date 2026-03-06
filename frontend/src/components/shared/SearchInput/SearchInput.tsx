@@ -21,7 +21,7 @@ export const SearchInput: FC<SearchInputProps> = ({
       <MagnifyingGlassIcon
         size={14}
         weight="light"
-        color="var(--aikinote-black)"
+        color="var(--black)"
         className={styles.searchIcon}
       />
       <input

@@ -80,7 +80,7 @@ export const TabNavigation: FC = () => {
               <IconComponent
                 size={24}
                 weight="light"
-                color="var(--aikinote-black)"
+                color="var(--black)"
                 className={styles.icon}
               />
               <span className={styles.label}>{tab.label}</span>

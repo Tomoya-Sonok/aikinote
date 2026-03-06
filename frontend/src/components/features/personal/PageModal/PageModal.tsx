@@ -40,6 +40,8 @@ interface PageModalProps {
   actionButtonText: string;
   shouldCreateInitialTags?: boolean;
   autoFocusTitle?: boolean;
+  titlePlaceholder?: string;
+  contentPlaceholder?: string;
 }
 
 const defaultFormData: PageFormData = {
@@ -61,6 +63,8 @@ export const PageModal: FC<PageModalProps> = ({
   actionButtonText,
   shouldCreateInitialTags = false,
   autoFocusTitle = false,
+  titlePlaceholder,
+  contentPlaceholder,
 }) => {
   const t = useTranslations();
   const { showToast } = useToast();
@@ -331,6 +335,7 @@ export const PageModal: FC<PageModalProps> = ({
               label={t("pageModal.title")}
               required
               value={formData.title}
+              placeholder={titlePlaceholder}
               onChange={(e) => {
                 const newTitle = e.target.value;
                 setFormData((prev) => ({ ...prev, title: newTitle }));
@@ -467,6 +472,7 @@ export const PageModal: FC<PageModalProps> = ({
               label={t("pageModal.content")}
               required
               value={formData.content}
+              placeholder={contentPlaceholder}
               onChange={(e) => {
                 const newContent = e.target.value;
                 setFormData((prev) => ({ ...prev, content: newContent }));
@@ -545,7 +551,7 @@ export const PageModal: FC<PageModalProps> = ({
         </div>
 
         <div className={styles.footer}>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="cancel" onClick={handleClose}>
             {t("common.cancel")}
           </Button>
           <Button variant="primary" onClick={handleSubmit}>

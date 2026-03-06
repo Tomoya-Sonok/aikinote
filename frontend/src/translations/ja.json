@@ -436,7 +436,9 @@
   "pageCreate": {
     "title": "ページ作成",
     "save": "保存",
-    "success": "ページを作成しました"
+    "success": "ページを作成しました",
+    "titlePlaceholder": "{date} 稽古記録",
+    "contentPlaceholder": "稽古を通して学んだことや気づきを自由に入力してみましょう！"
   },
   "trainingCard": {
     "edit": "編集",

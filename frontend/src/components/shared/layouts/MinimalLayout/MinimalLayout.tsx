@@ -45,7 +45,7 @@ export function MinimalLayout({
             <CaretLeftIcon
               size={20}
               weight="light"
-              color="var(--aikinote-black)"
+              color="var(--black)"
               aria-hidden="true"
             />
           </button>

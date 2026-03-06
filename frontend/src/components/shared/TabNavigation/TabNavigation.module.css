@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   display: flex;
-  background: var(--aikinote-white);
+  background: var(--white);
   border-top: 0.5px solid var(--border-color);
   z-index: var(--z-tab);
 }
@@ -15,12 +15,12 @@
   transition: all 0.4s ease-out;
   position: relative;
   border: none;
-  background: var(--aikinote-white);
+  background: var(--white);
   padding: 0;
 }
 
 .tab.active {
-  background: var(--aikinote-white);
+  background: var(--white);
 }
 
 .tabContent {
@@ -44,7 +44,7 @@
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.4;
-  color: var(--aikinote-black);
+  color: var(--black);
   text-align: center;
   transition: all 0.4s ease-out;
 }
@@ -60,6 +60,6 @@
 }
 
 .tab.active .label {
-  color: var(--aikinote-white);
+  color: var(--white);
   font-weight: 600;
 }

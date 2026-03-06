@@ -1,24 +1,23 @@
 :root {
-  /* プライマリ・セマンティックカラー（伝統色） */
+  /* プライマリ・セマンティックカラー */
   --primary-color: #838383;
   --primary-dark: #6d6d6d;
   --secondary-color: #c9c9c9;
   --accent-color: #c4956a;
-  --success-color: #2e7d32;
+  --success-color: #34ae3a;
   --error-color: #f12b2b;
-  --text-color: #202020;
+
+  /* テキスト・ボーダー・背景色 */
+  --black: #2c2c2c;
   --text-light: #8b8178;
   --border-color: #e8e4df;
   --background-light: #f5f3ef;
 
-  /* AikiNote カラー */
-  --aikinote-bg: #efecec;
-  --aikinote-white: #fdfcfa;
-  --aikinote-black: #2c2c2c;
-  --aikinote-gray: #838383;
-  --aikinote-light-gray: #b5afa6;
-  --aikinote-text-light: #8b8178;
-  --aikinote-hover-gray: #f0ece7;
+  /* ベース・UI要素カラー */
+  --bg-base: #efecec;
+  --white: #ffffff;
+  --light-gray: #b5afa6;
+  --hover-gray: #f0ece7;
 
   /* ── フォント変数 ── */
   --font-zen-old-mincho:

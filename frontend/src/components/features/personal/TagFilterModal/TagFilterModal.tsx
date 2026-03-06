@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Button } from "@/components/shared/Button/Button";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import styles from "./TagFilterModal.module.css";
 
@@ -137,24 +138,24 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
               showAddButton={false}
             />
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className={styles.actionButtons}>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={handleCancel}
-            >
-              {t("tagFilterModal.cancel")}
-            </button>
-            <button
-              type="button"
-              className={styles.confirmButton}
-              onClick={handleConfirm}
-            >
-              {t("tagFilterModal.filter")}
-            </button>
-          </div>
+        {/* Action Buttons */}
+        <div className={styles.actionButtons}>
+          <Button
+            variant="cancel"
+            onClick={handleCancel}
+            className={styles.button}
+          >
+            {t("tagFilterModal.cancel")}
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            className={styles.button}
+          >
+            {t("tagFilterModal.filter")}
+          </Button>
         </div>
       </div>
     </div>,

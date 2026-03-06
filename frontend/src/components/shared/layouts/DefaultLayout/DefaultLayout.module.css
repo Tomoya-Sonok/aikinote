@@ -23,7 +23,7 @@
 .tabNavigation {
   margin-top: auto;
   border-top: 0.5px solid var(--border-color, #e8e4df);
-  background: var(--aikinote-white, #fdfcfa);
+  background: var(--white, #fdfcfa);
   padding: 10px 0 14px;
 }
 

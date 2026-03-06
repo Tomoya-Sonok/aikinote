@@ -25,7 +25,7 @@ export const SettingItem: FC<SettingItemProps> = ({
       <CaretRightIcon
         size={16}
         weight="light"
-        color="var(--aikinote-black)"
+        color="var(--black)"
         className={styles.arrow}
       />
     </button>

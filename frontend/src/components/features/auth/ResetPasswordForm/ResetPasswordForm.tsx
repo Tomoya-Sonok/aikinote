@@ -64,7 +64,7 @@ export function ResetPasswordForm({
             <CheckCircleIcon
               size={32}
               weight="light"
-              color="var(--aikinote-black)"
+              color="var(--black)"
               className={styles.icon}
             />
           </div>

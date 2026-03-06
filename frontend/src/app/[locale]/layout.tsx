@@ -32,9 +32,7 @@ export default async function LocaleLayout({
       <LocaleInitializer />
       <FontSizeProvider>
         <ToastProvider>
-          <main
-            style={{ background: "var(--aikinote-bg)", minHeight: "100vh" }}
-          >
+          <main style={{ background: "var(--bg-base)", minHeight: "100vh" }}>
             {children}
           </main>
         </ToastProvider>

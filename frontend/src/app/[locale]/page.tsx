@@ -1,3 +1,8 @@
+import {
+  ClockCounterClockwiseIcon,
+  ListIcon,
+  MagnifyingGlassIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -6,7 +11,6 @@ import { Fragment, type ReactNode } from "react";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
-import { ScrollIndicator } from "@/components/shared/ScrollIndicator/ScrollIndicator";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
@@ -68,10 +72,22 @@ export default async function RootPage({ params }: RootPageProps) {
   const rootHref = isDefaultLocale ? "/" : `/${locale}`;
   const signupHref = `${localePrefix}/signup`;
   const currentYear = new Date().getFullYear();
-  const searchFeatureIcons: Record<(typeof SECTION_KEYS)[number], string> = {
-    first: styles.featureIconTags,
-    second: styles.featureIconFilter,
-    third: styles.featureIconRecent,
+  const searchFeatureIcons: Record<(typeof SECTION_KEYS)[number], ReactNode> = {
+    first: <ListIcon size={28} color="var(--primary-dark)" weight="regular" />,
+    second: (
+      <MagnifyingGlassIcon
+        size={28}
+        color="var(--primary-dark)"
+        weight="regular"
+      />
+    ),
+    third: (
+      <ClockCounterClockwiseIcon
+        size={28}
+        color="var(--primary-dark)"
+        weight="regular"
+      />
+    ),
   };
   const searchSubtitleLines = t("solutionSearch.subtitle").split("\n");
   const localeSummary = isDefaultLocale
@@ -341,10 +357,9 @@ export default async function RootPage({ params }: RootPageProps) {
                 <ul className={styles.searchFeatures}>
                   {SECTION_KEYS.map((key) => (
                     <li key={key} className={styles.searchFeatureItem}>
-                      <span
-                        className={`${styles.featureIcon} ${searchFeatureIcons[key]}`}
-                        aria-hidden="true"
-                      />
+                      <div className={styles.featureIcon} aria-hidden="true">
+                        {searchFeatureIcons[key]}
+                      </div>
                       <div className={styles.searchFeatureText}>
                         <p className={styles.searchFeatureTitle}>
                           {t(`solutionSearch.features.${key}.title`)}
@@ -498,7 +513,6 @@ export default async function RootPage({ params }: RootPageProps) {
       <Link href={signupHref} className={styles.floatingCta}>
         {t("floatingCta")}
       </Link>
-      <ScrollIndicator label={t("cta.goDown")} />
     </div>
   );
 }

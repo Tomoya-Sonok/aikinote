@@ -434,7 +434,9 @@
   "pageCreate": {
     "title": "Create Page",
     "save": "Save",
-    "success": "Page created successfully"
+    "success": "Page created successfully",
+    "titlePlaceholder": "{date} Practice Record",
+    "contentPlaceholder": "Feel free to enter what you learned and noticed through your practice!"
   },
   "trainingCard": {
     "edit": "Edit",
