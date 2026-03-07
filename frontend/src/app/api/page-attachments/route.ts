@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     // 現在の最大sort_orderを取得
     const { data: existingAttachments } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("sort_order")
       .eq("page_id", validatedData.page_id)
       .order("sort_order", { ascending: false })
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
 
     // 添付レコードを作成
     const { data: newAttachment, error: insertError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .insert([
         {
           page_id: validatedData.page_id,
@@ -184,7 +184,7 @@ export async function GET(request: NextRequest) {
 
     // 添付一覧を取得
     const { data: attachments, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("page_id", pageId)
       .eq("user_id", user.id)
@@ -236,7 +236,7 @@ export async function DELETE(request: NextRequest) {
 
     // 添付の所有者チェックと取得
     const { data: attachment, error: fetchError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("id", attachmentId)
       .eq("user_id", user.id)
@@ -264,7 +264,7 @@ export async function DELETE(request: NextRequest) {
 
     // DBから削除
     const { error: deleteError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .delete()
       .eq("id", attachmentId)
       .eq("user_id", user.id);

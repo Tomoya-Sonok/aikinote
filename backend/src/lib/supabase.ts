@@ -834,7 +834,7 @@ export const getPageAttachments = async (
     }
 
     const { data: attachments, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("page_id", pageId)
       .eq("user_id", userId)
@@ -871,7 +871,7 @@ export const createPageAttachment = async (
 
     // 現在の最大sort_orderを取得
     const { data: existingAttachments } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("sort_order")
       .eq("page_id", attachmentData.page_id)
       .order("sort_order", { ascending: false })
@@ -883,7 +883,7 @@ export const createPageAttachment = async (
         : 0;
 
     const { data: newAttachment, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .insert([
         {
           page_id: attachmentData.page_id,
@@ -918,7 +918,7 @@ export const deletePageAttachment = async (
   try {
     // 添付の所有者チェック
     const { data: attachment, error: fetchError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("id", attachmentId)
       .eq("user_id", userId)
@@ -932,7 +932,7 @@ export const deletePageAttachment = async (
     }
 
     const { error: deleteError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .delete()
       .eq("id", attachmentId)
       .eq("user_id", userId);
