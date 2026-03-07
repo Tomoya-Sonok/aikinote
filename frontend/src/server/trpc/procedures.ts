@@ -42,6 +42,25 @@ type PageWithTags = {
 
 type PagesList = {
   training_pages: PageWithTags[];
+  total_count: number;
+};
+
+type TrainingDate = {
+  id: string;
+  user_id: string;
+  training_date: string;
+  is_attended: boolean;
+  created_at: string;
+};
+
+type TrainingDatePageCount = {
+  training_date: string;
+  page_count: number;
+};
+
+type TrainingDateMonthSummary = {
+  training_dates: TrainingDate[];
+  page_counts: TrainingDatePageCount[];
 };
 
 type UserProfile = {
@@ -132,6 +151,7 @@ export const getPagesProcedure = publicProcedure
       query: z.string().optional(),
       tags: z.array(z.string()).optional(),
       date: z.string().optional(),
+      sortOrder: z.enum(["newest", "oldest"]).optional(),
     }),
   )
   .query(async ({ input }) => {
@@ -145,6 +165,7 @@ export const getPagesProcedure = publicProcedure
     if (input.tags && input.tags.length > 0)
       query.set("tags", input.tags.join(","));
     if (input.date) query.set("date", input.date);
+    if (input.sortOrder) query.set("sort_order", input.sortOrder);
 
     return callHonoApi<ApiResponse<PagesList>>(
       `/api/pages?${query.toString()}`,
@@ -178,6 +199,13 @@ export const createPageProcedure = publicProcedure
       content: z.string(),
       comment: z.string(),
       user_id: z.string(),
+      created_at: z
+        .string()
+        .regex(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+          "created_atはISO 8601形式(YYYY-MM-DDTHH:mm:ss.sssZ)で指定してください",
+        )
+        .optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -221,6 +249,68 @@ export const deletePageProcedure = publicProcedure
 
     return callHonoApi<ApiResponse<never>>(
       `/api/pages/${input.pageId}?${query.toString()}`,
+      {
+        method: "DELETE",
+      },
+    );
+  });
+
+export const getTrainingDatesMonthProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      year: z.number().int().min(1970).max(9999),
+      month: z.number().int().min(1).max(12),
+    }),
+  )
+  .query(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+      year: String(input.year),
+      month: String(input.month),
+    });
+
+    return callHonoApi<ApiResponse<TrainingDateMonthSummary>>(
+      `/api/training-dates?${query.toString()}`,
+    );
+  });
+
+export const upsertTrainingDateAttendanceProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      trainingDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD形式で指定してください"),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    return callHonoApi<ApiResponse<TrainingDate>>("/api/training-dates", {
+      method: "PUT",
+      body: JSON.stringify({
+        user_id: input.userId,
+        training_date: input.trainingDate,
+      }),
+    });
+  });
+
+export const removeTrainingDateAttendanceProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      trainingDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD形式で指定してください"),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+      training_date: input.trainingDate,
+    });
+
+    return callHonoApi<ApiResponse<never>>(
+      `/api/training-dates?${query.toString()}`,
       {
         method: "DELETE",
       },

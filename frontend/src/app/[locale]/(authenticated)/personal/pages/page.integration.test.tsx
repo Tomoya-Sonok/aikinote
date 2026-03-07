@@ -140,6 +140,7 @@ describe("PersonalPagesPage - クライアントサイドフィルタリング�
       success: true,
       data: {
         training_pages: mockTrainingPages,
+        total_count: mockTrainingPages.length,
       },
     });
 
@@ -183,11 +184,12 @@ describe("PersonalPagesPage - クライアントサイドフィルタリング�
     await waitFor(() => {
       expect(getPages).toHaveBeenCalledWith({
         userId: "test-user-123",
-        limit: 100,
+        limit: 25,
         offset: 0,
         query: "",
         tags: [],
         date: undefined,
+        sortOrder: "newest",
       });
     });
   });

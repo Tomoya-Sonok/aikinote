@@ -10,11 +10,13 @@ vi.mock("../PageModal/PageModal", () => ({
     isOpen,
     modalTitle,
     actionButtonText,
+    titlePlaceholder,
     onSubmit,
   }: {
     isOpen: boolean;
     modalTitle: string;
     actionButtonText: string;
+    titlePlaceholder: string;
     onSubmit: (data: {
       title: string;
       tori: string[];
@@ -22,12 +24,14 @@ vi.mock("../PageModal/PageModal", () => ({
       waza: string[];
       content: string;
       comment: string;
+      attachments: never[];
     }) => void;
   }) => {
     if (!isOpen) return null;
     return (
       <div>
         <h2>{modalTitle}</h2>
+        <p data-testid="title-placeholder">{titlePlaceholder}</p>
         <button
           type="button"
           onClick={() =>
@@ -38,6 +42,7 @@ vi.mock("../PageModal/PageModal", () => ({
               waza: [],
               content: "テスト内容",
               comment: "",
+              attachments: [],
             })
           }
         >
@@ -146,6 +151,31 @@ describe("PageCreateModal", () => {
       waza: [],
       content: "テスト内容",
       comment: "",
+      attachments: [],
     });
+  });
+
+  it("placeholderDateを渡すとtitle placeholderに選択日が表示される", async () => {
+    // Arrange
+    const mockOnClose = vi.fn();
+    const mockOnSave = vi.fn();
+    const placeholderDate = new Date(2026, 2, 13);
+
+    // Act
+    render(
+      <I18nTestProvider>
+        <PageCreateModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSave={mockOnSave}
+          placeholderDate={placeholderDate}
+        />
+      </I18nTestProvider>,
+    );
+
+    // Assert
+    expect(screen.getByTestId("title-placeholder")).toHaveTextContent(
+      "2026-03-13 稽古記録",
+    );
   });
 });

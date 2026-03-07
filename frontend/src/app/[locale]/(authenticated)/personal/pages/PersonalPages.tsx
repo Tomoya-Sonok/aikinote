@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  CalendarDotsIcon,
   CaretDownIcon,
   CaretUpIcon,
   CheckIcon,
   SortAscendingIcon,
   SortDescendingIcon,
 } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,6 +28,7 @@ import { FloatingActionButton } from "@/components/shared/FloatingActionButton/F
 import { Loader } from "@/components/shared/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import { type UpdatePagePayload } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
 import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
@@ -38,27 +41,42 @@ export function PersonalPages() {
   const router = useRouter();
   const locale = useLocale();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
   // Custom Hooks
   const { availableTags } = useTrainingTags();
-  const { loading, allTrainingPageData, addPage, updatePageData, removePage } =
-    useTrainingPagesData();
   const {
     searchQuery,
     setSearchQuery,
+    debouncedSearchQuery,
     selectedDate,
     setSelectedDate,
     selectedTags,
     setSelectedTags,
     sortOrder,
     setSortOrder,
-    displayedTrainingPageData,
+  } = useTrainingPageFilters();
+
+  const {
+    loading,
+    allTrainingPageData,
+    totalCount,
     hasMore,
     loadMore,
-  } = useTrainingPageFilters(allTrainingPageData);
+    addPage,
+    updatePageData,
+    removePage,
+  } = useTrainingPagesData({
+    query: debouncedSearchQuery,
+    tags: selectedTags,
+    date: selectedDate,
+    sortOrder,
+  });
+
+  const displayedTrainingPageData = allTrainingPageData;
   const {
     isPageCreateModalOpen,
     setPageCreateModalOpen,
@@ -176,12 +194,27 @@ export function PersonalPages() {
 
   return (
     <div className={styles.container}>
+      <div className={styles.otherPageLinks}>
+        <Link
+          href={`/${locale}/personal/calendar`}
+          className={styles.calendarLink}
+          aria-label={t("personalPages.openCalendar")}
+        >
+          <CalendarDotsIcon
+            size={18}
+            weight="light"
+            className={styles.calendarIcon}
+          />
+          <span className={styles.calendarText}>
+            {t("personalPages.calendar")}
+          </span>
+        </Link>
+      </div>
+
       <div className={styles.statsSection}>
         <p className={styles.statsText} data-testid="page-stats">
           {t("personalPages.pageCount")}
-          <span className={styles.statsNumber}>
-            {allTrainingPageData.length}
-          </span>
+          <span className={styles.statsNumber}>{totalCount}</span>
           {t("personalPages.pageCountSuffix")}
         </p>
       </div>
@@ -195,6 +228,7 @@ export function PersonalPages() {
         currentSelectedTags={selectedTags}
         onOpenTagSelection={() => setIsTagModalOpen(true)}
         onOpenDateSelection={() => {}}
+        userId={user?.id}
       />
 
       <div className={styles.pageListWrapper}>
@@ -260,12 +294,12 @@ export function PersonalPages() {
             </div>
           </div>
           <p className={styles.pageCount} data-testid="page-count">
-            {allTrainingPageData.length === displayedTrainingPageData.length
+            {totalCount === displayedTrainingPageData.length
               ? t("personalPages.showingAll", {
-                  total: allTrainingPageData.length,
+                  total: totalCount,
                 })
               : t("personalPages.showingPartial", {
-                  total: allTrainingPageData.length,
+                  total: totalCount,
                   displayed: displayedTrainingPageData.length,
                 })}
           </p>

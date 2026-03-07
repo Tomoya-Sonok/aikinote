@@ -53,17 +53,47 @@ export interface TrainingPageTagRow {
   user_tag_id: string; // uuid FK
 }
 
+export interface TrainingDateRow {
+  id: string; // uuid PK
+  user_id: string; // uuid FK
+  training_date: string; // date
+  is_attended: boolean; // 参加有無
+  created_at: string; // timestamp
+}
+
+export interface TrainingDatePageCount {
+  training_date: string; // date
+  page_count: number;
+}
+
 // データベース操作関数
 export const createTrainingPage = async (
-  pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at">,
+  pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at"> & {
+    created_at?: string;
+  },
   tagNames: { tori: string[]; uke: string[]; waza: string[] },
 ): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
   // トランザクションを使用してページと関連タグを作成
   try {
     // 1. TrainingPageを作成
+    const insertPageData = pageData.created_at
+      ? {
+          title: pageData.title,
+          content: pageData.content,
+          comment: pageData.comment,
+          user_id: pageData.user_id,
+          created_at: pageData.created_at,
+        }
+      : {
+          title: pageData.title,
+          content: pageData.content,
+          comment: pageData.comment,
+          user_id: pageData.user_id,
+        };
+
     const { data: newPage, error: pageError } = await supabase
       .from("TrainingPage")
-      .insert([pageData])
+      .insert([insertPageData])
       .select("*")
       .single();
 
@@ -154,6 +184,7 @@ export const getTrainingPages = async ({
   query,
   tags: tagsString,
   date,
+  sortOrder = "newest",
 }: {
   userId: string;
   limit?: number;
@@ -161,7 +192,11 @@ export const getTrainingPages = async ({
   query?: string;
   tags?: string;
   date?: string;
-}): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }[]> => {
+  sortOrder?: "newest" | "oldest";
+}): Promise<{
+  pages: { page: TrainingPageRow; tags: UserTagRow[] }[];
+  totalCount: number;
+}> => {
   try {
     let pageIds: string[] | null = null;
 
@@ -180,7 +215,7 @@ export const getTrainingPages = async ({
 
       // 検索したタグの数が一致しない場合、結果は0件
       if (tagIdsData.length !== tagNames.length) {
-        return [];
+        return { pages: [], totalCount: 0 };
       }
       const tagIds = tagIdsData.map((t) => t.id);
 
@@ -210,14 +245,14 @@ export const getTrainingPages = async ({
 
       // 一致するページがない場合は空配列を返す
       if (!pageIds || pageIds.length === 0) {
-        return [];
+        return { pages: [], totalCount: 0 };
       }
     }
 
     // ページ取得のベースクエリ
     let queryBuilder = supabase
       .from("TrainingPage")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("user_id", userId);
 
     // フリーワード検索
@@ -238,8 +273,12 @@ export const getTrainingPages = async ({
     }
 
     // ページネーションと順序付け
-    const { data: pages, error: pagesError } = await queryBuilder
-      .order("created_at", { ascending: false })
+    const {
+      data: pages,
+      count,
+      error: pagesError,
+    } = await queryBuilder
+      .order("created_at", { ascending: sortOrder === "oldest" })
       .range(offset, offset + limit - 1);
 
     if (pagesError) {
@@ -247,7 +286,7 @@ export const getTrainingPages = async ({
     }
 
     if (!pages || pages.length === 0) {
-      return [];
+      return { pages: [], totalCount: count ?? 0 };
     }
 
     // 各ページに関連するタグを取得（TODO: N+1問題は残存している、要対応）
@@ -274,11 +313,128 @@ export const getTrainingPages = async ({
       pagesWithTags.push({ page, tags });
     }
 
-    return pagesWithTags;
+    return { pages: pagesWithTags, totalCount: count ?? 0 };
   } catch (error) {
     console.error("TrainingPages取得エラー:", error);
     throw error;
   }
+};
+
+const buildMonthRange = (
+  year: number,
+  month: number,
+): { startDate: string; endDate: string } => {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+  return { startDate, endDate };
+};
+
+export const getTrainingDatesByMonth = async (
+  userId: string,
+  year: number,
+  month: number,
+): Promise<TrainingDateRow[]> => {
+  const { startDate, endDate } = buildMonthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("TrainingDate")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("training_date", startDate)
+    .lte("training_date", endDate)
+    .order("training_date", { ascending: true });
+
+  if (error) {
+    throw new Error(`稽古参加日の取得に失敗しました: ${error.message}`);
+  }
+
+  return data ?? [];
+};
+
+export const upsertTrainingDateAttendance = async (
+  userId: string,
+  trainingDate: string,
+): Promise<TrainingDateRow> => {
+  const { data, error } = await supabase
+    .from("TrainingDate")
+    .upsert(
+      [
+        {
+          user_id: userId,
+          training_date: trainingDate,
+          is_attended: true,
+        },
+      ],
+      {
+        onConflict: "user_id,training_date",
+      },
+    )
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`稽古参加日の保存に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const deleteTrainingDateAttendance = async (
+  userId: string,
+  trainingDate: string,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("TrainingDate")
+    .delete()
+    .eq("user_id", userId)
+    .eq("training_date", trainingDate);
+
+  if (error) {
+    throw new Error(`稽古参加日の削除に失敗しました: ${error.message}`);
+  }
+};
+
+export const getTrainingPageCountsByMonth = async (
+  userId: string,
+  year: number,
+  month: number,
+): Promise<TrainingDatePageCount[]> => {
+  const { startDate, endDate } = buildMonthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("TrainingPage")
+    .select("created_at")
+    .eq("user_id", userId)
+    .gte("created_at", `${startDate}T00:00:00Z`)
+    .lte("created_at", `${endDate}T23:59:59Z`);
+
+  if (error) {
+    throw new Error(`ページ件数の取得に失敗しました: ${error.message}`);
+  }
+
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  const countByDate = new Map<string, number>();
+
+  for (const row of data) {
+    const createdAt = row.created_at as string | undefined;
+    if (!createdAt) {
+      continue;
+    }
+    const dateKey = createdAt.slice(0, 10);
+    countByDate.set(dateKey, (countByDate.get(dateKey) ?? 0) + 1);
+  }
+
+  return Array.from(countByDate.entries())
+    .map(([training_date, page_count]) => ({
+      training_date,
+      page_count,
+    }))
+    .sort((a, b) => a.training_date.localeCompare(b.training_date));
 };
 
 // タグ一覧取得関数
@@ -825,7 +981,7 @@ export const getPageAttachments = async (
     }
 
     const { data: attachments, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("page_id", pageId)
       .eq("user_id", userId)
@@ -862,7 +1018,7 @@ export const createPageAttachment = async (
 
     // 現在の最大sort_orderを取得
     const { data: existingAttachments } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("sort_order")
       .eq("page_id", attachmentData.page_id)
       .order("sort_order", { ascending: false })
@@ -874,7 +1030,7 @@ export const createPageAttachment = async (
         : 0;
 
     const { data: newAttachment, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .insert([
         {
           page_id: attachmentData.page_id,
@@ -909,7 +1065,7 @@ export const deletePageAttachment = async (
   try {
     // 添付の所有者チェック
     const { data: attachment, error: fetchError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("id", attachmentId)
       .eq("user_id", userId)
@@ -923,7 +1079,7 @@ export const deletePageAttachment = async (
     }
 
     const { error: deleteError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .delete()
       .eq("id", attachmentId)
       .eq("user_id", userId);

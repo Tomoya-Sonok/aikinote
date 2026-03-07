@@ -39,6 +39,9 @@ const testMessages = {
     tagsFetchFailed: "タグの取得に失敗しました",
     initialTagsCreated: "初期タグを作成しました",
     initialTagsCreateFailed: "初期タグの作成に失敗しました",
+    closeConfirmTitle: "編集内容を破棄しますか？",
+    closeConfirmMessage: "入力中の内容は保存されません。",
+    closeConfirmAction: "破棄する",
     unknownError: "不明なエラー",
     attachments: {
       title: "添付ファイル",
@@ -70,9 +73,25 @@ const testMessages = {
     pagesList: "ページ一覧",
     sortNewest: "新しい順",
     sortOldest: "古い順",
+    calendar: "カレンダー",
+    openCalendar: "カレンダー表示へ",
     showingAll: "全{total}件表示中",
     showingPartial: "全{total}件中{displayed}件表示中",
     loadMore: "もっと見る",
+  },
+  personalCalendar: {
+    title: "カレンダー",
+    description: "選択した日付の稽古参加記録やページ作成が可能です",
+    loading: "読み込み中...",
+    dataFetchFailed: "カレンダーデータの取得に失敗しました",
+    attendanceUpdateFailed: "稽古参加の更新に失敗しました",
+    attendanceAdded: "稽古参加を登録しました",
+    attendanceRemoved: "稽古参加を削除しました",
+    actionTitle: "{date} の稽古",
+    markAttendance: "稽古に参加しました",
+    unmarkAttendance: "稽古参加を取り消し",
+    createPage: "ページ作成",
+    cancel: "キャンセル",
   },
   pageDetail: {
     loading: "読み込み中...",
@@ -91,7 +110,7 @@ const testMessages = {
   },
   tagManagement: {
     title: "タグ管理",
-    loading: "タグを読み込み中...",
+    loading: "読み込み中...",
     categories: {
       tori: "取り",
       uke: "受け",
@@ -124,6 +143,9 @@ const testMessages = {
   pageCreate: {
     title: "ページ作成",
     save: "保存",
+    success: "ページを作成しました",
+    titlePlaceholder: "{date} 稽古記録",
+    contentPlaceholder: "内容を入力してください",
   },
   datePickerModal: {
     close: "閉じる",

@@ -18,6 +18,7 @@ export interface AttachmentData {
   original_filename?: string | null;
   file_size_bytes?: number | null;
   youtubeTitle?: string;
+  _fileKey?: string;
 }
 
 interface AttachmentCardProps {

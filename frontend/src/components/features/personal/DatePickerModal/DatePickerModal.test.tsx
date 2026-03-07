@@ -1,13 +1,27 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getTrainingDatesMonth } from "@/lib/api/client";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { DatePickerModal } from "./DatePickerModal";
 import styles from "./DatePickerModal.module.css";
 
+vi.mock("@/lib/api/client", () => ({
+  getTrainingDatesMonth: vi.fn(),
+}));
+
 describe("DatePickerModal", () => {
+  const mockGetTrainingDatesMonth = vi.mocked(getTrainingDatesMonth);
+
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetTrainingDatesMonth.mockResolvedValue({
+      success: true,
+      data: {
+        training_dates: [],
+        page_counts: [],
+      },
+    });
   });
 
   it("モーダルが閉じている時は日付選択ダイアログが表示されない", async () => {
@@ -331,5 +345,34 @@ describe("DatePickerModal", () => {
     );
     expect(todayButton).toBeDefined();
     expect(todayButton).toHaveClass(styles.today);
+  });
+
+  it("userIdが渡された場合は月次のページ件数を取得する", async () => {
+    // Arrange
+    const now = new Date();
+    const mockOnClose = vi.fn();
+    const mockOnDateSelect = vi.fn();
+
+    // Act
+    render(
+      <I18nTestProvider>
+        <DatePickerModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onDateSelect={mockOnDateSelect}
+          title="日付を選択"
+          userId="test-user-id"
+        />
+      </I18nTestProvider>,
+    );
+
+    // Assert
+    await waitFor(() => {
+      expect(mockGetTrainingDatesMonth).toHaveBeenCalledWith({
+        userId: "test-user-id",
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+      });
+    });
   });
 });

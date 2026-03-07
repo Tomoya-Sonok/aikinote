@@ -2,7 +2,9 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { CalendarGrid } from "@/components/features/personal/CalendarGrid/CalendarGrid";
 import { Button } from "@/components/shared/Button/Button";
+import { getTrainingDatesMonth } from "@/lib/api/client";
 import styles from "./DatePickerModal.module.css";
 
 interface DatePickerModalProps {
@@ -11,6 +13,7 @@ interface DatePickerModalProps {
   selectedDate?: Date;
   onDateSelect: (date: Date | null) => void;
   title?: string;
+  userId?: string;
 }
 
 export const DatePickerModal: FC<DatePickerModalProps> = ({
@@ -19,6 +22,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   selectedDate,
   onDateSelect,
   title,
+  userId,
 }) => {
   const t = useTranslations();
   const [currentMonth, setCurrentMonth] = useState(
@@ -27,6 +31,16 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(
     selectedDate || null,
   );
+  const [pageCountByDate, setPageCountByDate] = useState<
+    Record<string, number>
+  >({});
+
+  const formatDateKey = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   // モーダルが開いたときに現在の選択日付を一時選択に設定
   React.useEffect(() => {
@@ -34,25 +48,55 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
       setTempSelectedDate(selectedDate || null);
     }
   }, [isOpen, selectedDate]);
-  const today = new Date();
 
-  const { year, month, daysInMonth, firstDayOfWeek, prevMonthDays } =
-    useMemo(() => {
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const firstDayOfWeek = new Date(year, month, 1).getDay();
-      const prevMonth = new Date(year, month - 1, 0);
-      const prevMonthDays = prevMonth.getDate();
+  React.useEffect(() => {
+    if (!isOpen || !userId) {
+      setPageCountByDate({});
+      return;
+    }
 
-      return {
-        year,
-        month,
-        daysInMonth,
-        firstDayOfWeek,
-        prevMonthDays,
-      };
-    }, [currentMonth]);
+    let isMounted = true;
+
+    const fetchPageCounts = async () => {
+      try {
+        const response = await getTrainingDatesMonth({
+          userId,
+          year: currentMonth.getFullYear(),
+          month: currentMonth.getMonth() + 1,
+        });
+
+        if (!response.success || !response.data || !isMounted) {
+          return;
+        }
+
+        const nextMap: Record<string, number> = {};
+        for (const item of response.data.page_counts) {
+          if (item.page_count > 0) {
+            nextMap[item.training_date] = item.page_count;
+          }
+        }
+        setPageCountByDate(nextMap);
+      } catch (error) {
+        console.warn("Failed to fetch page counts for date picker:", error);
+        if (isMounted) {
+          setPageCountByDate({});
+        }
+      }
+    };
+
+    void fetchPageCounts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, userId, currentMonth]);
+
+  const { year, month } = useMemo(() => {
+    return {
+      year: currentMonth.getFullYear(),
+      month: currentMonth.getMonth(),
+    };
+  }, [currentMonth]);
 
   const monthNames = [
     t("datePickerModal.months.january"),
@@ -107,45 +151,24 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
     });
   };
 
-  const handleDateClick = (day: number, isCurrentMonth: boolean = true) => {
+  const handleDateClick = (date: Date, isCurrentMonth: boolean) => {
     if (!isCurrentMonth) {
-      const newDate = isCurrentMonth
-        ? new Date(year, month, day)
-        : new Date(year, month + (day > 15 ? -1 : 1), day);
-      setTempSelectedDate(newDate);
+      setTempSelectedDate(date);
+      setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
       return;
     }
 
-    const newDate = new Date(year, month, day);
-
-    // 既に選択されている日付をタップした場合は未選択にする
     if (
       tempSelectedDate &&
-      tempSelectedDate.getFullYear() === newDate.getFullYear() &&
-      tempSelectedDate.getMonth() === newDate.getMonth() &&
-      tempSelectedDate.getDate() === newDate.getDate()
+      tempSelectedDate.getFullYear() === date.getFullYear() &&
+      tempSelectedDate.getMonth() === date.getMonth() &&
+      tempSelectedDate.getDate() === date.getDate()
     ) {
       setTempSelectedDate(null);
-    } else {
-      setTempSelectedDate(newDate);
+      return;
     }
-  };
 
-  const isToday = (day: number) => {
-    return (
-      today.getFullYear() === year &&
-      today.getMonth() === month &&
-      today.getDate() === day
-    );
-  };
-
-  const isSelected = (day: number) => {
-    if (!tempSelectedDate) return false;
-    return (
-      tempSelectedDate.getFullYear() === year &&
-      tempSelectedDate.getMonth() === month &&
-      tempSelectedDate.getDate() === day
-    );
+    setTempSelectedDate(date);
   };
 
   const handleConfirm = () => {
@@ -156,67 +179,6 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
   const handleCancel = () => {
     setTempSelectedDate(selectedDate || null);
     onClose();
-  };
-
-  const renderCalendarDays = () => {
-    const days = [];
-
-    // Previous month's trailing days
-    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-      const day = prevMonthDays - i;
-      days.push(
-        <button
-          key={`prev-${day}`}
-          type="button"
-          className={`${styles.dayButton} ${styles.otherMonth}`}
-          onClick={() => {
-            const prevMonth = new Date(year, month - 1, day);
-            setTempSelectedDate(prevMonth);
-            setCurrentMonth(prevMonth);
-          }}
-        >
-          {day}
-        </button>,
-      );
-    }
-
-    // Current month's days
-    for (let day = 1; day <= daysInMonth; day++) {
-      const todayClass = isToday(day) ? styles.today : "";
-      const selectedClass = isSelected(day) ? styles.selected : "";
-
-      days.push(
-        <button
-          key={`current-${day}`}
-          type="button"
-          className={`${styles.dayButton} ${todayClass} ${selectedClass}`}
-          onClick={() => handleDateClick(day)}
-        >
-          {day}
-        </button>,
-      );
-    }
-
-    // Next month's leading days
-    const remainingDays = 42 - days.length;
-    for (let day = 1; day <= remainingDays; day++) {
-      days.push(
-        <button
-          key={`next-${day}`}
-          type="button"
-          className={`${styles.dayButton} ${styles.otherMonth}`}
-          onClick={() => {
-            const nextMonth = new Date(year, month + 1, day);
-            setTempSelectedDate(nextMonth);
-            setCurrentMonth(nextMonth);
-          }}
-        >
-          {day}
-        </button>,
-      );
-    }
-
-    return days;
   };
 
   return createPortal(
@@ -265,14 +227,25 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
           </div>
 
           <div className={styles.calendar}>
-            <div className={styles.weekHeader}>
-              {dayNames.map((day) => (
-                <div key={day} className={styles.weekDay}>
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className={styles.daysGrid}>{renderCalendarDays()}</div>
+            <CalendarGrid
+              currentMonth={currentMonth}
+              dayNames={dayNames}
+              selectedDate={tempSelectedDate}
+              onDateClick={handleDateClick}
+              getDateStatus={(date) => {
+                const pageCount = pageCountByDate[formatDateKey(date)];
+                if (!pageCount) {
+                  return undefined;
+                }
+                return { pageCount };
+              }}
+              classNames={{
+                dayButton: styles.dayButton,
+                otherMonth: styles.otherMonth,
+                today: styles.today,
+                selected: styles.selected,
+              }}
+            />
           </div>
         </div>
 

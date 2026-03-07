@@ -5,6 +5,7 @@ import type { FC } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/shared/Button/Button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
@@ -84,6 +85,7 @@ export const PageModal: FC<PageModalProps> = ({
   >([]);
   const [loading, setLoading] = useState(false);
   const [initialTagsCreated, setInitialTagsCreated] = useState(false);
+  const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false);
 
   // initialDataが変更された時にフォームデータを更新
   useEffect(() => {
@@ -295,17 +297,29 @@ export const PageModal: FC<PageModalProps> = ({
   const handleSubmit = () => {
     if (validateForm()) {
       onSubmit(formData);
-      handleClose();
+      closeModal();
     }
   };
 
-  const handleClose = () => {
+  const closeModal = () => {
     setFormData(initialData);
     setErrors({});
+    setIsCloseConfirmOpen(false);
     if (shouldCreateInitialTags) {
       setInitialTagsCreated(false); // モーダル閉時に初期タグ作成状態をリセット
     }
     onClose();
+  };
+
+  const handleRequestClose = () => {
+    if (isCloseConfirmOpen) {
+      return;
+    }
+    setIsCloseConfirmOpen(true);
+  };
+
+  const handleCancelCloseConfirm = () => {
+    setIsCloseConfirmOpen(false);
   };
 
   if (!isOpen) return null;
@@ -313,8 +327,13 @@ export const PageModal: FC<PageModalProps> = ({
   return createPortal(
     <div
       className={styles.overlay}
-      onClick={handleClose}
-      onKeyDown={(e) => e.key === "Escape" && handleClose()}
+      onClick={(e) => {
+        if (e.target !== e.currentTarget) {
+          return;
+        }
+        handleRequestClose();
+      }}
+      onKeyDown={(e) => e.key === "Escape" && handleRequestClose()}
       role="dialog"
       aria-modal="true"
     >
@@ -551,7 +570,7 @@ export const PageModal: FC<PageModalProps> = ({
         </div>
 
         <div className={styles.footer}>
-          <Button variant="cancel" onClick={handleClose}>
+          <Button variant="cancel" onClick={handleRequestClose}>
             {t("common.cancel")}
           </Button>
           <Button variant="primary" onClick={handleSubmit}>
@@ -559,6 +578,15 @@ export const PageModal: FC<PageModalProps> = ({
           </Button>
         </div>
       </dialog>
+      <ConfirmDialog
+        isOpen={isCloseConfirmOpen}
+        title={t("pageModal.closeConfirmTitle")}
+        message={t("pageModal.closeConfirmMessage")}
+        confirmLabel={t("pageModal.closeConfirmAction")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={closeModal}
+        onCancel={handleCancelCloseConfirm}
+      />
     </div>,
     document.body,
   );

@@ -1,0 +1,118 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 60px;
+  font-family: var(--font-zen-old-mincho);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.5;
+}
+
+.calendarCard {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.monthNavigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.monthButton {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  background: var(--white);
+  color: var(--black);
+}
+
+.monthButton:hover {
+  background: var(--hover-gray);
+}
+
+.monthLabel {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--black);
+}
+
+.loaderArea {
+  min-height: 300px;
+}
+
+.actionOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--overlay-scrim);
+}
+
+.actionOverlayDismiss {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: none;
+}
+
+.actionDialog {
+  position: relative;
+  width: calc(100% - 24px);
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 14px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actionTitle {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.actionButton {
+  width: 100%;
+}
+
+@media (min-width: 481px) {
+  .calendarCard {
+    padding: 20px 16px;
+  }
+
+  .actionDialog {
+    max-width: 420px;
+  }
+}

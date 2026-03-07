@@ -8,6 +8,7 @@ import {
 } from "./lib/supabase.js";
 import pagesRoute from "./routes/pages/index.js";
 import tagsRoute from "./routes/tags/index.js";
+import trainingDatesRoute from "./routes/training-dates/index.js";
 import usersRoute from "./routes/users/index.js";
 
 type AppBindings = {
@@ -182,6 +183,7 @@ app.get("/health", (c) => {
 // APIルートを追加
 app.route("/api/pages", pagesRoute);
 app.route("/api/tags", tagsRoute);
+app.route("/api/training-dates", trainingDatesRoute);
 app.route("/api/users", usersRoute);
 
 export type AppType = typeof app;

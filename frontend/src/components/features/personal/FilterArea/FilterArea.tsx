@@ -20,6 +20,7 @@ interface FilterAreaProps {
   currentSelectedTags: string[]; // 表示用にタグ名（またはID）の配列を受け取る
   onOpenTagSelection: () => void;
   onOpenDateSelection?: () => void;
+  userId?: string;
 }
 
 export const FilterArea: FC<FilterAreaProps> = ({
@@ -31,6 +32,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
   currentSelectedTags,
   onOpenTagSelection,
   onOpenDateSelection,
+  userId,
 }) => {
   const t = useTranslations();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -201,6 +203,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
         }
         onDateSelect={handleDateSelect}
         title={t("filter.selectDate")}
+        userId={userId}
       />
     </div>
   );

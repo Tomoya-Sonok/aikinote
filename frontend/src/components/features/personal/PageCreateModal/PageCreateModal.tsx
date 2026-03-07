@@ -8,6 +8,7 @@ interface PageCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (pageData: PageCreateData) => void;
+  placeholderDate?: Date;
 }
 
 export interface PageCreateData {
@@ -24,6 +25,7 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  placeholderDate,
 }) => {
   const t = useTranslations();
   const handleSubmit = (formData: PageFormData) => {
@@ -38,8 +40,9 @@ export const PageCreateModal: FC<PageCreateModalProps> = ({
     });
   };
 
+  const placeholderDateIso = (placeholderDate ?? new Date()).toISOString();
   const titlePlaceholder = t("pageCreate.titlePlaceholder", {
-    date: formatToLocalDateString(new Date().toISOString()),
+    date: formatToLocalDateString(placeholderDateIso),
   });
   const contentPlaceholder = t("pageCreate.contentPlaceholder");
 

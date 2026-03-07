@@ -18,6 +18,13 @@ export const createPageSchema = z.object({
     .max(1000, "その他・コメントは1000文字以内で入力してください")
     .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
+  created_at: z
+    .string()
+    .regex(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+      "created_atはISO 8601形式(YYYY-MM-DDTHH:mm:ss.sssZ)で指定してください",
+    )
+    .optional(),
 });
 
 export type CreatePageInput = z.infer<typeof createPageSchema>;
@@ -105,6 +112,7 @@ export const getPagesSchema = z.object({
   query: z.string().optional(),
   tags: z.string().optional(), // "tag1,tag2,tag3" のような形式
   date: z.string().optional(), // "YYYY-MM-DD" の形式
+  sort_order: z.enum(["newest", "oldest"]).optional().default("newest"),
 });
 
 export type GetPagesInput = z.infer<typeof getPagesSchema>;
@@ -119,6 +127,66 @@ export type GetPageInput = z.infer<typeof getPageSchema>;
 // ページ一覧レスポンスの型
 export const pagesListResponseSchema = z.object({
   training_pages: z.array(pageWithTagsResponseSchema),
+  total_count: z.number().int().min(0),
 });
 
 export type PagesListResponse = z.infer<typeof pagesListResponseSchema>;
+
+const trainingDateStringSchema = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}$/,
+    "training_dateはYYYY-MM-DD形式で指定してください",
+  );
+
+export const getTrainingDatesSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  year: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(1970).max(9999)),
+  month: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(1).max(12)),
+});
+
+export type GetTrainingDatesInput = z.infer<typeof getTrainingDatesSchema>;
+
+export const upsertTrainingDateSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  training_date: trainingDateStringSchema,
+});
+
+export type UpsertTrainingDateInput = z.infer<typeof upsertTrainingDateSchema>;
+
+export const deleteTrainingDateSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  training_date: trainingDateStringSchema,
+});
+
+export type DeleteTrainingDateInput = z.infer<typeof deleteTrainingDateSchema>;
+
+export const trainingDateResponseSchema = z.object({
+  id: z.string(),
+  user_id: z.string(),
+  training_date: trainingDateStringSchema,
+  is_attended: z.boolean(),
+  created_at: z.string(),
+});
+
+export const trainingDatePageCountSchema = z.object({
+  training_date: trainingDateStringSchema,
+  page_count: z.number().int().min(0),
+});
+
+export const trainingDateMonthResponseSchema = z.object({
+  training_dates: z.array(trainingDateResponseSchema),
+  page_counts: z.array(trainingDatePageCountSchema),
+});
+
+export type TrainingDateResponse = z.infer<typeof trainingDateResponseSchema>;
+export type TrainingDatePageCount = z.infer<typeof trainingDatePageCountSchema>;
+export type TrainingDateMonthResponse = z.infer<
+  typeof trainingDateMonthResponseSchema
+>;
