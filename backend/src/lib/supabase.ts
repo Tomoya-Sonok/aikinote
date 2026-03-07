@@ -66,6 +66,37 @@ export interface TrainingDatePageCount {
   page_count: number;
 }
 
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+const buildJstUtcIso = (
+  dateString: string,
+  hour: number,
+  minute = 0,
+  second = 0,
+): string | null => {
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return null;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+
+  const timestamp =
+    Date.UTC(year, month - 1, day, hour, minute, second) - JST_OFFSET_MS;
+  return new Date(timestamp).toISOString();
+};
+
 // データベース操作関数
 export const createTrainingPage = async (
   pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at"> & {
@@ -266,14 +297,26 @@ export const getTrainingPages = async ({
 
     const filters: { gte?: string; lte?: string } = {};
     if (startDate) {
-      filters.gte = `${startDate}T00:00:00Z`;
+      const iso = buildJstUtcIso(startDate, 0, 0, 0);
+      if (iso) {
+        filters.gte = iso;
+      }
     }
     if (endDate) {
-      filters.lte = `${endDate}T23:59:59Z`;
+      const iso = buildJstUtcIso(endDate, 23, 59, 59);
+      if (iso) {
+        filters.lte = iso;
+      }
     }
     if (!startDate && !endDate && date) {
-      filters.gte = `${date}T00:00:00Z`;
-      filters.lte = `${date}T23:59:59Z`;
+      const startIso = buildJstUtcIso(date, 0, 0, 0);
+      const endIso = buildJstUtcIso(date, 23, 59, 59);
+      if (startIso) {
+        filters.gte = startIso;
+      }
+      if (endIso) {
+        filters.lte = endIso;
+      }
     }
 
     if (filters.gte) {
