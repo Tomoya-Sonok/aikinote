@@ -154,6 +154,7 @@ export const getTrainingPages = async ({
   query,
   tags: tagsString,
   date,
+  sortOrder = "newest",
 }: {
   userId: string;
   limit?: number;
@@ -161,7 +162,11 @@ export const getTrainingPages = async ({
   query?: string;
   tags?: string;
   date?: string;
-}): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }[]> => {
+  sortOrder?: "newest" | "oldest";
+}): Promise<{
+  pages: { page: TrainingPageRow; tags: UserTagRow[] }[];
+  totalCount: number;
+}> => {
   try {
     let pageIds: string[] | null = null;
 
@@ -180,7 +185,7 @@ export const getTrainingPages = async ({
 
       // 検索したタグの数が一致しない場合、結果は0件
       if (tagIdsData.length !== tagNames.length) {
-        return [];
+        return { pages: [], totalCount: 0 };
       }
       const tagIds = tagIdsData.map((t) => t.id);
 
@@ -210,14 +215,14 @@ export const getTrainingPages = async ({
 
       // 一致するページがない場合は空配列を返す
       if (!pageIds || pageIds.length === 0) {
-        return [];
+        return { pages: [], totalCount: 0 };
       }
     }
 
     // ページ取得のベースクエリ
     let queryBuilder = supabase
       .from("TrainingPage")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("user_id", userId);
 
     // フリーワード検索
@@ -238,8 +243,12 @@ export const getTrainingPages = async ({
     }
 
     // ページネーションと順序付け
-    const { data: pages, error: pagesError } = await queryBuilder
-      .order("created_at", { ascending: false })
+    const {
+      data: pages,
+      count,
+      error: pagesError,
+    } = await queryBuilder
+      .order("created_at", { ascending: sortOrder === "oldest" })
       .range(offset, offset + limit - 1);
 
     if (pagesError) {
@@ -247,7 +256,7 @@ export const getTrainingPages = async ({
     }
 
     if (!pages || pages.length === 0) {
-      return [];
+      return { pages: [], totalCount: count ?? 0 };
     }
 
     // 各ページに関連するタグを取得（TODO: N+1問題は残存している、要対応）
@@ -274,7 +283,7 @@ export const getTrainingPages = async ({
       pagesWithTags.push({ page, tags });
     }
 
-    return pagesWithTags;
+    return { pages: pagesWithTags, totalCount: count ?? 0 };
   } catch (error) {
     console.error("TrainingPages取得エラー:", error);
     throw error;
@@ -825,7 +834,7 @@ export const getPageAttachments = async (
     }
 
     const { data: attachments, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("page_id", pageId)
       .eq("user_id", userId)
@@ -862,7 +871,7 @@ export const createPageAttachment = async (
 
     // 現在の最大sort_orderを取得
     const { data: existingAttachments } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("sort_order")
       .eq("page_id", attachmentData.page_id)
       .order("sort_order", { ascending: false })
@@ -874,7 +883,7 @@ export const createPageAttachment = async (
         : 0;
 
     const { data: newAttachment, error } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .insert([
         {
           page_id: attachmentData.page_id,
@@ -909,7 +918,7 @@ export const deletePageAttachment = async (
   try {
     // 添付の所有者チェック
     const { data: attachment, error: fetchError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .select("*")
       .eq("id", attachmentId)
       .eq("user_id", userId)
@@ -923,7 +932,7 @@ export const deletePageAttachment = async (
     }
 
     const { error: deleteError } = await supabase
-      .from("page_attachments")
+      .from("PageAttachment")
       .delete()
       .eq("id", attachmentId)
       .eq("user_id", userId);

@@ -224,6 +224,9 @@
     "tagsFetchFailed": "Failed to fetch tags",
     "initialTagsCreated": "Initial tags created",
     "initialTagsCreateFailed": "Failed to create initial tags",
+    "closeConfirmTitle": "Discard your edits?",
+    "closeConfirmMessage": "Any unsaved changes will be lost.",
+    "closeConfirmAction": "Discard",
     "unknownError": "Unknown error",
     "attachments": {
       "title": "Attachments",

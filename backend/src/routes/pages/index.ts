@@ -62,16 +62,18 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
 // ページ一覧取得API
 app.get("/", zValidator("query", getPagesSchema), async (c) => {
   try {
-    const { user_id, limit, offset, query, tags, date } = c.req.valid("query");
+    const { user_id, limit, offset, query, tags, date, sort_order } =
+      c.req.valid("query");
 
     // Supabaseからページ一覧を取得
-    const pagesWithTags = await getTrainingPages({
+    const { pages: pagesWithTags, totalCount } = await getTrainingPages({
       userId: user_id,
       limit,
       offset,
       query,
       tags,
       date,
+      sortOrder: sort_order,
     });
 
     // レスポンス形式に変換
@@ -94,7 +96,7 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
 
     const response: ApiResponse<PagesListResponse> = {
       success: true,
-      data: { training_pages: trainingPages },
+      data: { training_pages: trainingPages, total_count: totalCount },
       message: "ページ一覧を取得しました",
     };
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { type PageCreateData } from "@/components/features/personal/PageCreateModal/PageCreateModal";
 import {
   type CreatePagePayload,
+  createAttachment,
   createPage,
   deletePage,
   getPages,
@@ -16,81 +17,118 @@ import { type TrainingPageData } from "@/types/training";
 // 楽観的更新用の一時的なプレフィックス
 const OPTIMISTIC_ID_PREFIX = "optimistic-";
 
-export function useTrainingPagesData() {
+export interface FetchOptions {
+  query?: string;
+  tags?: string[];
+  date?: string | null;
+  sortOrder?: "newest" | "oldest";
+}
+
+export function useTrainingPagesData(options: FetchOptions = {}) {
   const t = useTranslations();
   const { user, loading: authLoading } = useAuth();
   const [dataLoading, setDataLoading] = useState(true);
   const [allTrainingPageData, setAllTrainingPageData] = useState<
     TrainingPageData[]
   >([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const optimisticIdCounter = useRef(0);
+  const lastOptionsRef = useRef<string>("");
+  const allDataRef = useRef<TrainingPageData[]>([]);
+  useEffect(() => {
+    allDataRef.current = allTrainingPageData;
+  }, [allTrainingPageData]);
 
-  const fetchAllData = useCallback(async () => {
-    if (authLoading) return;
+  const fetchData = useCallback(
+    async (isLoadMore = false) => {
+      if (authLoading) return;
 
-    if (!user?.id) {
-      setDataLoading(false);
-      return;
-    }
+      if (!user?.id) {
+        setDataLoading(false);
+        return;
+      }
 
-    setDataLoading(true);
+      const currentOptionsStr = JSON.stringify(options);
+      if (!isLoadMore && currentOptionsStr === lastOptionsRef.current) {
+        return; // 既に同じオプションでフェッチ済み
+      }
 
-    try {
-      let allPages: TrainingPageData[] = [];
-      let offset = 0;
-      const limit = 100;
-      let hasMoreData = true;
+      if (!isLoadMore) {
+        setDataLoading(true);
+        lastOptionsRef.current = currentOptionsStr;
+      }
 
-      // 全ページを取得するまでループ
-      while (hasMoreData) {
+      try {
+        const limit = 25;
+        const offset = isLoadMore
+          ? allDataRef.current.filter(
+              (p) => !p.id.startsWith(OPTIMISTIC_ID_PREFIX),
+            ).length
+          : 0;
+
         const response = await getPages({
           userId: user.id,
           limit,
           offset,
-          query: "",
-          tags: [],
-          date: undefined,
+          query: options.query || "",
+          tags: options.tags || [],
+          date: options.date || undefined,
+          sortOrder: options.sortOrder || "newest",
         });
 
-        if (!response.success) {
+        if (!response.success || !response.data) {
           throw new Error(
-            ("error" in response && response.error) ||
+            (response && "error" in response && response.error) ||
               t("personalPages.dataFetchFailed"),
           );
         }
 
-        if (!response.data) {
-          throw new Error(t("personalPages.dataFetchFailed"));
+        const pagesBatch: TrainingPageData[] = response.data.training_pages.map(
+          (item) => ({
+            id: item.page.id,
+            title: item.page.title,
+            content: item.page.content,
+            comment: item.page.comment,
+            date: formatToLocalDateString(item.page.created_at),
+            tags: item.tags.map((tag) => tag.name),
+          }),
+        );
+
+        if (isLoadMore) {
+          setAllTrainingPageData((prev) => {
+            const next = [...prev, ...pagesBatch];
+            setHasMore(next.length < response.data!.total_count);
+            return next;
+          });
+        } else {
+          setAllTrainingPageData(pagesBatch);
+          setHasMore(pagesBatch.length < response.data.total_count);
         }
 
-        const pagesBatch = response.data.training_pages.map((item) => ({
-          id: item.page.id,
-          title: item.page.title,
-          content: item.page.content,
-          comment: item.page.comment,
-          date: formatToLocalDateString(item.page.created_at),
-          tags: item.tags.map((tag) => tag.name),
-        }));
-
-        allPages = [...allPages, ...pagesBatch];
-
-        // 取得したページ数がlimitより少ない場合、これ以上データがない
-        hasMoreData = pagesBatch.length === limit;
-        offset += limit;
+        setTotalCount(response.data.total_count);
+      } catch (err) {
+        console.error("Failed to fetch training page data:", err);
+        if (!isLoadMore) {
+          setAllTrainingPageData([]);
+          setHasMore(false);
+        }
+      } finally {
+        setDataLoading(false);
       }
-
-      setAllTrainingPageData(allPages);
-    } catch (err) {
-      console.error("Failed to fetch training page data:", err);
-      setAllTrainingPageData([]);
-    } finally {
-      setDataLoading(false);
-    }
-  }, [user, t, authLoading]);
+    },
+    [user, t, authLoading, options],
+  );
 
   useEffect(() => {
-    void fetchAllData();
-  }, [fetchAllData]);
+    // オプションが変更されたら初回フェッチ
+    void fetchData(false);
+  }, [fetchData]);
+
+  const loadMore = useCallback(() => {
+    if (!hasMore || dataLoading) return;
+    void fetchData(true);
+  }, [hasMore, dataLoading, fetchData]);
 
   const addPage = useCallback(
     async (pageData: PageCreateData) => {
@@ -133,11 +171,6 @@ export function useTrainingPagesData() {
           if (pageData.attachments && pageData.attachments.length > 0) {
             for (const attachment of pageData.attachments) {
               try {
-                // biome-ignore lint/suspicious/noExplicitAny: _fileKey は内部拡張プロパティ
-                const fileKey = (attachment as any)._fileKey as
-                  | string
-                  | undefined;
-
                 const attachmentPayload: Record<string, unknown> = {
                   page_id: pageId,
                   type: attachment.type,
@@ -149,14 +182,10 @@ export function useTrainingPagesData() {
                 if (attachment.type === "youtube") {
                   attachmentPayload.url = attachment.url;
                 } else {
-                  attachmentPayload.file_key = fileKey;
+                  attachmentPayload.file_key = attachment._fileKey;
                 }
 
-                await fetch("/api/page-attachments", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(attachmentPayload),
-                });
+                await createAttachment(attachmentPayload);
               } catch (attachError) {
                 console.warn("添付メタデータの保存に失敗:", attachError);
               }
@@ -206,21 +235,28 @@ export function useTrainingPagesData() {
   const updatePageData = useCallback(
     async (pageData: UpdatePagePayload) => {
       // 楽観的更新: 先にUIを更新
-      const previousData = allTrainingPageData;
-      const optimisticPage: TrainingPageData = {
-        id: pageData.id,
-        title: pageData.title,
-        content: pageData.content,
-        comment: pageData.comment,
-        date:
-          allTrainingPageData.find((p) => p.id === pageData.id)?.date ||
-          formatToLocalDateString(new Date().toISOString()),
-        tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
-      };
+      let originalPage: TrainingPageData | undefined;
+      let targetIndex = -1;
 
-      setAllTrainingPageData((prev) =>
-        prev.map((page) => (page.id === pageData.id ? optimisticPage : page)),
-      );
+      setAllTrainingPageData((prev) => {
+        targetIndex = prev.findIndex((p) => p.id === pageData.id);
+        originalPage = prev[targetIndex];
+
+        if (targetIndex === -1 || !originalPage) return prev;
+
+        const next = [...prev];
+        next[targetIndex] = {
+          id: pageData.id,
+          title: pageData.title,
+          content: pageData.content,
+          comment: pageData.comment,
+          date:
+            originalPage.date ||
+            formatToLocalDateString(new Date().toISOString()),
+          tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+        };
+        return next;
+      });
 
       try {
         const response = await updatePage(pageData);
@@ -245,11 +281,29 @@ export function useTrainingPagesData() {
         }
 
         // API失敗時: ロールバック
-        setAllTrainingPageData(previousData);
+        if (originalPage && targetIndex !== -1) {
+          setAllTrainingPageData((prev) => {
+            const next = [...prev];
+            const currentIndex = next.findIndex((p) => p.id === pageData.id);
+            if (currentIndex !== -1) {
+              next[currentIndex] = originalPage as TrainingPageData;
+            }
+            return next;
+          });
+        }
         return false;
       } catch (error) {
         // エラー時: ロールバック
-        setAllTrainingPageData(previousData);
+        if (originalPage && targetIndex !== -1) {
+          setAllTrainingPageData((prev) => {
+            const next = [...prev];
+            const currentIndex = next.findIndex((p) => p.id === pageData.id);
+            if (currentIndex !== -1) {
+              next[currentIndex] = originalPage as TrainingPageData;
+            }
+            return next;
+          });
+        }
         console.error("Failed to update page:", error);
         alert(
           error instanceof Error
@@ -259,7 +313,7 @@ export function useTrainingPagesData() {
         return false;
       }
     },
-    [allTrainingPageData, t],
+    [t],
   );
 
   const removePage = useCallback(
@@ -270,10 +324,14 @@ export function useTrainingPagesData() {
       }
 
       // 楽観的更新: 先にUIから削除
-      const previousData = allTrainingPageData;
-      setAllTrainingPageData((prev) =>
-        prev.filter((item) => item.id !== pageId),
-      );
+      let originalPage: TrainingPageData | undefined;
+      let targetIndex = -1;
+
+      setAllTrainingPageData((prev) => {
+        targetIndex = prev.findIndex((p) => p.id === pageId);
+        originalPage = prev[targetIndex];
+        return prev.filter((item) => item.id !== pageId);
+      });
 
       try {
         const response = await deletePage(pageId, user.id);
@@ -282,12 +340,20 @@ export function useTrainingPagesData() {
           return true;
         }
 
-        // API失敗時: ロールバック
-        setAllTrainingPageData(previousData);
         throw new Error(response.error || t("personalPages.pageDeleteFailed"));
       } catch (error) {
         // エラー時: ロールバック
-        setAllTrainingPageData(previousData);
+        if (originalPage && targetIndex !== -1) {
+          setAllTrainingPageData((prev) => {
+            const next = [...prev];
+            if (!next.find((p) => p.id === pageId)) {
+              // 削除された要素を元の位置に復元
+              const insertPosition = Math.min(targetIndex, next.length);
+              next.splice(insertPosition, 0, originalPage as TrainingPageData);
+            }
+            return next;
+          });
+        }
         console.error("Failed to delete page:", error);
         alert(
           error instanceof Error
@@ -297,12 +363,15 @@ export function useTrainingPagesData() {
         return false;
       }
     },
-    [user, t, allTrainingPageData],
+    [user, t],
   );
 
   return {
     loading: authLoading || dataLoading,
     allTrainingPageData,
+    totalCount,
+    hasMore,
+    loadMore,
     addPage,
     updatePageData,
     removePage,

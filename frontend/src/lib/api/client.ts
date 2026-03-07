@@ -120,6 +120,7 @@ export interface GetPagesParams {
   query?: string;
   tags?: string[];
   date?: string;
+  sortOrder?: "newest" | "oldest";
 }
 
 // ページ一覧取得API関数
@@ -130,6 +131,7 @@ export const getPages = async ({
   query,
   tags,
   date,
+  sortOrder,
 }: GetPagesParams) => {
   try {
     const input = {
@@ -139,6 +141,7 @@ export const getPages = async ({
       query,
       tags,
       date,
+      sortOrder,
     };
 
     return await cachedQuery(
@@ -176,6 +179,38 @@ export const deletePage = async (pageId: string, userId: string) => {
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "ページ削除に失敗しました"));
+  }
+};
+
+// ページ添付ファイル一覧取得API関数
+export const getAttachments = async (pageId: string) => {
+  try {
+    const response = await fetch(`/api/page-attachments?page_id=${pageId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "添付ファイルの取得に失敗しました"));
+  }
+};
+
+// ページ添付ファイル作成API関数
+export const createAttachment = async (payload: Record<string, unknown>) => {
+  try {
+    const response = await fetch("/api/page-attachments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "添付ファイルの作成に失敗しました"));
   }
 };
 

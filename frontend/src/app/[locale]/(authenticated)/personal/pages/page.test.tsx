@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { deletePage, getPages, getTags } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
@@ -119,10 +119,14 @@ describe("ページ一覧画面", () => {
 
   const mockPush = vi.fn();
   const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
+  const consoleErrorSpy = vi
+    .spyOn(console, "error")
+    .mockImplementation(() => {});
 
   beforeEach(() => {
     vi.clearAllMocks();
     alertSpy.mockClear();
+    consoleErrorSpy.mockClear();
 
     mockUseRouter.mockReturnValue({
       push: mockPush,
@@ -165,6 +169,11 @@ describe("ページ一覧画面", () => {
     mockDeletePage.mockReset();
   });
 
+  afterAll(() => {
+    alertSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
   it("ページ一覧が正常に表示されること", async () => {
     // Arrange
     const mockPagesResponse = {
@@ -202,6 +211,7 @@ describe("ページ一覧画面", () => {
             tags: [],
           },
         ],
+        total_count: 2,
       },
       message: "ページ一覧を取得しました",
     };
@@ -249,6 +259,7 @@ describe("ページ一覧画面", () => {
             tags: [],
           },
         ],
+        total_count: 1,
       },
       message: "ページ一覧を取得しました",
     };
@@ -383,6 +394,7 @@ describe("ページ一覧画面", () => {
       success: true,
       data: {
         training_pages: [],
+        total_count: 0,
       },
       message: "ページ一覧を取得しました",
     };
@@ -414,6 +426,7 @@ describe("ページ一覧画面", () => {
       success: true,
       data: {
         training_pages: [],
+        total_count: 0,
       },
       message: "ページ一覧を取得しました",
     };
@@ -433,17 +446,19 @@ describe("ページ一覧画面", () => {
     await waitFor(() => {
       expect(mockGetPages).toHaveBeenCalledWith({
         userId: "test-user-id",
-        limit: 100,
+        limit: 25,
         offset: 0,
         query: "",
         tags: [],
         date: undefined,
+        sortOrder: "newest",
       });
     });
   });
 
-  it("100件を超えるページがある場合に複数回API呼び出しが実行されること", async () => {
+  it("もっと見るボタン押下で次のページが取得されること", async () => {
     // Arrange
+    const user = userEvent.setup();
     const createMockPages = (startIndex: number, count: number) =>
       Array.from({ length: count }, (_, i) => ({
         page: {
@@ -461,7 +476,8 @@ describe("ページ一覧画面", () => {
     const firstBatchResponse = {
       success: true,
       data: {
-        training_pages: createMockPages(1, 100),
+        training_pages: createMockPages(1, PAGE_LIMIT),
+        total_count: 30,
       },
       message: "ページ一覧を取得しました",
     };
@@ -469,7 +485,8 @@ describe("ページ一覧画面", () => {
     const secondBatchResponse = {
       success: true,
       data: {
-        training_pages: createMockPages(101, 50),
+        training_pages: createMockPages(PAGE_LIMIT + 1, 5),
+        total_count: 30,
       },
       message: "ページ一覧を取得しました",
     };
@@ -489,30 +506,42 @@ describe("ページ一覧画面", () => {
 
     // Assert
     await waitFor(() => {
-      expect(mockGetPages).toHaveBeenCalledTimes(2);
+      expect(mockGetPages).toHaveBeenCalledTimes(1);
     });
 
     expect(mockGetPages).toHaveBeenNthCalledWith(1, {
       userId: "test-user-id",
-      limit: 100,
+      limit: 25,
       offset: 0,
       query: "",
       tags: [],
       date: undefined,
+      sortOrder: "newest",
+    });
+
+    await user.click(screen.getByRole("button", { name: "もっと見る" }));
+
+    await waitFor(() => {
+      expect(mockGetPages).toHaveBeenCalledTimes(2);
     });
 
     expect(mockGetPages).toHaveBeenNthCalledWith(2, {
       userId: "test-user-id",
-      limit: 100,
-      offset: 100,
+      limit: 25,
+      offset: 25,
       query: "",
       tags: [],
       date: undefined,
+      sortOrder: "newest",
     });
 
     await waitFor(() => {
+      expect(screen.getByText("稽古ページ30")).toBeInTheDocument();
       expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は150ページです",
+        "これまでに作成したページ数は30ページです",
+      );
+      expect(screen.getByTestId("page-count")).toHaveTextContent(
+        "全30件表示中",
       );
     });
   });
@@ -536,6 +565,7 @@ describe("ページ一覧画面", () => {
         "これまでに作成したページ数は0ページです",
       );
     });
+    expect(mockGetPages).toHaveBeenCalledTimes(1);
   });
 
   it("APIレスポンスが失敗の場合に空の状態が表示されること", async () => {
@@ -562,6 +592,7 @@ describe("ページ一覧画面", () => {
         "これまでに作成したページ数は0ページです",
       );
     });
+    expect(mockGetPages).toHaveBeenCalledTimes(1);
   });
 
   it("ユーザーIDが存在しない場合にAPI呼び出しが実行されないこと", async () => {
@@ -621,6 +652,7 @@ describe("ページ一覧画面", () => {
       success: true,
       data: {
         training_pages: createMockPages(PAGE_LIMIT),
+        total_count: PAGE_LIMIT,
       },
       message: "ページ一覧を取得しました",
     };
@@ -671,7 +703,8 @@ describe("ページ一覧画面", () => {
     const mockPagesResponse = {
       success: true,
       data: {
-        training_pages: createMockPages(30),
+        training_pages: createMockPages(PAGE_LIMIT),
+        total_count: 30,
       },
       message: "ページ一覧を取得しました",
     };

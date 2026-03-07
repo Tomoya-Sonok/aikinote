@@ -65,7 +65,7 @@ PUT S3署名付きURL
   → メタデータ: upload-type: "page-attachment"
 
 POST /api/page-attachments
-  → page_id, file_key, type を受け取り、page_attachments テーブルに保存
+  → page_id, file_key, type を受け取り、PageAttachment テーブルに保存
 ```
 
 ### YouTube URL添付
@@ -86,9 +86,9 @@ POST /api/page-attachments
 ### User テーブル（既存）
 - `profile_image_url`: CloudFront URL
 
-### page_attachments テーブル（新規）
+### PageAttachment テーブル（新規）
 ```sql
-CREATE TABLE page_attachments (
+CREATE TABLE PageAttachment (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   page_id UUID NOT NULL REFERENCES "TrainingPage"(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES "User"(id),
@@ -184,7 +184,7 @@ backend/src/lib/supabase.ts                         # DB操作関数（添付CRU
 ```
 frontend/src/database/migrations/
 ├── add_profile_image_url.sql                       # プロフィール画像カラム
-└── create_page_attachments.sql                     # 添付テーブル
+└── create_PageAttachment.sql                     # 添付テーブル
 ```
 
 ---
