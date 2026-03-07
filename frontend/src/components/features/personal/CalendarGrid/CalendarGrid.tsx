@@ -16,14 +16,17 @@ interface CalendarGridClassNames {
   otherMonth?: string;
   today?: string;
   selected?: string;
+  rangeDay?: string;
 }
 
 interface CalendarGridProps {
   currentMonth: Date;
   dayNames: string[];
   selectedDate?: Date | null;
+  selectedRange?: { start: Date | null; end: Date | null };
   onDateClick: (date: Date, isCurrentMonth: boolean) => void;
   highlightSelectedDate?: boolean;
+  highlightRange?: boolean;
   classNames?: CalendarGridClassNames;
   getDateStatus?: (date: Date) => CalendarDayStatus | undefined;
 }
@@ -35,6 +38,9 @@ const isSameDate = (a: Date, b: Date) => {
     a.getDate() === b.getDate()
   );
 };
+
+const formatDateKey = (date: Date): string =>
+  `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
 const buildCalendarDays = (currentMonth: Date): CalendarDay[] => {
   const year = currentMonth.getFullYear();
@@ -75,8 +81,10 @@ export function CalendarGrid({
   currentMonth,
   dayNames,
   selectedDate,
+  selectedRange,
   onDateClick,
   highlightSelectedDate = true,
+  highlightRange = false,
   classNames,
   getDateStatus,
 }: CalendarGridProps) {
@@ -105,6 +113,22 @@ export function CalendarGrid({
             ? Math.min(status?.pageCount ?? 0, 3)
             : 0;
 
+          const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+          const rangeStart = selectedRange?.start
+            ? formatDateKey(selectedRange.start)
+            : null;
+          const rangeEnd = selectedRange?.end
+            ? formatDateKey(selectedRange.end)
+            : null;
+
+          const isInRange =
+            highlightRange &&
+            isCurrentMonth &&
+            rangeStart &&
+            rangeEnd &&
+            rangeStart <= dateKey &&
+            dateKey <= rangeEnd;
+
           const buttonClass = [
             styles.dayButton,
             classNames?.dayButton,
@@ -114,11 +138,12 @@ export function CalendarGrid({
             isToday ? classNames?.today : "",
             highlightSelectedDate && isSelected ? styles.selected : "",
             highlightSelectedDate && isSelected ? classNames?.selected : "",
+            isInRange ? styles.rangeDay : "",
+            isInRange ? classNames?.rangeDay : "",
           ]
             .filter(Boolean)
             .join(" ");
 
-          const dateKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
           const dotDescriptors = [
             {
               key: "primary-1",

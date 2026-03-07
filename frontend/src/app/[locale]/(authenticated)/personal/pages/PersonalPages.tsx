@@ -52,8 +52,8 @@ export function PersonalPages() {
     searchQuery,
     setSearchQuery,
     debouncedSearchQuery,
-    selectedDate,
-    setSelectedDate,
+    selectedDateRange,
+    setSelectedDateRange,
     selectedTags,
     setSelectedTags,
     sortOrder,
@@ -72,7 +72,8 @@ export function PersonalPages() {
   } = useTrainingPagesData({
     query: debouncedSearchQuery,
     tags: selectedTags,
-    date: selectedDate,
+    startDate: selectedDateRange.startDate || undefined,
+    endDate: selectedDateRange.endDate || undefined,
     sortOrder,
   });
 
@@ -194,37 +195,32 @@ export function PersonalPages() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.otherPageLinks}>
-        <Link
-          href={`/${locale}/personal/calendar`}
-          className={styles.calendarLink}
-          aria-label={t("personalPages.openCalendar")}
-        >
-          <CalendarDotsIcon
-            size={18}
-            weight="light"
-            className={styles.calendarIcon}
-          />
-          <span className={styles.calendarText}>
-            {t("personalPages.calendar")}
-          </span>
-        </Link>
-      </div>
-
-      <div className={styles.statsSection}>
-        <p className={styles.statsText} data-testid="page-stats">
-          {t("personalPages.pageCount")}
-          <span className={styles.statsNumber}>{totalCount}</span>
-          {t("personalPages.pageCountSuffix")}
-        </p>
+      <div className={styles.pageListHeader}>
+        <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+        <div className={styles.otherPageLinks}>
+          <Link
+            href={`/${locale}/personal/calendar`}
+            className={styles.calendarLink}
+            aria-label={t("personalPages.openCalendar")}
+          >
+            <CalendarDotsIcon
+              size={24}
+              weight="light"
+              className={styles.calendarIcon}
+            />
+            <span className={styles.calendarText}>
+              {t("personalPages.calendar")}
+            </span>
+          </Link>
+        </div>
       </div>
 
       <FilterArea
         onSearchChange={setSearchQuery}
-        onDateFilterChange={setSelectedDate}
+        onDateFilterChange={setSelectedDateRange}
         onTagFilterChange={setSelectedTags}
         currentSearchQuery={searchQuery}
-        currentSelectedDate={selectedDate}
+        currentSelectedDateRange={selectedDateRange}
         currentSelectedTags={selectedTags}
         onOpenTagSelection={() => setIsTagModalOpen(true)}
         onOpenDateSelection={() => {}}
@@ -234,7 +230,16 @@ export function PersonalPages() {
       <div className={styles.pageListWrapper}>
         <div className={styles.pageListDescription}>
           <div className={styles.pageListHeader}>
-            <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+            <p className={styles.pageCount} data-testid="page-count">
+              {totalCount === displayedTrainingPageData.length
+                ? t("personalPages.showingAll", {
+                    total: totalCount,
+                  })
+                : t("personalPages.showingPartial", {
+                    total: totalCount,
+                    displayed: displayedTrainingPageData.length,
+                  })}
+            </p>
             <div className={styles.sortDropdownContainer} ref={sortDropdownRef}>
               <button
                 type="button"
@@ -293,16 +298,6 @@ export function PersonalPages() {
               )}
             </div>
           </div>
-          <p className={styles.pageCount} data-testid="page-count">
-            {totalCount === displayedTrainingPageData.length
-              ? t("personalPages.showingAll", {
-                  total: totalCount,
-                })
-              : t("personalPages.showingPartial", {
-                  total: totalCount,
-                  displayed: displayedTrainingPageData.length,
-                })}
-          </p>
         </div>
         <div className={styles.trainingList}>
           {displayedTrainingPageData.map((training) => (

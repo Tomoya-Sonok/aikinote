@@ -4,19 +4,26 @@ import {
   FunnelXIcon,
   TagIcon,
 } from "@phosphor-icons/react";
+import { format, isValid, parse } from "date-fns";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
 import { useRef, useState } from "react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
+import { type DateRange } from "@/lib/hooks/useTrainingPageFilters";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
 
+interface DateRangeSelection {
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
 interface FilterAreaProps {
   onSearchChange: (search: string) => void;
-  onDateFilterChange: (date: string | null) => void;
+  onDateFilterChange: (range: DateRange) => void;
   onTagFilterChange: (tags: string[]) => void;
   currentSearchQuery: string;
-  currentSelectedDate: string | null;
+  currentSelectedDateRange: DateRange;
   currentSelectedTags: string[]; // 表示用にタグ名（またはID）の配列を受け取る
   onOpenTagSelection: () => void;
   onOpenDateSelection?: () => void;
@@ -28,7 +35,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
   onDateFilterChange,
   onTagFilterChange: _onTagFilterChange,
   currentSearchQuery,
-  currentSelectedDate,
+  currentSelectedDateRange,
   currentSelectedTags,
   onOpenTagSelection,
   onOpenDateSelection,
@@ -44,7 +51,8 @@ export const FilterArea: FC<FilterAreaProps> = ({
 
   const hasFilters =
     currentSearchQuery !== "" ||
-    currentSelectedDate !== null ||
+    currentSelectedDateRange.startDate !== null ||
+    currentSelectedDateRange.endDate !== null ||
     currentSelectedTags.length > 0;
 
   const clearTimer = () => {
@@ -67,7 +75,12 @@ export const FilterArea: FC<FilterAreaProps> = ({
     // 長押しが発動していなければ通常のクリック処理（すべてクリア）
     if (!isLongPressActiveRef.current) {
       if (currentSearchQuery !== "") onSearchChange("");
-      if (currentSelectedDate !== null) onDateFilterChange(null);
+      if (
+        currentSelectedDateRange.startDate !== null ||
+        currentSelectedDateRange.endDate !== null
+      ) {
+        onDateFilterChange({ startDate: null, endDate: null });
+      }
       if (currentSelectedTags.length > 0) _onTagFilterChange([]);
     }
     // 指を離したらツールチップを隠す
@@ -83,17 +96,19 @@ export const FilterArea: FC<FilterAreaProps> = ({
     onSearchChange(e.target.value);
   };
 
-  const handleDateSelect = (date: Date | null) => {
-    if (date === null) {
-      onDateFilterChange(null);
-    } else {
-      // タイムゾーンを考慮してローカル日付文字列を生成
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      const formattedDate = `${year}-${month}-${day}`;
-      onDateFilterChange(formattedDate);
-    }
+  const formatDate = (date: Date) => format(date, "yyyy-MM-dd");
+
+  const parseDateInput = (value: string | null): Date | null => {
+    if (!value) return null;
+    const parsed = parse(value, "yyyy-MM-dd", new Date());
+    return isValid(parsed) ? parsed : null;
+  };
+
+  const handleDateSelect = (range: DateRangeSelection) => {
+    onDateFilterChange({
+      startDate: range.startDate ? formatDate(range.startDate) : null,
+      endDate: range.endDate ? formatDate(range.endDate) : null,
+    });
   };
 
   const handleOpenDatePicker = () => {
@@ -105,14 +120,20 @@ export const FilterArea: FC<FilterAreaProps> = ({
     setIsDatePickerOpen(false);
   };
 
-  // NOTE: タグの表示名は、IDから名前に変換するロジックが親にあることを想定しています。
-  // ここでは受け取った配列をそのまま表示します。
   const tagDisplayValue =
     currentSelectedTags.length > 0
       ? currentSelectedTags.join(", ")
       : t("filter.notSpecified");
 
-  const dateDisplayValue = currentSelectedDate || t("filter.notSpecified");
+  const { startDate, endDate } = currentSelectedDateRange;
+  let dateDisplayValue = t("filter.notSpecified");
+  if (startDate && endDate) {
+    dateDisplayValue = `${startDate} ～ ${endDate}`;
+  } else if (startDate) {
+    dateDisplayValue = startDate;
+  } else if (endDate) {
+    dateDisplayValue = endDate;
+  }
 
   return (
     <div className={styles.filterContainer}>
@@ -198,9 +219,10 @@ export const FilterArea: FC<FilterAreaProps> = ({
       <DatePickerModal
         isOpen={isDatePickerOpen}
         onClose={handleCloseDatePicker}
-        selectedDate={
-          currentSelectedDate ? new Date(currentSelectedDate) : undefined
-        }
+        selectedRange={{
+          startDate: parseDateInput(startDate),
+          endDate: parseDateInput(endDate),
+        }}
         onDateSelect={handleDateSelect}
         title={t("filter.selectDate")}
         userId={userId}

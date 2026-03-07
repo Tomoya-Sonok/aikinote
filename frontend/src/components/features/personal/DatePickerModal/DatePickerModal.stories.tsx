@@ -23,7 +23,7 @@ export const Default: Story = {
   args: {
     isOpen: true,
     onClose: () => console.log("Modal closed"),
-    onDateSelect: (date) => console.log("Date selected:", date),
+    onDateSelect: (range) => console.log("Date selected:", range),
     title: "日付を選択",
   },
 };
@@ -40,9 +40,12 @@ export const Closed: Story = {
 export const WithSelectedDate: Story = {
   args: {
     isOpen: true,
-    selectedDate: new Date(2024, 8, 22), // 2024年9月22日
+    selectedRange: {
+      startDate: new Date(2024, 8, 22),
+      endDate: new Date(2024, 8, 24),
+    },
     onClose: () => console.log("Modal closed"),
-    onDateSelect: (date) => console.log("Date selected:", date),
+    onDateSelect: (range) => console.log("Date selected:", range),
     title: "日付を選択",
   },
 };
@@ -51,7 +54,7 @@ export const WithCustomTitle: Story = {
   args: {
     isOpen: true,
     onClose: () => console.log("Modal closed"),
-    onDateSelect: (date) => console.log("Date selected:", date),
+    onDateSelect: (range) => console.log("Date selected:", range),
     title: "練習日を選択してください",
   },
 };
@@ -59,9 +62,12 @@ export const WithCustomTitle: Story = {
 export const WithTodaySelected: Story = {
   args: {
     isOpen: true,
-    selectedDate: new Date(),
+    selectedRange: {
+      startDate: new Date(),
+      endDate: new Date(),
+    },
     onClose: () => console.log("Modal closed"),
-    onDateSelect: (date) => console.log("Date selected:", date),
+    onDateSelect: (range) => console.log("Date selected:", range),
     title: "日付を選択",
   },
 };

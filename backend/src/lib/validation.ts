@@ -95,6 +95,13 @@ export type ApiResponse<T> = {
 };
 
 // ページ一覧取得のバリデーションスキーマ
+const trainingDateStringSchema = z
+  .string()
+  .regex(
+    /^\d{4}-\d{2}-\d{2}$/,
+    "training_dateはYYYY-MM-DD形式で指定してください",
+  );
+
 export const getPagesSchema = z.object({
   user_id: z.string().min(1, "ユーザーIDは必須です"),
   limit: z
@@ -111,6 +118,8 @@ export const getPagesSchema = z.object({
     .pipe(z.number().int().min(0)),
   query: z.string().optional(),
   tags: z.string().optional(), // "tag1,tag2,tag3" のような形式
+  start_date: trainingDateStringSchema.optional(),
+  end_date: trainingDateStringSchema.optional(),
   date: z.string().optional(), // "YYYY-MM-DD" の形式
   sort_order: z.enum(["newest", "oldest"]).optional().default("newest"),
 });
@@ -131,13 +140,6 @@ export const pagesListResponseSchema = z.object({
 });
 
 export type PagesListResponse = z.infer<typeof pagesListResponseSchema>;
-
-const trainingDateStringSchema = z
-  .string()
-  .regex(
-    /^\d{4}-\d{2}-\d{2}$/,
-    "training_dateはYYYY-MM-DD形式で指定してください",
-  );
 
 export const getTrainingDatesSchema = z.object({
   user_id: z.string().min(1, "ユーザーIDは必須です"),

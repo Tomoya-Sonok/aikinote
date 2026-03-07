@@ -183,6 +183,8 @@ export const getTrainingPages = async ({
   offset = 0,
   query,
   tags: tagsString,
+  startDate,
+  endDate,
   date,
   sortOrder = "newest",
 }: {
@@ -191,6 +193,8 @@ export const getTrainingPages = async ({
   offset?: number;
   query?: string;
   tags?: string;
+  startDate?: string;
+  endDate?: string;
   date?: string;
   sortOrder?: "newest" | "oldest";
 }): Promise<{
@@ -260,11 +264,23 @@ export const getTrainingPages = async ({
       queryBuilder = queryBuilder.ilike("title", `%${query}%`);
     }
 
-    // 日付検索
-    if (date) {
-      queryBuilder = queryBuilder
-        .gte("created_at", `${date}T00:00:00Z`)
-        .lte("created_at", `${date}T23:59:59Z`);
+    const filters: { gte?: string; lte?: string } = {};
+    if (startDate) {
+      filters.gte = `${startDate}T00:00:00Z`;
+    }
+    if (endDate) {
+      filters.lte = `${endDate}T23:59:59Z`;
+    }
+    if (!startDate && !endDate && date) {
+      filters.gte = `${date}T00:00:00Z`;
+      filters.lte = `${date}T23:59:59Z`;
+    }
+
+    if (filters.gte) {
+      queryBuilder = queryBuilder.gte("created_at", filters.gte);
+    }
+    if (filters.lte) {
+      queryBuilder = queryBuilder.lte("created_at", filters.lte);
     }
 
     // タグ検索結果で絞り込み

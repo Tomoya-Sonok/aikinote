@@ -1,3 +1,4 @@
+import { format, isValid, parse } from "date-fns";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import React, { useMemo, useState } from "react";
@@ -7,47 +8,73 @@ import { Button } from "@/components/shared/Button/Button";
 import { getTrainingDatesMonth } from "@/lib/api/client";
 import styles from "./DatePickerModal.module.css";
 
+export interface DateRangeSelection {
+  startDate: Date | null;
+  endDate: Date | null;
+}
+
 interface DatePickerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedDate?: Date;
-  onDateSelect: (date: Date | null) => void;
+  selectedRange?: DateRangeSelection;
+  onDateSelect: (range: DateRangeSelection) => void;
   title?: string;
   userId?: string;
 }
 
+const formatDateKey = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const formatForInput = (date: Date | null): string =>
+  date ? format(date, "yyyy-MM-dd") : "";
+
+const parseInputDate = (value: string): Date | null => {
+  if (!value) return null;
+  const parsed = parse(value, "yyyy-MM-dd", new Date());
+  return isValid(parsed) ? parsed : null;
+};
+
 export const DatePickerModal: FC<DatePickerModalProps> = ({
   isOpen,
   onClose,
-  selectedDate,
+  selectedRange,
   onDateSelect,
   title,
   userId,
 }) => {
   const t = useTranslations();
   const [currentMonth, setCurrentMonth] = useState(
-    () => selectedDate || new Date(),
+    () => selectedRange?.startDate || new Date(),
   );
-  const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(
-    selectedDate || null,
+  const [tempStartDate, setTempStartDate] = useState<Date | null>(
+    selectedRange?.startDate || null,
+  );
+  const [tempEndDate, setTempEndDate] = useState<Date | null>(
+    selectedRange?.endDate || null,
   );
   const [pageCountByDate, setPageCountByDate] = useState<
     Record<string, number>
   >({});
 
-  const formatDateKey = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
-  // モーダルが開いたときに現在の選択日付を一時選択に設定
   React.useEffect(() => {
     if (isOpen) {
-      setTempSelectedDate(selectedDate || null);
+      setTempStartDate(selectedRange?.startDate || null);
+      setTempEndDate(selectedRange?.endDate || null);
+      if (selectedRange?.startDate) {
+        setCurrentMonth(
+          new Date(
+            selectedRange.startDate.getFullYear(),
+            selectedRange.startDate.getMonth(),
+            1,
+          ),
+        );
+      }
     }
-  }, [isOpen, selectedDate]);
+  }, [isOpen, selectedRange]);
 
   React.useEffect(() => {
     if (!isOpen || !userId) {
@@ -153,31 +180,53 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
 
   const handleDateClick = (date: Date, isCurrentMonth: boolean) => {
     if (!isCurrentMonth) {
-      setTempSelectedDate(date);
       setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
       return;
     }
 
-    if (
-      tempSelectedDate &&
-      tempSelectedDate.getFullYear() === date.getFullYear() &&
-      tempSelectedDate.getMonth() === date.getMonth() &&
-      tempSelectedDate.getDate() === date.getDate()
-    ) {
-      setTempSelectedDate(null);
+    if (!tempStartDate || (tempStartDate && tempEndDate)) {
+      setTempStartDate(date);
+      setTempEndDate(null);
       return;
     }
 
-    setTempSelectedDate(date);
+    if (tempStartDate && !tempEndDate) {
+      if (date < tempStartDate) {
+        setTempStartDate(date);
+        setTempEndDate(tempStartDate);
+      } else {
+        setTempEndDate(date);
+      }
+    }
+  };
+
+  const handleStartInputChange = (value: string) => {
+    const parsed = parseInputDate(value);
+    setTempStartDate(parsed);
+    if (parsed && tempEndDate && parsed > tempEndDate) {
+      setTempEndDate(parsed);
+    }
+  };
+
+  const handleEndInputChange = (value: string) => {
+    const parsed = parseInputDate(value);
+    setTempEndDate(parsed);
+    if (parsed && tempStartDate && parsed < tempStartDate) {
+      setTempStartDate(parsed);
+    }
   };
 
   const handleConfirm = () => {
-    onDateSelect(tempSelectedDate);
+    onDateSelect({
+      startDate: tempStartDate,
+      endDate: tempEndDate,
+    });
     onClose();
   };
 
   const handleCancel = () => {
-    setTempSelectedDate(selectedDate || null);
+    setTempStartDate(selectedRange?.startDate || null);
+    setTempEndDate(selectedRange?.endDate || null);
     onClose();
   };
 
@@ -226,12 +275,38 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
             </button>
           </div>
 
+          <div className={styles.rangeInputs}>
+            <label className={styles.rangeInputWrapper}>
+              <span>{t("filter.startDateLabel")}</span>
+              <input
+                type="date"
+                className={styles.rangeInput}
+                value={formatForInput(tempStartDate)}
+                onChange={(e) => handleStartInputChange(e.target.value)}
+              />
+            </label>
+            <label className={styles.rangeInputWrapper}>
+              <span>{t("filter.endDateLabel")}</span>
+              <input
+                type="date"
+                className={styles.rangeInput}
+                value={formatForInput(tempEndDate)}
+                onChange={(e) => handleEndInputChange(e.target.value)}
+              />
+            </label>
+          </div>
+
           <div className={styles.calendar}>
             <CalendarGrid
               currentMonth={currentMonth}
               dayNames={dayNames}
-              selectedDate={tempSelectedDate}
+              selectedRange={{
+                start: tempStartDate,
+                end: tempEndDate,
+              }}
               onDateClick={handleDateClick}
+              highlightSelectedDate={false}
+              highlightRange
               getDateStatus={(date) => {
                 const pageCount = pageCountByDate[formatDateKey(date)];
                 if (!pageCount) {
@@ -244,6 +319,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
                 otherMonth: styles.otherMonth,
                 today: styles.today,
                 selected: styles.selected,
+                rangeDay: styles.rangeDay,
               }}
             />
           </div>

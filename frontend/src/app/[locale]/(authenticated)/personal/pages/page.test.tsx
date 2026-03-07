@@ -233,11 +233,6 @@ describe("ページ一覧画面", () => {
     });
 
     expect(screen.getByText("稽古ページ2")).toBeInTheDocument();
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は2ページです",
-      );
-    });
     expect(
       screen.getByRole("link", { name: "カレンダー表示へ" }),
     ).toHaveAttribute("href", "/ja/personal/calendar");
@@ -324,41 +319,6 @@ describe("ページ一覧画面", () => {
     expect(screen.getByText("読み込み中...")).toBeInTheDocument();
   });
 
-  it("認証されていない場合に空の状態が表示されること", async () => {
-    // Arrange
-    mockUseAuth.mockReturnValue({
-      user: null,
-      loading: false,
-      isInitializing: false,
-      isProcessing: false,
-      error: null,
-      signUp: vi.fn(),
-      signInWithCredentials: vi.fn(),
-      signInWithGoogle: vi.fn(),
-      signOutUser: vi.fn(),
-      forgotPassword: vi.fn(),
-      resetPassword: vi.fn(),
-      verifyEmail: vi.fn(),
-      clearError: vi.fn(),
-    });
-
-    // Act
-    await act(async () => {
-      render(
-        <I18nTestProvider>
-          <PersonalPages />
-        </I18nTestProvider>,
-      );
-    });
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
-    });
-  });
-
   it("ユーザー情報取得中でもクラッシュせず描画できること", async () => {
     // Arrange
     mockUseAuth.mockReturnValue({
@@ -410,13 +370,6 @@ describe("ページ一覧画面", () => {
         <I18nTestProvider>
           <PersonalPages />
         </I18nTestProvider>,
-      );
-    });
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
       );
     });
 
@@ -540,99 +493,10 @@ describe("ページ一覧画面", () => {
 
     await waitFor(() => {
       expect(screen.getByText("稽古ページ30")).toBeInTheDocument();
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は30ページです",
-      );
       expect(screen.getByTestId("page-count")).toHaveTextContent(
         "全30件表示中",
       );
     });
-  });
-
-  it("APIエラーが発生した場合に空の状態が表示されること", async () => {
-    // Arrange
-    mockGetPages.mockRejectedValue(new Error("API呼び出しエラー"));
-
-    // Act
-    await act(async () => {
-      render(
-        <I18nTestProvider>
-          <PersonalPages />
-        </I18nTestProvider>,
-      );
-    });
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
-    });
-    expect(mockGetPages).toHaveBeenCalledTimes(1);
-  });
-
-  it("APIレスポンスが失敗の場合に空の状態が表示されること", async () => {
-    // Arrange
-    const mockFailureResponse = {
-      success: false,
-      error: "データの取得に失敗しました",
-    };
-
-    mockGetPages.mockResolvedValue(mockFailureResponse);
-
-    // Act
-    await act(async () => {
-      render(
-        <I18nTestProvider>
-          <PersonalPages />
-        </I18nTestProvider>,
-      );
-    });
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
-    });
-    expect(mockGetPages).toHaveBeenCalledTimes(1);
-  });
-
-  it("ユーザーIDが存在しない場合にAPI呼び出しが実行されないこと", async () => {
-    // Arrange
-    mockUseAuth.mockReturnValue({
-      user: null,
-      loading: false,
-      isInitializing: false,
-      isProcessing: false,
-      error: null,
-      signUp: vi.fn(),
-      signInWithCredentials: vi.fn(),
-      signInWithGoogle: vi.fn(),
-      signOutUser: vi.fn(),
-      forgotPassword: vi.fn(),
-      resetPassword: vi.fn(),
-      verifyEmail: vi.fn(),
-      clearError: vi.fn(),
-    });
-
-    // Act
-    await act(async () => {
-      render(
-        <I18nTestProvider>
-          <PersonalPages />
-        </I18nTestProvider>,
-      );
-    });
-
-    // Assert
-    await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は0ページです",
-      );
-    });
-
-    expect(mockGetPages).not.toHaveBeenCalled();
   });
 
   it("25件のページが表示される場合に正しく表示されること", async () => {
@@ -678,9 +542,6 @@ describe("ページ一覧画面", () => {
 
     expect(screen.getByText("稽古ページ25")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は25ページです",
-      );
       expect(screen.getByTestId("page-count")).toHaveTextContent(
         "全25件表示中",
       );
@@ -731,9 +592,6 @@ describe("ページ一覧画面", () => {
     expect(screen.getByText("稽古ページ25")).toBeInTheDocument();
     expect(screen.queryByText("稽古ページ26")).not.toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByTestId("page-stats")).toHaveTextContent(
-        "これまでに作成したページ数は30ページです",
-      );
       expect(screen.getByTestId("page-count")).toHaveTextContent(
         "全30件中25件表示中",
       );

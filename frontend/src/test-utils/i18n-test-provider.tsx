@@ -16,6 +16,8 @@ const testMessages = {
     dateAlt: "日付",
     notSpecified: "指定なし",
     selectDate: "日付で絞り込み",
+    startDateLabel: "開始日",
+    endDateLabel: "終了日",
   },
   pageModal: {
     title: "タイトル",
@@ -39,9 +41,9 @@ const testMessages = {
     tagsFetchFailed: "タグの取得に失敗しました",
     initialTagsCreated: "初期タグを作成しました",
     initialTagsCreateFailed: "初期タグの作成に失敗しました",
-    closeConfirmTitle: "編集内容を破棄しますか？",
+    closeConfirmTitle: "保存せずに戻りますか？",
     closeConfirmMessage: "入力中の内容は保存されません。",
-    closeConfirmAction: "破棄する",
+    closeConfirmAction: "戻る",
     unknownError: "不明なエラー",
     attachments: {
       title: "添付ファイル",

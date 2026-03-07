@@ -125,7 +125,8 @@ export interface GetPagesParams {
   offset?: number;
   query?: string;
   tags?: string[];
-  date?: string;
+  startDate?: string;
+  endDate?: string;
   sortOrder?: "newest" | "oldest";
 }
 
@@ -136,7 +137,8 @@ export const getPages = async ({
   offset,
   query,
   tags,
-  date,
+  startDate,
+  endDate,
   sortOrder,
 }: GetPagesParams) => {
   try {
@@ -146,7 +148,8 @@ export const getPages = async ({
       offset,
       query,
       tags,
-      date,
+      startDate,
+      endDate,
       sortOrder,
     };
 

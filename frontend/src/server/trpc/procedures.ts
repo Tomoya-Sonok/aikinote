@@ -150,7 +150,8 @@ export const getPagesProcedure = publicProcedure
       offset: z.number().int().min(0).optional(),
       query: z.string().optional(),
       tags: z.array(z.string()).optional(),
-      date: z.string().optional(),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
       sortOrder: z.enum(["newest", "oldest"]).optional(),
     }),
   )
@@ -164,7 +165,8 @@ export const getPagesProcedure = publicProcedure
     if (input.query) query.set("query", input.query);
     if (input.tags && input.tags.length > 0)
       query.set("tags", input.tags.join(","));
-    if (input.date) query.set("date", input.date);
+    if (input.startDate) query.set("start_date", input.startDate);
+    if (input.endDate) query.set("end_date", input.endDate);
     if (input.sortOrder) query.set("sort_order", input.sortOrder);
 
     return callHonoApi<ApiResponse<PagesList>>(

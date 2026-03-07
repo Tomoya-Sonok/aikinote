@@ -20,7 +20,8 @@ const OPTIMISTIC_ID_PREFIX = "optimistic-";
 export interface FetchOptions {
   query?: string;
   tags?: string[];
-  date?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
   sortOrder?: "newest" | "oldest";
 }
 
@@ -73,7 +74,8 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           offset,
           query: options.query || "",
           tags: options.tags || [],
-          date: options.date || undefined,
+          startDate: options.startDate || undefined,
+          endDate: options.endDate || undefined,
           sortOrder: options.sortOrder || "newest",
         });
 

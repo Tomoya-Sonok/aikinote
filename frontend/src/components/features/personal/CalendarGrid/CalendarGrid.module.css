@@ -51,6 +51,10 @@
   background: var(--background-light);
 }
 
+.rangeDay {
+  background: var(--background-light);
+}
+
 .today {
   border-color: var(--primary-color);
 }
@@ -69,6 +73,10 @@
   border-radius: 9999px;
   font-size: var(--font-size-sm);
   color: var(--black);
+}
+
+.otherMonth .dayNumber {
+  color: var(--light-gray);
 }
 
 .selected .dayNumber {
