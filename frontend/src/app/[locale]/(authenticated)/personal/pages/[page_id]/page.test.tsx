@@ -19,6 +19,7 @@ vi.mock("@/lib/api/client", () => ({
   getTags: vi.fn(),
   updatePage: vi.fn(),
   deletePage: vi.fn(),
+  getAttachments: vi.fn().mockResolvedValue({ success: true, data: [] }),
 }));
 
 vi.mock("@/lib/hooks/useAuth", () => ({

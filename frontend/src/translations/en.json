@@ -389,9 +389,25 @@
     "pagesList": "Pages List",
     "sortNewest": "Newest",
     "sortOldest": "Oldest",
+    "calendar": "Calendar",
+    "openCalendar": "Open calendar view",
     "showingAll": "Showing all {total} items",
     "showingPartial": "Showing {displayed} of {total} items",
     "loadMore": "Load more"
+  },
+  "personalCalendar": {
+    "title": "Calendar",
+    "description": "You can record attendance and create pages for the selected date",
+    "loading": "Loading calendar data...",
+    "dataFetchFailed": "Failed to load calendar data",
+    "attendanceUpdateFailed": "Failed to update attendance",
+    "attendanceAdded": "Attendance registered",
+    "attendanceRemoved": "Attendance removed",
+    "actionTitle": "For {date}",
+    "markAttendance": "I attended practice",
+    "unmarkAttendance": "Remove attendance",
+    "createPage": "Create page",
+    "cancel": "Cancel"
   },
   "filter": {
     "clearFilters": "Clear filters",
@@ -401,7 +417,9 @@
     "dateLabel": "Date",
     "dateAlt": "Date",
     "notSpecified": "Not specified",
-    "selectDate": "Filter by Date"
+    "selectDate": "Filter by Date",
+    "startDateLabel": "Start Date",
+    "endDateLabel": "End Date"
   },
   "datePickerModal": {
     "close": "Close",

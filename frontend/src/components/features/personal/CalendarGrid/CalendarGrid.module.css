@@ -1,0 +1,117 @@
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.weekDay {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--text-light);
+  padding: 6px 0;
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dayButton {
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  background: var(--white);
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 42px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  padding: 2px;
+}
+
+.dayButton:hover {
+  background: var(--hover-gray);
+}
+
+.otherMonth {
+  color: var(--light-gray);
+}
+
+.otherMonth:hover {
+  background: var(--background-light);
+}
+
+.rangeDay {
+  background: var(--background-light);
+}
+
+.today {
+  border-color: var(--primary-color);
+}
+
+.selected {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.dayNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+}
+
+.otherMonth .dayNumber {
+  color: var(--light-gray);
+}
+
+.selected .dayNumber {
+  color: var(--white);
+}
+
+.dayNumberAttended {
+  border: 1px solid var(--primary-color);
+}
+
+.selected .dayNumberAttended {
+  border-color: var(--white);
+}
+
+.pageDots {
+  min-height: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.pageDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+}
+
+.pageDotPrimary {
+  background: var(--primary-color);
+}
+
+.pageDotOverflow {
+  background: var(--secondary-color);
+}
+
+.selected .pageDotPrimary {
+  background: var(--white);
+}

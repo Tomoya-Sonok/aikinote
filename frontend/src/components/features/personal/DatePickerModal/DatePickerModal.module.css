@@ -73,8 +73,31 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   padding: 0 8px;
+}
+
+.rangeInputs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+.rangeInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.rangeInput {
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  background: #fff;
 }
 
 .navButton {

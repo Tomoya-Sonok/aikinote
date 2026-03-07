@@ -43,6 +43,7 @@ const CACHE_TTL_MS = {
   pageById: 30_000,
   tagsList: 60_000,
   userProfile: 60_000,
+  trainingDatesMonth: 30_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -99,13 +100,18 @@ export interface CreatePagePayload {
   content: string;
   comment: string;
   user_id: string;
+  created_at?: string;
 }
 
 // ページ作成API関数
 export const createPage = async (pageData: CreatePagePayload) => {
   try {
     const response = await trpcClient.pages.create.mutate(pageData);
-    invalidateQueryCacheByPrefixes(["pages:getList", "pages:getById"]);
+    invalidateQueryCacheByPrefixes([
+      "pages:getList",
+      "pages:getById",
+      "trainingDates:getMonth",
+    ]);
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "ページの作成に失敗しました"));
@@ -119,7 +125,8 @@ export interface GetPagesParams {
   offset?: number;
   query?: string;
   tags?: string[];
-  date?: string;
+  startDate?: string;
+  endDate?: string;
   sortOrder?: "newest" | "oldest";
 }
 
@@ -130,7 +137,8 @@ export const getPages = async ({
   offset,
   query,
   tags,
-  date,
+  startDate,
+  endDate,
   sortOrder,
 }: GetPagesParams) => {
   try {
@@ -140,7 +148,8 @@ export const getPages = async ({
       offset,
       query,
       tags,
-      date,
+      startDate,
+      endDate,
       sortOrder,
     };
 
@@ -175,7 +184,11 @@ export const getPage = async (pageId: string, userId: string) => {
 export const deletePage = async (pageId: string, userId: string) => {
   try {
     const response = await trpcClient.pages.remove.mutate({ pageId, userId });
-    invalidateQueryCacheByPrefixes(["pages:getList", "pages:getById"]);
+    invalidateQueryCacheByPrefixes([
+      "pages:getList",
+      "pages:getById",
+      "trainingDates:getMonth",
+    ]);
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "ページ削除に失敗しました"));
@@ -299,10 +312,105 @@ export interface UpdatePagePayload {
 export const updatePage = async (pageData: UpdatePagePayload) => {
   try {
     const response = await trpcClient.pages.update.mutate(pageData);
-    invalidateQueryCacheByPrefixes(["pages:getList", "pages:getById"]);
+    invalidateQueryCacheByPrefixes([
+      "pages:getList",
+      "pages:getById",
+      "trainingDates:getMonth",
+    ]);
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "ページ更新に失敗しました"));
+  }
+};
+
+export interface TrainingDateRecord {
+  id: string;
+  user_id: string;
+  training_date: string;
+  is_attended: boolean;
+  created_at: string;
+}
+
+export interface TrainingDatePageCount {
+  training_date: string;
+  page_count: number;
+}
+
+export interface TrainingDateMonthData {
+  training_dates: TrainingDateRecord[];
+  page_counts: TrainingDatePageCount[];
+}
+
+export interface GetTrainingDatesMonthParams {
+  userId: string;
+  year: number;
+  month: number;
+}
+
+export const getTrainingDatesMonth = async ({
+  userId,
+  year,
+  month,
+}: GetTrainingDatesMonthParams) => {
+  try {
+    const input = {
+      userId,
+      year,
+      month,
+    };
+
+    return await cachedQuery(
+      "trainingDates:getMonth",
+      input,
+      CACHE_TTL_MS.trainingDatesMonth,
+      async () => trpcClient.trainingDates.getMonth.query(input),
+    );
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "稽古参加日の月次データ取得に失敗しました"),
+    );
+  }
+};
+
+export interface UpsertTrainingDateAttendancePayload {
+  userId: string;
+  trainingDate: string;
+}
+
+export const upsertTrainingDateAttendance = async ({
+  userId,
+  trainingDate,
+}: UpsertTrainingDateAttendancePayload) => {
+  try {
+    const response = await trpcClient.trainingDates.upsertAttendance.mutate({
+      userId,
+      trainingDate,
+    });
+    invalidateQueryCacheByPrefixes(["trainingDates:getMonth"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "稽古参加日の登録に失敗しました"));
+  }
+};
+
+export interface RemoveTrainingDateAttendancePayload {
+  userId: string;
+  trainingDate: string;
+}
+
+export const removeTrainingDateAttendance = async ({
+  userId,
+  trainingDate,
+}: RemoveTrainingDateAttendancePayload) => {
+  try {
+    const response = await trpcClient.trainingDates.removeAttendance.mutate({
+      userId,
+      trainingDate,
+    });
+    invalidateQueryCacheByPrefixes(["trainingDates:getMonth"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "稽古参加日の削除に失敗しました"));
   }
 };
 

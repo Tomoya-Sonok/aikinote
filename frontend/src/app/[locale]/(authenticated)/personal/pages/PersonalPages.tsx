@@ -1,12 +1,14 @@
 "use client";
 
 import {
+  CalendarDotsIcon,
   CaretDownIcon,
   CaretUpIcon,
   CheckIcon,
   SortAscendingIcon,
   SortDescendingIcon,
 } from "@phosphor-icons/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -26,6 +28,7 @@ import { FloatingActionButton } from "@/components/shared/FloatingActionButton/F
 import { Loader } from "@/components/shared/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import { type UpdatePagePayload } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
 import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
@@ -38,6 +41,7 @@ export function PersonalPages() {
   const router = useRouter();
   const locale = useLocale();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -48,8 +52,8 @@ export function PersonalPages() {
     searchQuery,
     setSearchQuery,
     debouncedSearchQuery,
-    selectedDate,
-    setSelectedDate,
+    selectedDateRange,
+    setSelectedDateRange,
     selectedTags,
     setSelectedTags,
     sortOrder,
@@ -68,7 +72,8 @@ export function PersonalPages() {
   } = useTrainingPagesData({
     query: debouncedSearchQuery,
     tags: selectedTags,
-    date: selectedDate,
+    startDate: selectedDateRange.startDate || undefined,
+    endDate: selectedDateRange.endDate || undefined,
     sortOrder,
   });
 
@@ -190,29 +195,51 @@ export function PersonalPages() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.statsSection}>
-        <p className={styles.statsText} data-testid="page-stats">
-          {t("personalPages.pageCount")}
-          <span className={styles.statsNumber}>{totalCount}</span>
-          {t("personalPages.pageCountSuffix")}
-        </p>
+      <div className={styles.pageListHeader}>
+        <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+        <div className={styles.otherPageLinks}>
+          <Link
+            href={`/${locale}/personal/calendar`}
+            className={styles.calendarLink}
+            aria-label={t("personalPages.openCalendar")}
+          >
+            <CalendarDotsIcon
+              size={24}
+              weight="light"
+              className={styles.calendarIcon}
+            />
+            <span className={styles.calendarText}>
+              {t("personalPages.calendar")}
+            </span>
+          </Link>
+        </div>
       </div>
 
       <FilterArea
         onSearchChange={setSearchQuery}
-        onDateFilterChange={setSelectedDate}
+        onDateFilterChange={setSelectedDateRange}
         onTagFilterChange={setSelectedTags}
         currentSearchQuery={searchQuery}
-        currentSelectedDate={selectedDate}
+        currentSelectedDateRange={selectedDateRange}
         currentSelectedTags={selectedTags}
         onOpenTagSelection={() => setIsTagModalOpen(true)}
         onOpenDateSelection={() => {}}
+        userId={user?.id}
       />
 
       <div className={styles.pageListWrapper}>
         <div className={styles.pageListDescription}>
           <div className={styles.pageListHeader}>
-            <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+            <p className={styles.pageCount} data-testid="page-count">
+              {totalCount === displayedTrainingPageData.length
+                ? t("personalPages.showingAll", {
+                    total: totalCount,
+                  })
+                : t("personalPages.showingPartial", {
+                    total: totalCount,
+                    displayed: displayedTrainingPageData.length,
+                  })}
+            </p>
             <div className={styles.sortDropdownContainer} ref={sortDropdownRef}>
               <button
                 type="button"
@@ -271,16 +298,6 @@ export function PersonalPages() {
               )}
             </div>
           </div>
-          <p className={styles.pageCount} data-testid="page-count">
-            {totalCount === displayedTrainingPageData.length
-              ? t("personalPages.showingAll", {
-                  total: totalCount,
-                })
-              : t("personalPages.showingPartial", {
-                  total: totalCount,
-                  displayed: displayedTrainingPageData.length,
-                })}
-          </p>
         </div>
         <div className={styles.trainingList}>
           {displayedTrainingPageData.map((training) => (

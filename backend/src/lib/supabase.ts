@@ -53,17 +53,78 @@ export interface TrainingPageTagRow {
   user_tag_id: string; // uuid FK
 }
 
+export interface TrainingDateRow {
+  id: string; // uuid PK
+  user_id: string; // uuid FK
+  training_date: string; // date
+  is_attended: boolean; // 参加有無
+  created_at: string; // timestamp
+}
+
+export interface TrainingDatePageCount {
+  training_date: string; // date
+  page_count: number;
+}
+
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+const buildJstUtcIso = (
+  dateString: string,
+  hour: number,
+  minute = 0,
+  second = 0,
+): string | null => {
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return null;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+
+  const timestamp =
+    Date.UTC(year, month - 1, day, hour, minute, second) - JST_OFFSET_MS;
+  return new Date(timestamp).toISOString();
+};
+
 // データベース操作関数
 export const createTrainingPage = async (
-  pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at">,
+  pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at"> & {
+    created_at?: string;
+  },
   tagNames: { tori: string[]; uke: string[]; waza: string[] },
 ): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
   // トランザクションを使用してページと関連タグを作成
   try {
     // 1. TrainingPageを作成
+    const insertPageData = pageData.created_at
+      ? {
+          title: pageData.title,
+          content: pageData.content,
+          comment: pageData.comment,
+          user_id: pageData.user_id,
+          created_at: pageData.created_at,
+        }
+      : {
+          title: pageData.title,
+          content: pageData.content,
+          comment: pageData.comment,
+          user_id: pageData.user_id,
+        };
+
     const { data: newPage, error: pageError } = await supabase
       .from("TrainingPage")
-      .insert([pageData])
+      .insert([insertPageData])
       .select("*")
       .single();
 
@@ -153,6 +214,8 @@ export const getTrainingPages = async ({
   offset = 0,
   query,
   tags: tagsString,
+  startDate,
+  endDate,
   date,
   sortOrder = "newest",
 }: {
@@ -161,6 +224,8 @@ export const getTrainingPages = async ({
   offset?: number;
   query?: string;
   tags?: string;
+  startDate?: string;
+  endDate?: string;
   date?: string;
   sortOrder?: "newest" | "oldest";
 }): Promise<{
@@ -230,11 +295,35 @@ export const getTrainingPages = async ({
       queryBuilder = queryBuilder.ilike("title", `%${query}%`);
     }
 
-    // 日付検索
-    if (date) {
-      queryBuilder = queryBuilder
-        .gte("created_at", `${date}T00:00:00Z`)
-        .lte("created_at", `${date}T23:59:59Z`);
+    const filters: { gte?: string; lte?: string } = {};
+    if (startDate) {
+      const iso = buildJstUtcIso(startDate, 0, 0, 0);
+      if (iso) {
+        filters.gte = iso;
+      }
+    }
+    if (endDate) {
+      const iso = buildJstUtcIso(endDate, 23, 59, 59);
+      if (iso) {
+        filters.lte = iso;
+      }
+    }
+    if (!startDate && !endDate && date) {
+      const startIso = buildJstUtcIso(date, 0, 0, 0);
+      const endIso = buildJstUtcIso(date, 23, 59, 59);
+      if (startIso) {
+        filters.gte = startIso;
+      }
+      if (endIso) {
+        filters.lte = endIso;
+      }
+    }
+
+    if (filters.gte) {
+      queryBuilder = queryBuilder.gte("created_at", filters.gte);
+    }
+    if (filters.lte) {
+      queryBuilder = queryBuilder.lte("created_at", filters.lte);
     }
 
     // タグ検索結果で絞り込み
@@ -288,6 +377,123 @@ export const getTrainingPages = async ({
     console.error("TrainingPages取得エラー:", error);
     throw error;
   }
+};
+
+const buildMonthRange = (
+  year: number,
+  month: number,
+): { startDate: string; endDate: string } => {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const endDate = `${year}-${String(month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+  return { startDate, endDate };
+};
+
+export const getTrainingDatesByMonth = async (
+  userId: string,
+  year: number,
+  month: number,
+): Promise<TrainingDateRow[]> => {
+  const { startDate, endDate } = buildMonthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("TrainingDate")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("training_date", startDate)
+    .lte("training_date", endDate)
+    .order("training_date", { ascending: true });
+
+  if (error) {
+    throw new Error(`稽古参加日の取得に失敗しました: ${error.message}`);
+  }
+
+  return data ?? [];
+};
+
+export const upsertTrainingDateAttendance = async (
+  userId: string,
+  trainingDate: string,
+): Promise<TrainingDateRow> => {
+  const { data, error } = await supabase
+    .from("TrainingDate")
+    .upsert(
+      [
+        {
+          user_id: userId,
+          training_date: trainingDate,
+          is_attended: true,
+        },
+      ],
+      {
+        onConflict: "user_id,training_date",
+      },
+    )
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`稽古参加日の保存に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const deleteTrainingDateAttendance = async (
+  userId: string,
+  trainingDate: string,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("TrainingDate")
+    .delete()
+    .eq("user_id", userId)
+    .eq("training_date", trainingDate);
+
+  if (error) {
+    throw new Error(`稽古参加日の削除に失敗しました: ${error.message}`);
+  }
+};
+
+export const getTrainingPageCountsByMonth = async (
+  userId: string,
+  year: number,
+  month: number,
+): Promise<TrainingDatePageCount[]> => {
+  const { startDate, endDate } = buildMonthRange(year, month);
+
+  const { data, error } = await supabase
+    .from("TrainingPage")
+    .select("created_at")
+    .eq("user_id", userId)
+    .gte("created_at", `${startDate}T00:00:00Z`)
+    .lte("created_at", `${endDate}T23:59:59Z`);
+
+  if (error) {
+    throw new Error(`ページ件数の取得に失敗しました: ${error.message}`);
+  }
+
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  const countByDate = new Map<string, number>();
+
+  for (const row of data) {
+    const createdAt = row.created_at as string | undefined;
+    if (!createdAt) {
+      continue;
+    }
+    const dateKey = createdAt.slice(0, 10);
+    countByDate.set(dateKey, (countByDate.get(dateKey) ?? 0) + 1);
+  }
+
+  return Array.from(countByDate.entries())
+    .map(([training_date, page_count]) => ({
+      training_date,
+      page_count,
+    }))
+    .sort((a, b) => a.training_date.localeCompare(b.training_date));
 };
 
 // タグ一覧取得関数

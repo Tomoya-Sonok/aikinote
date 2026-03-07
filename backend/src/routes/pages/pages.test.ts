@@ -82,6 +82,64 @@ describe("ページ作成API", () => {
     expect(responseBody.data).toEqual(mockCreatedPage);
   });
 
+  it("created_at指定時は指定値を利用してページを作成すること", async () => {
+    // Arrange
+    const mockCreatedPage = {
+      page: {
+        id: "test-page-id",
+        title: "テスト稽古ページ",
+        content: "今日は基本動作の稽古を行いました",
+        comment: "姿勢に注意が必要",
+        user_id: "test-user-id",
+        created_at: "2026-03-13T00:00:00.000Z",
+        updated_at: "2026-03-13T00:00:00.000Z",
+      },
+      tags: [],
+    };
+    const createTrainingPageSpy = vi
+      .spyOn(supabaseModule, "createTrainingPage")
+      .mockResolvedValue(mockCreatedPage);
+
+    const requestBody = {
+      title: "テスト稽古ページ",
+      content: "今日は基本動作の稽古を行いました",
+      comment: "姿勢に注意が必要",
+      user_id: "test-user-id",
+      tori: [],
+      uke: [],
+      waza: [],
+      created_at: "2026-03-13T00:00:00.000Z",
+    };
+
+    const request = new Request("http://localhost/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(201);
+    expect(createTrainingPageSpy).toHaveBeenCalledWith(
+      {
+        title: "テスト稽古ページ",
+        content: "今日は基本動作の稽古を行いました",
+        comment: "姿勢に注意が必要",
+        user_id: "test-user-id",
+        created_at: "2026-03-13T00:00:00.000Z",
+      },
+      {
+        tori: [],
+        uke: [],
+        waza: [],
+      },
+    );
+  });
+
   it("必須フィールドが不足している場合にバリデーションエラーが返されること", async () => {
     const requestBody = {
       content: "今日は基本動作の稽古を行いました",

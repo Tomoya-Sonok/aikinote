@@ -158,10 +158,10 @@ describe("PageModal", () => {
     await user.click(cancelButton);
 
     // Assert: まず確認ダイアログが表示され、onCloseはまだ呼ばれない
-    expect(screen.getByText("編集内容を破棄しますか？")).toBeInTheDocument();
+    expect(screen.getByText("保存せずに戻りますか？")).toBeInTheDocument();
     expect(mockOnClose).not.toHaveBeenCalled();
 
-    const discardButton = screen.getByRole("button", { name: "破棄する" });
+    const discardButton = screen.getByRole("button", { name: "戻る" });
     await user.click(discardButton);
 
     // Assert: 破棄を確定するとonCloseが呼ばれる
@@ -190,7 +190,7 @@ describe("PageModal", () => {
     const pageModalCancel = screen.getByText("キャンセル");
     await user.click(pageModalCancel);
 
-    const confirmTitle = screen.getByText("編集内容を破棄しますか？");
+    const confirmTitle = screen.getByText("保存せずに戻りますか？");
     const confirmDialog = confirmTitle.closest('[role="dialog"]');
     expect(confirmDialog).toBeTruthy();
     if (!confirmDialog) throw new Error("確認ダイアログが見つかりません");
@@ -202,7 +202,7 @@ describe("PageModal", () => {
 
     // Assert: 確認ダイアログのみ閉じ、モーダル本体は維持される
     expect(
-      screen.queryByText("編集内容を破棄しますか？"),
+      screen.queryByText("保存せずに戻りますか？"),
     ).not.toBeInTheDocument();
     expect(screen.getByText("テストモーダル")).toBeInTheDocument();
     expect(mockOnClose).not.toHaveBeenCalled();

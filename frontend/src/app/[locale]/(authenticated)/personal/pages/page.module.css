@@ -6,8 +6,15 @@
   gap: 24px;
 }
 
-.statsSection {
-  margin: 0 auto;
+.pageListHeader {
+  display: flex;
+  align-items: flex-center;
+  justify-content: space-between;
+}
+
+.otherPageLinks {
+  display: flex;
+  gap: 8px;
 }
 
 .statsText {
@@ -46,11 +53,38 @@
   justify-content: space-between;
 }
 
+.calendarLink {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--black);
+  min-width: 52px;
+}
+
+.calendarIcon {
+  color: var(--black);
+}
+
+.calendarText {
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  color: var(--black);
+}
+
+.calendarLink:hover .calendarIcon,
+.calendarLink:hover .calendarText {
+  color: var(--primary-color);
+}
+
 .pageTitle {
   font-family: var(--font-zen-old-mincho);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-lg);
   font-weight: 400;
   line-height: 1.4;
+  letter-spacing: 0.06em;
   color: var(--black);
 }
 
