@@ -50,11 +50,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
       }
 
       const currentOptionsStr = JSON.stringify(options);
-      if (
-        !isLoadMore &&
-        currentOptionsStr === lastOptionsRef.current &&
-        allDataRef.current.length > 0
-      ) {
+      if (!isLoadMore && currentOptionsStr === lastOptionsRef.current) {
         return; // 既に同じオプションでフェッチ済み
       }
 
