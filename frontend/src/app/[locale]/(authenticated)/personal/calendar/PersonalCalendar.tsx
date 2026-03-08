@@ -450,6 +450,8 @@ export function PersonalCalendar() {
         )}
       </div>
 
+      <p className={styles.legend}>{t("personalCalendar.legend")}</p>
+
       <CalendarActionModal
         isOpen={isActionModalOpen}
         title={actionTitle}

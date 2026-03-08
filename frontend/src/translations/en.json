@@ -407,7 +407,8 @@
     "markAttendance": "I attended practice",
     "unmarkAttendance": "Remove attendance",
     "createPage": "Create page",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "legend": "○: Practice attendance　•: Pages created"
   },
   "filter": {
     "clearFilters": "Clear filters",
