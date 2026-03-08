@@ -109,7 +109,7 @@
 
 .legend {
   margin-top: -8px;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-xs);
   color: var(--text-light);
 }
 
