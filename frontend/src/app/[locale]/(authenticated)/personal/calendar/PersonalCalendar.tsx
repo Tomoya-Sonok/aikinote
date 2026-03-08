@@ -260,6 +260,15 @@ export function PersonalCalendar() {
       return;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+    if (target > today) {
+      showToast(t("personalCalendar.futureDateError"), "error");
+      return;
+    }
+
     setSelectedDate(date);
     setIsActionModalOpen(true);
   };
@@ -449,6 +458,8 @@ export function PersonalCalendar() {
           />
         )}
       </div>
+
+      <p className={styles.legend}>{t("personalCalendar.legend")}</p>
 
       <CalendarActionModal
         isOpen={isActionModalOpen}

@@ -107,6 +107,12 @@
   width: 100%;
 }
 
+.legend {
+  margin-top: -8px;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
 @media (min-width: 481px) {
   .calendarCard {
     padding: 20px 16px;

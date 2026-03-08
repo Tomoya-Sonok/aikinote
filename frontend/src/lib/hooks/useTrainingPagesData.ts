@@ -9,6 +9,7 @@ import {
   getPages,
   type UpdatePagePayload,
   updatePage,
+  upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
@@ -192,6 +193,18 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
                 console.warn("添付メタデータの保存に失敗:", attachError);
               }
             }
+          }
+
+          // ページ作成日の稽古参加を自動登録
+          try {
+            await upsertTrainingDateAttendance({
+              userId,
+              trainingDate: formatToLocalDateString(
+                response.data.page.created_at,
+              ),
+            });
+          } catch (attendanceError) {
+            console.warn("稽古参加の自動登録に失敗:", attendanceError);
           }
 
           // 楽観的プレースホルダーを正式データに差し替え

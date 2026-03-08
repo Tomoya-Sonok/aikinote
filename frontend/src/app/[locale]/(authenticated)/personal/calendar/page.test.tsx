@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createPage,
   getTrainingDatesMonth,
@@ -82,14 +82,19 @@ describe("カレンダー画面", () => {
   const mockRemoveAttendance = vi.mocked(removeTrainingDateAttendance);
   const mockCreatePage = vi.mocked(createPage);
 
+  const FAKE_NOW = new Date(2026, 2, 25, 12, 0, 0);
+
   const currentMonthDate20 = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    return `${year}-${month}-20`;
+    return "2026-03-20";
   };
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(FAKE_NOW);
     vi.clearAllMocks();
 
     mockUseAuth.mockReturnValue({

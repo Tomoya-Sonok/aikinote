@@ -407,7 +407,9 @@
     "markAttendance": "I attended practice",
     "unmarkAttendance": "Remove attendance",
     "createPage": "Create page",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "legend": "○: Practice attendance　•: Pages created",
+    "futureDateError": "Cannot perform actions on future dates"
   },
   "filter": {
     "clearFilters": "Clear filters",
