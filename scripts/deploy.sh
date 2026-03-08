@@ -35,6 +35,10 @@ echo ""
 echo "🔍 Current commit:"
 git log --oneline -1
 echo ""
+echo "⚠️  Before deploying frontend, confirm these Vercel Production env vars are set:"
+echo "   AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET_NAME,"
+echo "   CLOUDFRONT_DOMAIN, NEXT_PUBLIC_CLOUDFRONT_DOMAIN"
+echo ""
 
 read -p "Do you want to deploy frontend by pushing main branch? (yes/no): " confirm
 if [ "$confirm" != "yes" ]; then
@@ -47,7 +51,7 @@ echo "🚀 Pushing main branch..."
 git push origin main
 
 echo ""
-echo "✅ Frontend deployment triggered (Vercel)"
+echo "✅ Frontend  deployment triggered (Vercel)"
 echo ""
 
 read -p "Do you want to deploy backend via Cloudflare Workers now? (yes/no): " confirm_backend

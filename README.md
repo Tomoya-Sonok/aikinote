@@ -123,6 +123,7 @@ AWS_ACCESS_KEY_ID=your_aws_access_key_id
 AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 AWS_S3_BUCKET_NAME=your_s3_bucket_name
 CLOUDFRONT_DOMAIN=your_cloudfront_domain
+NEXT_PUBLIC_CLOUDFRONT_DOMAIN=your_cloudfront_domain
 ```
 
 > ⚠️  Please note that you cannot use the profile picture upload and email sending functions without configuring the necessary values for AWS and Resend.
@@ -152,6 +153,8 @@ docker-compose up
 > **Production Secrets**: When deploying to Cloudflare Workers, standard environment variables are not automatically uploaded. Run the following command to sync your local secrets to Cloudflare:
 > `pnpm wrangler:secret:update`
 > This reads keys and values from your root `.env.local` and updates them on Cloudflare using `wrangler secret put`. This process is interactive for each secret but is automated by the script.
+>
+> **Vercel Frontend Env**: Root `.env.local` and `pnpm wrangler:secret:update` do not update Vercel. For frontend production deployments, set `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_S3_BUCKET_NAME`, `CLOUDFRONT_DOMAIN`, and `NEXT_PUBLIC_CLOUDFRONT_DOMAIN` in Vercel Project Settings for the `Production` environment, then redeploy.
 
 ### 5. Access the application
 

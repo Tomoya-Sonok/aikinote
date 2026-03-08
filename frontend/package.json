@@ -7,6 +7,7 @@
     "dev:webpack": "next dev --webpack -H 0.0.0.0",
     "build": "NODE_ENV=production next build",
     "start": "next start -H 0.0.0.0",
+    "verify:env:production": "node ./scripts/verify-production-env.mjs",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --silent",
