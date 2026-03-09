@@ -216,6 +216,16 @@
   gap: 12px;
 }
 
+.emptyMessage {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.8;
+  text-align: center;
+  padding: 40px 16px;
+  margin: 0;
+}
+
 .loadMoreContainer {
   display: flex;
   justify-content: center;

@@ -82,6 +82,8 @@ const testMessages = {
     showingAll: "全{total}件表示中",
     showingPartial: "全{total}件中{displayed}件表示中",
     loadMore: "もっと見る",
+    emptyLine1: "まだページが作成されていません。",
+    emptyLine2: "ページ作成ボタンで稽古記録を開始しましょう！",
   },
   personalCalendar: {
     title: "カレンダー",

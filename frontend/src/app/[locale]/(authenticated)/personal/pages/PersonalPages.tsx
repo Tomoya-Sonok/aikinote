@@ -315,15 +315,23 @@ export function PersonalPages() {
           </div>
         </div>
         <div className={styles.trainingList}>
-          {displayedTrainingPageData.map((training) => (
-            <TrainingCard
-              key={training.id}
-              {...training}
-              onClick={() => handleViewTraining(training.id)}
-              onEdit={() => handleEditTraining(training.id)}
-              onDelete={() => openDeleteDialog(training.id)}
-            />
-          ))}
+          {displayedTrainingPageData.length === 0 ? (
+            <p className={styles.emptyMessage}>
+              {t("personalPages.emptyLine1")}
+              <br />
+              {t("personalPages.emptyLine2")}
+            </p>
+          ) : (
+            displayedTrainingPageData.map((training) => (
+              <TrainingCard
+                key={training.id}
+                {...training}
+                onClick={() => handleViewTraining(training.id)}
+                onEdit={() => handleEditTraining(training.id)}
+                onDelete={() => openDeleteDialog(training.id)}
+              />
+            ))
+          )}
         </div>
         {hasMore && (
           <div className={styles.loadMoreContainer}>

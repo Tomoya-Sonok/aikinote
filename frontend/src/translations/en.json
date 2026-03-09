@@ -395,7 +395,9 @@
     "openCalendar": "Open calendar view",
     "showingAll": "Showing all {total} items",
     "showingPartial": "Showing {displayed} of {total} items",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "emptyLine1": "No pages have been created yet.",
+    "emptyLine2": "Use the create button to start recording your training!"
   },
   "personalStats": {
     "title": "Statistics",
