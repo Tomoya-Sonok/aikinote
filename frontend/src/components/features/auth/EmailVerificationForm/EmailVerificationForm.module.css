@@ -33,49 +33,12 @@
   gap: 24px;
 }
 
-.stepInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background-color: transparent;
-}
-
-.stepHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .stepText {
   font-family: var(--font-zen-old-mincho);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
   color: var(--black);
-}
-
-.progressContainer {
-  height: 4px;
-  background-color: #efecec;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progressBar {
-  height: 100%;
-  background-color: #838383;
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-/* プログレスステップ3（メール認証段階） */
-.progressStep3 {
-  width: 68%;
-}
-
-/* プログレスステップ4（完了） */
-.progressStep4 {
-  width: 100%;
 }
 
 /* ローディング状態 */

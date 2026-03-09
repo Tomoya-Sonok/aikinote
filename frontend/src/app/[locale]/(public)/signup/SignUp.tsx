@@ -8,7 +8,6 @@ import { useForm } from "react-hook-form";
 import { EmailVerificationWaitingForm } from "@/components/features/auth/EmailVerificationWaitingForm";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
-import { StepDots } from "@/components/shared/StepDots";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import {
@@ -100,25 +99,6 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
       <h1 className={styles.title}>{t("auth.signup")}</h1>
 
       <div className={styles.formCard}>
-        <div className={styles.stepContainer}>
-          <div className={styles.stepInfo}>
-            <div className={styles.stepHeader}>
-              <span className={styles.stepText}>{t("auth.step1of4")}</span>
-            </div>
-            <div className={styles.progressContainer}>
-              <div
-                className={`${styles.progressBar} ${styles.progressStep1}`}
-              />
-            </div>
-          </div>
-          <StepDots
-            states={["active", "inactive", "inactive", "inactive"]}
-            dotSize={12}
-            activeColor="var(--primary-color)"
-            inactiveColor="var(--border-color)"
-          />
-        </div>
-
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.contentsWrapper}>
@@ -279,25 +259,6 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
       <h1 className={styles.title}>{t("auth.signup")}</h1>
 
       <div className={styles.formCard}>
-        <div className={styles.stepContainer}>
-          <div className={styles.stepInfo}>
-            <div className={styles.stepHeader}>
-              <span className={styles.stepText}>{t("auth.step2of4")}</span>
-            </div>
-            <div className={styles.progressContainer}>
-              <div
-                className={`${styles.progressBar} ${styles.progressStep2}`}
-              />
-            </div>
-          </div>
-          <StepDots
-            states={["active", "active", "inactive", "inactive"]}
-            dotSize={12}
-            activeColor="var(--primary-color)"
-            inactiveColor="var(--border-color)"
-          />
-        </div>
-
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.contentsWrapper}>
