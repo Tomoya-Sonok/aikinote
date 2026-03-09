@@ -3,6 +3,7 @@ import {
   ListIcon,
   MagnifyingGlassIcon,
 } from "@phosphor-icons/react/dist/ssr";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,8 +12,25 @@ import { Fragment, type ReactNode } from "react";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
+import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const isJa = locale === "ja";
+  return buildMetadata({
+    title: "AikiNote",
+    description: isJa
+      ? "日々の合気道の稽古で学んだことや感想を自由に記録・検索・閲覧できるデジタル稽古日誌アプリ"
+      : "A digital training journal app for Aikido practitioners to freely record, search, and review daily practice notes.",
+    isIndexing: true,
+  });
+}
 
 interface RootPageProps {
   params: Promise<{ locale: string }>;
