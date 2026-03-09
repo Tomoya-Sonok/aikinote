@@ -17,47 +17,24 @@ import {
 import type { TagStatItem } from "@/lib/hooks/useTrainingStats";
 import styles from "./StatsChart.module.css";
 
-const MAX_TAGS = 8;
+const MAX_TAGS = 5;
 
 const CATEGORY_COLORS: Record<string, string> = {
-  取り: "#595857",
+  取り: "#3B4B59",
   受け: "#888E7E",
-  技: "#AFA8A0",
+  技: "#b64545ff",
 };
 
 const TAG_SHADES: Record<string, string[]> = {
-  取り: [
-    "#595857",
-    "#6B6A69",
-    "#7D7C7B",
-    "#8F8E8D",
-    "#A1A09F",
-    "#B3B2B1",
-    "#C5C4C3",
-    "#D7D6D5",
-    "#E0E0E0",
-  ],
-  受け: [
-    "#888E7E",
-    "#949A8C",
-    "#A0A69A",
-    "#ACB2A8",
-    "#B8BEB6",
-    "#C4CAC4",
-    "#D0D6D2",
-    "#DCE2E0",
-    "#E5E5E5",
-  ],
+  取り: ["#3B4B59", "#4D5E6E", "#5F7183", "#718498", "#8397AD", "#95AAB2"],
+  受け: ["#888E7E", "#949A8C", "#A0A69A", "#ACB2A8", "#B8BEB6", "#C4CAC4"],
   技: [
-    "#AFA8A0",
-    "#B7B1AA",
-    "#BFBAB4",
-    "#C7C3BE",
-    "#CFCCC8",
-    "#D7D5D2",
-    "#DFDEDC",
-    "#E7E7E6",
-    "#EFEFEF",
+    "#b46262ff",
+    "#b87070ff",
+    "#b97f7fff",
+    "#c48e8eff",
+    "#d49898ff",
+    "#e0a3a3ff",
   ],
 };
 
@@ -151,7 +128,11 @@ export const TagTrendChart: FC<TagTrendChartProps> = ({
                       stroke="var(--border-color)"
                       horizontal={false}
                     />
-                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 12 }}
+                      allowDecimals={false}
+                    />
                     <YAxis
                       type="category"
                       dataKey="name"

@@ -1,12 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
-import { MonthlyChart } from "@/components/features/personal/StatsChart/MonthlyChart";
-import { TagTrendChart } from "@/components/features/personal/StatsChart/TagTrendChart";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
 import styles from "./page.module.css";
+
+const TagTrendChart = dynamic(
+  () =>
+    import("@/components/features/personal/StatsChart/TagTrendChart").then(
+      (mod) => mod.TagTrendChart,
+    ),
+  { ssr: false, loading: () => <div className={styles.chartLoading} /> },
+);
+
+const MonthlyChart = dynamic(
+  () =>
+    import("@/components/features/personal/StatsChart/MonthlyChart").then(
+      (mod) => mod.MonthlyChart,
+    ),
+  { ssr: false, loading: () => <div className={styles.chartLoading} /> },
+);
 
 type PeriodPreset = "all" | "3m" | "6m" | "1y" | "custom";
 type ChartType = "bar" | "pie";

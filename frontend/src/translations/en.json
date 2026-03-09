@@ -407,7 +407,7 @@
     "durationYearsMonths": "{years}y {months}m",
     "attendedDays": "Training Attendance Days",
     "attendedDaysCount": "{count} days",
-    "totalPages": "Total Pages",
+    "totalPages": "Created Pages",
     "totalPagesCount": "{count} pages",
     "tagTrend": "Tag Trends",
     "monthlyTrend": "Monthly Trends",

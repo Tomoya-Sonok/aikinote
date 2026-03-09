@@ -28,8 +28,8 @@ export const MonthlyChart: FC<MonthlyChartProps> = ({ monthlyStats }) => {
 
   const data = monthlyStats.map((item) => ({
     month: item.month.slice(2),
-    [t("attendedCount")]: item.attended_days,
     [t("pagesCount")]: item.page_count,
+    [t("attendedCount")]: item.attended_days,
   }));
 
   return (
@@ -48,12 +48,12 @@ export const MonthlyChart: FC<MonthlyChartProps> = ({ monthlyStats }) => {
           <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
           <Tooltip />
           <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Bar dataKey={t("pagesCount")} fill="#595857" radius={[4, 4, 0, 0]} />
           <Bar
             dataKey={t("attendedCount")}
-            fill="#595857"
+            fill="#AFA8A0"
             radius={[4, 4, 0, 0]}
           />
-          <Bar dataKey={t("pagesCount")} fill="#AFA8A0" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

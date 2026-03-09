@@ -154,13 +154,13 @@
     color 0.15s;
 }
 
-.toggleButton:hover {
-  color: var(--black);
-}
-
 .toggleButtonActive {
   background: var(--black);
   color: var(--white);
+}
+
+.chartLoading {
+  height: 280px;
 }
 
 @media (max-width: 480px) {
