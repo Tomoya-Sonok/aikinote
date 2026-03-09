@@ -36,59 +36,6 @@
   border: 0.5px solid var(--border-color);
 }
 
-.stepInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background-color: transparent;
-}
-
-.stepHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.stepText {
-  font-family: var(--font-zen-old-mincho);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--black);
-  letter-spacing: 0.04em;
-}
-
-.progressContainer {
-  height: 4px;
-  background-color: var(--border-color);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.progressBar {
-  height: 100%;
-  background-color: var(--primary-color);
-  border-radius: 2px;
-  transition: width 0.4s ease-out;
-}
-
-/* プログレスステップ */
-.progressStep1 {
-  width: 1%;
-}
-
-.progressStep2 {
-  width: 33%;
-}
-
-.progressStep3 {
-  width: 68%;
-}
-
-.progressStep4 {
-  width: 100%;
-}
-
 .contentsWrapper {
   display: flex;
   flex-direction: column;

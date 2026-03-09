@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { StepDots } from "@/components/shared/StepDots";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./EmailVerificationForm.module.css";
 
@@ -67,19 +66,6 @@ export function EmailVerificationForm({
         <h1 className={styles.title}>{t("auth.signup")}</h1>
 
         <div className={styles.formCard}>
-          <div className={styles.stepContainer}>
-            <div className={styles.stepInfo}>
-              <div className={styles.stepHeader}>
-                <span className={styles.stepText}>{t("auth.signupStep3")}</span>
-              </div>
-              <div className={styles.progressContainer}>
-                <div
-                  className={`${styles.progressBar} ${styles.progressStep3}`}
-                />
-              </div>
-            </div>
-            <StepDots states={["active", "active", "active", "inactive"]} />
-          </div>
           <h2 className={styles.loadingTitle}>
             {t("auth.emailVerificationInProgress")}
           </h2>
@@ -98,25 +84,6 @@ export function EmailVerificationForm({
         <h1 className={styles.title}>{t("auth.signup")}</h1>
 
         <div className={styles.formCard}>
-          <div className={styles.stepContainer}>
-            <div className={styles.stepInfo}>
-              <div className={styles.stepHeader}>
-                <span className={styles.stepText}>{t("auth.signupStep4")}</span>
-              </div>
-              <div className={styles.progressContainer}>
-                <div
-                  className={`${styles.progressBar} ${styles.progressStep4}`}
-                />
-              </div>
-            </div>
-            <StepDots
-              states={["active", "active", "active", "active"]}
-              dotSize={12}
-              activeColor="var(--primary-color)"
-              inactiveColor="var(--border-color)"
-            />
-          </div>
-
           <div className={styles.successContainer}>
             <div className={styles.successTextContainer}>
               <div className={styles.stepText}>
@@ -145,24 +112,6 @@ export function EmailVerificationForm({
         <h1 className={styles.title}>{t("auth.signup")}</h1>
 
         <div className={styles.formCard}>
-          <div className={styles.stepContainer}>
-            <div className={styles.stepInfo}>
-              <div className={styles.stepHeader}>
-                <span className={styles.stepText}>{t("auth.step3of4")}</span>
-              </div>
-              <div className={styles.progressContainer}>
-                <div
-                  className={`${styles.progressBar} ${styles.progressStep3}`}
-                />
-              </div>
-            </div>
-            <StepDots
-              states={["active", "active", "active", "inactive"]}
-              dotSize={12}
-              activeColor="var(--primary-color)"
-              inactiveColor="var(--border-color)"
-            />
-          </div>
           <div className={styles.errorContentsWrapper}>
             <h2 className={styles.errorTitle}>
               {t("auth.verificationFailed")}

@@ -6,7 +6,6 @@ import { Suspense } from "react";
 import { EmailVerificationForm } from "@/components/features/auth/EmailVerificationForm";
 import { Loader } from "@/components/shared/Loader";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
-import { StepDots } from "@/components/shared/StepDots";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
@@ -46,24 +45,6 @@ async function EmailVerificationContent({
         <h1 className={styles.title}>{t("signup")}</h1>
 
         <div className={styles.formCard}>
-          <div className={styles.stepContainer}>
-            <div className={styles.stepInfo}>
-              <div className={styles.stepHeader}>
-                <span className={styles.stepText}>{t("step3of4")}</span>
-              </div>
-              <div className={styles.progressContainer}>
-                <div
-                  className={`${styles.progressBar} ${styles.progressStep1}`}
-                />
-              </div>
-            </div>
-            <StepDots
-              states={["active", "inactive", "inactive", "inactive"]}
-              dotSize={12}
-              activeColor="var(--primary-color)"
-              inactiveColor="var(--border-color)"
-            />
-          </div>
           <div className={styles.loginPrompt}>
             <span className={styles.loginPromptText}>
               {t("tokenNotFound")}
