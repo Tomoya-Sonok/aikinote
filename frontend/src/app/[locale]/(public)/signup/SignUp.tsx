@@ -88,6 +88,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
   };
 
   const handleGoogleSignUp = async () => {
+    if (!agreedToTerms) return;
     try {
       await signInWithGoogle();
     } catch (err) {
@@ -232,7 +233,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
             <button
               type="button"
               onClick={handleGoogleSignUp}
-              disabled={isProcessing}
+              disabled={isProcessing || !agreedToTerms}
               className={styles.googleButton}
             >
               <svg className={styles.googleIcon} viewBox="0 0 24 24">
