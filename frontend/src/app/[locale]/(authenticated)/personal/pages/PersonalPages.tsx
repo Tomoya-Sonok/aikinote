@@ -4,6 +4,7 @@ import {
   CalendarDotsIcon,
   CaretDownIcon,
   CaretUpIcon,
+  ChartBar,
   CheckIcon,
   SortAscendingIcon,
   SortDescendingIcon,
@@ -198,6 +199,20 @@ export function PersonalPages() {
       <div className={styles.pageListHeader}>
         <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
         <div className={styles.otherPageLinks}>
+          <Link
+            href={`/${locale}/personal/stats`}
+            className={styles.statsLink}
+            aria-label={t("personalPages.openStats")}
+          >
+            <ChartBar
+              size={24}
+              weight="light"
+              className={styles.statsLinkIcon}
+            />
+            <span className={styles.statsLinkLabel}>
+              {t("personalPages.stats")}
+            </span>
+          </Link>
           <Link
             href={`/${locale}/personal/calendar`}
             className={styles.calendarLink}

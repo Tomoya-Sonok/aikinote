@@ -75,6 +75,8 @@ const testMessages = {
     pagesList: "ページ一覧",
     sortNewest: "新しい順",
     sortOldest: "古い順",
+    stats: "統計データ",
+    openStats: "統計データ画面へ",
     calendar: "カレンダー",
     openCalendar: "カレンダー表示へ",
     showingAll: "全{total}件表示中",

@@ -44,6 +44,7 @@ const CACHE_TTL_MS = {
   tagsList: 60_000,
   userProfile: 60_000,
   trainingDatesMonth: 30_000,
+  trainingStats: 60_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -426,6 +427,33 @@ export const initializeUserTags = async (userId: string) => {
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "初期タグの作成に失敗しました"));
+  }
+};
+
+// 統計データ取得の型定義
+export interface GetTrainingStatsParams {
+  userId: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+// 統計データ取得API関数
+export const getTrainingStats = async ({
+  userId,
+  startDate,
+  endDate,
+}: GetTrainingStatsParams) => {
+  try {
+    const input = { userId, startDate, endDate };
+
+    return await cachedQuery(
+      "stats:get",
+      input,
+      CACHE_TTL_MS.trainingStats,
+      async () => trpcClient.stats.get.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "統計データの取得に失敗しました"));
   }
 };
 

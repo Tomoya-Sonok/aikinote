@@ -169,6 +169,42 @@ export const deleteTrainingDateSchema = z.object({
 
 export type DeleteTrainingDateInput = z.infer<typeof deleteTrainingDateSchema>;
 
+// 統計データ取得のバリデーションスキーマ
+export const getTrainingStatsSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  start_date: trainingDateStringSchema.optional(),
+  end_date: trainingDateStringSchema.optional(),
+});
+
+export type GetTrainingStatsInput = z.infer<typeof getTrainingStatsSchema>;
+
+// 統計データレスポンスの型
+export const tagStatItemSchema = z.object({
+  tag_id: z.string(),
+  tag_name: z.string(),
+  category: z.string(),
+  page_count: z.number().int().min(0),
+});
+
+export const monthlyStatItemSchema = z.object({
+  month: z.string(),
+  attended_days: z.number().int().min(0),
+  page_count: z.number().int().min(0),
+});
+
+export const trainingStatsResponseSchema = z.object({
+  training_start_date: z.string().nullable(),
+  first_training_date: z.string().nullable(),
+  total_attended_days: z.number().int().min(0),
+  total_pages: z.number().int().min(0),
+  attended_days_in_period: z.number().int().min(0),
+  pages_in_period: z.number().int().min(0),
+  tag_stats: z.array(tagStatItemSchema),
+  monthly_stats: z.array(monthlyStatItemSchema),
+});
+
+export type TrainingStatsResponse = z.infer<typeof trainingStatsResponseSchema>;
+
 export const trainingDateResponseSchema = z.object({
   id: z.string(),
   user_id: z.string(),

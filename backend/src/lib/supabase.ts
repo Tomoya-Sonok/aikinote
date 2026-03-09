@@ -1007,6 +1007,209 @@ export const deleteTrainingPage = async (
   }
 };
 
+// 統計データ型定義
+export interface TagStatItem {
+  tag_id: string;
+  tag_name: string;
+  category: string;
+  page_count: number;
+}
+
+export interface MonthlyStatItem {
+  month: string; // "YYYY-MM"
+  attended_days: number;
+  page_count: number;
+}
+
+export interface TrainingStatsData {
+  training_start_date: string | null;
+  first_training_date: string | null;
+  total_attended_days: number;
+  total_pages: number;
+  attended_days_in_period: number;
+  pages_in_period: number;
+  tag_stats: TagStatItem[];
+  monthly_stats: MonthlyStatItem[];
+}
+
+// 統計データ取得関数
+export const getTrainingStats = async (
+  userId: string,
+  startDate?: string,
+  endDate?: string,
+): Promise<TrainingStatsData> => {
+  // 1. User の training_start_date を取得
+  const userPromise = supabase
+    .from("User")
+    .select("training_start_date")
+    .eq("id", userId)
+    .single();
+
+  // 2. TrainingDate: 全件取得（is_attended=true）
+  const allAttendedPromise = supabase
+    .from("TrainingDate")
+    .select("training_date")
+    .eq("user_id", userId)
+    .eq("is_attended", true)
+    .order("training_date", { ascending: true });
+
+  // 3. TrainingPage: 全件の created_at を取得
+  const allPagesPromise = supabase
+    .from("TrainingPage")
+    .select("id, created_at")
+    .eq("user_id", userId);
+
+  // 4. タグ統計: TrainingPageTag + UserTag
+  const allTagsPromise = supabase
+    .from("TrainingPageTag")
+    .select("training_page_id, user_tag_id, UserTag!inner(id, name, category)")
+    .eq("UserTag.user_id", userId);
+
+  const [userResult, attendedResult, pagesResult, tagsResult] =
+    await Promise.all([
+      userPromise,
+      allAttendedPromise,
+      allPagesPromise,
+      allTagsPromise,
+    ]);
+
+  if (userResult.error) {
+    throw new Error(
+      `ユーザー情報の取得に失敗しました: ${userResult.error.message}`,
+    );
+  }
+  if (attendedResult.error) {
+    throw new Error(
+      `稽古参加日の取得に失敗しました: ${attendedResult.error.message}`,
+    );
+  }
+  if (pagesResult.error) {
+    throw new Error(`ページの取得に失敗しました: ${pagesResult.error.message}`);
+  }
+  if (tagsResult.error) {
+    throw new Error(
+      `タグ統計の取得に失敗しました: ${tagsResult.error.message}`,
+    );
+  }
+
+  const trainingStartDate =
+    (userResult.data?.training_start_date as string | null) ?? null;
+  const allAttendedDates = (attendedResult.data ?? []).map(
+    (d) => d.training_date as string,
+  );
+  const firstTrainingDate =
+    allAttendedDates.length > 0 ? allAttendedDates[0] : null;
+  const allPages = pagesResult.data ?? [];
+  const allTagRelations = tagsResult.data ?? [];
+
+  // 期間フィルタリング
+  const inPeriod = (dateStr: string): boolean => {
+    if (!startDate && !endDate) return true;
+    if (startDate && dateStr < startDate) return false;
+    if (endDate && dateStr > endDate) return false;
+    return true;
+  };
+
+  const inPeriodTimestamp = (isoStr: string): boolean => {
+    const dateStr = isoStr.slice(0, 10);
+    return inPeriod(dateStr);
+  };
+
+  // 全期間の参加日数
+  const totalAttendedDays = allAttendedDates.length;
+
+  // 全期間のページ数
+  const totalPages = allPages.length;
+
+  // 期間内の参加日数
+  const attendedInPeriod = allAttendedDates.filter(inPeriod);
+  const attendedDaysInPeriod = attendedInPeriod.length;
+
+  // 期間内のページ数
+  const pagesInPeriod = allPages.filter((p) => inPeriodTimestamp(p.created_at));
+  const pagesInPeriodCount = pagesInPeriod.length;
+
+  // 期間内のページIDセット（タグフィルタ用）
+  const periodPageIds = new Set(pagesInPeriod.map((p) => p.id));
+
+  // タグ統計（期間内のページに限定）
+  const tagCountMap = new Map<
+    string,
+    { tag_id: string; tag_name: string; category: string; count: number }
+  >();
+
+  for (const rel of allTagRelations) {
+    if (!periodPageIds.has(rel.training_page_id)) continue;
+
+    const tag = rel.UserTag as unknown as {
+      id: string;
+      name: string;
+      category: string;
+    };
+    if (!tag) continue;
+
+    const existing = tagCountMap.get(tag.id);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      tagCountMap.set(tag.id, {
+        tag_id: tag.id,
+        tag_name: tag.name,
+        category: tag.category,
+        count: 1,
+      });
+    }
+  }
+
+  const tagStats: TagStatItem[] = Array.from(tagCountMap.values())
+    .map((t) => ({
+      tag_id: t.tag_id,
+      tag_name: t.tag_name,
+      category: t.category,
+      page_count: t.count,
+    }))
+    .sort((a, b) => b.page_count - a.page_count);
+
+  // 月別統計
+  const monthlyMap = new Map<
+    string,
+    { attended_days: number; page_count: number }
+  >();
+
+  for (const date of attendedInPeriod) {
+    const month = date.slice(0, 7); // "YYYY-MM"
+    const entry = monthlyMap.get(month) ?? { attended_days: 0, page_count: 0 };
+    entry.attended_days += 1;
+    monthlyMap.set(month, entry);
+  }
+
+  for (const page of pagesInPeriod) {
+    const month = page.created_at.slice(0, 7);
+    const entry = monthlyMap.get(month) ?? { attended_days: 0, page_count: 0 };
+    entry.page_count += 1;
+    monthlyMap.set(month, entry);
+  }
+
+  const monthlyStats: MonthlyStatItem[] = Array.from(monthlyMap.entries())
+    .map(([month, data]) => ({
+      month,
+      attended_days: data.attended_days,
+      page_count: data.page_count,
+    }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
+  return {
+    training_start_date: trainingStartDate,
+    first_training_date: firstTrainingDate,
+    total_attended_days: totalAttendedDays,
+    total_pages: totalPages,
+    attended_days_in_period: attendedDaysInPeriod,
+    pages_in_period: pagesInPeriodCount,
+    tag_stats: tagStats,
+    monthly_stats: monthlyStats,
+  };
+};
+
 // ページ添付ファイル型定義
 export interface PageAttachmentRow {
   id: string; // uuid PK

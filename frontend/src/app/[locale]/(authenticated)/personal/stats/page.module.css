@@ -1,0 +1,181 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 60px;
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.loadingText,
+.errorText,
+.noDataText {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  text-align: center;
+  padding: 40px 0;
+  margin: 0;
+}
+
+.errorText {
+  color: var(--error-color);
+}
+
+/* サマリーカード群 */
+.summaryCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px 8px;
+}
+
+.summaryLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1;
+  text-align: center;
+}
+
+.summaryValue {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  color: var(--black);
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* 期間選択 */
+.periodSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.periodLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+.periodButtons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.periodButton {
+  font-family: var(--font-inter);
+  font-size: var(--font-size-xs);
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.periodButton:hover {
+  border-color: var(--primary-color);
+}
+
+.periodButtonActive {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+.customDateRange {
+  margin-top: 4px;
+}
+
+/* チャートカード */
+.chartCard {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chartTitle {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-md);
+  font-weight: 400;
+  color: var(--black);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.chartToggle {
+  display: flex;
+  gap: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.toggleButton {
+  font-family: var(--font-inter);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  background: var(--white);
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.toggleButton:hover {
+  color: var(--black);
+}
+
+.toggleButtonActive {
+  background: var(--black);
+  color: var(--white);
+}
+
+@media (max-width: 480px) {
+  .summaryCards {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .summaryCard {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px 16px;
+  }
+
+  .summaryValue {
+    font-size: var(--font-size-md);
+  }
+}

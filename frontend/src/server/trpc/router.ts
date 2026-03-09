@@ -9,6 +9,7 @@ import {
   getPagesProcedure,
   getTagsProcedure,
   getTrainingDatesMonthProcedure,
+  getTrainingStatsProcedure,
   getUserProfileProcedure,
   healthProcedure,
   honoBridgeTodoProcedure,
@@ -30,6 +31,9 @@ export const appRouter = createTRPCRouter({
     create: createPageProcedure,
     update: updatePageProcedure,
     remove: deletePageProcedure,
+  }),
+  stats: createTRPCRouter({
+    get: getTrainingStatsProcedure,
   }),
   trainingDates: createTRPCRouter({
     getMonth: getTrainingDatesMonthProcedure,

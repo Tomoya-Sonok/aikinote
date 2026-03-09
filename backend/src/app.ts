@@ -7,6 +7,7 @@ import {
   supabase as supabaseFromModule,
 } from "./lib/supabase.js";
 import pagesRoute from "./routes/pages/index.js";
+import statsRoute from "./routes/stats/index.js";
 import tagsRoute from "./routes/tags/index.js";
 import trainingDatesRoute from "./routes/training-dates/index.js";
 import usersRoute from "./routes/users/index.js";
@@ -182,6 +183,7 @@ app.get("/health", (c) => {
 
 // APIルートを追加
 app.route("/api/pages", pagesRoute);
+app.route("/api/stats", statsRoute);
 app.route("/api/tags", tagsRoute);
 app.route("/api/training-dates", trainingDatesRoute);
 app.route("/api/users", usersRoute);

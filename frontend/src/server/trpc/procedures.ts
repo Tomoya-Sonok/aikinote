@@ -72,6 +72,30 @@ type UserProfile = {
   training_start_date: string | null;
 };
 
+type TagStatItem = {
+  tag_id: string;
+  tag_name: string;
+  category: string;
+  page_count: number;
+};
+
+type MonthlyStatItem = {
+  month: string;
+  attended_days: number;
+  page_count: number;
+};
+
+type TrainingStatsData = {
+  training_start_date: string | null;
+  first_training_date: string | null;
+  total_attended_days: number;
+  total_pages: number;
+  attended_days_in_period: number;
+  pages_in_period: number;
+  tag_stats: TagStatItem[];
+  monthly_stats: MonthlyStatItem[];
+};
+
 type CreatePageInput = {
   title: string;
   tori: string[];
@@ -438,6 +462,24 @@ export const createUserProcedure = publicProcedure
       method: "POST",
       body: JSON.stringify(input),
     });
+  });
+
+export const getTrainingStatsProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      startDate: z.string().optional(),
+      endDate: z.string().optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const query = new URLSearchParams({ user_id: input.userId });
+    if (input.startDate) query.set("start_date", input.startDate);
+    if (input.endDate) query.set("end_date", input.endDate);
+
+    return callHonoApi<ApiResponse<TrainingStatsData>>(
+      `/api/stats?${query.toString()}`,
+    );
   });
 
 export const initializeUserTagsProcedure = publicProcedure
