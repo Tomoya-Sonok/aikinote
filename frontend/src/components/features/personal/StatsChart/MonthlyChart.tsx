@@ -42,10 +42,13 @@ export const MonthlyChart: FC<MonthlyChartProps> = ({ monthlyStats }) => {
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
           <XAxis
             dataKey="month"
-            tick={{ fontSize: 11 }}
+            tick={{ fontSize: 11, fill: "var(--black)" }}
             interval="preserveStartEnd"
           />
-          <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+          <YAxis
+            tick={{ fontSize: 12, fill: "var(--black)" }}
+            allowDecimals={false}
+          />
           <Tooltip />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <Bar dataKey={t("pagesCount")} fill="#595857" radius={[4, 4, 0, 0]} />

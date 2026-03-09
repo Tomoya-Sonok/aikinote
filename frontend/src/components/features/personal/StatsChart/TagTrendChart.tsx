@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { type FC, useMemo } from "react";
+import type { PieLabelRenderProps } from "recharts";
 import {
   Bar,
   BarChart,
@@ -18,6 +19,26 @@ import type { TagStatItem } from "@/lib/hooks/useTrainingStats";
 import styles from "./StatsChart.module.css";
 
 const MAX_TAGS = 5;
+const PIE_LABEL_MAX_LEN = 6;
+
+function renderPieLabel(props: PieLabelRenderProps) {
+  const { x, y, name, percent, textAnchor } = props;
+  const n = String(name ?? "");
+  const displayName =
+    n.length > PIE_LABEL_MAX_LEN ? `${n.slice(0, PIE_LABEL_MAX_LEN)}…` : n;
+  return (
+    <text
+      x={Number(x)}
+      y={Number(y)}
+      textAnchor={textAnchor}
+      dominantBaseline="central"
+      fontSize={11}
+      fill="var(--black)"
+    >
+      {`${displayName} ${((Number(percent) || 0) * 100).toFixed(0)}%`}
+    </text>
+  );
+}
 
 const CATEGORY_COLORS: Record<string, string> = {
   取り: "#3B4B59",
@@ -58,7 +79,7 @@ function prepareChartData(
     .filter((t) => t.category === category)
     .sort((a, b) => b.page_count - a.page_count);
 
-  const shades = TAG_SHADES[category] ?? TAG_SHADES["取り"];
+  const shades = TAG_SHADES[category] ?? TAG_SHADES.取り;
   const top = filtered.slice(0, MAX_TAGS);
   const rest = filtered.slice(MAX_TAGS);
 
@@ -130,14 +151,14 @@ export const TagTrendChart: FC<TagTrendChartProps> = ({
                     />
                     <XAxis
                       type="number"
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 12, fill: "var(--black)" }}
                       allowDecimals={false}
                     />
                     <YAxis
                       type="category"
                       dataKey="name"
                       width={80}
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 12, fill: "var(--black)" }}
                     />
                     <Tooltip />
                     <Bar dataKey="value" radius={[0, 4, 4, 0]}>
@@ -156,10 +177,8 @@ export const TagTrendChart: FC<TagTrendChartProps> = ({
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      outerRadius={80}
-                      label={({ name, percent }) =>
-                        `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
-                      }
+                      outerRadius={70}
+                      label={renderPieLabel}
                       labelLine={false}
                     >
                       {data.map((entry) => (

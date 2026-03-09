@@ -45,7 +45,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadingFileName, setUploadingFileName] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [youtubePreview, setYoutubePreview] = useState<YouTubeOgpData | null>(
+  const [_youtubePreview, setYoutubePreview] = useState<YouTubeOgpData | null>(
     null,
   );
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);

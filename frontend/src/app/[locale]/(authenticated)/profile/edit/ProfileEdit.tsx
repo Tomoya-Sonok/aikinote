@@ -2,7 +2,6 @@
 
 import {
   ImagesSquareIcon,
-  PencilSimpleIcon,
   TrashIcon as PhosphorTrashIcon,
   UserIcon,
 } from "@phosphor-icons/react";

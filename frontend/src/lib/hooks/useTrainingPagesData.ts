@@ -101,7 +101,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
         if (isLoadMore) {
           setAllTrainingPageData((prev) => {
             const next = [...prev, ...pagesBatch];
-            setHasMore(next.length < response.data!.total_count);
+            setHasMore(next.length < response.data?.total_count);
             return next;
           });
         } else {
