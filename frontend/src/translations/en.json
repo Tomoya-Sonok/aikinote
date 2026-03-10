@@ -396,7 +396,8 @@
     "showingPartial": "Showing {displayed} of {total} items",
     "loadMore": "Load more",
     "emptyLine1": "No pages have been created yet.",
-    "emptyLine2": "Use the create button to start recording your training!"
+    "emptyLine2": "Use the create button to start recording your training!",
+    "filteredEmptyMessage": "No pages match the filter criteria"
   },
   "personalStats": {
     "title": "Statistics",

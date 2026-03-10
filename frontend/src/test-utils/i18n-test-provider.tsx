@@ -84,6 +84,7 @@ const testMessages = {
     loadMore: "もっと見る",
     emptyLine1: "まだページが作成されていません。",
     emptyLine2: "ページ作成ボタンで稽古記録を開始しましょう！",
+    filteredEmptyMessage: "絞り込み条件に一致するページはありません",
   },
   personalCalendar: {
     title: "カレンダー",

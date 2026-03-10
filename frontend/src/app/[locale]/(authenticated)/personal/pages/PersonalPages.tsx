@@ -65,6 +65,7 @@ export function PersonalPages() {
     loading,
     allTrainingPageData,
     totalCount,
+    unfilteredTotalCount,
     hasMore,
     loadMore,
     addPage,
@@ -79,6 +80,12 @@ export function PersonalPages() {
   });
 
   const displayedTrainingPageData = allTrainingPageData;
+  const hasFiltersApplied = !!(
+    debouncedSearchQuery ||
+    selectedTags.length > 0 ||
+    selectedDateRange.startDate ||
+    selectedDateRange.endDate
+  );
   const {
     isPageCreateModalOpen,
     setPageCreateModalOpen,
@@ -246,14 +253,21 @@ export function PersonalPages() {
         <div className={styles.pageListDescription}>
           <div className={styles.pageListHeader}>
             <p className={styles.pageCount} data-testid="page-count">
-              {totalCount === displayedTrainingPageData.length
-                ? t("personalPages.showingAll", {
-                    total: totalCount,
+              {hasFiltersApplied &&
+              displayedTrainingPageData.length === 0 &&
+              unfilteredTotalCount
+                ? t("personalPages.showingPartial", {
+                    total: unfilteredTotalCount,
+                    displayed: 0,
                   })
-                : t("personalPages.showingPartial", {
-                    total: totalCount,
-                    displayed: displayedTrainingPageData.length,
-                  })}
+                : totalCount === displayedTrainingPageData.length
+                  ? t("personalPages.showingAll", {
+                      total: totalCount,
+                    })
+                  : t("personalPages.showingPartial", {
+                      total: totalCount,
+                      displayed: displayedTrainingPageData.length,
+                    })}
             </p>
             <div className={styles.sortDropdownContainer} ref={sortDropdownRef}>
               <button
@@ -316,11 +330,17 @@ export function PersonalPages() {
         </div>
         <div className={styles.trainingList}>
           {displayedTrainingPageData.length === 0 ? (
-            <p className={styles.emptyMessage}>
-              {t("personalPages.emptyLine1")}
-              <br />
-              {t("personalPages.emptyLine2")}
-            </p>
+            hasFiltersApplied ? (
+              <p className={styles.emptyMessage}>
+                {t("personalPages.filteredEmptyMessage")}
+              </p>
+            ) : (
+              <p className={styles.emptyMessage}>
+                {t("personalPages.emptyLine1")}
+                <br />
+                {t("personalPages.emptyLine2")}
+              </p>
+            )
           ) : (
             displayedTrainingPageData.map((training) => (
               <TrainingCard
