@@ -4,7 +4,6 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/features/personal/MyPageContent/MyPageContent";
-import { Loader } from "@/components/shared/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import { getUserProfile } from "@/lib/api/client";
 
@@ -44,11 +43,5 @@ export default function MyPage({ initialUser }: MyPageProps) {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  if (loading) {
-    return (
-      <Loader size="medium" centered text={t("mypageContent.loadingProfile")} />
-    );
-  }
-
-  return <MyPageContent user={user} />;
+  return <MyPageContent user={user} loading={loading} />;
 }

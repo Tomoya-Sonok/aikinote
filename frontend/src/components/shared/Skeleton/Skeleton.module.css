@@ -1,0 +1,38 @@
+.skeleton {
+  display: inline-block;
+  background-color: var(--skeleton-base);
+  animation: skeleton-pulse 1.8s ease-in-out infinite;
+}
+
+.rect {
+  border-radius: 4px;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.text {
+  border-radius: 4px;
+  height: 1em;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

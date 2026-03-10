@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
+import { Skeleton } from "@/components/shared/Skeleton";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
 import styles from "./page.module.css";
 
@@ -115,15 +116,7 @@ export function PersonalStats() {
     return t("durationDays", { days: duration.totalDays });
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <p className={styles.loadingText}>{t("loading")}</p>
-      </div>
-    );
-  }
-
-  if (error) {
+  if (!loading && error) {
     return (
       <div className={styles.container}>
         <p className={styles.errorText}>{t("dataFetchFailed")}</p>
@@ -131,7 +124,7 @@ export function PersonalStats() {
     );
   }
 
-  if (!data) {
+  if (!loading && !data) {
     return (
       <div className={styles.container}>
         <p className={styles.noDataText}>{t("noData")}</p>
@@ -148,8 +141,11 @@ export function PersonalStats() {
   ];
 
   const attendedDays =
-    period === "all" ? data.total_attended_days : data.attended_days_in_period;
-  const pagesCount = period === "all" ? data.total_pages : data.pages_in_period;
+    period === "all"
+      ? data?.total_attended_days
+      : data?.attended_days_in_period;
+  const pagesCount =
+    period === "all" ? data?.total_pages : data?.pages_in_period;
 
   return (
     <div className={styles.container}>
@@ -185,18 +181,32 @@ export function PersonalStats() {
       <div className={styles.summaryCards}>
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>{t("trainingDuration")}</span>
-          <span className={styles.summaryValue}>{formatDuration()}</span>
+          <span className={styles.summaryValue}>
+            {loading ? (
+              <Skeleton variant="text" width="64px" height="20px" />
+            ) : (
+              formatDuration()
+            )}
+          </span>
         </div>
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>{t("attendedDays")}</span>
           <span className={styles.summaryValue}>
-            {t("attendedDaysCount", { count: attendedDays })}
+            {loading ? (
+              <Skeleton variant="text" width="48px" height="20px" />
+            ) : (
+              t("attendedDaysCount", { count: attendedDays ?? 0 })
+            )}
           </span>
         </div>
         <div className={styles.summaryCard}>
           <span className={styles.summaryLabel}>{t("totalPages")}</span>
           <span className={styles.summaryValue}>
-            {t("totalPagesCount", { count: pagesCount })}
+            {loading ? (
+              <Skeleton variant="text" width="48px" height="20px" />
+            ) : (
+              t("totalPagesCount", { count: pagesCount ?? 0 })
+            )}
           </span>
         </div>
       </div>
@@ -204,7 +214,16 @@ export function PersonalStats() {
       {/* 月別推移チャート */}
       <div className={styles.chartCard}>
         <h3 className={styles.chartTitle}>{t("monthlyTrend")}</h3>
-        <MonthlyChart monthlyStats={data.monthly_stats} />
+        {loading ? (
+          <Skeleton
+            variant="rect"
+            width="100%"
+            height="280px"
+            borderRadius="8px"
+          />
+        ) : (
+          <MonthlyChart monthlyStats={data?.monthly_stats ?? []} />
+        )}
       </div>
 
       {/* タグ傾向チャート */}
@@ -228,8 +247,18 @@ export function PersonalStats() {
             </button>
           </div>
         </div>
-        {data.tag_stats.length > 0 ? (
-          <TagTrendChart tagStats={data.tag_stats} chartType={chartType} />
+        {loading ? (
+          <Skeleton
+            variant="rect"
+            width="100%"
+            height="200px"
+            borderRadius="8px"
+          />
+        ) : (data?.tag_stats ?? []).length > 0 ? (
+          <TagTrendChart
+            tagStats={data?.tag_stats ?? []}
+            chartType={chartType}
+          />
         ) : (
           <p className={styles.noDataText}>{t("noData")}</p>
         )}

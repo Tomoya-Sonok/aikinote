@@ -94,6 +94,12 @@
   word-break: break-word;
 }
 
+.skeletonContent {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
 .attachmentsList {
   display: flex;
   flex-direction: column;

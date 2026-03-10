@@ -162,7 +162,8 @@ describe("ページ詳細画面", () => {
       });
 
       // Assert
-      expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+      expect(screen.getByText("内容")).toBeInTheDocument();
+      expect(screen.getByText("ページ一覧へ")).toBeInTheDocument();
     });
 
     it("ページが見つからない場合にエラーメッセージが表示されること", async () => {

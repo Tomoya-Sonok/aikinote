@@ -74,6 +74,15 @@ vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
 }));
 
 vi.mock(
+  "@/components/features/personal/TrainingCard/TrainingCardSkeleton",
+  () => ({
+    TrainingCardSkeleton: () => (
+      <div data-testid="training-card-skeleton">TrainingCardSkeleton</div>
+    ),
+  }),
+);
+
+vi.mock(
   "@/components/shared/FloatingActionButton/FloatingActionButton",
   () => ({
     FloatingActionButton: ({ onClick }: { onClick: () => void }) => (
@@ -316,7 +325,7 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+    expect(screen.getByTestId("training-card-skeleton")).toBeInTheDocument();
   });
 
   it("ユーザー情報取得中でもクラッシュせず描画できること", async () => {
@@ -347,8 +356,7 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    // Assert
-    expect(screen.getByText("読み込み中...")).toBeInTheDocument();
+    expect(screen.getByTestId("training-card-skeleton")).toBeInTheDocument();
   });
 
   it("ページが存在しない場合に空の状態が表示されること", async () => {

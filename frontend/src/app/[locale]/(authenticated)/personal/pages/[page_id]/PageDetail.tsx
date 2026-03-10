@@ -9,7 +9,7 @@ import {
   PageEditModal,
 } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
-import { Loader } from "@/components/shared/Loader";
+import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag } from "@/components/shared/Tag/Tag";
 import {
   deletePage,
@@ -132,7 +132,67 @@ export function PageDetail() {
     return (
       <div className={styles.container}>
         <div className={styles.contentArea}>
-          <Loader size="large" centered text={t("pageDetail.loading")} />
+          {/* ヘッダー部分 */}
+          <div className={styles.header}>
+            <Skeleton variant="text" width="80%" height="24px" />
+            <Skeleton variant="text" width="50%" height="24px" />
+            <div className={styles.tagsContainer}>
+              <Skeleton
+                variant="rect"
+                width="48px"
+                height="24px"
+                borderRadius="9999px"
+              />
+              <Skeleton
+                variant="rect"
+                width="56px"
+                height="24px"
+                borderRadius="9999px"
+              />
+              <Skeleton
+                variant="rect"
+                width="52px"
+                height="24px"
+                borderRadius="9999px"
+              />
+              <Skeleton
+                variant="rect"
+                width="60px"
+                height="24px"
+                borderRadius="9999px"
+              />
+            </div>
+          </div>
+
+          {/* 内容セクション */}
+          <div className={styles.section}>
+            <h2 className={styles.sectionTitle}>{t("pageDetail.content")}</h2>
+            <div className={styles.divider} />
+            <div className={styles.skeletonContent}>
+              <Skeleton variant="text" width="100%" height="14px" />
+              <Skeleton variant="text" width="100%" height="14px" />
+              <Skeleton variant="text" width="90%" height="14px" />
+              <Skeleton variant="text" width="95%" height="14px" />
+              <Skeleton variant="text" width="60%" height="14px" />
+            </div>
+          </div>
+
+          {/* アクションボタン */}
+          <div className={styles.buttonsContainer}>
+            <button
+              type="button"
+              className={styles.backButton}
+              onClick={handleBackToList}
+            >
+              {t("pageDetail.backToList")}
+            </button>
+            <button type="button" className={styles.editButton} disabled>
+              {t("pageDetail.edit")}
+            </button>
+            <button type="button" className={styles.deleteButton} disabled>
+              {t("pageDetail.delete")}
+            </button>
+          </div>
         </div>
       </div>
     );
