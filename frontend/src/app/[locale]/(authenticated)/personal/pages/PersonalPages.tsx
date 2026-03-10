@@ -24,9 +24,10 @@ import {
 } from "@/components/features/personal/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
 import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
+import { TrainingCardSkeleton } from "@/components/features/personal/TrainingCard/TrainingCardSkeleton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
-import { Loader } from "@/components/shared/Loader";
+import { Skeleton } from "@/components/shared/Skeleton";
 import { useToast } from "@/contexts/ToastContext";
 import { type UpdatePagePayload } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -189,14 +190,6 @@ export function PersonalPages() {
     [router, locale],
   );
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <Loader size="large" centered text={t("personalPages.loading")} />
-      </div>
-    );
-  }
-
   const SortIcon =
     sortOrder === "newest" ? SortDescendingIcon : SortAscendingIcon;
   const CaretIcon = isSortDropdownOpen ? CaretUpIcon : CaretDownIcon;
@@ -253,21 +246,25 @@ export function PersonalPages() {
         <div className={styles.pageListDescription}>
           <div className={styles.pageListHeader}>
             <p className={styles.pageCount} data-testid="page-count">
-              {hasFiltersApplied &&
-              displayedTrainingPageData.length === 0 &&
-              unfilteredTotalCount
-                ? t("personalPages.showingPartial", {
-                    total: unfilteredTotalCount,
-                    displayed: 0,
-                  })
-                : totalCount === displayedTrainingPageData.length
-                  ? t("personalPages.showingAll", {
-                      total: totalCount,
-                    })
-                  : t("personalPages.showingPartial", {
-                      total: totalCount,
-                      displayed: displayedTrainingPageData.length,
-                    })}
+              {loading ? (
+                <Skeleton variant="text" width="100px" height="14px" />
+              ) : hasFiltersApplied &&
+                displayedTrainingPageData.length === 0 &&
+                unfilteredTotalCount ? (
+                t("personalPages.showingPartial", {
+                  total: unfilteredTotalCount,
+                  displayed: 0,
+                })
+              ) : totalCount === displayedTrainingPageData.length ? (
+                t("personalPages.showingAll", {
+                  total: totalCount,
+                })
+              ) : (
+                t("personalPages.showingPartial", {
+                  total: totalCount,
+                  displayed: displayedTrainingPageData.length,
+                })
+              )}
             </p>
             <div className={styles.sortDropdownContainer} ref={sortDropdownRef}>
               <button
@@ -329,7 +326,9 @@ export function PersonalPages() {
           </div>
         </div>
         <div className={styles.trainingList}>
-          {displayedTrainingPageData.length === 0 ? (
+          {loading ? (
+            <TrainingCardSkeleton count={3} />
+          ) : displayedTrainingPageData.length === 0 ? (
             hasFiltersApplied ? (
               <p className={styles.emptyMessage}>
                 {t("personalPages.filteredEmptyMessage")}

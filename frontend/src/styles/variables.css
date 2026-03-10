@@ -20,6 +20,10 @@
   --hover-gray: #f0ece7;
   --overlay-scrim: rgba(44, 44, 44, 0.35);
 
+  /* スケルトンUI */
+  --skeleton-base: #ebe7e2;
+  --skeleton-highlight: #f5f3ef;
+
   /* ── フォント変数 ── */
   --font-zen-old-mincho:
     "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;

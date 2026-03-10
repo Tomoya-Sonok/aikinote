@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { ProfileCard } from "@/components/features/profile/ProfileCard/ProfileCard";
+import { ProfileCardSkeleton } from "@/components/features/profile/ProfileCard/ProfileCardSkeleton";
 import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { SettingsMenu } from "@/components/features/setting/SettingsMenu/SettingsMenu";
 import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
@@ -25,11 +26,13 @@ export interface UserProfile {
 
 interface MyPageContentProps {
   user: UserProfile;
+  loading?: boolean;
   className?: string;
 }
 
 export const MyPageContent: FC<MyPageContentProps> = ({
   user,
+  loading = false,
   className = "",
 }) => {
   const t = useTranslations();
@@ -58,15 +61,21 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   return (
     <div className={`${styles.content} ${className}`}>
       <MenuSection title={t("mypageContent.profileSection")}>
-        <ProfileCard
-          username={user.username}
-          dojoStyleName={user.dojo_style_name || t("mypageContent.notEntered")}
-          trainingStartDate={
-            user.training_start_date || t("mypageContent.notEntered")
-          }
-          profileImageUrl={user.profile_image_url}
-          onEditClick={handleEditProfile}
-        />
+        {loading ? (
+          <ProfileCardSkeleton />
+        ) : (
+          <ProfileCard
+            username={user.username}
+            dojoStyleName={
+              user.dojo_style_name || t("mypageContent.notEntered")
+            }
+            trainingStartDate={
+              user.training_start_date || t("mypageContent.notEntered")
+            }
+            profileImageUrl={user.profile_image_url}
+            onEditClick={handleEditProfile}
+          />
+        )}
       </MenuSection>
 
       <MenuSection title={t("mypageContent.settingsSection")}>
