@@ -148,8 +148,7 @@
       "instagram": "Instagram",
       "facebook": "Facebook",
       "backToTop": "Back to top"
-    },
-    "floatingCta": "Start for free"
+    }
   },
   "language": {
     "title": "Language",
@@ -395,7 +394,10 @@
     "openCalendar": "Open calendar view",
     "showingAll": "Showing all {total} items",
     "showingPartial": "Showing {displayed} of {total} items",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "emptyLine1": "No pages have been created yet.",
+    "emptyLine2": "Use the create button to start recording your training!",
+    "filteredEmptyMessage": "No pages match the filter criteria"
   },
   "personalStats": {
     "title": "Statistics",

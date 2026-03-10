@@ -300,9 +300,14 @@
   transition: all 0.4s ease-out;
 }
 
-.googleButton:hover {
+.googleButton:hover:not(:disabled) {
   background-color: var(--hover-gray);
   border-color: var(--primary-color);
+}
+
+.googleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .googleIcon {

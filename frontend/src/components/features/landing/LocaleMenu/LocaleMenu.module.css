@@ -1,0 +1,89 @@
+.localeMenu {
+  position: relative;
+}
+
+.localeSummary {
+  align-items: center;
+  background: var(--white, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 999px;
+  color: var(--black, #1f2937);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.localeSummaryOpen {
+  border-color: var(--black, #000000);
+  background: var(--hover-gray, #eef0f4);
+}
+
+.localeSummaryText {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.localeChevron {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--text-light, #6b7280);
+  display: inline-block;
+  height: 0;
+  width: 0;
+  transition: transform 0.2s ease;
+}
+
+.localeChevronOpen {
+  transform: rotate(180deg);
+}
+
+.localePanel {
+  background: var(--white, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.localeOption {
+  border-radius: 10px;
+  color: var(--black, #1f2937);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  gap: 8px;
+  padding: 10px 12px;
+  text-decoration: none;
+}
+
+.localeOptionActive {
+  background: var(--hover-gray, #eef0f4);
+}
+
+@media (hover: hover) {
+  .localeOption:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.localeSummary:focus-visible,
+.localeOption:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}

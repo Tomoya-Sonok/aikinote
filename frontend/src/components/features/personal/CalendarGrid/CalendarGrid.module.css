@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .weekHeader {

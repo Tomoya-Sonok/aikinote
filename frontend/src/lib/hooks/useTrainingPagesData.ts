@@ -34,6 +34,9 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
     TrainingPageData[]
   >([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [unfilteredTotalCount, setUnfilteredTotalCount] = useState<
+    number | null
+  >(null);
   const [hasMore, setHasMore] = useState(false);
   const optimisticIdCounter = useRef(0);
   const lastOptionsRef = useRef<string>("");
@@ -60,6 +63,13 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
         setDataLoading(true);
         lastOptionsRef.current = currentOptionsStr;
       }
+
+      const hasFilters = !!(
+        options.query ||
+        (options.tags?.length ?? 0) > 0 ||
+        options.startDate ||
+        options.endDate
+      );
 
       try {
         const limit = 25;
@@ -110,6 +120,9 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
         }
 
         setTotalCount(response.data.total_count);
+        if (!hasFilters) {
+          setUnfilteredTotalCount(response.data.total_count);
+        }
       } catch (err) {
         console.error("Failed to fetch training page data:", err);
         if (!isLoadMore) {
@@ -222,6 +235,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
               page.id === optimisticId ? confirmedPage : page,
             ),
           );
+          setUnfilteredTotalCount((prev) => (prev !== null ? prev + 1 : 1));
           return true;
         }
 
@@ -352,6 +366,9 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
         const response = await deletePage(pageId, user.id);
 
         if (response.success) {
+          setUnfilteredTotalCount((prev) =>
+            prev !== null ? Math.max(0, prev - 1) : null,
+          );
           return true;
         }
 
@@ -385,6 +402,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
     loading: authLoading || dataLoading,
     allTrainingPageData,
     totalCount,
+    unfilteredTotalCount,
     hasMore,
     loadMore,
     addPage,

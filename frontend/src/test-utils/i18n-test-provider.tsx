@@ -82,6 +82,9 @@ const testMessages = {
     showingAll: "全{total}件表示中",
     showingPartial: "全{total}件中{displayed}件表示中",
     loadMore: "もっと見る",
+    emptyLine1: "まだページが作成されていません。",
+    emptyLine2: "ページ作成ボタンで稽古記録を開始しましょう！",
+    filteredEmptyMessage: "絞り込み条件に一致するページはありません",
   },
   personalCalendar: {
     title: "カレンダー",
@@ -96,6 +99,8 @@ const testMessages = {
     unmarkAttendance: "稽古参加を取り消し",
     createPage: "ページ作成",
     cancel: "キャンセル",
+    legend: "◯：稽古参加　・：ページ作成数",
+    futureDateError: "未来の日付では操作できません",
   },
   pageDetail: {
     loading: "読み込み中...",
