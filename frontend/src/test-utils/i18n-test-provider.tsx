@@ -98,6 +98,8 @@ const testMessages = {
     unmarkAttendance: "稽古参加を取り消し",
     createPage: "ページ作成",
     cancel: "キャンセル",
+    legend: "◯：稽古参加　・：ページ作成数",
+    futureDateError: "未来の日付では操作できません",
   },
   pageDetail: {
     loading: "読み込み中...",

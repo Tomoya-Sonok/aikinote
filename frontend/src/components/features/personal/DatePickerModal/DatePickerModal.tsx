@@ -321,6 +321,7 @@ export const DatePickerModal: FC<DatePickerModalProps> = ({
                 selected: styles.selected,
                 rangeDay: styles.rangeDay,
               }}
+              onMonthChange={navigateMonth}
             />
           </div>
         </div>

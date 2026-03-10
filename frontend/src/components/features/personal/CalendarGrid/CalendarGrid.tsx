@@ -1,4 +1,13 @@
-import { useMemo } from "react";
+"use client";
+
+import {
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styles from "./CalendarGrid.module.css";
 
 type CalendarDay = {
@@ -29,7 +38,11 @@ interface CalendarGridProps {
   highlightRange?: boolean;
   classNames?: CalendarGridClassNames;
   getDateStatus?: (date: Date) => CalendarDayStatus | undefined;
+  onMonthChange?: (direction: "prev" | "next") => void;
 }
+
+const SWIPE_DEAD_ZONE = 5;
+const SWIPE_THRESHOLD_RATIO = 0.2;
 
 const isSameDate = (a: Date, b: Date) => {
   return (
@@ -87,12 +100,126 @@ export function CalendarGrid({
   highlightRange = false,
   classNames,
   getDateStatus,
+  onMonthChange,
 }: CalendarGridProps) {
   const today = useMemo(() => new Date(), []);
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pointerIdRef = useRef<number | null>(null);
+  const startXRef = useRef(0);
+  const startYRef = useRef(0);
+  const widthRef = useRef(1);
+  const dragOffsetRef = useRef(0);
+  const isHorizontalRef = useRef<boolean | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isSettling, setIsSettling] = useState(false);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentMonth is a dependency
+  useEffect(() => {
+    setIsSettling(false);
+  }, [currentMonth]);
+
+  const settle = useCallback(() => {
+    const threshold = widthRef.current * SWIPE_THRESHOLD_RATIO;
+    const delta = dragOffsetRef.current;
+
+    if (delta < -threshold) {
+      setIsSettling(true);
+      onMonthChange?.("next");
+    } else if (delta > threshold) {
+      setIsSettling(true);
+      onMonthChange?.("prev");
+    }
+
+    dragOffsetRef.current = 0;
+    pointerIdRef.current = null;
+    isHorizontalRef.current = null;
+    setDragOffset(0);
+  }, [onMonthChange]);
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!onMonthChange) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+
+      pointerIdRef.current = event.pointerId;
+      startXRef.current = event.clientX;
+      startYRef.current = event.clientY;
+      widthRef.current = containerRef.current?.offsetWidth ?? 1;
+      dragOffsetRef.current = 0;
+      isHorizontalRef.current = null;
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+    },
+    [onMonthChange],
+  );
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (pointerIdRef.current !== event.pointerId) return;
+
+      const deltaX = event.clientX - startXRef.current;
+      const deltaY = event.clientY - startYRef.current;
+
+      if (isHorizontalRef.current === null) {
+        if (
+          Math.abs(deltaX) < SWIPE_DEAD_ZONE &&
+          Math.abs(deltaY) < SWIPE_DEAD_ZONE
+        )
+          return;
+        isHorizontalRef.current = Math.abs(deltaX) > Math.abs(deltaY);
+        if (!isHorizontalRef.current) {
+          pointerIdRef.current = null;
+          return;
+        }
+      }
+
+      if (!isHorizontalRef.current) return;
+
+      dragOffsetRef.current = deltaX;
+      setDragOffset(deltaX);
+    },
+    [],
+  );
+
+  const handlePointerUp = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (pointerIdRef.current !== event.pointerId) return;
+      settle();
+    },
+    [settle],
+  );
+
+  const handlePointerCancel = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (pointerIdRef.current !== event.pointerId) return;
+      dragOffsetRef.current = 0;
+      pointerIdRef.current = null;
+      isHorizontalRef.current = null;
+      setDragOffset(0);
+    },
+    [],
+  );
+
+  const isDragging = dragOffset !== 0;
+  const gridStyle = isSettling
+    ? { opacity: 0 as const, transition: "none" as const }
+    : isDragging
+      ? {
+          transform: `translateX(${dragOffset}px)`,
+          transition: "none" as const,
+        }
+      : { transition: "transform 0.15s ease-out" };
+
   return (
-    <div className={styles.calendar}>
+    <div
+      ref={containerRef}
+      className={styles.calendar}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+    >
       <div className={styles.weekHeader}>
         {dayNames.map((day) => (
           <div key={day} className={styles.weekDay}>
@@ -100,7 +227,7 @@ export function CalendarGrid({
           </div>
         ))}
       </div>
-      <div className={styles.daysGrid}>
+      <div className={styles.daysGrid} style={gridStyle}>
         {days.map(({ date, isCurrentMonth }) => {
           const status = getDateStatus?.(date);
           const isToday = isCurrentMonth && isSameDate(today, date);

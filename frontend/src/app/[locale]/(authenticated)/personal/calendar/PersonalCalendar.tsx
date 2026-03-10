@@ -455,6 +455,7 @@ export function PersonalCalendar() {
             onDateClick={handleDateClick}
             highlightSelectedDate={false}
             getDateStatus={(date) => dayStatusMap[formatDateKey(date)]}
+            onMonthChange={navigateMonth}
           />
         )}
       </div>
