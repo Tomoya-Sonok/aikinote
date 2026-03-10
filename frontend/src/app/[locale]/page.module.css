@@ -31,10 +31,16 @@
   width: 128px;
 }
 
-.logoImage {
+.logoImageMobile {
+  width: 36px;
+  height: 36px;
+  display: block;
+}
+
+.logoImageDesktop {
   width: 100%;
   height: auto;
-  display: block;
+  display: none;
 }
 
 .logoText {
@@ -77,87 +83,11 @@
   text-decoration: none;
 }
 
-.localeMenu {
-  position: relative;
-}
-
-.localeSummary {
-  align-items: center;
-  background: var(--white, #ffffff);
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 999px;
-  color: var(--black, #1f2937);
-  cursor: pointer;
-  display: inline-flex;
-  gap: 6px;
-  min-height: 36px;
-  padding: 8px 12px;
-  list-style: none;
-}
-
-.localeSummaryText {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.localeChevron {
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid var(--text-light, #6b7280);
-  display: inline-block;
-  height: 0;
-  width: 0;
-  transition: transform 0.2s ease;
-}
-
-.localeMenu[open] .localeSummary {
-  border-color: var(--black, #000000);
-  background: var(--hover-gray, #eef0f4);
-}
-
-.localeMenu[open] .localeChevron {
-  transform: rotate(180deg);
-}
-
-.localeSummary::-webkit-details-marker {
-  display: none;
-}
-
-.localePanel {
-  background: var(--white, #ffffff);
-  border: 1px solid var(--border-color, #e5e7eb);
-  border-radius: 14px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-  padding: 8px;
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  z-index: 1;
-}
-
-.localePanel {
-  min-width: 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.localeOption {
-  border-radius: 10px;
-  color: var(--black, #1f2937);
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 600;
-  gap: 8px;
-  padding: 10px 12px;
+.loginLink {
   text-decoration: none;
-}
-
-.localeOptionActive {
-  background: var(--hover-gray, #eef0f4);
+  white-space: nowrap;
+  padding: 0 12px;
+  font-weight: 600;
 }
 
 .mainContent {
@@ -604,17 +534,16 @@
 }
 
 @media (hover: hover) {
-  .localeOption:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
+  .primaryCta:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    filter: brightness(0.85);
   }
-}
 
-@media (hover: hover) {
-  .primaryCta:hover,
   .secondaryCta:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
+    background: var(--hover-gray);
   }
 }
 
@@ -713,27 +642,6 @@
   min-height: 52px;
   padding: 14px 40px;
   text-decoration: none;
-}
-
-.floatingCta {
-  background: var(--black);
-  border-radius: 999px;
-  bottom: 24px;
-  color: var(--white);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  font-size: 17px;
-  font-weight: 700;
-  left: 50%;
-  min-height: 52px;
-  padding: 16px 48px;
-  position: fixed;
-  text-decoration: none;
-  transform: translateX(-50%);
-  width: calc(100% - 48px);
-  max-width: 360px;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.15);
 }
 
 @media (min-width: 768px) {
@@ -898,8 +806,12 @@
     display: block;
   }
 
-  .floatingCta {
+  .logoImageMobile {
     display: none;
+  }
+
+  .logoImageDesktop {
+    display: block;
   }
 }
 
@@ -916,13 +828,11 @@
 }
 
 .navLink:focus-visible,
-.localeSummary:focus-visible,
-.localeOption:focus-visible,
+.loginLink:focus-visible,
 .primaryCta:focus-visible,
 .secondaryCta:focus-visible,
 .footerLink:focus-visible,
-.footerCta:focus-visible,
-.floatingCta:focus-visible {
+.footerCta:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 4px;
 }

@@ -11,7 +11,9 @@ import { getTranslations } from "next-intl/server";
 import { Fragment, type ReactNode } from "react";
 import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
+import { LocaleMenu } from "@/components/features/landing/LocaleMenu/LocaleMenu";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
+import buttonStyles from "@/components/shared/Button/Button.module.css";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
@@ -140,12 +142,21 @@ export default async function RootPage({ params }: RootPageProps) {
             aria-label={navigation.logoLabel}
           >
             <Image
+              src="/images/aikinote_logo.png"
+              alt="AikiNote logo"
+              width={270}
+              height={270}
+              sizes="36px"
+              className={styles.logoImageMobile}
+              priority
+            />
+            <Image
               src="/images/aikinote_logo_horizontal.png"
               alt="AikiNote logo"
               width={814}
               height={270}
               sizes="(min-width: 768px) 160px, 140px"
-              className={styles.logoImage}
+              className={styles.logoImageDesktop}
               priority
             />
           </Link>
@@ -162,28 +173,13 @@ export default async function RootPage({ params }: RootPageProps) {
               </ul>
             </nav>
             <div className={styles.headerUtilities}>
-              <details className={styles.localeMenu}>
-                <summary className={styles.localeSummary}>
-                  <span className={styles.localeSummaryText}>
-                    {localeSummary}
-                  </span>
-                  <span className={styles.localeChevron} aria-hidden="true" />
-                </summary>
-                <div className={styles.localePanel}>
-                  {localeOptions.map((option) => (
-                    <Link
-                      key={option.href}
-                      href={option.href}
-                      className={`${styles.localeOption} ${
-                        option.isActive ? styles.localeOptionActive : ""
-                      }`}
-                      aria-current={option.isActive ? "page" : undefined}
-                    >
-                      {option.label}
-                    </Link>
-                  ))}
-                </div>
-              </details>
+              <LocaleMenu summary={localeSummary} options={localeOptions} />
+              <Link
+                href={`${localePrefix}/login`}
+                className={`${buttonStyles.button} ${buttonStyles.secondary} ${buttonStyles.medium} ${styles.loginLink}`}
+              >
+                {t("cta.login")}
+              </Link>
               <LandingMenuDrawer
                 links={navigation.links}
                 menuLabel={menuLabel}
@@ -505,7 +501,7 @@ export default async function RootPage({ params }: RootPageProps) {
             </li>
             <li>
               <a
-                href="https://www.instagram.com/"
+                href="https://www.instagram.com/aikinote_official/"
                 className={styles.footerLink}
                 target="_blank"
                 rel="noreferrer"
@@ -515,7 +511,7 @@ export default async function RootPage({ params }: RootPageProps) {
             </li>
             <li>
               <a
-                href="https://www.facebook.com/"
+                href="https://www.facebook.com/profile.php?id=61585911578938"
                 className={styles.footerLink}
                 target="_blank"
                 rel="noreferrer"
@@ -527,10 +523,6 @@ export default async function RootPage({ params }: RootPageProps) {
           <BackToTopButton label={t("footer.backToTop")} />
         </div>
       </footer>
-
-      <Link href={signupHref} className={styles.floatingCta}>
-        {t("floatingCta")}
-      </Link>
     </div>
   );
 }
