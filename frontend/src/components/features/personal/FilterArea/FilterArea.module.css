@@ -100,7 +100,7 @@
 
 .filterLabel {
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--black);
   min-width: 40px;
@@ -109,7 +109,7 @@
 
 .filterValue {
   font-family: var(--font-zen-old-mincho);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 400;
   color: var(--black);
   flex: 1;
@@ -121,7 +121,7 @@
 
 .arrow {
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--black);
   margin-left: auto;
@@ -148,7 +148,7 @@
 
 .dateInput {
   font-family: var(--font-zen-old-mincho);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   color: var(--black);
   border: 1px solid #ccc;
   border-radius: 4px;

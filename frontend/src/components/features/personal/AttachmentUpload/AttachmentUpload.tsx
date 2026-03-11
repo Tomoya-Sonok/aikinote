@@ -41,6 +41,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
 }) => {
   const t = useTranslations();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const xhrRef = useRef<XMLHttpRequest | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadingFileName, setUploadingFileName] = useState("");
@@ -50,6 +51,17 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
   );
   const [isLoadingYoutube, setIsLoadingYoutube] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // アップロードキャンセル
+  const handleCancelUpload = useCallback(() => {
+    if (xhrRef.current) {
+      xhrRef.current.abort();
+      xhrRef.current = null;
+    }
+    setIsUploading(false);
+    setUploadProgress(0);
+    setUploadingFileName("");
+  }, []);
 
   // ファイル選択
   const handleFileSelect = useCallback(
@@ -87,6 +99,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         // ステップ2: S3にアップロード
         await new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
+          xhrRef.current = xhr;
 
           xhr.upload.addEventListener("progress", (e) => {
             if (e.lengthComputable) {
@@ -95,6 +108,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           });
 
           xhr.addEventListener("load", () => {
+            xhrRef.current = null;
             if (xhr.status === 200) {
               resolve();
             } else {
@@ -107,7 +121,13 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           });
 
           xhr.addEventListener("error", () => {
+            xhrRef.current = null;
             reject(new Error(t("pageModal.attachments.uploadFailed")));
+          });
+
+          xhr.addEventListener("abort", () => {
+            xhrRef.current = null;
+            reject(new Error("cancelled"));
           });
 
           xhr.open("PUT", uploadUrl);
@@ -134,6 +154,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           ...({ _fileKey: fileKey } as Record<string, string>),
         });
       } catch (err) {
+        if (err instanceof Error && err.message === "cancelled") return;
         setError(
           err instanceof Error
             ? err.message
@@ -250,7 +271,16 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         <div className={styles.progressContainer}>
           <div className={styles.progressInfo}>
             <span>{uploadingFileName}</span>
-            <span>{uploadProgress}%</span>
+            <div className={styles.progressActions}>
+              <span>{uploadProgress}%</span>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={handleCancelUpload}
+              >
+                {t("pageModal.attachments.cancelUpload")}
+              </button>
+            </div>
           </div>
           <div className={styles.progressTrack}>
             <div
@@ -263,6 +293,9 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
 
       {/* YouTube URL入力 */}
       <div className={styles.youtubeSection}>
+        <p className={styles.youtubeHint}>
+          {t("pageModal.attachments.youtubeHint")}
+        </p>
         <div className={styles.youtubeInputRow}>
           <input
             type="url"

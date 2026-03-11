@@ -45,6 +45,6 @@
   align-items: center;
   justify-content: center;
   color: var(--text-light);
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-family: var(--font-zen-old-mincho);
 }

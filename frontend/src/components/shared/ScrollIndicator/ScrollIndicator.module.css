@@ -63,7 +63,7 @@
 }
 
 .label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   white-space: nowrap;
   letter-spacing: 0.04em;
@@ -78,6 +78,6 @@
   }
 
   .label {
-    font-size: 15px;
+    font-size: var(--font-size-sm);
   }
 }

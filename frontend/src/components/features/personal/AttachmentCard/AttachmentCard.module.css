@@ -23,7 +23,7 @@
   border: none;
   background-color: rgba(0, 0, 0, 0.5);
   color: var(--white);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -38,7 +38,7 @@
 
 .meta {
   padding: 8px 10px;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-light);
   font-family: var(--font-zen-old-mincho);
   white-space: nowrap;
@@ -50,7 +50,7 @@
 }
 
 .youtubeTitle {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--black);
   line-height: 1.4;
   padding: 6px 10px;

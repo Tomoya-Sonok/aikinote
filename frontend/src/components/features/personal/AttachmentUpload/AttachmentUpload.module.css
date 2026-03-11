@@ -6,7 +6,7 @@
 }
 
 .label {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--black);
   font-family: var(--font-zen-old-mincho);
@@ -27,7 +27,7 @@
   border-radius: 6px;
   background-color: var(--white);
   color: var(--primary-color);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-family: var(--font-zen-old-mincho);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -45,6 +45,13 @@
 
 .hiddenInput {
   display: none;
+}
+
+.youtubeHint {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  font-family: var(--font-zen-old-mincho);
+  margin: 0;
 }
 
 /* YouTube URL入力 */
@@ -65,7 +72,7 @@
   padding: 6px 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-family: var(--font-zen-old-mincho);
   height: 32px;
 }
@@ -80,7 +87,7 @@
 }
 
 .youtubeLoading {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-light);
   display: flex;
   align-items: center;
@@ -98,9 +105,30 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-light);
   font-family: var(--font-zen-old-mincho);
+}
+
+.progressActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cancelButton {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-zen-old-mincho);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.cancelButton:hover {
+  color: var(--black);
 }
 
 .progressTrack {
@@ -126,13 +154,13 @@
 }
 
 .errorText {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--error-color);
   font-family: var(--font-zen-old-mincho);
 }
 
 .note {
-  font-size: 10px;
+  font-size: var(--font-size-xs);
   color: var(--text-light);
   font-family: var(--font-zen-old-mincho);
 }

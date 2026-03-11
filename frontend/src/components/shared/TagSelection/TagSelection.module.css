@@ -15,7 +15,7 @@
 }
 
 .title {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 400;
   color: #000000;
   margin: 0;
@@ -30,7 +30,7 @@
 
 .addButton {
   font-family: var(--font-zen-old-mincho);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: #000000;
   background: none;
   border: none;
