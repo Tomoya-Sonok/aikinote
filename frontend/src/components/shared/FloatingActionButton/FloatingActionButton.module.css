@@ -22,6 +22,10 @@
   box-shadow: 0 6px 20px rgba(91, 122, 94, 0.3);
 }
 
+[data-font-size="large"] .fab {
+  bottom: 125px;
+}
+
 .icon {
   width: 32px;
   height: 33px;

@@ -209,7 +209,7 @@ export function getMediaCategory(filename: string): "image" | "video" | null {
 // サイズ制限定数
 export const ATTACHMENT_SIZE_LIMITS = {
   image: 5 * 1024 * 1024, // 5MB
-  video: 50 * 1024 * 1024, // 50MB
+  video: 300 * 1024 * 1024, // 300MB
 } as const;
 
 // ページ添付ファイル用の一意なファイルキー生成
