@@ -235,6 +235,8 @@
       "uploadFailed": "アップロードに失敗しました",
       "deleteConfirm": "この添付ファイルを削除しますか？",
       "fileTooLarge": "ファイルサイズが制限を超えています",
+      "videoFileTooLarge": "動画ファイルが大きすぎます（上限300MB）。長い動画はYouTubeにアップロードしてURLを貼り付けてください。",
+      "imageFileTooLarge": "画像ファイルが大きすぎます（上限5MB）。",
       "unsupportedFormat": "サポートされていないファイル形式です",
       "note": "画像: JPG/PNG/WebP（最大5MB）、動画: MP4/MOV/WebM（最大300MB）",
       "cancelUpload": "キャンセル",

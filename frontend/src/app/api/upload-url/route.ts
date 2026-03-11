@@ -119,10 +119,8 @@ export async function POST(request: NextRequest) {
     console.error("アップロードURL生成エラー:", error);
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "無効なリクエストデータ", details: error.issues },
-        { status: 400 },
-      );
+      const message = error.issues[0]?.message ?? "無効なリクエストデータ";
+      return NextResponse.json({ error: message }, { status: 400 });
     }
 
     if (error instanceof Error) {

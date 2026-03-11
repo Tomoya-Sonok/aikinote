@@ -235,6 +235,8 @@
       "uploadFailed": "Upload failed",
       "deleteConfirm": "Delete this attachment?",
       "fileTooLarge": "File size exceeds the limit",
+      "videoFileTooLarge": "Video file is too large (max 300MB). For longer videos, upload to YouTube and paste the URL below.",
+      "imageFileTooLarge": "Image file is too large (max 5MB).",
       "unsupportedFormat": "Unsupported file format",
       "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 300MB)",
       "cancelUpload": "Cancel",

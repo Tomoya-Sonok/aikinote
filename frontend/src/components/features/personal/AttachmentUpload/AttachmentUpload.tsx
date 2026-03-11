@@ -69,6 +69,19 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
       const file = event.target.files?.[0];
       if (!file) return;
 
+      // クライアントサイドでのサイズチェック
+      const isVideo = file.type.startsWith("video/");
+      const maxSize = isVideo ? 300 * 1024 * 1024 : 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        setError(
+          isVideo
+            ? t("pageModal.attachments.videoFileTooLarge")
+            : t("pageModal.attachments.imageFileTooLarge"),
+        );
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+
       setError(null);
       setIsUploading(true);
       setUploadProgress(0);
