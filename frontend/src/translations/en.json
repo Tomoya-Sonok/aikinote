@@ -240,7 +240,7 @@
       "unsupportedFormat": "Unsupported file format",
       "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 300MB)",
       "cancelUpload": "Cancel",
-      "youtubeHint": "For videos longer than 2-3 minutes, upload to YouTube and paste the URL below"
+      "youtubeHint": "For long videos, upload to YouTube and paste the URL below"
     }
   },
   "navigation": {

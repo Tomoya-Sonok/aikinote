@@ -240,7 +240,7 @@
       "unsupportedFormat": "サポートされていないファイル形式です",
       "note": "画像: JPG/PNG/WebP（最大5MB）、動画: MP4/MOV/WebM（最大300MB）",
       "cancelUpload": "キャンセル",
-      "youtubeHint": "2〜3分以上の長い動画はYouTubeにアップロードしてURLを貼り付けてください"
+      "youtubeHint": "長い動画はYouTubeにアップロードしてURLを貼り付けてください"
     }
   },
   "navigation": {
