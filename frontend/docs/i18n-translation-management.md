@@ -14,37 +14,41 @@
 ### ディレクトリ構造
 
 ```
-frontend/
+frontend/src/
 ├── app/
-│   ├── [locale]/           # ロケール別ルーティング
-│   │   ├── layout.tsx      # ロケール別レイアウト
-│   │   ├── page.tsx        # ホームページ
-│   │   └── settings/       # 設定ページ
-│   │       ├── language/   # 言語設定
-│   │       └── font-size/  # 文字サイズ設定
-│   └── layout.tsx          # ルートレイアウト
-├── messages/               # 翻訳ファイル
-│   ├── ja.json            # 日本語翻訳
-│   └── en.json            # 英語翻訳
+│   ├── [locale]/                    # ロケール別ルーティング
+│   │   ├── layout.tsx               # ロケール別レイアウト
+│   │   ├── page.tsx                 # ホームページ
+│   │   └── (authenticated)/         # 認証必須ルートグループ
+│   │       └── settings/            # 設定ページ
+│   │           ├── language/        # 言語設定
+│   │           ├── font-size/       # 文字サイズ設定
+│   │           ├── email/           # メール設定
+│   │           └── tags/            # タグ設定
+│   └── layout.tsx                   # ルートレイアウト
+├── translations/                    # 翻訳ファイル
+│   ├── ja.json                     # 日本語翻訳
+│   └── en.json                     # 英語翻訳
 ├── lib/
-│   ├── i18n.ts            # next-intl設定
+│   ├── i18n.ts                     # next-intl設定
 │   └── i18n/
-│       ├── config.ts      # 基本設定
-│       ├── routing.ts     # ルーティング設定
-│       └── request.ts     # リクエスト設定
+│       ├── config.ts               # 基本設定
+│       ├── routing.ts              # ルーティング設定
+│       └── request.ts              # リクエスト設定
 ├── stores/
-│   ├── languageStore.ts   # 言語設定Zustandストア
-│   └── fontSizeStore.ts   # 文字サイズ設定Zustandストア
+│   ├── languageStore.ts            # 言語設定Zustandストア
+│   └── fontSizeStore.ts            # 文字サイズ設定Zustandストア
 └── components/
-    └── providers/
-        └── LanguageProvider.tsx  # 言語プロバイダー
+    └── shared/
+        └── providers/
+            └── LanguageProvider.tsx  # 言語プロバイダー
 ```
 
 ## 翻訳ファイル管理
 
 ### 翻訳ファイルの場所
 
-翻訳ファイルは `frontend/translations/` ディレクトリに配置：
+翻訳ファイルは `frontend/src/translations/` ディレクトリに配置：
 - `ja.json`: 日本語翻訳
 - `en.json`: 英語翻訳
 
@@ -101,7 +105,7 @@ frontend/
 
 ##### ja.json（日本語）の更新
 ```bash
-# frontend/translations/ja.json
+# frontend/src/translations/ja.json
 {
   "existing": "既存の翻訳...",
   "profile": {
@@ -117,7 +121,7 @@ frontend/
 
 ##### en.json（英語）の更新
 ```bash
-# frontend/translations/en.json
+# frontend/src/translations/en.json
 {
   "existing": "Existing translations...",
   "profile": {
@@ -159,8 +163,8 @@ export function ProfileComponent() {
 JSONファイルの構文エラーをチェック：
 ```bash
 # JSONファイルの構文確認
-cat frontend/translations/ja.json | jq .
-cat frontend/translations/en.json | jq .
+cat frontend/src/translations/ja.json | jq .
+cat frontend/src/translations/en.json | jq .
 ```
 
 #### 2. キーの整合性チェック
@@ -168,8 +172,8 @@ cat frontend/translations/en.json | jq .
 翻訳キーが両言語で一致しているかチェック：
 ```bash
 # キー一覧の抽出と比較
-jq -r 'paths(scalars) as $p | $p | join(".")' frontend/translations/ja.json | sort > ja_keys.txt
-jq -r 'paths(scalars) as $p | $p | join(".")' frontend/translations/en.json | sort > en_keys.txt
+jq -r 'paths(scalars) as $p | $p | join(".")' frontend/src/translations/ja.json | sort > ja_keys.txt
+jq -r 'paths(scalars) as $p | $p | join(".")' frontend/src/translations/en.json | sort > en_keys.txt
 diff ja_keys.txt en_keys.txt
 ```
 
@@ -185,7 +189,7 @@ grep -r "t('profile" frontend/components/
 
 ### 1. ロケール設定の更新
 
-`frontend/lib/i18n/routing.ts` でサポート言語を追加：
+`frontend/src/lib/i18n/routing.ts` でサポート言語を追加：
 ```typescript
 export const routing = defineRouting({
   locales: ['ja', 'en', 'ko'], // 韓国語を追加
@@ -199,13 +203,13 @@ export const routing = defineRouting({
 新しい言語の翻訳ファイルを作成：
 ```bash
 # 韓国語翻訳ファイルの作成
-cp frontend/translations/en.json frontend/translations/ko.json
+cp frontend/src/translations/en.json frontend/src/translations/ko.json
 # その後、ko.jsonを韓国語に翻訳
 ```
 
 ### 3. 言語選択UIの更新
 
-`frontend/stores/languageStore.ts` で言語選択肢を追加：
+`frontend/src/stores/languageStore.ts` で言語選択肢を追加：
 ```typescript
 export const getLanguageOptions = (): Array<{ value: Language; label: string }> => {
   return [
@@ -227,7 +231,7 @@ export const getLanguageOptions = (): Array<{ value: Language; label: string }> 
 
 ### 2. 翻訳更新時の手順
 
-1. **翻訳ファイルの修正**: messages/配下のJSONファイルを更新
+1. **翻訳ファイルの修正**: src/translations/配下のJSONファイルを更新
 2. **構文チェック**: JSONの構文エラーがないか確認
 3. **動作確認**: ブラウザで表示確認
 4. **コミット**: 翻訳ファイルの変更をコミット
@@ -276,7 +280,7 @@ export const getLanguageOptions = (): Array<{ value: Language; label: string }> 
 
 **原因**: ルーティング設定やミドルウェアの問題
 **解決方法**:
-- middleware.tsの設定確認
+- proxy.tsの設定確認（Next.js 16+ ではルーティング保護に `src/proxy.ts` を使用）
 - ブラウザのネットワークタブでリクエスト確認
 - LocalStorageの言語設定確認
 

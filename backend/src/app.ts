@@ -8,6 +8,12 @@ import {
 } from "./lib/supabase.js";
 import dojoStylesRoute from "./routes/dojo-styles/index.js";
 import pagesRoute from "./routes/pages/index.js";
+import socialFavoritesRoute from "./routes/social-favorites/index.js";
+import socialNotificationsRoute from "./routes/social-notifications/index.js";
+import socialPostsRoute from "./routes/social-posts/index.js";
+import socialProfileRoute from "./routes/social-profile/index.js";
+import socialReportsRoute from "./routes/social-reports/index.js";
+import socialSearchRoute from "./routes/social-search/index.js";
 import statsRoute from "./routes/stats/index.js";
 import tagsRoute from "./routes/tags/index.js";
 import trainingDatesRoute from "./routes/training-dates/index.js";
@@ -185,6 +191,12 @@ app.get("/health", (c) => {
 // APIルートを追加
 app.route("/api/dojo-styles", dojoStylesRoute);
 app.route("/api/pages", pagesRoute);
+app.route("/api/social/posts", socialPostsRoute);
+app.route("/api/social/favorites", socialFavoritesRoute);
+app.route("/api/social/reports", socialReportsRoute);
+app.route("/api/social/search", socialSearchRoute);
+app.route("/api/social/notifications", socialNotificationsRoute);
+app.route("/api/social/profile", socialProfileRoute);
 app.route("/api/stats", statsRoute);
 app.route("/api/tags", tagsRoute);
 app.route("/api/training-dates", trainingDatesRoute);

@@ -228,3 +228,127 @@ export type TrainingDatePageCount = z.infer<typeof trainingDatePageCountSchema>;
 export type TrainingDateMonthResponse = z.infer<
   typeof trainingDateMonthResponseSchema
 >;
+
+// ============================================
+// ソーシャル投稿関連バリデーション
+// ============================================
+
+// 投稿作成
+export const createSocialPostSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  content: z
+    .string()
+    .min(1, "投稿内容は必須です")
+    .max(2000, "投稿内容は2000文字以内で入力してください"),
+  post_type: z.enum(["post", "training_record"], {
+    errorMap: () => ({ message: "投稿タイプはpostまたはtraining_recordです" }),
+  }),
+  source_page_id: z.string().uuid().optional(),
+  tag_ids: z.array(z.string().uuid()).optional(),
+});
+
+export type CreateSocialPostInput = z.infer<typeof createSocialPostSchema>;
+
+// 投稿更新
+export const updateSocialPostSchema = z.object({
+  content: z
+    .string()
+    .min(1, "投稿内容は必須です")
+    .max(2000, "投稿内容は2000文字以内で入力してください")
+    .optional(),
+  tag_ids: z.array(z.string().uuid()).optional(),
+});
+
+export type UpdateSocialPostInput = z.infer<typeof updateSocialPostSchema>;
+
+// フィード取得
+export const getSocialPostsSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  tab: z.enum(["all", "training", "favorites"]).optional().default("all"),
+  limit: z
+    .string()
+    .optional()
+    .default("20")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(1).max(100)),
+  offset: z
+    .string()
+    .optional()
+    .default("0")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(0)),
+});
+
+export type GetSocialPostsInput = z.infer<typeof getSocialPostsSchema>;
+
+// 返信作成
+export const createSocialReplySchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  content: z
+    .string()
+    .min(1, "返信内容は必須です")
+    .max(1000, "返信内容は1000文字以内で入力してください"),
+});
+
+export type CreateSocialReplyInput = z.infer<typeof createSocialReplySchema>;
+
+// 通報
+export const createReportSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  reason: z.enum(["spam", "harassment", "inappropriate", "other"], {
+    errorMap: () => ({ message: "通報理由を選択してください" }),
+  }),
+  detail: z.string().max(500, "詳細は500文字以内で入力してください").optional(),
+});
+
+export type CreateReportInput = z.infer<typeof createReportSchema>;
+
+// 投稿検索
+export const searchSocialPostsSchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  query: z.string().optional(),
+  dojo_name: z.string().optional(),
+  rank: z.string().optional(),
+  limit: z
+    .string()
+    .optional()
+    .default("20")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(1).max(100)),
+  offset: z
+    .string()
+    .optional()
+    .default("0")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(0)),
+});
+
+export type SearchSocialPostsInput = z.infer<typeof searchSocialPostsSchema>;
+
+// 通知取得
+export const getNotificationsSchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .default("20")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(1).max(100)),
+  offset: z
+    .string()
+    .optional()
+    .default("0")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(0)),
+});
+
+export type GetNotificationsInput = z.infer<typeof getNotificationsSchema>;
+
+// 通知既読化
+export const markNotificationsReadSchema = z.object({
+  notification_ids: z.array(z.string().uuid()).optional(),
+  mark_all: z.boolean().optional(),
+});
+
+export type MarkNotificationsReadInput = z.infer<
+  typeof markNotificationsReadSchema
+>;

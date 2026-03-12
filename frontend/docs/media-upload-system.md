@@ -33,7 +33,7 @@ YouTube URL → /api/ogp → oEmbed API → プレビューカード表示
 
 ### プロフィール画像アップロード
 
-**場所**: `components/features/profile/profile-image-upload.tsx`
+**場所**: `components/features/basic-info/profile-image-upload.tsx`
 
 ```
 POST /api/upload-url
@@ -58,7 +58,7 @@ POST /api/profile-image
 POST /api/upload-url
   → uploadType: "page-attachment"
   → S3パス: users/{userId}/page-attachments/{uuid}.{ext}
-  → 制限: 画像 5MB / 動画 (mp4/mov/webm) 50MB
+  → 制限: 画像 5MB / 動画 (mp4/mov/webm) 300MB
 
 PUT S3署名付きURL
   → タグ: public=true
@@ -144,7 +144,7 @@ YOUR_BUCKET_NAME/
 |---|---|---|
 | プロフィール画像 | JPG, JPEG, PNG, WebP | 5MB |
 | ページ添付（画像） | JPG, JPEG, PNG, WebP | 5MB |
-| ページ添付（動画） | MP4, MOV, WebM | 50MB |
+| ページ添付（動画） | MP4, MOV, WebM | 300MB |
 
 ---
 
@@ -159,7 +159,7 @@ frontend/src/lib/aws-s3.ts              # S3操作ユーティリティ（プロ
 ```
 frontend/src/app/api/upload-url/route.ts            # 署名付きURL生成API（共用）
 frontend/src/app/api/profile-image/route.ts         # プロフィール画像更新API
-frontend/src/components/features/profile/           # プロフィール画像コンポーネント
+frontend/src/components/features/basic-info/        # プロフィール画像コンポーネント
 ```
 
 ### ページ添付
@@ -182,10 +182,12 @@ backend/src/lib/supabase.ts                         # DB操作関数（添付CRU
 
 ### データベースマイグレーション
 ```
-frontend/src/database/migrations/
-├── add_profile_image_url.sql                       # プロフィール画像カラム
-└── create_PageAttachment.sql                     # 添付テーブル
+backend/src/migrations/
+├── 001_create_dojo_style_master.sql               # 道場マスタ + User拡張
+└── 002_create_social_tables.sql                   # ソーシャルテーブル群
 ```
+
+※ PageAttachmentテーブルはSupabaseダッシュボードで直接作成済み。
 
 ---
 
@@ -197,7 +199,7 @@ frontend/src/database/migrations/
 3. RLSポリシーが正しく設定されているか確認
 
 ### アップロードに失敗する
-1. ファイルサイズ制限を確認（画像5MB、動画50MB）
+1. ファイルサイズ制限を確認（画像5MB、動画300MB）
 2. ファイル形式を確認
 3. 認証トークンが有効か確認
 

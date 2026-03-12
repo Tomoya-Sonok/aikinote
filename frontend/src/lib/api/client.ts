@@ -45,6 +45,11 @@ const CACHE_TTL_MS = {
   userBasicInfo: 60_000,
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
+  socialFeed: 15_000,
+  socialPost: 15_000,
+  socialSearch: 15_000,
+  socialProfile: 30_000,
+  notifications: 10_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -538,5 +543,231 @@ export const createUserViaTrpc = async (payload: CreateUserPayload) => {
     return await trpcClient.users.create.mutate(payload);
   } catch (error) {
     throw new Error(getErrorMessage(error, "ユーザー作成に失敗しました"));
+  }
+};
+
+// ============================================
+// ソーシャル投稿関連API
+// ============================================
+
+export interface GetSocialFeedParams {
+  userId: string;
+  tab?: "all" | "training" | "favorites";
+  limit?: number;
+  offset?: number;
+}
+
+export const getSocialFeed = async ({
+  userId,
+  tab,
+  limit,
+  offset,
+}: GetSocialFeedParams) => {
+  try {
+    const input = { userId, tab, limit, offset };
+    return await cachedQuery(
+      "socialPosts:getFeed",
+      input,
+      CACHE_TTL_MS.socialFeed,
+      async () => trpcClient.socialPosts.getFeed.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "フィードの取得に失敗しました"));
+  }
+};
+
+export const getSocialPost = async (postId: string) => {
+  try {
+    const input = { postId };
+    return await cachedQuery(
+      "socialPosts:getById",
+      input,
+      CACHE_TTL_MS.socialPost,
+      async () => trpcClient.socialPosts.getById.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の取得に失敗しました"));
+  }
+};
+
+export interface CreateSocialPostPayload {
+  user_id: string;
+  content: string;
+  post_type: "post" | "training_record";
+  source_page_id?: string;
+  tag_ids?: string[];
+}
+
+export const createSocialPost = async (payload: CreateSocialPostPayload) => {
+  try {
+    const response = await trpcClient.socialPosts.create.mutate(payload);
+    invalidateQueryCacheByPrefixes(["socialPosts:getFeed"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の作成に失敗しました"));
+  }
+};
+
+export interface UpdateSocialPostPayload {
+  postId: string;
+  content?: string;
+  tag_ids?: string[];
+}
+
+export const updateSocialPost = async (payload: UpdateSocialPostPayload) => {
+  try {
+    const response = await trpcClient.socialPosts.update.mutate(payload);
+    invalidateQueryCacheByPrefixes([
+      "socialPosts:getFeed",
+      "socialPosts:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の更新に失敗しました"));
+  }
+};
+
+export const deleteSocialPost = async (postId: string) => {
+  try {
+    const response = await trpcClient.socialPosts.remove.mutate({ postId });
+    invalidateQueryCacheByPrefixes([
+      "socialPosts:getFeed",
+      "socialPosts:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の削除に失敗しました"));
+  }
+};
+
+export interface CreateSocialReplyPayload {
+  postId: string;
+  user_id: string;
+  content: string;
+}
+
+export const createSocialReply = async (payload: CreateSocialReplyPayload) => {
+  try {
+    const response = await trpcClient.socialReplies.create.mutate(payload);
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "返信の作成に失敗しました"));
+  }
+};
+
+export const toggleFavorite = async (postId: string) => {
+  try {
+    const response = await trpcClient.socialPosts.toggleFavorite.mutate({
+      postId,
+    });
+    invalidateQueryCacheByPrefixes([
+      "socialPosts:getFeed",
+      "socialPosts:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+  }
+};
+
+export interface ReportPostPayload {
+  postId: string;
+  user_id: string;
+  reason: "spam" | "harassment" | "inappropriate" | "other";
+  detail?: string;
+}
+
+export const reportPost = async (payload: ReportPostPayload) => {
+  try {
+    return await trpcClient.socialPosts.report.mutate(payload);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通報の送信に失敗しました"));
+  }
+};
+
+export interface ReportReplyPayload {
+  replyId: string;
+  user_id: string;
+  reason: "spam" | "harassment" | "inappropriate" | "other";
+  detail?: string;
+}
+
+export const reportReply = async (payload: ReportReplyPayload) => {
+  try {
+    return await trpcClient.socialReplies.report.mutate(payload);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通報の送信に失敗しました"));
+  }
+};
+
+export interface SearchSocialPostsParams {
+  userId: string;
+  query?: string;
+  dojoName?: string;
+  rank?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export const searchSocialPosts = async (params: SearchSocialPostsParams) => {
+  try {
+    return await cachedQuery(
+      "socialSearch:search",
+      params,
+      CACHE_TTL_MS.socialSearch,
+      async () => trpcClient.socialSearch.search.query(params),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の検索に失敗しました"));
+  }
+};
+
+export const getSocialProfile = async (userId: string) => {
+  try {
+    const input = { userId };
+    return await cachedQuery(
+      "socialProfile:get",
+      input,
+      CACHE_TTL_MS.socialProfile,
+      async () => trpcClient.socialProfile.get.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "プロフィールの取得に失敗しました"));
+  }
+};
+
+export interface GetNotificationsParams {
+  limit?: number;
+  offset?: number;
+}
+
+export const getNotifications = async (params: GetNotificationsParams = {}) => {
+  try {
+    return await cachedQuery(
+      "notifications:getList",
+      params,
+      CACHE_TTL_MS.notifications,
+      async () => trpcClient.notifications.getList.query(params),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通知の取得に失敗しました"));
+  }
+};
+
+export interface MarkNotificationsReadPayload {
+  notificationIds?: string[];
+  markAll?: boolean;
+}
+
+export const markNotificationsRead = async (
+  payload: MarkNotificationsReadPayload,
+) => {
+  try {
+    const response = await trpcClient.notifications.markAsRead.mutate(payload);
+    invalidateQueryCacheByPrefixes(["notifications:getList"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通知の既読化に失敗しました"));
   }
 };

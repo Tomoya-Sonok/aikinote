@@ -34,7 +34,7 @@ graph TD
 
 Next.js の Data Cache 機能（`unstable_cache`）を利用し、外部 API (Hono) から取得したユーザー情報をキャッシュしています。
 
-- **キャッシュキー**: `user-profile-${userId}`
+- **キャッシュキー**: `user-basic-info-${userId}`
 - **TTL (有効期限)**: 1週間 (604,800秒)
 - **ファイル**: `frontend/src/lib/server/cache.ts`
 
@@ -82,7 +82,17 @@ public.User
 ├── username
 ├── profile_image_url
 ├── dojo_style_name
-└── created_at
+├── dojo_style_id (UUID FK→DojoStyleMaster)
+├── training_start_date
+├── bio
+├── aikido_rank
+├── publicity_setting (public/closed/private)
+├── language (ja/en)
+├── is_email_verified
+├── password_hash
+├── verification_token
+├── created_at
+└── updated_at
 ```
 
 ---
@@ -90,7 +100,7 @@ public.User
 ## 🔄 ログインフロー
 
 ### 1. ログインページアクセス
-**場所**: `app/login/page.tsx`
+**場所**: `app/[locale]/(public)/login/page.tsx`
 既にログイン済みの場合はマイページへリダイレクトされます。
 
 ### 2. 認証処理 (Supabase)
@@ -195,7 +205,7 @@ if (!user) return <Redirect to="/login" />; // 確定後に判定
 **原因**: キャッシュの無効化（Revalidate）が失敗している可能性があります。
 **確認**:
 1. `revalidateUserProfile` が更新成功時に正しく呼ばれているか確認。
-2. サーバーログでキャッシュタグ `user-profile-{userId}` のパージログを確認（Vercel Logs等）。
+2. サーバーログでキャッシュタグ `user-basic-info-{userId}` のパージログを確認（Vercel Logs等）。
 
 ### "Failed to fetch RSC payload" エラー
 ログアウト処理などで無限ループが発生している可能性があります。`useEffect` 内での `signOut` 呼び出しなどが適切に制御されているか確認してください。

@@ -1358,3 +1358,654 @@ export const deletePageAttachment = async (
     throw error;
   }
 };
+
+// ============================================
+// ソーシャル機能 型定義
+// ============================================
+
+export interface SocialPostRow {
+  id: string;
+  user_id: string;
+  content: string;
+  post_type: string;
+  visibility: string;
+  author_dojo_style_id: string | null;
+  author_dojo_name: string | null;
+  favorite_count: number;
+  reply_count: number;
+  is_deleted: boolean;
+  source_page_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SocialPostAttachmentRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  type: string;
+  url: string;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+  file_size_bytes: number | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface SocialReplyRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SocialFavoriteRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface NotificationRow {
+  id: string;
+  type: string;
+  recipient_user_id: string;
+  actor_user_id: string;
+  post_id: string | null;
+  reply_id: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface PostReportRow {
+  id: string;
+  reporter_user_id: string;
+  post_id: string | null;
+  reply_id: string | null;
+  reason: string;
+  detail: string | null;
+  status: string;
+  created_at: string;
+}
+
+// ============================================
+// ソーシャル機能 ヘルパー関数
+// ============================================
+
+export const createSocialPost = async (
+  supabaseClient: SupabaseClient,
+  data: {
+    user_id: string;
+    content: string;
+    post_type: string;
+    visibility: string;
+    author_dojo_style_id: string | null;
+    author_dojo_name: string | null;
+    source_page_id?: string;
+  },
+): Promise<SocialPostRow> => {
+  const { data: post, error } = await supabaseClient
+    .from("SocialPost")
+    .insert({
+      user_id: data.user_id,
+      content: data.content,
+      post_type: data.post_type,
+      visibility: data.visibility,
+      author_dojo_style_id: data.author_dojo_style_id,
+      author_dojo_name: data.author_dojo_name,
+      source_page_id: data.source_page_id ?? null,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`投稿の作成に失敗しました: ${error.message}`);
+  }
+
+  return post;
+};
+
+export const getSocialFeed = async (
+  supabaseClient: SupabaseClient,
+  viewerUserId: string,
+  viewerDojoStyleId: string | null,
+  tab: string,
+  limit: number,
+  offset: number,
+): Promise<SocialPostRow[]> => {
+  const { data, error } = await supabaseClient.rpc("get_social_feed", {
+    viewer_user_id: viewerUserId,
+    viewer_dojo_style_id: viewerDojoStyleId,
+    tab_filter: tab,
+    feed_limit: limit,
+    feed_offset: offset,
+  });
+
+  if (error) {
+    throw new Error(`フィード取得に失敗しました: ${error.message}`);
+  }
+
+  return data ?? [];
+};
+
+export const getSocialPostById = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+): Promise<SocialPostRow | null> => {
+  const { data, error } = await supabaseClient
+    .from("SocialPost")
+    .select("*")
+    .eq("id", postId)
+    .eq("is_deleted", false)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    throw new Error(`投稿の取得に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const updateSocialPost = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+  data: { content?: string },
+): Promise<SocialPostRow> => {
+  const { data: post, error } = await supabaseClient
+    .from("SocialPost")
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", postId)
+    .eq("user_id", userId)
+    .eq("is_deleted", false)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`投稿の更新に失敗しました: ${error.message}`);
+  }
+
+  return post;
+};
+
+export const softDeleteSocialPost = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("SocialPost")
+    .update({
+      is_deleted: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", postId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`投稿の削除に失敗しました: ${error.message}`);
+  }
+};
+
+export const createSocialPostTags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  tagIds: string[],
+): Promise<void> => {
+  if (tagIds.length === 0) return;
+
+  const rows = tagIds.map((tagId) => ({
+    post_id: postId,
+    user_tag_id: tagId,
+  }));
+
+  const { error } = await supabaseClient.from("SocialPostTag").insert(rows);
+
+  if (error) {
+    throw new Error(`投稿タグの作成に失敗しました: ${error.message}`);
+  }
+};
+
+export const updateSocialPostTags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  tagIds: string[],
+): Promise<void> => {
+  const { error: deleteError } = await supabaseClient
+    .from("SocialPostTag")
+    .delete()
+    .eq("post_id", postId);
+
+  if (deleteError) {
+    throw new Error(`投稿タグの削除に失敗しました: ${deleteError.message}`);
+  }
+
+  if (tagIds.length > 0) {
+    await createSocialPostTags(supabaseClient, postId, tagIds);
+  }
+};
+
+export const getSocialPostWithDetails = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  viewerId: string,
+): Promise<{
+  post: SocialPostRow;
+  attachments: SocialPostAttachmentRow[];
+  tags: { id: string; name: string; category: string }[];
+  author: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    aikido_rank: string | null;
+  };
+  replies: (SocialReplyRow & {
+    user: { id: string; username: string; profile_image_url: string | null };
+  })[];
+  is_favorited: boolean;
+} | null> => {
+  const post = await getSocialPostById(supabaseClient, postId);
+  if (!post) return null;
+
+  const [
+    attachmentsResult,
+    tagsResult,
+    authorResult,
+    repliesResult,
+    favoriteResult,
+  ] = await Promise.all([
+    supabaseClient
+      .from("SocialPostAttachment")
+      .select("*")
+      .eq("post_id", postId)
+      .order("sort_order", { ascending: true }),
+    supabaseClient
+      .from("SocialPostTag")
+      .select("user_tag_id, UserTag(id, name, category)")
+      .eq("post_id", postId),
+    supabaseClient
+      .from("User")
+      .select("id, username, profile_image_url, aikido_rank")
+      .eq("id", post.user_id)
+      .single(),
+    supabaseClient
+      .from("SocialReply")
+      .select("*, User(id, username, profile_image_url)")
+      .eq("post_id", postId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: true }),
+    supabaseClient
+      .from("SocialFavorite")
+      .select("id")
+      .eq("post_id", postId)
+      .eq("user_id", viewerId)
+      .maybeSingle(),
+  ]);
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const tags = (tagsResult.data ?? []).map((row: any) => ({
+    id: row.UserTag?.id ?? row.user_tag_id,
+    name: row.UserTag?.name ?? "",
+    category: row.UserTag?.category ?? "",
+  }));
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const replies = (repliesResult.data ?? []).map((row: any) => ({
+    id: row.id,
+    post_id: row.post_id,
+    user_id: row.user_id,
+    content: row.content,
+    is_deleted: row.is_deleted,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    user: {
+      id: row.User?.id ?? row.user_id,
+      username: row.User?.username ?? "",
+      profile_image_url: row.User?.profile_image_url ?? null,
+    },
+  }));
+
+  return {
+    post,
+    attachments: attachmentsResult.data ?? [],
+    tags,
+    author: authorResult.data ?? {
+      id: post.user_id,
+      username: "",
+      profile_image_url: null,
+      aikido_rank: null,
+    },
+    replies,
+    is_favorited: !!favoriteResult.data,
+  };
+};
+
+export const createSocialReply = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+  content: string,
+): Promise<SocialReplyRow> => {
+  const { data, error } = await supabaseClient
+    .from("SocialReply")
+    .insert({
+      post_id: postId,
+      user_id: userId,
+      content,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`返信の作成に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const toggleSocialFavorite = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+): Promise<{ is_favorited: boolean }> => {
+  const { data: existing } = await supabaseClient
+    .from("SocialFavorite")
+    .select("id")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabaseClient
+      .from("SocialFavorite")
+      .delete()
+      .eq("id", existing.id);
+
+    if (error) {
+      throw new Error(`お気に入り解除に失敗しました: ${error.message}`);
+    }
+
+    return { is_favorited: false };
+  }
+
+  const { error } = await supabaseClient
+    .from("SocialFavorite")
+    .insert({ post_id: postId, user_id: userId });
+
+  if (error) {
+    throw new Error(`お気に入り登録に失敗しました: ${error.message}`);
+  }
+
+  return { is_favorited: true };
+};
+
+export const createNotification = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    type: string;
+    recipient_user_id: string;
+    actor_user_id: string;
+    post_id?: string;
+    reply_id?: string;
+  },
+): Promise<void> => {
+  // 自分自身への通知はスキップ
+  if (params.recipient_user_id === params.actor_user_id) return;
+
+  const { error } = await supabaseClient.from("Notification").insert({
+    type: params.type,
+    recipient_user_id: params.recipient_user_id,
+    actor_user_id: params.actor_user_id,
+    post_id: params.post_id ?? null,
+    reply_id: params.reply_id ?? null,
+  });
+
+  if (error) {
+    console.error("通知の作成に失敗しました:", error);
+  }
+};
+
+export const deleteNotificationByFavorite = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("Notification")
+    .delete()
+    .eq("type", "favorite")
+    .eq("actor_user_id", userId)
+    .eq("post_id", postId);
+
+  if (error) {
+    console.error("通知の削除に失敗しました:", error);
+  }
+};
+
+export const getNotifications = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  limit: number,
+  offset: number,
+): Promise<NotificationRow[]> => {
+  const { data, error } = await supabaseClient
+    .from("Notification")
+    .select(
+      "*, User!Notification_actor_user_id_fkey(id, username, profile_image_url)",
+    )
+    .eq("recipient_user_id", userId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    throw new Error(`通知の取得に失敗しました: ${error.message}`);
+  }
+
+  return data ?? [];
+};
+
+export const markNotificationsRead = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  ids?: string[],
+  markAll?: boolean,
+): Promise<void> => {
+  let query = supabaseClient
+    .from("Notification")
+    .update({ is_read: true })
+    .eq("recipient_user_id", userId)
+    .eq("is_read", false);
+
+  if (!markAll && ids && ids.length > 0) {
+    query = query.in("id", ids);
+  }
+
+  const { error } = await query;
+
+  if (error) {
+    throw new Error(`通知の既読化に失敗しました: ${error.message}`);
+  }
+};
+
+export const createPostReport = async (
+  supabaseClient: SupabaseClient,
+  data: {
+    reporter_user_id: string;
+    post_id?: string;
+    reply_id?: string;
+    reason: string;
+    detail?: string;
+  },
+): Promise<PostReportRow> => {
+  // 重複チェック
+  let duplicateQuery = supabaseClient
+    .from("PostReport")
+    .select("id")
+    .eq("reporter_user_id", data.reporter_user_id);
+
+  if (data.post_id) {
+    duplicateQuery = duplicateQuery.eq("post_id", data.post_id);
+  }
+  if (data.reply_id) {
+    duplicateQuery = duplicateQuery.eq("reply_id", data.reply_id);
+  }
+
+  const { data: existing } = await duplicateQuery.maybeSingle();
+
+  if (existing) {
+    throw new Error("DUPLICATE_REPORT");
+  }
+
+  const { data: report, error } = await supabaseClient
+    .from("PostReport")
+    .insert({
+      reporter_user_id: data.reporter_user_id,
+      post_id: data.post_id ?? null,
+      reply_id: data.reply_id ?? null,
+      reason: data.reason,
+      detail: data.detail ?? null,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`通報の作成に失敗しました: ${error.message}`);
+  }
+
+  return report;
+};
+
+export const searchSocialPosts = async (
+  supabaseClient: SupabaseClient,
+  viewerId: string,
+  viewerDojoStyleId: string | null,
+  params: {
+    query?: string;
+    dojo_name?: string;
+    rank?: string;
+    limit: number;
+    offset: number;
+  },
+): Promise<SocialPostRow[]> => {
+  let dbQuery = supabaseClient
+    .from("SocialPost")
+    .select("*, User!inner(id, aikido_rank, dojo_style_id)")
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false })
+    .range(params.offset, params.offset + params.limit - 1);
+
+  if (params.query) {
+    dbQuery = dbQuery.ilike("content", `%${params.query}%`);
+  }
+
+  if (params.dojo_name) {
+    dbQuery = dbQuery.ilike("author_dojo_name", `%${params.dojo_name}%`);
+  }
+
+  if (params.rank) {
+    dbQuery = dbQuery.eq("User.aikido_rank", params.rank);
+  }
+
+  const { data, error } = await dbQuery;
+
+  if (error) {
+    throw new Error(`投稿検索に失敗しました: ${error.message}`);
+  }
+
+  // 公開範囲フィルタ（アプリケーション層）
+  const filtered = (data ?? []).filter((post) => {
+    if (post.visibility === "public") return true;
+    if (
+      post.visibility === "closed" &&
+      post.author_dojo_style_id === viewerDojoStyleId
+    )
+      return true;
+    if (post.user_id === viewerId) return true;
+    return false;
+  });
+
+  return filtered;
+};
+
+export const getSocialProfile = async (
+  supabaseClient: SupabaseClient,
+  targetUserId: string,
+  viewerId: string,
+  viewerDojoStyleId: string | null,
+): Promise<{
+  user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    bio: string | null;
+    aikido_rank: string | null;
+    dojo_style_name: string | null;
+  };
+  posts: SocialPostRow[];
+  total_favorites?: number;
+} | null> => {
+  const { data: user, error: userError } = await supabaseClient
+    .from("User")
+    .select(
+      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name",
+    )
+    .eq("id", targetUserId)
+    .single();
+
+  if (userError || !user) {
+    return null;
+  }
+
+  // 公開投稿を取得（公開範囲チェック適用）
+  const postsQuery = supabaseClient
+    .from("SocialPost")
+    .select("*")
+    .eq("user_id", targetUserId)
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  const { data: posts } = await postsQuery;
+
+  const visiblePosts = (posts ?? []).filter((post) => {
+    if (post.visibility === "public") return true;
+    if (
+      post.visibility === "closed" &&
+      post.author_dojo_style_id === viewerDojoStyleId
+    )
+      return true;
+    if (post.user_id === viewerId) return true;
+    return false;
+  });
+
+  const result: {
+    user: typeof user;
+    posts: SocialPostRow[];
+    total_favorites?: number;
+  } = { user, posts: visiblePosts };
+
+  // 本人のみ累計お気に入り数を返却
+  if (targetUserId === viewerId) {
+    const { data: favData } = await supabaseClient
+      .from("SocialPost")
+      .select("favorite_count")
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false);
+
+    result.total_favorites = (favData ?? []).reduce(
+      (sum, p) => sum + (p.favorite_count ?? 0),
+      0,
+    );
+  }
+
+  return result;
+};
