@@ -1,10 +1,10 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchUserProfileFromHono } from "./auth";
+import { fetchUserBasicInfoFromHono } from "./auth";
 import {
-  getCachedUserProfile,
-  getUserProfileCacheTag,
-  revalidateUserProfile,
+  getCachedUserBasicInfo,
+  getUserBasicInfoCacheTag,
+  revalidateUserBasicInfo,
 } from "./cache";
 
 // モジュール全体のモック
@@ -14,7 +14,7 @@ vi.mock("next/cache", () => ({
 }));
 
 vi.mock("./auth", () => ({
-  fetchUserProfileFromHono: vi.fn(),
+  fetchUserBasicInfoFromHono: vi.fn(),
 }));
 
 describe("cache.ts", () => {
@@ -26,19 +26,19 @@ describe("cache.ts", () => {
     vi.clearAllMocks();
   });
 
-  describe("getCachedUserProfile", () => {
-    it("fetches user profile via unstable_cache", async () => {
+  describe("getCachedUserBasicInfo", () => {
+    it("fetches user basic info via unstable_cache", async () => {
       const mockProfile = { id: userId, username: "testuser" };
       // biome-ignore lint/suspicious/noExplicitAny: mock function
-      (fetchUserProfileFromHono as any).mockResolvedValue(mockProfile);
+      (fetchUserBasicInfoFromHono as any).mockResolvedValue(mockProfile);
 
       // biome-ignore lint/suspicious/noExplicitAny: mock function
       (unstable_cache as any).mockImplementation((fn: any) => fn);
 
-      const result = await getCachedUserProfile(userId, mockSession);
+      const result = await getCachedUserBasicInfo(userId, mockSession);
 
       expect(unstable_cache).toHaveBeenCalled();
-      expect(fetchUserProfileFromHono).toHaveBeenCalledWith(
+      expect(fetchUserBasicInfoFromHono).toHaveBeenCalledWith(
         userId,
         mockSession,
       );
@@ -46,12 +46,12 @@ describe("cache.ts", () => {
     });
   });
 
-  describe("revalidateUserProfile", () => {
+  describe("revalidateUserBasicInfo", () => {
     it("calls revalidateTag with correct tag", () => {
-      revalidateUserProfile(userId);
+      revalidateUserBasicInfo(userId);
 
       expect(revalidateTag).toHaveBeenCalledWith(
-        getUserProfileCacheTag(userId),
+        getUserBasicInfoCacheTag(userId),
       );
     });
   });

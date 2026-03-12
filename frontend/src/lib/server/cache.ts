@@ -1,44 +1,44 @@
 import type { Session } from "@supabase/supabase-js";
 import { revalidateTag, unstable_cache } from "next/cache";
 import type { UserSession } from "@/lib/auth";
-import { fetchUserProfileFromHono } from "@/lib/server/auth";
+import { fetchUserBasicInfoFromHono } from "@/lib/server/auth";
 
-export const CACHE_TAG_USER_PROFILE = "user-profile";
+export const CACHE_TAG_USER_BASIC_INFO = "user-basic-info";
 
 /**
  * ユーザーごとのキャッシュタグを生成
  */
-export const getUserProfileCacheTag = (userId: string) => {
-  return `${CACHE_TAG_USER_PROFILE}-${userId}`;
+export const getUserBasicInfoCacheTag = (userId: string) => {
+  return `${CACHE_TAG_USER_BASIC_INFO}-${userId}`;
 };
 
 /**
- * ユーザープロフィールをキャッシュ付きで取得
+ * ユーザー基本情報をキャッシュ付きで取得
  * TTL: 1週間 (604800秒)
  */
-export const getCachedUserProfile = async (
+export const getCachedUserBasicInfo = async (
   userId: string,
   session: Session,
 ): Promise<UserSession | null> => {
-  const getProfile = unstable_cache(
+  const getBasicInfo = unstable_cache(
     async () => {
       // キャッシュミス時にHono APIから取得
-      return fetchUserProfileFromHono(userId, session);
+      return fetchUserBasicInfoFromHono(userId, session);
     },
-    [getUserProfileCacheTag(userId)],
+    [getUserBasicInfoCacheTag(userId)],
     {
-      tags: [getUserProfileCacheTag(userId)],
+      tags: [getUserBasicInfoCacheTag(userId)],
       revalidate: 604800, // 1週間
     },
   );
 
-  return getProfile();
+  return getBasicInfo();
 };
 
 /**
- * ユーザープロフィールのキャッシュを無効化
+ * ユーザー基本情報のキャッシュを無効化
  */
-export const revalidateUserProfile = (userId: string) => {
+export const revalidateUserBasicInfo = (userId: string) => {
   // @ts-expect-error Next.js 16.0.10 type definition mismatch workaround
-  revalidateTag(getUserProfileCacheTag(userId));
+  revalidateTag(getUserBasicInfoCacheTag(userId));
 };

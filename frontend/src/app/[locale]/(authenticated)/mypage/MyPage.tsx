@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { useToast } from "@/contexts/ToastContext";
-import { getUserProfile } from "@/lib/api/client";
+import { getUserBasicInfo } from "@/lib/api/client";
 
 interface MyPageProps {
   initialUser: UserProfile;
@@ -17,31 +17,31 @@ export default function MyPage({ initialUser }: MyPageProps) {
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
-  const fetchUserProfile = useCallback(async () => {
+  const fetchUserBasicInfo = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await getUserProfile(user.id);
+      const result = await getUserBasicInfo(user.id);
       if (!result.success || !result.data) {
         const errorMessage =
           "error" in result
             ? result.error
-            : t("mypageContent.profileFetchFailed");
+            : t("mypageContent.basicInfoFetchFailed");
         throw new Error(errorMessage);
       }
 
       setUser(result.data);
     } catch (error) {
-      console.error("プロフィール取得エラー:", error);
-      showToast(t("mypageContent.profileFetchFailed"), "error");
+      console.error("基本情報取得エラー:", error);
+      showToast(t("mypageContent.basicInfoFetchFailed"), "error");
     } finally {
       setLoading(false);
     }
   }, [showToast, t, user.id]);
 
-  // マイページアクセス時に最新プロフィールを取得
+  // マイページアクセス時に最新の基本情報を取得
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    fetchUserBasicInfo();
+  }, [fetchUserBasicInfo]);
 
   return <MyPageContent user={user} loading={loading} />;
 }

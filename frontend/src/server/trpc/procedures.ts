@@ -69,6 +69,7 @@ type UserProfile = {
   username: string;
   profile_image_url: string | null;
   dojo_style_name: string | null;
+  dojo_style_id: string | null;
   training_start_date: string | null;
 };
 
@@ -408,7 +409,56 @@ export const updateTagOrderProcedure = publicProcedure
     });
   });
 
-export const getUserProfileProcedure = publicProcedure
+type DojoStyleSearchResult = {
+  id: string;
+  dojo_name: string;
+  dojo_name_kana: string | null;
+  is_approved: boolean;
+};
+
+type DojoStyleCreateResult = {
+  id: string;
+  dojo_name: string;
+  is_approved: boolean;
+};
+
+export const searchDojoStylesProcedure = publicProcedure
+  .input(
+    z.object({
+      query: z.string().min(1),
+      limit: z.number().int().min(1).max(50).default(10),
+    }),
+  )
+  .query(async ({ input }) => {
+    const query = new URLSearchParams({
+      query: input.query,
+      limit: String(input.limit),
+    });
+
+    return callHonoApi<ApiResponse<DojoStyleSearchResult[]>>(
+      `/api/dojo-styles/search?${query.toString()}`,
+    );
+  });
+
+export const createDojoStyleProcedure = publicProcedure
+  .input(
+    z.object({
+      dojo_name: z.string().min(1).max(100),
+      dojo_name_kana: z.string().optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<DojoStyleCreateResult>>("/api/dojo-styles", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(input),
+    });
+  });
+
+export const getUserBasicInfoProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -424,12 +474,13 @@ export const getUserProfileProcedure = publicProcedure
     });
   });
 
-export const updateUserProfileProcedure = publicProcedure
+export const updateUserBasicInfoProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),
       username: z.string().optional(),
       dojo_style_name: z.string().nullable().optional(),
+      dojo_style_id: z.string().uuid().nullable().optional(),
       training_start_date: z.string().nullable().optional(),
       profile_image_url: z.string().nullable().optional(),
     }),

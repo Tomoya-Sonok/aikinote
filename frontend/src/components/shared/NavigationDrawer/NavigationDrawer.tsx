@@ -9,7 +9,7 @@ import styles from "./NavigationDrawer.module.css";
 interface NavigationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onProfileEditClick: () => void;
+  onBasicInfoEditClick: () => void;
   onEmailClick: () => void;
   onTextSizeClick: () => void;
   onLanguageClick: () => void;
@@ -19,7 +19,7 @@ interface NavigationDrawerProps {
 export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   isOpen,
   onClose,
-  onProfileEditClick,
+  onBasicInfoEditClick,
   onEmailClick,
   onTextSizeClick,
   onLanguageClick,
@@ -74,8 +74,8 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
 
         <div className={styles.content}>
           <div className={styles.menu}>
-            <SettingItem onClick={onProfileEditClick}>
-              {t("navigation.profileEdit")}
+            <SettingItem onClick={onBasicInfoEditClick}>
+              {t("navigation.basicInfoEdit")}
             </SettingItem>
             <SettingItem onClick={onTagManagementClick}>
               {t("navigation.tagManagement")}

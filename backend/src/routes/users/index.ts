@@ -69,6 +69,7 @@ const resolveSupabaseClient = (
 const updateProfileSchema = z.object({
   username: z.string().min(1, "ユーザー名は必須です").optional(),
   dojo_style_name: z.string().nullable().optional(),
+  dojo_style_id: z.string().uuid().nullable().optional(),
   training_start_date: z.string().nullable().optional(),
   profile_image_url: z.string().nullable().optional(),
 });
@@ -509,7 +510,7 @@ app.get("/:userId", async (c) => {
     const { data: userData, error } = await supabase
       .from("User")
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, training_start_date",
+        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date",
       )
       .eq("id", userId)
       .single();
@@ -615,7 +616,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       const { data: currentUser, error: fetchError } = await supabase
         .from("User")
         .select(
-          "id, email, username, profile_image_url, dojo_style_name, training_start_date",
+          "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date",
         )
         .eq("id", userId)
         .single();
@@ -643,7 +644,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .update(updateData)
       .eq("id", userId)
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, training_start_date",
+        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date",
       )
       .single();
 

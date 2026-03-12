@@ -1,9 +1,9 @@
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { Skeleton } from "@/components/shared/Skeleton";
-import styles from "./ProfileCardSkeleton.module.css";
+import styles from "./BasicInfoCardSkeleton.module.css";
 
-export const ProfileCardSkeleton: FC = () => {
+export const BasicInfoCardSkeleton: FC = () => {
   const t = useTranslations();
 
   return (
@@ -23,11 +23,11 @@ export const ProfileCardSkeleton: FC = () => {
 
       <div className={styles.detailsSection}>
         <div className={styles.detail}>
-          <span className={styles.label}>{t("profile.currentDojo")}</span>
+          <span className={styles.label}>{t("basicInfo.currentDojo")}</span>
           <Skeleton variant="text" width="160px" height="16px" />
         </div>
         <div className={styles.detail}>
-          <span className={styles.label}>{t("profile.aikidoStartDate")}</span>
+          <span className={styles.label}>{t("basicInfo.aikidoStartDate")}</span>
           <Skeleton variant="text" width="120px" height="16px" />
         </div>
       </div>

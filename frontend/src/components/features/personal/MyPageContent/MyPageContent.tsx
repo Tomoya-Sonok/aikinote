@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { ProfileCard } from "@/components/features/profile/ProfileCard/ProfileCard";
-import { ProfileCardSkeleton } from "@/components/features/profile/ProfileCard/ProfileCardSkeleton";
+import { BasicInfoCard } from "@/components/features/basic-info/BasicInfoCard/BasicInfoCard";
+import { BasicInfoCardSkeleton } from "@/components/features/basic-info/BasicInfoCard/BasicInfoCardSkeleton";
 import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { SettingsMenu } from "@/components/features/setting/SettingsMenu/SettingsMenu";
 import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
@@ -17,6 +17,7 @@ export interface UserProfile {
   email: string;
   profile_image_url?: string | null;
   dojo_style_name?: string | null;
+  dojo_style_id?: string | null;
   training_start_date?: string | null;
   publicity_setting?: string;
   language?: string;
@@ -40,8 +41,8 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   const router = useRouter();
   const { signOutUser } = useAuth();
 
-  const handleEditProfile = () => {
-    router.push(`/${locale}/profile/edit`);
+  const handleEditBasicInfo = () => {
+    router.push(`/${locale}/mypage/basic-info/edit`);
   };
 
   const handleLogout = async () => {
@@ -60,11 +61,11 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 
   return (
     <div className={`${styles.content} ${className}`}>
-      <MenuSection title={t("mypageContent.profileSection")}>
+      <MenuSection title={t("mypageContent.basicInfoSection")}>
         {loading ? (
-          <ProfileCardSkeleton />
+          <BasicInfoCardSkeleton />
         ) : (
-          <ProfileCard
+          <BasicInfoCard
             username={user.username}
             dojoStyleName={
               user.dojo_style_name || t("mypageContent.notEntered")
@@ -73,7 +74,7 @@ export const MyPageContent: FC<MyPageContentProps> = ({
               user.training_start_date || t("mypageContent.notEntered")
             }
             profileImageUrl={user.profile_image_url}
-            onEditClick={handleEditProfile}
+            onEditClick={handleEditBasicInfo}
           />
         )}
       </MenuSection>

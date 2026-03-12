@@ -20,19 +20,29 @@ import {
 import { ZodError } from "zod";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { Button } from "@/components/shared/Button/Button";
+import {
+  DojoStyleAutocomplete,
+  type DojoStyleOption,
+} from "@/components/shared/DojoStyleAutocomplete/DojoStyleAutocomplete";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
-import { getUserProfile, updateUserProfile } from "@/lib/api/client";
+import {
+  createDojoStyle,
+  getUserBasicInfo,
+  updateUserBasicInfo,
+} from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { compressImage } from "@/lib/utils/compressImage";
 import { usernameSchema } from "@/lib/utils/validation";
-import styles from "./ProfileEdit.module.css";
+import styles from "./BasicInfoEdit.module.css";
 
-interface ProfileEditProps {
+interface BasicInfoEditProps {
   user: UserProfile;
 }
 
-export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
+export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
+  user: initialUser,
+}) => {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -41,8 +51,20 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
   const usernameInputId = useId();
-  const dojoInputId = useId();
   const trainingStartInputId = useId();
+
+  const [formData, setFormData] = useState({
+    username: user.username,
+    dojo_name: user.dojo_style_name || "",
+    dojo_style_id: user.dojo_style_id || (null as string | null),
+    training_start_date: user.training_start_date || "",
+    profile_image_url: user.profile_image_url || "",
+  });
+
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [dojoStyleError, setDojoStyleError] = useState<string | null>(null);
 
   const handleSave = async () => {
     // バリデーションチェック
@@ -51,11 +73,18 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     } catch (error) {
       if (error instanceof ZodError) {
         setUsernameError(
-          error.issues[0]?.message || t("profileEdit.invalidUsername"),
+          error.issues[0]?.message || t("basicInfoEdit.invalidUsername"),
         );
         return;
       }
     }
+
+    // 道場名: テキスト入力があるのに未登録の場合はエラー
+    if (formData.dojo_name && !formData.dojo_style_id) {
+      setDojoStyleError(t("basicInfoEdit.dojoStyleNotRegistered"));
+      return;
+    }
+    setDojoStyleError(null);
 
     try {
       let updatedProfileImageUrl = formData.profile_image_url;
@@ -68,28 +97,29 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
       const updatedData = {
         userId: user.id,
         username: formData.username,
-        dojo_style_name: formData.dojo_style_name || null,
+        dojo_style_name: formData.dojo_name || null,
+        dojo_style_id: formData.dojo_style_id,
         training_start_date: formData.training_start_date || null,
         profile_image_url: updatedProfileImageUrl || null,
       };
 
-      const result = await updateUserProfile(updatedData);
+      const result = await updateUserBasicInfo(updatedData);
       if (!result.success) {
-        throw new Error(result.error || t("profileEdit.communicationFailed"));
+        throw new Error(result.error || t("basicInfoEdit.communicationFailed"));
       }
 
       // ユーザー情報を再取得してセッションを更新
       await refreshUser();
 
-      showToast(t("profileEdit.updateSuccess"), "success");
+      showToast(t("basicInfoEdit.updateSuccess"), "success");
 
       router.push(`/${locale}/mypage`);
     } catch (error) {
-      console.error("プロフィール更新エラー:", error);
+      console.error("基本情報更新エラー:", error);
       showToast(
         error instanceof Error
           ? error.message
-          : t("profileEdit.communicationFailed"),
+          : t("basicInfoEdit.communicationFailed"),
         "error",
       );
     }
@@ -103,20 +133,8 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     router.push(`/${locale}/mypage`);
   };
 
-  const [formData, setFormData] = useState({
-    username: user.username,
-    dojo_style_name: user.dojo_style_name || "",
-    training_start_date: user.training_start_date || "",
-    profile_image_url: user.profile_image_url || "",
-  });
-
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [usernameError, setUsernameError] = useState<string | null>(null);
-
   // 画像アップロード用のヘルパー関数
   const uploadImageToS3 = async (file: File): Promise<string> => {
-    // ステップ1: 署名付きURLを取得
     const uploadUrlResponse = await fetch("/api/upload-url", {
       method: "POST",
       headers: {
@@ -131,12 +149,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
 
     if (!uploadUrlResponse.ok) {
       const errorData = await uploadUrlResponse.json();
-      throw new Error(errorData.error || t("profileEdit.uploadUrlFailed"));
+      throw new Error(errorData.error || t("basicInfoEdit.uploadUrlFailed"));
     }
 
     const { uploadUrl, fileKey } = await uploadUrlResponse.json();
 
-    // ステップ2: S3にファイルをアップロード
     const uploadResponse = await fetch(uploadUrl, {
       method: "PUT",
       headers: {
@@ -146,10 +163,9 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     });
 
     if (!uploadResponse.ok) {
-      throw new Error(t("profileEdit.s3UploadFailed"));
+      throw new Error(t("basicInfoEdit.s3UploadFailed"));
     }
 
-    // ステップ3: プロフィール画像URLを更新
     const updateResponse = await fetch("/api/profile-image", {
       method: "POST",
       headers: {
@@ -163,7 +179,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     if (!updateResponse.ok) {
       const errorData = await updateResponse.json();
       throw new Error(
-        errorData.error || t("profileEdit.profileImageUpdateFailed"),
+        errorData.error || t("basicInfoEdit.profileImageUpdateFailed"),
       );
     }
 
@@ -171,53 +187,43 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     return imageUrl;
   };
 
-  // 最新のプロフィール情報を取得
-  const fetchUserProfile = useCallback(async () => {
+  // 最新の基本情報を取得
+  const fetchUserBasicInfo = useCallback(async () => {
     try {
-      const result = await getUserProfile(user.id);
+      const result = await getUserBasicInfo(user.id);
       if (!result.success || !result.data) {
         const errorMessage =
           "error" in result
             ? result.error
-            : t("profileEdit.profileFetchFailed");
+            : t("basicInfoEdit.profileFetchFailed");
         throw new Error(errorMessage);
       }
 
       const latestUser = result.data;
 
-      // ユーザー情報とフォームデータを更新
       setUser(latestUser);
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
         username: latestUser.username,
-        dojo_style_name: latestUser.dojo_style_name || "",
+        dojo_name: latestUser.dojo_style_name || "",
+        dojo_style_id: latestUser.dojo_style_id || null,
         training_start_date: latestUser.training_start_date || "",
         profile_image_url: latestUser.profile_image_url || "",
-      });
+      }));
     } catch (error) {
-      console.error("プロフィール取得エラー:", error);
-      showToast(t("profileEdit.profileFetchFailed"), "error");
+      console.error("基本情報取得エラー:", error);
+      showToast(t("basicInfoEdit.profileFetchFailed"), "error");
     } finally {
       setLoading(false);
     }
   }, [showToast, t, user.id]);
 
-  // コンポーネントマウント時に最新プロフィールを取得
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
-
-  // フォームデータの初期化（userが更新された時）
-  useEffect(() => {
-    setFormData({
-      username: user.username,
-      dojo_style_name: user.dojo_style_name || "",
-      training_start_date: user.training_start_date || "",
-      profile_image_url: user.profile_image_url || "",
-    });
-  }, [user]);
+    fetchUserBasicInfo();
+  }, [fetchUserBasicInfo]);
 
   const handleInputChange =
-    (field: keyof typeof formData) =>
+    (field: "username" | "training_start_date" | "profile_image_url") =>
     (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
@@ -225,7 +231,6 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
         [field]: value,
       }));
 
-      // ユーザー名のバリデーション
       if (field === "username") {
         try {
           usernameSchema.parse({ username: value });
@@ -233,30 +238,67 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
         } catch (error) {
           if (error instanceof ZodError) {
             setUsernameError(
-              error.issues[0]?.message || t("profileEdit.invalidUsername"),
+              error.issues[0]?.message || t("basicInfoEdit.invalidUsername"),
             );
           }
         }
       }
     };
 
+  const handleDojoStyleSelect = (dojoStyle: DojoStyleOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      dojo_name: dojoStyle.dojo_name,
+      dojo_style_id: dojoStyle.id,
+    }));
+    setDojoStyleError(null);
+  };
+
+  const handleRegisterNewDojo = async (query: string) => {
+    try {
+      const result = await createDojoStyle({
+        dojo_name: query,
+      });
+
+      if (result.success && result.data) {
+        setFormData((prev) => ({
+          ...prev,
+          dojo_name: result.data.dojo_name,
+          dojo_style_id: result.data.id,
+        }));
+        setDojoStyleError(null);
+        showToast(t("basicInfoEdit.dojoRegistrationSuccess"), "success");
+      }
+    } catch (error) {
+      console.error("道場登録エラー:", error);
+      showToast(t("basicInfoEdit.communicationFailed"), "error");
+    }
+  };
+
+  const handleClearDojoStyle = () => {
+    setFormData((prev) => ({
+      ...prev,
+      dojo_name: "",
+      dojo_style_id: null,
+    }));
+  };
+
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       try {
-        // 画像をリサイズ・圧縮してからセット
         const compressedFile = await compressImage(file, {
           maxWidth: 512,
           maxHeight: 512,
           quality: 0.85,
           outputType: "image/jpeg",
-          maxFileSize: 1024 * 1024, // 1MB
+          maxFileSize: 1024 * 1024,
         });
         setProfileImageFile(compressedFile);
         const url = URL.createObjectURL(compressedFile);
         setPreviewUrl(url);
       } catch {
-        showToast(t("profileEdit.communicationFailed"), "error");
+        showToast(t("basicInfoEdit.communicationFailed"), "error");
       }
     }
   };
@@ -272,7 +314,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
 
   const currentImageUrl = previewUrl || formData.profile_image_url;
   const canDeleteImage = !!profileImageFile || !!formData.profile_image_url;
-  const uploadInstructionLines = t("profileEdit.uploadInstructions").split(
+  const uploadInstructionLines = t("basicInfoEdit.uploadInstructions").split(
     "\n",
   );
   const lineOccurrences = new Map<string, number>();
@@ -285,11 +327,10 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     };
   });
 
-  // ローディング中の表示
   if (loading) {
     return (
       <div className={styles.content}>
-        <Loader size="medium" centered text={t("profileEdit.loading")} />
+        <Loader size="medium" centered text={t("basicInfoEdit.loading")} />
       </div>
     );
   }
@@ -303,7 +344,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
               {currentImageUrl ? (
                 <Image
                   src={currentImageUrl}
-                  alt={t("profileEdit.profileImageAlt")}
+                  alt={t("basicInfoEdit.profileImageAlt")}
                   fill
                   sizes="96px"
                   style={{ objectFit: "cover" }}
@@ -343,7 +384,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
               >
                 {profileImageFile
                   ? profileImageFile.name
-                  : t("profileEdit.noFileUploaded")}
+                  : t("basicInfoEdit.noFileUploaded")}
               </p>
               <button
                 className={styles.deleteButton}
@@ -368,9 +409,9 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
             <label htmlFor={usernameInputId} className={styles.label}>
-              {t("profileEdit.username")}
+              {t("basicInfoEdit.username")}
               <span className={styles.required}>
-                {t("profileEdit.required")}
+                {t("basicInfoEdit.required")}
               </span>
             </label>
             <input
@@ -379,7 +420,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
               value={formData.username}
               onChange={handleInputChange("username")}
               className={`${styles.inputField} ${usernameError ? styles.error : ""}`}
-              placeholder={t("profileEdit.usernamePlaceholder")}
+              placeholder={t("basicInfoEdit.usernamePlaceholder")}
               maxLength={20}
             />
             {usernameError && (
@@ -392,29 +433,37 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor={dojoInputId} className={styles.label}>
-              {t("profileEdit.currentDojo")}
-            </label>
-            <input
-              type="text"
-              id={dojoInputId}
-              value={formData.dojo_style_name}
-              onChange={handleInputChange("dojo_style_name")}
-              placeholder={t("profileEdit.dojoPlaceholder")}
-              className={styles.inputField}
+            <span className={styles.label}>{t("basicInfoEdit.dojoName")}</span>
+            <DojoStyleAutocomplete
+              value={formData.dojo_name}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, dojo_name: val }))
+              }
+              onSelect={handleDojoStyleSelect}
+              onRegisterNew={handleRegisterNewDojo}
+              placeholder={t("basicInfoEdit.dojoNamePlaceholder")}
+              selectedId={formData.dojo_style_id}
+              onClear={handleClearDojoStyle}
             />
+            {dojoStyleError && (
+              <div
+                style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}
+              >
+                {dojoStyleError}
+              </div>
+            )}
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor={trainingStartInputId} className={styles.label}>
-              {t("profileEdit.trainingStartDate")}
+              {t("basicInfoEdit.trainingStartDate")}
             </label>
             <input
               type="text"
               id={trainingStartInputId}
               value={formData.training_start_date}
               onChange={handleInputChange("training_start_date")}
-              placeholder={t("profileEdit.trainingStartPlaceholder")}
+              placeholder={t("basicInfoEdit.trainingStartPlaceholder")}
               className={styles.inputField}
             />
           </div>
@@ -422,10 +471,10 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
       </div>
       <div className={styles.actions}>
         <Button variant="cancel" onClick={handleCancel}>
-          {t("profileEdit.cancel")}
+          {t("basicInfoEdit.cancel")}
         </Button>
         <Button variant="primary" onClick={handleSave}>
-          {t("profileEdit.save")}
+          {t("basicInfoEdit.save")}
         </Button>
       </div>
     </>

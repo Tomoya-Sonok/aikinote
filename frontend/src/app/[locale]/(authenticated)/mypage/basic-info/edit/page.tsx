@@ -3,8 +3,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser, getUserProfile } from "@/lib/server/auth";
-import { ProfileEdit } from "./ProfileEdit";
+import { getCurrentUser, getUserBasicInfo } from "@/lib/server/auth";
+import { BasicInfoEdit } from "./BasicInfoEdit";
 
 export async function generateMetadata({
   params,
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "profileEdit" });
+  const t = await getTranslations({ locale, namespace: "basicInfoEdit" });
 
   return buildMetadata({
     title: t("title"),
@@ -20,13 +20,13 @@ export async function generateMetadata({
   });
 }
 
-export default async function ProfileEditPage({
+export default async function BasicInfoEditPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "profileEdit" });
+  const t = await getTranslations({ locale, namespace: "basicInfoEdit" });
   const loginPath = `/${locale}/login`;
   const myPagePath = `/${locale}/mypage`;
 
@@ -36,13 +36,13 @@ export default async function ProfileEditPage({
     redirect(loginPath);
   }
 
-  const { data: userProfile, error } = await getUserProfile(user.id);
+  const { data: userBasicInfo, error } = await getUserBasicInfo(user.id);
 
-  if (error || !userProfile) {
+  if (error || !userBasicInfo) {
     redirect(loginPath);
   }
 
-  const profile = userProfile || {
+  const profile = userBasicInfo || {
     id: user.id,
     email: user.email || "",
     username: user.username || t("usernamePlaceholder"),
@@ -57,7 +57,7 @@ export default async function ProfileEditPage({
 
   return (
     <MinimalLayout backHref={myPagePath} headerTitle={t("title")}>
-      <ProfileEdit user={profile} />
+      <BasicInfoEdit user={profile} />
     </MinimalLayout>
   );
 }

@@ -191,7 +191,7 @@
     "backToLogin": "ログイン画面へ",
     "completeNote": "続けてログインし直してください。"
   },
-  "profile": {
+  "basicInfo": {
     "edit": "編集する",
     "notEntered": "未入力",
     "currentDojo": "現在所属している道場（流派）",
@@ -245,7 +245,7 @@
   },
   "navigation": {
     "settings": "設定",
-    "profileEdit": "プロフィール編集",
+    "basicInfoEdit": "基本情報の編集",
     "email": "メール",
     "fontSize": "文字サイズ",
     "language": "言語 / Language",
@@ -565,11 +565,11 @@
   },
   "mypage": {
     "title": "マイページ",
-    "description": "あなたのプロフィールと練習記録を管理できます"
+    "description": "あなたの基本情報と練習記録を管理できます"
   },
-  "profileEdit": {
-    "title": "プロフィール編集",
-    "description": "プロフィール情報を編集できます",
+  "basicInfoEdit": {
+    "title": "基本情報の編集",
+    "description": "基本情報を編集できます",
     "loading": "読み込み中...",
     "username": "ユーザー名",
     "required": "必須",
@@ -584,22 +584,28 @@
     "noFileUploaded": "ファイルがアップロードされていません",
     "cancel": "キャンセル",
     "save": "保存する",
-    "updateSuccess": "プロフィールを更新しました",
+    "updateSuccess": "基本情報を更新しました",
     "authTokenFailed": "認証トークンの取得に失敗しました",
     "communicationFailed": "通信に失敗しました",
     "uploadUrlFailed": "アップロードURLの取得に失敗しました",
     "s3UploadFailed": "S3へのアップロードに失敗しました",
     "profileImageUpdateFailed": "プロフィール画像の更新に失敗しました",
-    "profileFetchFailed": "プロフィールの取得に失敗しました"
+    "profileFetchFailed": "基本情報の取得に失敗しました",
+    "dojoName": "道場名",
+    "dojoNamePlaceholder": "例: 合気会本部道場",
+    "registerNewDojo": "「{query}」を新しく登録する",
+    "dojoRegistrationSuccess": "道場情報を登録しました。管理者の承認後、他のユーザーの検索結果にも表示されます",
+    "approved": "承認済み",
+    "dojoStyleNotRegistered": "候補から選択するか、「新しく登録する」を選択してください"
   },
   "mypageContent": {
-    "profileSection": "プロフィール",
+    "basicInfoSection": "基本情報",
     "settingsSection": "設定",
     "otherSection": "その他",
     "notEntered": "未入力",
-    "loadingProfile": "読み込み中...",
+    "loadingBasicInfo": "読み込み中...",
     "logoutFailed": "ログアウトに失敗しました。再度お試しください。",
-    "profileFetchFailed": "プロフィールの取得に失敗しました"
+    "basicInfoFetchFailed": "基本情報の取得に失敗しました"
   },
   "validation": {
     "invalidEmail": "有効なメールアドレスを入力してください",

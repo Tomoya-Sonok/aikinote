@@ -42,7 +42,7 @@ const CACHE_TTL_MS = {
   pagesList: 30_000,
   pageById: 30_000,
   tagsList: 60_000,
-  userProfile: 60_000,
+  userBasicInfo: 60_000,
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
 } as const;
@@ -457,56 +457,83 @@ export const getTrainingStats = async ({
   }
 };
 
-export interface UpdateUserProfilePayload {
+export interface UpdateUserBasicInfoPayload {
   userId: string;
   username?: string;
   dojo_style_name?: string | null;
+  dojo_style_id?: string | null;
   training_start_date?: string | null;
   profile_image_url?: string | null;
 }
 
-export const getUserProfile = async (userId: string) => {
+// 道場検索
+export interface SearchDojoStylesParams {
+  query: string;
+  limit?: number;
+}
+
+export const searchDojoStyles = async ({
+  query,
+  limit = 10,
+}: SearchDojoStylesParams) => {
   try {
-    const input = { userId };
-    return await cachedQuery(
-      "users:getProfile",
-      input,
-      CACHE_TTL_MS.userProfile,
-      async () => trpcClient.users.getProfile.query(input),
-    );
+    return await trpcClient.dojoStyles.search.query({ query, limit });
   } catch (error) {
-    throw new Error(
-      getErrorMessage(error, "ユーザープロフィールの取得に失敗しました"),
-    );
+    throw new Error(getErrorMessage(error, "道場の検索に失敗しました"));
   }
 };
 
-export const updateUserProfile = async (payload: UpdateUserProfilePayload) => {
+// 道場新規登録
+export interface CreateDojoStylePayload {
+  dojo_name: string;
+  dojo_name_kana?: string;
+}
+
+export const createDojoStyle = async (payload: CreateDojoStylePayload) => {
   try {
-    const response = await trpcClient.users.updateProfile.mutate(payload);
+    return await trpcClient.dojoStyles.create.mutate(payload);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "道場の登録に失敗しました"));
+  }
+};
+
+export const getUserBasicInfo = async (userId: string) => {
+  try {
+    const input = { userId };
+    return await cachedQuery(
+      "users:getBasicInfo",
+      input,
+      CACHE_TTL_MS.userBasicInfo,
+      async () => trpcClient.users.getBasicInfo.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "基本情報の取得に失敗しました"));
+  }
+};
+
+export const updateUserBasicInfo = async (
+  payload: UpdateUserBasicInfoPayload,
+) => {
+  try {
+    const response = await trpcClient.users.updateBasicInfo.mutate(payload);
 
     if (response.success) {
-      // Manual cache update is error-prone. Invalidate instead to force fresh fetch.
-      invalidateQueryCacheByPrefixes(["users:getProfile"]);
+      invalidateQueryCacheByPrefixes(["users:getBasicInfo"]);
     }
 
     return response;
   } catch (error) {
-    throw new Error(
-      getErrorMessage(error, "ユーザープロフィールの更新に失敗しました"),
-    );
+    throw new Error(getErrorMessage(error, "基本情報の更新に失敗しました"));
   }
 };
 
-export interface CreateUserProfilePayload {
+export interface CreateUserPayload {
   email: string;
   password: string;
   username: string;
 }
 
-export const createUserProfileViaTrpc = async (
-  payload: CreateUserProfilePayload,
-) => {
+export const createUserViaTrpc = async (payload: CreateUserPayload) => {
   try {
     return await trpcClient.users.create.mutate(payload);
   } catch (error) {

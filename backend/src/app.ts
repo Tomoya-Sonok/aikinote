@@ -6,6 +6,7 @@ import {
   setSupabaseClient,
   supabase as supabaseFromModule,
 } from "./lib/supabase.js";
+import dojoStylesRoute from "./routes/dojo-styles/index.js";
 import pagesRoute from "./routes/pages/index.js";
 import statsRoute from "./routes/stats/index.js";
 import tagsRoute from "./routes/tags/index.js";
@@ -182,6 +183,7 @@ app.get("/health", (c) => {
 });
 
 // APIルートを追加
+app.route("/api/dojo-styles", dojoStylesRoute);
 app.route("/api/pages", pagesRoute);
 app.route("/api/stats", statsRoute);
 app.route("/api/tags", tagsRoute);

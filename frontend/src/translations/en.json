@@ -191,7 +191,7 @@
     "backToLogin": "Go to login",
     "completeNote": "Please sign in again with your new email."
   },
-  "profile": {
+  "basicInfo": {
     "edit": "Edit",
     "notEntered": "Not entered",
     "currentDojo": "Current dojo (style)",
@@ -245,7 +245,7 @@
   },
   "navigation": {
     "settings": "Settings",
-    "profileEdit": "Edit Profile",
+    "basicInfoEdit": "Edit Basic Info",
     "email": "Email",
     "fontSize": "Font Size",
     "language": "Language / 言語",
@@ -563,12 +563,12 @@
   },
   "mypage": {
     "title": "My Page",
-    "description": "Manage your profile and practice records"
+    "description": "Manage your basic info and practice records"
   },
-  "profileEdit": {
-    "title": "Edit Profile",
-    "description": "Edit your profile information",
-    "loading": "Loading profile information...",
+  "basicInfoEdit": {
+    "title": "Edit Basic Info",
+    "description": "Edit your basic information",
+    "loading": "Loading basic information...",
     "username": "Username",
     "required": "required",
     "usernamePlaceholder": "Not set",
@@ -582,22 +582,28 @@
     "noFileUploaded": "No file uploaded",
     "cancel": "Cancel",
     "save": "Save",
-    "updateSuccess": "Profile updated successfully",
+    "updateSuccess": "Basic info updated successfully",
     "authTokenFailed": "Failed to get authentication token",
     "communicationFailed": "Communication failed",
     "uploadUrlFailed": "Failed to get upload URL",
     "s3UploadFailed": "Failed to upload to S3",
     "profileImageUpdateFailed": "Failed to update profile image",
-    "profileFetchFailed": "Failed to fetch profile"
+    "profileFetchFailed": "Failed to fetch basic info",
+    "dojoName": "Dojo Name",
+    "dojoNamePlaceholder": "e.g. Aikikai Honbu Dojo",
+    "registerNewDojo": "Register \"{query}\" as new",
+    "dojoRegistrationSuccess": "Dojo info registered. It will appear in other users' search results after admin approval",
+    "approved": "Approved",
+    "dojoStyleNotRegistered": "Please select from suggestions or choose \"Register as new\""
   },
   "mypageContent": {
-    "profileSection": "Profile",
+    "basicInfoSection": "Basic Info",
     "settingsSection": "Settings",
     "otherSection": "Other",
     "notEntered": "Not entered",
-    "loadingProfile": "Loading profile information...",
+    "loadingBasicInfo": "Loading basic information...",
     "logoutFailed": "Logout failed. Please try again.",
-    "profileFetchFailed": "Failed to fetch profile"
+    "basicInfoFetchFailed": "Failed to fetch basic info"
   },
   "validation": {
     "invalidEmail": "Please enter a valid email address",

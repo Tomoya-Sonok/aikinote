@@ -1,7 +1,7 @@
 import type { Session } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
-import { getCachedUserProfile } from "@/lib/server/cache";
+import { getCachedUserBasicInfo } from "@/lib/server/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types/api";
 
@@ -13,12 +13,13 @@ const HONO_API_BASE_URL =
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-type HonoUserProfile = {
+type HonoUserBasicInfo = {
   id: string;
   email: string;
   username: string;
   profile_image_url: string | null;
   dojo_style_name: string | null;
+  dojo_style_id?: string | null;
   training_start_date?: string | null;
 };
 
@@ -52,7 +53,7 @@ const createBackendAuthToken = async () => {
   return createBackendAuthTokenFromSession(session);
 };
 
-export const fetchUserProfileFromHono = async (
+export const fetchUserBasicInfoFromHono = async (
   userId: string,
   sessionOverride?: Session | null,
 ): Promise<UserSession | null> => {
@@ -75,7 +76,7 @@ export const fetchUserProfileFromHono = async (
     return null;
   }
 
-  const result: ApiResponse<HonoUserProfile> = await response
+  const result: ApiResponse<HonoUserBasicInfo> = await response
     .json()
     .catch(() => ({ success: false, error: "Invalid JSON response" }));
 
@@ -94,6 +95,7 @@ export const fetchUserProfileFromHono = async (
     username: data.username,
     profile_image_url: data.profile_image_url || null,
     dojo_style_name: data.dojo_style_name || null,
+    dojo_style_id: data.dojo_style_id || null,
   };
 };
 
@@ -110,25 +112,25 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       return null;
     }
 
-    // キャッシュを利用してプロフィール取得
-    return await getCachedUserProfile(session.user.id, session);
+    // キャッシュを利用して基本情報取得
+    return await getCachedUserBasicInfo(session.user.id, session);
   } catch (error) {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;
   }
 }
 
-export async function getUserProfile(userId: string) {
+export async function getUserBasicInfo(userId: string) {
   try {
-    const userProfile = await fetchUserProfileFromHono(userId);
+    const userBasicInfo = await fetchUserBasicInfoFromHono(userId);
 
-    if (userProfile) {
-      return { data: userProfile, error: null };
+    if (userBasicInfo) {
+      return { data: userBasicInfo, error: null };
     }
 
     return { data: null, error: { message: "User not found" } };
   } catch (error) {
-    console.error("getUserProfile API call failed:", error);
+    console.error("getUserBasicInfo API call failed:", error);
     return { data: null, error: { message: "API call failed" } };
   }
 }

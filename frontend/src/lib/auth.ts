@@ -18,6 +18,7 @@ export type UserSession = {
   username: string;
   profile_image_url: string | null;
   dojo_style_name: string | null;
+  dojo_style_id?: string | null;
 };
 
 export async function signUp(credentials: SignUpCredentials) {
