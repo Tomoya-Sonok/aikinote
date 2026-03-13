@@ -42,7 +42,7 @@ const CACHE_TTL_MS = {
   pagesList: 30_000,
   pageById: 30_000,
   tagsList: 60_000,
-  userBasicInfo: 60_000,
+  userInfo: 60_000,
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
   socialFeed: 15_000,
@@ -462,7 +462,7 @@ export const getTrainingStats = async ({
   }
 };
 
-export interface UpdateUserBasicInfoPayload {
+export interface UpdateUserInfoPayload {
   userId: string;
   username?: string;
   dojo_style_name?: string | null;
@@ -520,33 +520,31 @@ export const checkUsernameAvailability = async (
   }
 };
 
-export const getUserBasicInfo = async (userId: string) => {
+export const getUserInfo = async (userId: string) => {
   try {
     const input = { userId };
     return await cachedQuery(
-      "users:getBasicInfo",
+      "users:getUserInfo",
       input,
-      CACHE_TTL_MS.userBasicInfo,
-      async () => trpcClient.users.getBasicInfo.query(input),
+      CACHE_TTL_MS.userInfo,
+      async () => trpcClient.users.getUserInfo.query(input),
     );
   } catch (error) {
-    throw new Error(getErrorMessage(error, "基本情報の取得に失敗しました"));
+    throw new Error(getErrorMessage(error, "ユーザー情報の取得に失敗しました"));
   }
 };
 
-export const updateUserBasicInfo = async (
-  payload: UpdateUserBasicInfoPayload,
-) => {
+export const updateUserInfo = async (payload: UpdateUserInfoPayload) => {
   try {
-    const response = await trpcClient.users.updateBasicInfo.mutate(payload);
+    const response = await trpcClient.users.updateUserInfo.mutate(payload);
 
     if (response.success) {
-      invalidateQueryCacheByPrefixes(["users:getBasicInfo"]);
+      invalidateQueryCacheByPrefixes(["users:getUserInfo"]);
     }
 
     return response;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "基本情報の更新に失敗しました"));
+    throw new Error(getErrorMessage(error, "ユーザー情報の更新に失敗しました"));
   }
 };
 

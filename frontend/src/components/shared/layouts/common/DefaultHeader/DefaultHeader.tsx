@@ -47,9 +47,9 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     window.location.href = `/${locale}/settings/font-size`;
   };
 
-  const handleBasicInfoEditClick = () => {
+  const handleUserInfoEditClick = () => {
     setIsDrawerOpen(false);
-    window.location.href = `/${locale}/mypage/basic-info/edit`;
+    window.location.href = `/${locale}/mypage/user-info/edit`;
   };
 
   const handleEmailClick = () => {
@@ -179,7 +179,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
       <NavigationDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
-        onBasicInfoEditClick={handleBasicInfoEditClick}
+        onUserInfoEditClick={handleUserInfoEditClick}
         onEmailClick={handleEmailClick}
         onTextSizeClick={handleTextSizeClick}
         onLanguageClick={handleLanguageClick}

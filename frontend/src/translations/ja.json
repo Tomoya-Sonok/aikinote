@@ -191,7 +191,7 @@
     "backToLogin": "ログイン画面へ",
     "completeNote": "続けてログインし直してください。"
   },
-  "basicInfo": {
+  "userInfo": {
     "edit": "編集する",
     "notEntered": "未入力",
     "currentDojo": "現在所属している道場（流派）",
@@ -246,7 +246,7 @@
   },
   "navigation": {
     "settings": "設定",
-    "basicInfoEdit": "基本情報の編集",
+    "userInfoEdit": "ユーザー情報",
     "email": "メール",
     "fontSize": "文字サイズ",
     "language": "言語 / Language",
@@ -657,9 +657,9 @@
     "title": "マイページ",
     "description": "あなたの基本情報と練習記録を管理できます"
   },
-  "basicInfoEdit": {
-    "title": "基本情報の編集",
-    "description": "基本情報を編集できます",
+  "userInfoEdit": {
+    "title": "ユーザー情報の編集",
+    "description": "ユーザー情報を編集できます",
     "loading": "読み込み中...",
     "username": "ユーザー名",
     "required": "必須",
@@ -674,13 +674,13 @@
     "noFileUploaded": "ファイルがアップロードされていません",
     "cancel": "キャンセル",
     "save": "保存する",
-    "updateSuccess": "基本情報を更新しました",
+    "updateSuccess": "ユーザー情報を更新しました",
     "authTokenFailed": "認証トークンの取得に失敗しました",
     "communicationFailed": "通信に失敗しました",
     "uploadUrlFailed": "アップロードURLの取得に失敗しました",
     "s3UploadFailed": "S3へのアップロードに失敗しました",
     "profileImageUpdateFailed": "プロフィール画像の更新に失敗しました",
-    "profileFetchFailed": "基本情報の取得に失敗しました",
+    "profileFetchFailed": "ユーザー情報の取得に失敗しました",
     "dojoName": "道場名",
     "dojoNamePlaceholder": "例: 合気会本部道場",
     "registerNewDojo": "「{query}」を新しく登録する",
@@ -693,13 +693,13 @@
     "aikidoRankPlaceholder": "選択してください"
   },
   "mypageContent": {
-    "basicInfoSection": "基本情報",
+    "userInfoSection": "ユーザー情報",
     "settingsSection": "設定",
     "otherSection": "その他",
     "notEntered": "未入力",
-    "loadingBasicInfo": "読み込み中...",
+    "loadingUserInfo": "読み込み中...",
     "logoutFailed": "ログアウトに失敗しました。再度お試しください。",
-    "basicInfoFetchFailed": "基本情報の取得に失敗しました"
+    "userInfoFetchFailed": "ユーザー情報の取得に失敗しました"
   },
   "validation": {
     "invalidEmail": "有効なメールアドレスを入力してください",

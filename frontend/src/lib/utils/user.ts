@@ -1,4 +1,4 @@
-import { createUserViaTrpc, getUserBasicInfo } from "@/lib/api/client";
+import { createUserViaTrpc, getUserInfo } from "@/lib/api/client";
 import type { UserSession } from "@/lib/auth";
 
 /**
@@ -16,7 +16,7 @@ export async function fetchUserProfile(
   void options;
 
   try {
-    const result = await getUserBasicInfo(userId);
+    const result = await getUserInfo(userId);
     if (!result.success || !result.data) {
       return null;
     }

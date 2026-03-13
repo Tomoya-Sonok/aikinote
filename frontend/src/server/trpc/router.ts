@@ -20,7 +20,7 @@ import {
   getTrainingStatsProcedure,
   getUnreadNotificationCountProcedure,
   getUnreadNotificationPostIdsProcedure,
-  getUserBasicInfoProcedure,
+  getUserInfoProcedure,
   healthProcedure,
   honoBridgeTodoProcedure,
   initializeUserTagsProcedure,
@@ -38,7 +38,7 @@ import {
   updateSocialPostProcedure,
   updateSocialReplyProcedure,
   updateTagOrderProcedure,
-  updateUserBasicInfoProcedure,
+  updateUserInfoProcedure,
   upsertTrainingDateAttendanceProcedure,
 } from "./procedures";
 
@@ -73,8 +73,8 @@ export const appRouter = createTRPCRouter({
     create: createDojoStyleProcedure,
   }),
   users: createTRPCRouter({
-    getBasicInfo: getUserBasicInfoProcedure,
-    updateBasicInfo: updateUserBasicInfoProcedure,
+    getUserInfo: getUserInfoProcedure,
+    updateUserInfo: updateUserInfoProcedure,
     create: createUserProcedure,
     checkUsername: checkUsernameProcedure,
   }),

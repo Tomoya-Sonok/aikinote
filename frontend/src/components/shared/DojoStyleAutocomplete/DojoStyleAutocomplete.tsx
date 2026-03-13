@@ -190,7 +190,7 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
         <div className={styles.dropdown} ref={listRef} role="listbox">
           {isSearching && (
             <div className={styles.loadingItem}>
-              {t("basicInfoEdit.loading")}
+              {t("userInfoEdit.loading")}
             </div>
           )}
 
@@ -220,7 +220,7 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
                     color="var(--success-color)"
                   />
                   <span className={styles.approvedText}>
-                    {t("basicInfoEdit.approved")}
+                    {t("userInfoEdit.approved")}
                   </span>
                 </span>
               )}
@@ -239,7 +239,7 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
               tabIndex={0}
               aria-selected={activeIndex === suggestions.length}
             >
-              {t("basicInfoEdit.registerNewDojo", { query: value.trim() })}
+              {t("userInfoEdit.registerNewDojo", { query: value.trim() })}
             </div>
           )}
         </div>

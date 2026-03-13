@@ -1,7 +1,7 @@
 import type { Session } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
-import { getCachedUserBasicInfo } from "@/lib/server/cache";
+import { getCachedUserInfo } from "@/lib/server/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types/api";
 
@@ -13,7 +13,7 @@ const HONO_API_BASE_URL =
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-type HonoUserBasicInfo = {
+type HonoUserInfo = {
   id: string;
   email: string;
   username: string;
@@ -53,7 +53,7 @@ const createBackendAuthToken = async () => {
   return createBackendAuthTokenFromSession(session);
 };
 
-export const fetchUserBasicInfoFromHono = async (
+export const fetchUserInfoFromHono = async (
   userId: string,
   sessionOverride?: Session | null,
 ): Promise<UserSession | null> => {
@@ -76,7 +76,7 @@ export const fetchUserBasicInfoFromHono = async (
     return null;
   }
 
-  const result: ApiResponse<HonoUserBasicInfo> = await response
+  const result: ApiResponse<HonoUserInfo> = await response
     .json()
     .catch(() => ({ success: false, error: "Invalid JSON response" }));
 
@@ -112,25 +112,25 @@ export async function getCurrentUser(): Promise<UserSession | null> {
       return null;
     }
 
-    // キャッシュを利用して基本情報取得
-    return await getCachedUserBasicInfo(session.user.id, session);
+    // キャッシュを利用してユーザー情報取得
+    return await getCachedUserInfo(session.user.id, session);
   } catch (error) {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;
   }
 }
 
-export async function getUserBasicInfo(userId: string) {
+export async function getUserInfo(userId: string) {
   try {
-    const userBasicInfo = await fetchUserBasicInfoFromHono(userId);
+    const userInfo = await fetchUserInfoFromHono(userId);
 
-    if (userBasicInfo) {
-      return { data: userBasicInfo, error: null };
+    if (userInfo) {
+      return { data: userInfo, error: null };
     }
 
     return { data: null, error: { message: "User not found" } };
   } catch (error) {
-    console.error("getUserBasicInfo API call failed:", error);
+    console.error("getUserInfo API call failed:", error);
     return { data: null, error: { message: "API call failed" } };
   }
 }

@@ -29,22 +29,20 @@ import { useToast } from "@/contexts/ToastContext";
 import {
   checkUsernameAvailability,
   createDojoStyle,
-  getUserBasicInfo,
-  updateUserBasicInfo,
+  getUserInfo,
+  updateUserInfo,
 } from "@/lib/api/client";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
 import { usernameSchema } from "@/lib/utils/validation";
-import styles from "./BasicInfoEdit.module.css";
+import styles from "./UserInfoEdit.module.css";
 
-interface BasicInfoEditProps {
+interface UserInfoEditProps {
   user: UserProfile;
 }
 
-export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
-  user: initialUser,
-}) => {
+export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -82,7 +80,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
     } catch (error) {
       if (error instanceof ZodError) {
         setUsernameError(
-          error.issues[0]?.message || t("basicInfoEdit.invalidUsername"),
+          error.issues[0]?.message || t("userInfoEdit.invalidUsername"),
         );
         return;
       }
@@ -95,7 +93,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
 
     // 道場名: テキスト入力があるのに未登録の場合はエラー
     if (formData.dojo_name && !formData.dojo_style_id) {
-      setDojoStyleError(t("basicInfoEdit.dojoStyleNotRegistered"));
+      setDojoStyleError(t("userInfoEdit.dojoStyleNotRegistered"));
       return;
     }
     setDojoStyleError(null);
@@ -117,28 +115,28 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         profile_image_url: updatedProfileImageUrl || null,
       };
 
-      const result = await updateUserBasicInfo(updatedData);
+      const result = await updateUserInfo(updatedData);
       if (!result.success) {
         const errorMsg = result.error || "";
         if (errorMsg.includes("既に使用されています")) {
-          setUsernameError(t("basicInfoEdit.usernameTaken"));
+          setUsernameError(t("userInfoEdit.usernameTaken"));
           return;
         }
-        throw new Error(errorMsg || t("basicInfoEdit.communicationFailed"));
+        throw new Error(errorMsg || t("userInfoEdit.communicationFailed"));
       }
 
       // ユーザー情報を再取得してセッションを更新
       await refreshUser();
 
-      showToast(t("basicInfoEdit.updateSuccess"), "success");
+      showToast(t("userInfoEdit.updateSuccess"), "success");
 
       router.push(`/${locale}/mypage`);
     } catch (error) {
-      console.error("基本情報更新エラー:", error);
+      console.error("ユーザー情報更新エラー:", error);
       showToast(
         error instanceof Error
           ? error.message
-          : t("basicInfoEdit.communicationFailed"),
+          : t("userInfoEdit.communicationFailed"),
         "error",
       );
     }
@@ -149,15 +147,15 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
     router.push(`/${locale}/mypage`);
   };
 
-  // 最新の基本情報を取得
-  const fetchUserBasicInfo = useCallback(async () => {
+  // 最新のユーザー情報を取得
+  const fetchUserInfo = useCallback(async () => {
     try {
-      const result = await getUserBasicInfo(user.id);
+      const result = await getUserInfo(user.id);
       if (!result.success || !result.data) {
         const errorMessage =
           "error" in result
             ? result.error
-            : t("basicInfoEdit.profileFetchFailed");
+            : t("userInfoEdit.profileFetchFailed");
         throw new Error(errorMessage);
       }
 
@@ -173,16 +171,16 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         profile_image_url: latestUser.profile_image_url || "",
       }));
     } catch (error) {
-      console.error("基本情報取得エラー:", error);
-      showToast(t("basicInfoEdit.profileFetchFailed"), "error");
+      console.error("ユーザー情報取得エラー:", error);
+      showToast(t("userInfoEdit.profileFetchFailed"), "error");
     } finally {
       setLoading(false);
     }
   }, [showToast, t, user.id]);
 
   useEffect(() => {
-    fetchUserBasicInfo();
-  }, [fetchUserBasicInfo]);
+    fetchUserInfo();
+  }, [fetchUserInfo]);
 
   const handleInputChange =
     (field: "username" | "profile_image_url") =>
@@ -200,7 +198,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         } catch (error) {
           if (error instanceof ZodError) {
             setUsernameError(
-              error.issues[0]?.message || t("basicInfoEdit.invalidUsername"),
+              error.issues[0]?.message || t("userInfoEdit.invalidUsername"),
             );
           }
         }
@@ -227,7 +225,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
     try {
       const available = await checkUsernameAvailability(username, user.id);
       if (!available) {
-        setUsernameError(t("basicInfoEdit.usernameTaken"));
+        setUsernameError(t("userInfoEdit.usernameTaken"));
       }
     } finally {
       setCheckingUsername(false);
@@ -256,11 +254,11 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
           dojo_style_id: result.data.id,
         }));
         setDojoStyleError(null);
-        showToast(t("basicInfoEdit.dojoRegistrationSuccess"), "success");
+        showToast(t("userInfoEdit.dojoRegistrationSuccess"), "success");
       }
     } catch (error) {
       console.error("道場登録エラー:", error);
-      showToast(t("basicInfoEdit.communicationFailed"), "error");
+      showToast(t("userInfoEdit.communicationFailed"), "error");
     }
   };
 
@@ -274,7 +272,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
 
   const onImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     await handleImageChange(event, () => {
-      showToast(t("basicInfoEdit.communicationFailed"), "error");
+      showToast(t("userInfoEdit.communicationFailed"), "error");
     });
   };
 
@@ -285,7 +283,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
 
   const currentImageUrl = previewUrl || formData.profile_image_url;
   const canDeleteImage = !!profileImageFile || !!formData.profile_image_url;
-  const uploadInstructionLines = t("basicInfoEdit.uploadInstructions").split(
+  const uploadInstructionLines = t("userInfoEdit.uploadInstructions").split(
     "\n",
   );
   const lineOccurrences = new Map<string, number>();
@@ -301,7 +299,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
   if (loading) {
     return (
       <div className={styles.content}>
-        <Loader size="medium" centered text={t("basicInfoEdit.loading")} />
+        <Loader size="medium" centered text={t("userInfoEdit.loading")} />
       </div>
     );
   }
@@ -315,7 +313,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               {currentImageUrl ? (
                 <Image
                   src={currentImageUrl}
-                  alt={t("basicInfoEdit.profileImageAlt")}
+                  alt={t("userInfoEdit.profileImageAlt")}
                   fill
                   sizes="96px"
                   style={{ objectFit: "cover" }}
@@ -355,7 +353,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               >
                 {profileImageFile
                   ? profileImageFile.name
-                  : t("basicInfoEdit.noFileUploaded")}
+                  : t("userInfoEdit.noFileUploaded")}
               </p>
               <button
                 className={styles.deleteButton}
@@ -380,9 +378,9 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         <div className={styles.formSection}>
           <div className={styles.formGroup}>
             <label htmlFor={usernameInputId} className={styles.label}>
-              {t("basicInfoEdit.username")}
+              {t("userInfoEdit.username")}
               <span className={styles.required}>
-                {t("basicInfoEdit.required")}
+                {t("userInfoEdit.required")}
               </span>
             </label>
             <input
@@ -392,7 +390,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               onChange={handleInputChange("username")}
               onBlur={handleUsernameBlur}
               className={`${styles.inputField} ${usernameError ? styles.error : ""}`}
-              placeholder={t("basicInfoEdit.usernamePlaceholder")}
+              placeholder={t("userInfoEdit.usernamePlaceholder")}
               maxLength={20}
             />
             {usernameError && (
@@ -405,7 +403,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
           </div>
 
           <div className={styles.formGroup}>
-            <span className={styles.label}>{t("basicInfoEdit.dojoName")}</span>
+            <span className={styles.label}>{t("userInfoEdit.dojoName")}</span>
             <DojoStyleAutocomplete
               value={formData.dojo_name}
               onChange={(val) =>
@@ -413,7 +411,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               }
               onSelect={handleDojoStyleSelect}
               onRegisterNew={handleRegisterNewDojo}
-              placeholder={t("basicInfoEdit.dojoNamePlaceholder")}
+              placeholder={t("userInfoEdit.dojoNamePlaceholder")}
               selectedId={formData.dojo_style_id}
               onClear={handleClearDojoStyle}
             />
@@ -428,7 +426,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
 
           <div className={styles.formGroup}>
             <label htmlFor={aikidoRankInputId} className={styles.label}>
-              {t("basicInfoEdit.aikidoRank")}
+              {t("userInfoEdit.aikidoRank")}
             </label>
             <select
               id={aikidoRankInputId}
@@ -442,7 +440,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               className={styles.selectField}
             >
               <option value="">
-                {t("basicInfoEdit.aikidoRankPlaceholder")}
+                {t("userInfoEdit.aikidoRankPlaceholder")}
               </option>
               {AIKIDO_RANK_OPTIONS.map((r) => (
                 <option key={r} value={r}>
@@ -455,14 +453,14 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
       </div>
       <div className={styles.actions}>
         <Button variant="cancel" onClick={handleCancel}>
-          {t("basicInfoEdit.cancel")}
+          {t("userInfoEdit.cancel")}
         </Button>
         <Button
           variant="primary"
           onClick={handleSave}
           disabled={!!usernameError || checkingUsername}
         >
-          {t("basicInfoEdit.save")}
+          {t("userInfoEdit.save")}
         </Button>
       </div>
     </>

@@ -33,7 +33,7 @@ YouTube URL → /api/ogp → oEmbed API → プレビューカード表示
 
 ### プロフィール画像アップロード
 
-**場所**: `components/features/basic-info/profile-image-upload.tsx`
+**場所**: `components/features/user-info/profile-image-upload.tsx`
 
 ```
 POST /api/upload-url
@@ -159,7 +159,7 @@ frontend/src/lib/aws-s3.ts              # S3操作ユーティリティ（プロ
 ```
 frontend/src/app/api/upload-url/route.ts            # 署名付きURL生成API（共用）
 frontend/src/app/api/profile-image/route.ts         # プロフィール画像更新API
-frontend/src/components/features/basic-info/        # プロフィール画像コンポーネント
+frontend/src/components/features/user-info/        # プロフィール画像コンポーネント
 ```
 
 ### ページ添付

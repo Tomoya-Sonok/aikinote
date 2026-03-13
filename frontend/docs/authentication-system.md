@@ -34,7 +34,7 @@ graph TD
 
 Next.js の Data Cache 機能（`unstable_cache`）を利用し、外部 API (Hono) から取得したユーザー情報をキャッシュしています。
 
-- **キャッシュキー**: `user-basic-info-${userId}`
+- **キャッシュキー**: `user-info-${userId}`
 - **TTL (有効期限)**: 1週間 (604,800秒)
 - **ファイル**: `frontend/src/lib/server/cache.ts`
 
@@ -205,7 +205,7 @@ if (!user) return <Redirect to="/login" />; // 確定後に判定
 **原因**: キャッシュの無効化（Revalidate）が失敗している可能性があります。
 **確認**:
 1. `revalidateUserProfile` が更新成功時に正しく呼ばれているか確認。
-2. サーバーログでキャッシュタグ `user-basic-info-{userId}` のパージログを確認（Vercel Logs等）。
+2. サーバーログでキャッシュタグ `user-info-{userId}` のパージログを確認（Vercel Logs等）。
 
 ### "Failed to fetch RSC payload" エラー
 ログアウト処理などで無限ループが発生している可能性があります。`useEffect` 内での `signOut` 呼び出しなどが適切に制御されているか確認してください。

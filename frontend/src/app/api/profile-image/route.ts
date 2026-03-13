@@ -5,7 +5,7 @@ import {
   extractFileKeyFromUrl,
   generatePublicUrl,
 } from "@/lib/aws-s3";
-import { revalidateUserBasicInfo } from "@/lib/server/cache";
+import { revalidateUserInfo } from "@/lib/server/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 // リクエストボディのバリデーションスキーマ
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    revalidateUserBasicInfo(user.id);
+    revalidateUserInfo(user.id);
 
     return NextResponse.json({
       success: true,
@@ -171,7 +171,7 @@ export async function DELETE(_request: NextRequest) {
       );
     }
 
-    revalidateUserBasicInfo(user.id);
+    revalidateUserInfo(user.id);
 
     return NextResponse.json({
       success: true,

@@ -31,7 +31,7 @@ import {
   checkUsernameAvailability,
   createDojoStyle,
   getSocialProfile,
-  updateUserBasicInfo,
+  updateUserInfo,
 } from "@/lib/api/client";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -49,7 +49,7 @@ export function SocialProfileEdit() {
   const { user } = useAuth();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
-  const tBasic = useTranslations("basicInfoEdit");
+  const tBasic = useTranslations("userInfoEdit");
   const { showToast } = useToast();
   const { refreshUser } = useAuth();
 
@@ -228,7 +228,7 @@ export function SocialProfileEdit() {
         });
       }
 
-      const result = await updateUserBasicInfo({
+      const result = await updateUserInfo({
         userId: user.id,
         username,
         dojo_style_name: dojoName || null,

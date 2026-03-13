@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { BasicInfoCard } from "@/components/features/basic-info/BasicInfoCard/BasicInfoCard";
-import { BasicInfoCardSkeleton } from "@/components/features/basic-info/BasicInfoCard/BasicInfoCardSkeleton";
 import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { SettingsMenu } from "@/components/features/setting/SettingsMenu/SettingsMenu";
+import { UserInfoCard } from "@/components/features/user-info/UserInfoCard/UserInfoCard";
+import { UserInfoCardSkeleton } from "@/components/features/user-info/UserInfoCard/UserInfoCardSkeleton";
 import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./MyPageContent.module.css";
@@ -42,8 +42,8 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   const router = useRouter();
   const { signOutUser } = useAuth();
 
-  const handleEditBasicInfo = () => {
-    router.push(`/${locale}/mypage/basic-info/edit`);
+  const handleEditUserInfo = () => {
+    router.push(`/${locale}/mypage/user-info/edit`);
   };
 
   const handleLogout = async () => {
@@ -62,18 +62,18 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 
   return (
     <div className={`${styles.content} ${className}`}>
-      <MenuSection title={t("mypageContent.basicInfoSection")}>
+      <MenuSection title={t("mypageContent.userInfoSection")}>
         {loading ? (
-          <BasicInfoCardSkeleton />
+          <UserInfoCardSkeleton />
         ) : (
-          <BasicInfoCard
+          <UserInfoCard
             username={user.username}
             dojoStyleName={
               user.dojo_style_name || t("mypageContent.notEntered")
             }
             aikidoRank={user.aikido_rank || t("mypageContent.notEntered")}
             profileImageUrl={user.profile_image_url}
-            onEditClick={handleEditBasicInfo}
+            onEditClick={handleEditUserInfo}
           />
         )}
       </MenuSection>

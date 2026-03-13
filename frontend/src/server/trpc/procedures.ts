@@ -461,7 +461,7 @@ export const createDojoStyleProcedure = publicProcedure
     });
   });
 
-export const getUserBasicInfoProcedure = publicProcedure
+export const getUserInfoProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -477,7 +477,7 @@ export const getUserBasicInfoProcedure = publicProcedure
     });
   });
 
-export const updateUserBasicInfoProcedure = publicProcedure
+export const updateUserInfoProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),

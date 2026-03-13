@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { revalidateUserBasicInfo } from "@/lib/server/cache";
+import { revalidateUserInfo } from "@/lib/server/cache";
 import {
   getServerSupabase,
   getServiceRoleSupabase,
@@ -160,7 +160,7 @@ export async function PUT(
       );
     }
 
-    revalidateUserBasicInfo(userId);
+    revalidateUserInfo(userId);
 
     return createSuccessResponse(updatedUser, {
       message: "プロフィールを更新しました",

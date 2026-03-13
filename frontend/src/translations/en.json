@@ -191,7 +191,7 @@
     "backToLogin": "Go to login",
     "completeNote": "Please sign in again with your new email."
   },
-  "basicInfo": {
+  "userInfo": {
     "edit": "Edit",
     "notEntered": "Not entered",
     "currentDojo": "Current dojo (style)",
@@ -246,7 +246,7 @@
   },
   "navigation": {
     "settings": "Settings",
-    "basicInfoEdit": "Edit Basic Info",
+    "userInfoEdit": "User Info",
     "email": "Email",
     "fontSize": "Font Size",
     "language": "Language / 言語",
@@ -655,10 +655,10 @@
     "title": "My Page",
     "description": "Manage your basic info and practice records"
   },
-  "basicInfoEdit": {
-    "title": "Edit Basic Info",
-    "description": "Edit your basic information",
-    "loading": "Loading basic information...",
+  "userInfoEdit": {
+    "title": "Edit User Info",
+    "description": "Edit your user information",
+    "loading": "Loading user information...",
     "username": "Username",
     "required": "required",
     "usernamePlaceholder": "Not set",
@@ -672,13 +672,13 @@
     "noFileUploaded": "No file uploaded",
     "cancel": "Cancel",
     "save": "Save",
-    "updateSuccess": "Basic info updated successfully",
+    "updateSuccess": "User info updated successfully",
     "authTokenFailed": "Failed to get authentication token",
     "communicationFailed": "Communication failed",
     "uploadUrlFailed": "Failed to get upload URL",
     "s3UploadFailed": "Failed to upload to S3",
     "profileImageUpdateFailed": "Failed to update profile image",
-    "profileFetchFailed": "Failed to fetch basic info",
+    "profileFetchFailed": "Failed to fetch user info",
     "dojoName": "Dojo Name",
     "dojoNamePlaceholder": "e.g. Aikikai Honbu Dojo",
     "registerNewDojo": "Register \"{query}\" as new",
@@ -691,13 +691,13 @@
     "aikidoRankPlaceholder": "Select rank"
   },
   "mypageContent": {
-    "basicInfoSection": "Basic Info",
+    "userInfoSection": "User Info",
     "settingsSection": "Settings",
     "otherSection": "Other",
     "notEntered": "Not entered",
-    "loadingBasicInfo": "Loading basic information...",
+    "loadingUserInfo": "Loading user information...",
     "logoutFailed": "Logout failed. Please try again.",
-    "basicInfoFetchFailed": "Failed to fetch basic info"
+    "userInfoFetchFailed": "Failed to fetch user info"
   },
   "validation": {
     "invalidEmail": "Please enter a valid email address",

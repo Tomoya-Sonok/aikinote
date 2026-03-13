@@ -3,15 +3,15 @@
  * tRPCラッパー経由のユーザー取得・作成ロジックを検証
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createUserViaTrpc, getUserBasicInfo } from "@/lib/api/client";
+import { createUserViaTrpc, getUserInfo } from "@/lib/api/client";
 import { createUserProfile, fetchUserProfile } from "./user";
 
 vi.mock("@/lib/api/client", () => ({
   createUserViaTrpc: vi.fn(),
-  getUserBasicInfo: vi.fn(),
+  getUserInfo: vi.fn(),
 }));
 
-const mockGetUserProfile = vi.mocked(getUserBasicInfo);
+const mockGetUserProfile = vi.mocked(getUserInfo);
 const mockCreateUserProfileViaTrpc = vi.mocked(createUserViaTrpc);
 
 describe("fetchUserProfile", () => {

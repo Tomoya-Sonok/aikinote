@@ -27,9 +27,9 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const basicInfoT = await getTranslations({
+  const userInfoT = await getTranslations({
     locale,
-    namespace: "basicInfoEdit",
+    namespace: "userInfoEdit",
   });
   const loginPath = `/${locale}/login`;
   const settingsPath = `/${locale}/mypage`;
@@ -44,7 +44,7 @@ export default async function Page({
   const initialProfile = {
     id: user.id,
     email: user.email || "",
-    username: user.username || basicInfoT("usernamePlaceholder"),
+    username: user.username || userInfoT("usernamePlaceholder"),
     profile_image_url: user.profile_image_url || null,
     dojo_style_name: user.dojo_style_name || null,
     training_start_date: null,
