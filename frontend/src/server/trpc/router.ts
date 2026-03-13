@@ -44,7 +44,6 @@ import {
 
 export const appRouter = createTRPCRouter({
   health: healthProcedure,
-  // TODO: Hono API 連携の手続きはここに追加していく
   honoBridgeTodo: honoBridgeTodoProcedure,
   pages: createTRPCRouter({
     getList: getPagesProcedure,
