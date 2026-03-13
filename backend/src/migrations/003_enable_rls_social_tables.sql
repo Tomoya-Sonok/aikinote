@@ -20,14 +20,19 @@ ALTER TABLE "NgWord" ENABLE ROW LEVEL SECURITY;
 -- ============================================
 -- 2. SocialPost ポリシー
 -- ============================================
--- SELECT: 公開投稿は全認証ユーザー、自分の投稿は常に閲覧可
+-- SELECT: 投稿者の publicity_setting が public、または自分の投稿
+-- ※ visibility カラムは 004 で廃止済み。User.publicity_setting で判定する。
 CREATE POLICY "social_post_select" ON "SocialPost"
   FOR SELECT TO authenticated
   USING (
     is_deleted = false
     AND (
-      visibility = 'public'
-      OR user_id = auth.uid()
+      user_id = auth.uid()
+      OR EXISTS (
+        SELECT 1 FROM "User"
+        WHERE "User".id = user_id
+          AND "User".publicity_setting = 'public'
+      )
     )
   );
 
@@ -59,8 +64,12 @@ CREATE POLICY "social_post_attachment_select" ON "SocialPostAttachment"
       WHERE "SocialPost".id = post_id
         AND "SocialPost".is_deleted = false
         AND (
-          "SocialPost".visibility = 'public'
-          OR "SocialPost".user_id = auth.uid()
+          "SocialPost".user_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM "User"
+            WHERE "User".id = "SocialPost".user_id
+              AND "User".publicity_setting = 'public'
+          )
         )
     )
   );
@@ -87,8 +96,12 @@ CREATE POLICY "social_post_tag_select" ON "SocialPostTag"
       WHERE "SocialPost".id = post_id
         AND "SocialPost".is_deleted = false
         AND (
-          "SocialPost".visibility = 'public'
-          OR "SocialPost".user_id = auth.uid()
+          "SocialPost".user_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM "User"
+            WHERE "User".id = "SocialPost".user_id
+              AND "User".publicity_setting = 'public'
+          )
         )
     )
   );
@@ -128,8 +141,12 @@ CREATE POLICY "social_reply_select" ON "SocialReply"
       WHERE "SocialPost".id = post_id
         AND "SocialPost".is_deleted = false
         AND (
-          "SocialPost".visibility = 'public'
-          OR "SocialPost".user_id = auth.uid()
+          "SocialPost".user_id = auth.uid()
+          OR EXISTS (
+            SELECT 1 FROM "User"
+            WHERE "User".id = "SocialPost".user_id
+              AND "User".publicity_setting = 'public'
+          )
         )
     )
   );

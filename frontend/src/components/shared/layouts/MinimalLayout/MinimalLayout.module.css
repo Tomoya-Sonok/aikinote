@@ -14,13 +14,13 @@
   gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid rgba(31, 41, 55, 0.08);
-  background: var(--aikinote-surface, #ffffff);
+  background: var(--white);
 }
 
 .headerTitle {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--aikinote-text-primary, #1f2937);
+  color: var(--black);
 }
 
 .contentWrapper {
@@ -35,7 +35,7 @@
   background: none;
   padding: 0;
   cursor: pointer;
-  color: var(--aikinote-text-primary, #1f2937);
+  color: var(--black);
 }
 
 .main {

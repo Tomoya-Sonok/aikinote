@@ -47,7 +47,7 @@
 .caption {
   font-family: var(--font-zen-old-mincho);
   font-size: 14px;
-  color: var(--aikinote-text-secondary, #6b7280);
+  color: var(--text-light);
   margin: 0;
 }
 

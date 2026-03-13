@@ -2,7 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
-import { searchSocialPosts } from "../../lib/supabase.js";
+import { enrichSocialPosts, searchSocialPosts } from "../../lib/supabase.js";
 import { searchSocialPostsSchema } from "../../lib/validation.js";
 
 type SearchBindings = {
@@ -59,9 +59,12 @@ app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
       },
     );
 
+    // バッチクエリでエンリッチ（N+1 解消）
+    const enrichedPosts = await enrichSocialPosts(supabase, posts, user_id);
+
     return c.json({
       success: true,
-      data: posts,
+      data: enrichedPosts,
     });
   } catch (error) {
     if (

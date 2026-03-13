@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
                 username: username,
                 profile_image_url: profileImageUrl,
                 training_start_date: null,
-                publicity_setting: "private",
+                publicity_setting: "public",
                 language: "ja",
                 is_email_verified: true, // OAuth認証の場合は既にメール確認済み
                 verification_token: null,

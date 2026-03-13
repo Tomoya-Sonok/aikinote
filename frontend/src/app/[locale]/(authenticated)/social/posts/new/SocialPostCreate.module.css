@@ -1,0 +1,69 @@
+.form {
+  padding: 16px;
+}
+
+.textareaWrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  font-family: var(--font-inter);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.textarea::placeholder {
+  color: var(--light-gray);
+}
+
+.charCount {
+  display: block;
+  text-align: right;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+.section {
+  margin-bottom: 16px;
+}
+
+.sectionLabel {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 16px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  cursor: pointer;
+}
+
+.radioInput {
+  accent-color: var(--primary-color);
+}

@@ -8,18 +8,23 @@ import {
   createSocialPost,
   createSocialPostTags,
   createSocialReply,
+  enrichSocialPosts,
   getSocialFeed,
   getSocialPostById,
   getSocialPostWithDetails,
+  getSocialReplyById,
   softDeleteSocialPost,
+  softDeleteSocialReply,
   updateSocialPost,
   updateSocialPostTags,
+  updateSocialReply,
 } from "../../lib/supabase.js";
 import {
   createSocialPostSchema,
   createSocialReplySchema,
   getSocialPostsSchema,
   updateSocialPostSchema,
+  updateSocialReplySchema,
 } from "../../lib/validation.js";
 
 type SocialPostsBindings = {
@@ -48,6 +53,43 @@ const authenticateRequest = async (c: {
   const authHeader = c.req.header("Authorization");
   const token = extractTokenFromHeader(authHeader);
   return verifyToken(token, c.env);
+};
+
+/**
+ * 投稿の公開範囲チェック（User.publicity_setting ベース）
+ * @returns null（アクセス可）| string（エラーメッセージ）
+ */
+const checkPostVisibility = async (
+  supabase: SupabaseClient,
+  postOwnerId: string,
+  viewerId: string,
+): Promise<string | null> => {
+  if (postOwnerId === viewerId) return null;
+
+  const { data: postOwner } = await supabase
+    .from("User")
+    .select("publicity_setting, dojo_style_id")
+    .eq("id", postOwnerId)
+    .single();
+
+  const publicity = postOwner?.publicity_setting ?? "private";
+
+  if (publicity === "public") return null;
+
+  if (publicity === "private") return "forbidden";
+
+  // publicity === "closed"
+  const { data: viewer } = await supabase
+    .from("User")
+    .select("dojo_style_id")
+    .eq("id", viewerId)
+    .single();
+
+  if (postOwner?.dojo_style_id !== viewer?.dojo_style_id) {
+    return "forbidden";
+  }
+
+  return null;
 };
 
 // GET / — フィード取得
@@ -83,57 +125,8 @@ app.get("/", zValidator("query", getSocialPostsSchema), async (c) => {
       offset,
     );
 
-    // 各投稿に付加情報を追加
-    const enrichedPosts = await Promise.all(
-      posts.map(async (post) => {
-        const [authorResult, attachmentsResult, tagsResult, favoriteResult] =
-          await Promise.all([
-            supabase
-              .from("User")
-              .select("id, username, profile_image_url, aikido_rank")
-              .eq("id", post.user_id)
-              .single(),
-            supabase
-              .from("SocialPostAttachment")
-              .select("*")
-              .eq("post_id", post.id)
-              .order("sort_order", { ascending: true }),
-            supabase
-              .from("SocialPostTag")
-              .select("user_tag_id, UserTag(id, name, category)")
-              .eq("post_id", post.id),
-            supabase
-              .from("SocialFavorite")
-              .select("id")
-              .eq("post_id", post.id)
-              .eq("user_id", user_id)
-              .maybeSingle(),
-          ]);
-
-        // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
-        const tags = (tagsResult.data ?? []).map((row: any) => ({
-          id: row.UserTag?.id ?? row.user_tag_id,
-          name: row.UserTag?.name ?? "",
-          category: row.UserTag?.category ?? "",
-        }));
-
-        return {
-          ...post,
-          // favorite_count は投稿者本人のみ返却
-          favorite_count:
-            post.user_id === user_id ? post.favorite_count : undefined,
-          author: authorResult.data ?? {
-            id: post.user_id,
-            username: "",
-            profile_image_url: null,
-            aikido_rank: null,
-          },
-          attachments: attachmentsResult.data ?? [],
-          tags,
-          is_favorited: !!favoriteResult.data,
-        };
-      }),
-    );
+    // バッチクエリでエンリッチ（N+1 解消）
+    const enrichedPosts = await enrichSocialPosts(supabase, posts, user_id);
 
     return c.json({
       success: true,
@@ -197,7 +190,6 @@ app.post("/", zValidator("json", createSocialPostSchema), async (c) => {
       user_id: input.user_id,
       content: input.content,
       post_type: input.post_type,
-      visibility: user.publicity_setting ?? "private",
       author_dojo_style_id: user.dojo_style_id ?? null,
       author_dojo_name: user.dojo_style_name ?? null,
       source_page_id: input.source_page_id,
@@ -250,28 +242,15 @@ app.get("/:id", async (c) => {
       return c.json({ success: false, error: "投稿が見つかりません" }, 404);
     }
 
-    // 公開範囲チェック
+    // 公開範囲チェック（User.publicity_setting ベース）
     const { post } = details;
-    if (post.visibility === "private" && post.user_id !== payload.userId) {
+    const visibilityError = await checkPostVisibility(
+      supabase,
+      post.user_id,
+      payload.userId,
+    );
+    if (visibilityError) {
       return c.json({ success: false, error: "この投稿は閲覧できません" }, 403);
-    }
-
-    if (post.visibility === "closed") {
-      const { data: viewer } = await supabase
-        .from("User")
-        .select("dojo_style_id")
-        .eq("id", payload.userId)
-        .single();
-
-      if (
-        post.user_id !== payload.userId &&
-        post.author_dojo_style_id !== viewer?.dojo_style_id
-      ) {
-        return c.json(
-          { success: false, error: "この投稿は閲覧できません" },
-          403,
-        );
-      }
     }
 
     return c.json({
@@ -437,29 +416,17 @@ app.post(
         return c.json({ success: false, error: "投稿が見つかりません" }, 404);
       }
 
-      if (post.visibility === "private" && post.user_id !== payload.userId) {
+      // 公開範囲チェック（User.publicity_setting ベース）
+      const replyVisibilityError = await checkPostVisibility(
+        supabase,
+        post.user_id,
+        payload.userId,
+      );
+      if (replyVisibilityError) {
         return c.json(
           { success: false, error: "この投稿には返信できません" },
           403,
         );
-      }
-
-      if (post.visibility === "closed") {
-        const { data: viewer } = await supabase
-          .from("User")
-          .select("dojo_style_id")
-          .eq("id", payload.userId)
-          .single();
-
-        if (
-          post.user_id !== payload.userId &&
-          post.author_dojo_style_id !== viewer?.dojo_style_id
-        ) {
-          return c.json(
-            { success: false, error: "この投稿には返信できません" },
-            403,
-          );
-        }
       }
 
       // NGワードチェック
@@ -490,7 +457,7 @@ app.post(
         reply_id: reply.id,
       });
 
-      // 通知作成: 他の返信者へ reply_to_thread 通知
+      // 通知作成: 他の返信者へ reply_to_thread 通知（バッチINSERT）
       const { data: otherRepliers } = await supabase
         .from("SocialReply")
         .select("user_id")
@@ -503,17 +470,16 @@ app.post(
         ...new Set((otherRepliers ?? []).map((r) => r.user_id)),
       ];
 
-      await Promise.all(
-        uniqueRepliers.map((replierId) =>
-          createNotification(supabase, {
-            type: "reply_to_thread",
-            recipient_user_id: replierId,
-            actor_user_id: input.user_id,
-            post_id: postId,
-            reply_id: reply.id,
-          }),
-        ),
-      );
+      if (uniqueRepliers.length > 0) {
+        const notifications = uniqueRepliers.map((replierId) => ({
+          type: "reply_to_thread",
+          recipient_user_id: replierId,
+          actor_user_id: input.user_id,
+          post_id: postId,
+          reply_id: reply.id,
+        }));
+        await supabase.from("SocialNotification").insert(notifications);
+      }
 
       return c.json(
         {
@@ -536,5 +502,115 @@ app.post(
     }
   },
 );
+
+// PUT /:id/replies/:replyId — 返信編集
+app.put(
+  "/:id/replies/:replyId",
+  zValidator("json", updateSocialReplySchema),
+  async (c) => {
+    try {
+      const payload = await authenticateRequest(c);
+      const postId = c.req.param("id");
+      const replyId = c.req.param("replyId");
+      const input = c.req.valid("json");
+
+      const supabase = resolveSupabase(c);
+      if (!supabase) {
+        return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+      }
+
+      // 返信存在チェック
+      const existingReply = await getSocialReplyById(supabase, replyId);
+      if (!existingReply || existingReply.post_id !== postId) {
+        return c.json({ success: false, error: "返信が見つかりません" }, 404);
+      }
+
+      // owner検証
+      if (existingReply.user_id !== payload.userId) {
+        return c.json(
+          { success: false, error: "この返信を編集する権限がありません" },
+          403,
+        );
+      }
+
+      // NGワードチェック
+      const ngResult = await containsNgWord(input.content, supabase);
+      if (ngResult.found) {
+        return c.json(
+          {
+            success: false,
+            error: "不適切な表現が含まれています。内容を修正してください。",
+          },
+          400,
+        );
+      }
+
+      const reply = await updateSocialReply(supabase, replyId, payload.userId, {
+        content: input.content,
+      });
+
+      return c.json({
+        success: true,
+        data: reply,
+        message: "返信を更新しました",
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("token") ||
+          error.message.includes("Authorization"))
+      ) {
+        return c.json({ success: false, error: "認証に失敗しました" }, 401);
+      }
+      console.error("返信更新エラー:", error);
+      return c.json({ success: false, error: "返信の更新に失敗しました" }, 500);
+    }
+  },
+);
+
+// DELETE /:id/replies/:replyId — 返信削除
+app.delete("/:id/replies/:replyId", async (c) => {
+  try {
+    const payload = await authenticateRequest(c);
+    const postId = c.req.param("id");
+    const replyId = c.req.param("replyId");
+
+    const supabase = resolveSupabase(c);
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    // 返信存在チェック
+    const existingReply = await getSocialReplyById(supabase, replyId);
+    if (!existingReply || existingReply.post_id !== postId) {
+      return c.json({ success: false, error: "返信が見つかりません" }, 404);
+    }
+
+    // owner検証
+    if (existingReply.user_id !== payload.userId) {
+      return c.json(
+        { success: false, error: "この返信を削除する権限がありません" },
+        403,
+      );
+    }
+
+    await softDeleteSocialReply(supabase, replyId, payload.userId);
+
+    return c.json({
+      success: true,
+      message: "返信を削除しました",
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("token") ||
+        error.message.includes("Authorization"))
+    ) {
+      return c.json({ success: false, error: "認証に失敗しました" }, 401);
+    }
+    console.error("返信削除エラー:", error);
+    return c.json({ success: false, error: "返信の削除に失敗しました" }, 500);
+  }
+});
 
 export default app;

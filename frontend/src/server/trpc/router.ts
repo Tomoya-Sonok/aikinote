@@ -23,6 +23,7 @@ import {
   initializeUserTagsProcedure,
   markNotificationsReadProcedure,
   removeSocialPostProcedure,
+  removeSocialReplyProcedure,
   removeTrainingDateAttendanceProcedure,
   reportPostProcedure,
   reportReplyProcedure,
@@ -31,6 +32,7 @@ import {
   toggleFavoriteProcedure,
   updatePageProcedure,
   updateSocialPostProcedure,
+  updateSocialReplyProcedure,
   updateTagOrderProcedure,
   updateUserBasicInfoProcedure,
   upsertTrainingDateAttendanceProcedure,
@@ -82,6 +84,8 @@ export const appRouter = createTRPCRouter({
   }),
   socialReplies: createTRPCRouter({
     create: createSocialReplyProcedure,
+    update: updateSocialReplyProcedure,
+    remove: removeSocialReplyProcedure,
     report: reportReplyProcedure,
   }),
   socialSearch: createTRPCRouter({

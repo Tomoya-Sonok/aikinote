@@ -42,35 +42,42 @@ app.get("/", zValidator("query", getNotificationsSchema), async (c) => {
       offset,
     );
 
-    // 投稿プレビュー（先頭50文字）を付加
-    const enriched = await Promise.all(
-      // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
-      notifications.map(async (notification: any) => {
-        let postPreview: string | null = null;
+    // 投稿プレビューをバッチ取得（N+1 解消）
+    const postIds = [
+      ...new Set(
+        // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+        notifications
+          .filter((n: any) => n.post_id)
+          .map((n: any) => n.post_id as string),
+      ),
+    ];
 
-        if (notification.post_id) {
-          const { data: post } = await supabase
-            .from("SocialPost")
-            .select("content")
-            .eq("id", notification.post_id)
-            .single();
+    const postPreviewMap = new Map<string, string>();
+    if (postIds.length > 0) {
+      const { data: posts } = await supabase
+        .from("SocialPost")
+        .select("id, content")
+        .in("id", postIds);
 
-          if (post?.content) {
-            postPreview =
-              post.content.length > 50
-                ? `${post.content.substring(0, 50)}...`
-                : post.content;
-          }
+      for (const post of posts ?? []) {
+        if (post.content) {
+          postPreviewMap.set(
+            post.id,
+            post.content.length > 50
+              ? `${post.content.substring(0, 50)}...`
+              : post.content,
+          );
         }
+      }
+    }
 
-        return {
-          ...notification,
-          actor: notification.User ?? null,
-          post_preview: postPreview,
-          User: undefined,
-        };
-      }),
-    );
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const enriched = notifications.map((notification: any) => ({
+      ...notification,
+      actor: notification.User ?? null,
+      post_preview: postPreviewMap.get(notification.post_id) ?? null,
+      User: undefined,
+    }));
 
     return c.json({
       success: true,

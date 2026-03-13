@@ -19,7 +19,7 @@ export interface UserProfile {
   dojo_style_name?: string | null;
   dojo_style_id?: string | null;
   training_start_date?: string | null;
-  publicity_setting?: string;
+  publicity_setting?: string | null;
   language?: string;
   is_email_verified?: boolean;
   password_hash?: string;

@@ -71,6 +71,8 @@ type UserProfile = {
   dojo_style_name: string | null;
   dojo_style_id: string | null;
   training_start_date: string | null;
+  bio: string | null;
+  publicity_setting: string | null;
 };
 
 type TagStatItem = {
@@ -483,6 +485,8 @@ export const updateUserBasicInfoProcedure = publicProcedure
       dojo_style_id: z.string().uuid().nullable().optional(),
       training_start_date: z.string().nullable().optional(),
       profile_image_url: z.string().nullable().optional(),
+      bio: z.string().max(500).nullable().optional(),
+      publicity_setting: z.enum(["public", "closed", "private"]).optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -587,7 +591,6 @@ type SocialFeedPost = {
   user_id: string;
   content: string;
   post_type: string;
-  visibility: string;
   author_dojo_style_id: string | null;
   author_dojo_name: string | null;
   favorite_count?: number;
@@ -622,7 +625,6 @@ type SocialPostDetail = {
     user_id: string;
     content: string;
     post_type: string;
-    visibility: string;
     author_dojo_style_id: string | null;
     author_dojo_name: string | null;
     favorite_count?: number;
@@ -643,7 +645,6 @@ type SocialPostBasic = {
   user_id: string;
   content: string;
   post_type: string;
-  visibility: string;
   created_at: string;
   updated_at: string;
 };
@@ -803,6 +804,45 @@ export const createSocialReplyProcedure = publicProcedure
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),
+      },
+    );
+  });
+
+export const updateSocialReplyProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      replyId: z.string().min(1),
+      content: z.string().min(1).max(1000),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const { postId, replyId, ...body } = input;
+    return callHonoApi<ApiResponse<SocialReplyBasic>>(
+      `/api/social/posts/${postId}/replies/${replyId}`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      },
+    );
+  });
+
+export const removeSocialReplyProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      replyId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<never>>(
+      `/api/social/posts/${input.postId}/replies/${input.replyId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       },
     );
   });

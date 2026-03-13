@@ -1368,7 +1368,6 @@ export interface SocialPostRow {
   user_id: string;
   content: string;
   post_type: string;
-  visibility: string;
   author_dojo_style_id: string | null;
   author_dojo_name: string | null;
   favorite_count: number;
@@ -1441,7 +1440,6 @@ export const createSocialPost = async (
     user_id: string;
     content: string;
     post_type: string;
-    visibility: string;
     author_dojo_style_id: string | null;
     author_dojo_name: string | null;
     source_page_id?: string;
@@ -1453,7 +1451,6 @@ export const createSocialPost = async (
       user_id: data.user_id,
       content: data.content,
       post_type: data.post_type,
-      visibility: data.visibility,
       author_dojo_style_id: data.author_dojo_style_id,
       author_dojo_name: data.author_dojo_name,
       source_page_id: data.source_page_id ?? null,
@@ -1712,6 +1709,68 @@ export const createSocialReply = async (
   return data;
 };
 
+export const getSocialReplyById = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+): Promise<SocialReplyRow | null> => {
+  const { data, error } = await supabaseClient
+    .from("SocialReply")
+    .select("*")
+    .eq("id", replyId)
+    .eq("is_deleted", false)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`返信の取得に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const updateSocialReply = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+  data: { content: string },
+): Promise<SocialReplyRow> => {
+  const { data: reply, error } = await supabaseClient
+    .from("SocialReply")
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", replyId)
+    .eq("user_id", userId)
+    .eq("is_deleted", false)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`返信の更新に失敗しました: ${error.message}`);
+  }
+
+  return reply;
+};
+
+export const softDeleteSocialReply = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("SocialReply")
+    .update({
+      is_deleted: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", replyId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`返信の削除に失敗しました: ${error.message}`);
+  }
+};
+
 export const toggleSocialFavorite = async (
   supabaseClient: SupabaseClient,
   postId: string,
@@ -1898,7 +1957,7 @@ export const searchSocialPosts = async (
 ): Promise<SocialPostRow[]> => {
   let dbQuery = supabaseClient
     .from("SocialPost")
-    .select("*, User!inner(id, aikido_rank, dojo_style_id)")
+    .select("*, User!inner(id, aikido_rank, dojo_style_id, publicity_setting)")
     .eq("is_deleted", false)
     .order("created_at", { ascending: false })
     .range(params.offset, params.offset + params.limit - 1);
@@ -1921,11 +1980,13 @@ export const searchSocialPosts = async (
     throw new Error(`投稿検索に失敗しました: ${error.message}`);
   }
 
-  // 公開範囲フィルタ（アプリケーション層）
-  const filtered = (data ?? []).filter((post) => {
-    if (post.visibility === "public") return true;
+  // 公開範囲フィルタ（User.publicity_setting ベース）
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const filtered = (data ?? []).filter((post: any) => {
+    const publicity = post.User?.publicity_setting;
+    if (publicity === "public") return true;
     if (
-      post.visibility === "closed" &&
+      publicity === "closed" &&
       post.author_dojo_style_id === viewerDojoStyleId
     )
       return true;
@@ -1949,6 +2010,7 @@ export const getSocialProfile = async (
     bio: string | null;
     aikido_rank: string | null;
     dojo_style_name: string | null;
+    publicity_setting: string | null;
   };
   posts: SocialPostRow[];
   total_favorites?: number;
@@ -1956,7 +2018,7 @@ export const getSocialProfile = async (
   const { data: user, error: userError } = await supabaseClient
     .from("User")
     .select(
-      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name",
+      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, dojo_style_id, publicity_setting",
     )
     .eq("id", targetUserId)
     .single();
@@ -1976,16 +2038,19 @@ export const getSocialProfile = async (
 
   const { data: posts } = await postsQuery;
 
-  const visiblePosts = (posts ?? []).filter((post) => {
-    if (post.visibility === "public") return true;
-    if (
-      post.visibility === "closed" &&
-      post.author_dojo_style_id === viewerDojoStyleId
-    )
-      return true;
-    if (post.user_id === viewerId) return true;
-    return false;
-  });
+  // User.publicity_setting で一括判定
+  const publicity = user.publicity_setting;
+  let visiblePosts = posts ?? [];
+  if (targetUserId !== viewerId) {
+    if (publicity === "private") {
+      visiblePosts = [];
+    } else if (
+      publicity === "closed" &&
+      user.dojo_style_id !== viewerDojoStyleId
+    ) {
+      visiblePosts = [];
+    }
+  }
 
   const result: {
     user: typeof user;
@@ -2008,4 +2073,88 @@ export const getSocialProfile = async (
   }
 
   return result;
+};
+
+/**
+ * 投稿一覧をバッチクエリでエンリッチする（N+1 解消版）
+ * author, attachments, tags, is_favorited を一括取得して結合
+ */
+export const enrichSocialPosts = async (
+  supabaseClient: SupabaseClient,
+  posts: SocialPostRow[],
+  viewerUserId: string,
+) => {
+  if (posts.length === 0) return [];
+
+  const postIds = posts.map((p) => p.id);
+  const authorIds = [...new Set(posts.map((p) => p.user_id))];
+
+  // 4つのバッチクエリを並列実行（N+1 → 4クエリ固定）
+  const [authorsResult, attachmentsResult, tagsResult, favoritesResult] =
+    await Promise.all([
+      supabaseClient
+        .from("User")
+        .select("id, username, profile_image_url, aikido_rank")
+        .in("id", authorIds),
+      supabaseClient
+        .from("SocialPostAttachment")
+        .select("*")
+        .in("post_id", postIds)
+        .order("sort_order", { ascending: true }),
+      supabaseClient
+        .from("SocialPostTag")
+        .select("post_id, user_tag_id, UserTag(id, name, category)")
+        .in("post_id", postIds),
+      supabaseClient
+        .from("SocialFavorite")
+        .select("post_id")
+        .in("post_id", postIds)
+        .eq("user_id", viewerUserId),
+    ]);
+
+  // ルックアップマップを構築
+  const authorMap = new Map((authorsResult.data ?? []).map((a) => [a.id, a]));
+
+  const attachmentMap = new Map<string, typeof attachmentsResult.data>();
+  for (const att of attachmentsResult.data ?? []) {
+    const list = attachmentMap.get(att.post_id) ?? [];
+    list.push(att);
+    attachmentMap.set(att.post_id, list);
+  }
+
+  const tagMap = new Map<
+    string,
+    { id: string; name: string; category: string }[]
+  >();
+  for (const row of tagsResult.data ?? []) {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const r = row as any;
+    const list = tagMap.get(r.post_id) ?? [];
+    list.push({
+      id: r.UserTag?.id ?? r.user_tag_id,
+      name: r.UserTag?.name ?? "",
+      category: r.UserTag?.category ?? "",
+    });
+    tagMap.set(r.post_id, list);
+  }
+
+  const favoritedPostIds = new Set(
+    (favoritesResult.data ?? []).map((f) => f.post_id),
+  );
+
+  // 結合
+  return posts.map((post) => ({
+    ...post,
+    favorite_count:
+      post.user_id === viewerUserId ? post.favorite_count : undefined,
+    author: authorMap.get(post.user_id) ?? {
+      id: post.user_id,
+      username: "",
+      profile_image_url: null,
+      aikido_rank: null,
+    },
+    attachments: attachmentMap.get(post.id) ?? [],
+    tags: tagMap.get(post.id) ?? [],
+    is_favorited: favoritedPostIds.has(post.id),
+  }));
 };

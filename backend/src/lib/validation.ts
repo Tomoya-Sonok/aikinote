@@ -292,6 +292,16 @@ export const createSocialReplySchema = z.object({
 
 export type CreateSocialReplyInput = z.infer<typeof createSocialReplySchema>;
 
+// 返信更新
+export const updateSocialReplySchema = z.object({
+  content: z
+    .string()
+    .min(1, "返信内容は必須です")
+    .max(1000, "返信内容は1000文字以内で入力してください"),
+});
+
+export type UpdateSocialReplyInput = z.infer<typeof updateSocialReplySchema>;
+
 // 通報
 export const createReportSchema = z.object({
   user_id: z.string().min(1, "ユーザーIDは必須です"),

@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   ATTACHMENT_SIZE_LIMITS,
   generateAttachmentUploadSignedUrl,
+  generateSocialPostAttachmentUploadSignedUrl,
   generateUploadSignedUrl,
   validateImageType,
   validateMediaType,
@@ -36,9 +37,26 @@ const pageAttachmentSchema = z.object({
   uploadType: z.literal("page-attachment"),
 });
 
+// ソーシャル投稿添付ファイル用バリデーションスキーマ
+const socialPostAttachmentSchema = z.object({
+  filename: z.string().min(1, "ファイル名が必要です"),
+  contentType: z
+    .string()
+    .regex(
+      /^(image\/(jpeg|jpg|png|webp)|video\/(mp4|quicktime|webm))$/,
+      "無効なコンテンツタイプです",
+    ),
+  fileSize: z
+    .number()
+    .max(ATTACHMENT_SIZE_LIMITS.video, "ファイルサイズが制限を超えています"),
+  uploadType: z.literal("social-post-attachment"),
+});
+
 // リクエスト判定用スキーマ
 const uploadTypeDiscriminator = z.object({
-  uploadType: z.enum(["profile-image", "page-attachment"]).optional(),
+  uploadType: z
+    .enum(["profile-image", "page-attachment", "social-post-attachment"])
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -60,6 +78,36 @@ export async function POST(request: NextRequest) {
 
     // uploadTypeに応じて処理を分岐
     const { uploadType } = uploadTypeDiscriminator.parse(body);
+
+    if (uploadType === "social-post-attachment") {
+      // ---- ソーシャル投稿添付ファイル ----
+      const validatedData = socialPostAttachmentSchema.parse(body);
+      const { filename, contentType, fileSize } = validatedData;
+
+      if (!validateMediaType(filename)) {
+        return NextResponse.json(
+          {
+            error:
+              "サポートされていないファイル形式です。jpg、jpeg、png、webp、mp4、mov、webmのみ許可されています。",
+          },
+          { status: 400 },
+        );
+      }
+
+      const { uploadUrl, fileKey } =
+        await generateSocialPostAttachmentUploadSignedUrl(
+          user.id,
+          filename,
+          contentType,
+          fileSize,
+        );
+
+      return NextResponse.json({
+        uploadUrl,
+        fileKey,
+        expiresIn: 15 * 60,
+      });
+    }
 
     if (uploadType === "page-attachment") {
       // ---- ページ添付ファイル ----

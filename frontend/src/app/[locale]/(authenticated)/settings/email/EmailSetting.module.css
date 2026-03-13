@@ -17,7 +17,7 @@
 
 .description {
   font-size: 14px;
-  color: var(--aikinote-text-secondary, #4b5563);
+  color: var(--text-light);
   line-height: 1.6;
 }
 
@@ -26,12 +26,12 @@
   flex-direction: column;
   gap: 4px;
   font-size: 14px;
-  color: var(--aikinote-text-primary, #1f2937);
+  color: var(--black);
 }
 
 .label {
   font-size: 12px;
-  color: var(--aikinote-text-secondary, #6b7280);
+  color: var(--text-light);
 }
 
 .value {
@@ -88,7 +88,7 @@
 
 .note {
   font-size: 12px;
-  color: var(--aikinote-text-secondary, #6b7280);
+  color: var(--text-light);
   line-height: 1.6;
 }
 

@@ -469,6 +469,8 @@ export interface UpdateUserBasicInfoPayload {
   dojo_style_id?: string | null;
   training_start_date?: string | null;
   profile_image_url?: string | null;
+  bio?: string | null;
+  publicity_setting?: "public" | "closed" | "private";
 }
 
 // 道場検索
@@ -653,6 +655,33 @@ export const createSocialReply = async (payload: CreateSocialReplyPayload) => {
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "返信の作成に失敗しました"));
+  }
+};
+
+export const updateSocialReply = async (payload: {
+  postId: string;
+  replyId: string;
+  content: string;
+}) => {
+  try {
+    const response = await trpcClient.socialReplies.update.mutate(payload);
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "返信の更新に失敗しました"));
+  }
+};
+
+export const deleteSocialReply = async (postId: string, replyId: string) => {
+  try {
+    const response = await trpcClient.socialReplies.remove.mutate({
+      postId,
+      replyId,
+    });
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "返信の削除に失敗しました"));
   }
 };
 

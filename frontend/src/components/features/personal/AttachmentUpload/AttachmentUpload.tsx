@@ -14,6 +14,7 @@ interface AttachmentUploadProps {
   onAttachmentDelete: (id: string) => void;
   disabled?: boolean;
   pageId?: string; // 編集時には既にpageIdがある
+  uploadType?: "page-attachment" | "social-post-attachment";
 }
 
 interface UploadResponse {
@@ -38,6 +39,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
   onAttachmentAdd,
   onAttachmentDelete,
   disabled = false,
+  uploadType = "page-attachment",
 }) => {
   const t = useTranslations();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,7 +98,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
             filename: file.name,
             contentType: file.type,
             fileSize: file.size,
-            uploadType: "page-attachment",
+            uploadType,
           }),
         });
 
@@ -182,7 +184,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         }
       }
     },
-    [onAttachmentAdd, t],
+    [onAttachmentAdd, t, uploadType],
   );
 
   // YouTube URL入力のデバウンスチェック

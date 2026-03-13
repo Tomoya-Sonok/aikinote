@@ -1,0 +1,116 @@
+.profileCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.username {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--black);
+  margin: 12px 0 4px;
+}
+
+.rank {
+  font-size: var(--font-size-sm);
+  color: var(--accent-color);
+  margin-bottom: 2px;
+}
+
+.dojo {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.bio {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.6;
+  text-align: center;
+  margin: 8px 0 16px;
+  max-width: 300px;
+  word-break: break-word;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 16px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--black);
+}
+
+.statLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+.postsSection {
+  padding: 16px;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  margin: 0 0 12px;
+}
+
+.emptyPosts {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
+
+.postLink {
+  display: block;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.postLink:hover {
+  background: var(--background-light);
+}
+
+.postContent {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.5;
+  margin: 0 0 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.postDate {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}

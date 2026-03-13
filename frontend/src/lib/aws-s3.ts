@@ -222,12 +222,24 @@ export function generateAttachmentKey(
   return `users/${userId}/page-attachments/${uuid}.${extension}`;
 }
 
-// ページ添付ファイルアップロード用の署名付きURL生成
-export async function generateAttachmentUploadSignedUrl(
+// ソーシャル投稿添付ファイル用の一意なファイルキー生成
+export function generateSocialPostAttachmentKey(
+  userId: string,
+  originalFilename: string,
+): string {
+  const extension = originalFilename.toLowerCase().split(".").pop();
+  const uuid = uuidv4();
+  return `users/${userId}/social-post-attachments/${uuid}.${extension}`;
+}
+
+// メディアアップロード用の署名付きURL生成（共通）
+async function generateMediaUploadSignedUrl(
   userId: string,
   filename: string,
   contentType: string,
   fileSize: number,
+  keyGenerator: (userId: string, filename: string) => string,
+  uploadType: string,
 ): Promise<{ uploadUrl: string; fileKey: string }> {
   if (!validateMediaType(filename)) {
     throw new Error(
@@ -246,7 +258,7 @@ export async function generateAttachmentUploadSignedUrl(
     throw new Error(`ファイルサイズが制限（${limitMB}MB）を超えています。`);
   }
 
-  const fileKey = generateAttachmentKey(userId, filename);
+  const fileKey = keyGenerator(userId, filename);
   const { bucketName } = loadAwsConfig();
 
   const command = new PutObjectCommand({
@@ -256,14 +268,47 @@ export async function generateAttachmentUploadSignedUrl(
     Tagging: "public=true",
     Metadata: {
       "uploaded-by": userId,
-      "upload-type": "page-attachment",
+      "upload-type": uploadType,
     },
   });
 
-  // 15分で期限切れになる署名付きURLを生成
   const uploadUrl = await getSignedUrl(getS3Client(), command, {
     expiresIn: 15 * 60,
   });
 
   return { uploadUrl, fileKey };
+}
+
+// ソーシャル投稿添付ファイルアップロード用の署名付きURL生成
+export async function generateSocialPostAttachmentUploadSignedUrl(
+  userId: string,
+  filename: string,
+  contentType: string,
+  fileSize: number,
+): Promise<{ uploadUrl: string; fileKey: string }> {
+  return generateMediaUploadSignedUrl(
+    userId,
+    filename,
+    contentType,
+    fileSize,
+    generateSocialPostAttachmentKey,
+    "social-post-attachment",
+  );
+}
+
+// ページ添付ファイルアップロード用の署名付きURL生成
+export async function generateAttachmentUploadSignedUrl(
+  userId: string,
+  filename: string,
+  contentType: string,
+  fileSize: number,
+): Promise<{ uploadUrl: string; fileKey: string }> {
+  return generateMediaUploadSignedUrl(
+    userId,
+    filename,
+    contentType,
+    fileSize,
+    generateAttachmentKey,
+    "page-attachment",
+  );
 }

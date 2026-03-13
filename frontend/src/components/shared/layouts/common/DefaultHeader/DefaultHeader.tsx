@@ -1,6 +1,6 @@
 "use client";
 
-import { GearIcon, UserIcon } from "@phosphor-icons/react";
+import { GearSixIcon, UserIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -152,7 +152,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
               aria-label="設定を開く"
               aria-describedby={isTooltipVisible ? tooltipId : undefined}
             >
-              <GearIcon size={20} weight="fill" color="var(--primary-color)" />
+              <GearSixIcon
+                size={20}
+                weight="fill"
+                color="var(--primary-color)"
+              />
             </button>
             {isTooltipVisible && (
               <button

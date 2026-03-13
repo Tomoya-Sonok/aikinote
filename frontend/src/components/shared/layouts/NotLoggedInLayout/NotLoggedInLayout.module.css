@@ -23,7 +23,7 @@
 .tabNavigation {
   margin-top: auto;
   border-top: 1px solid rgba(31, 41, 55, 0.08);
-  background: var(--aikinote-surface, #ffffff);
+  background: var(--white);
   padding: 8px 0 12px;
 }
 

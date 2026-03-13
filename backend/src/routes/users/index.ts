@@ -72,6 +72,8 @@ const updateProfileSchema = z.object({
   dojo_style_id: z.string().uuid().nullable().optional(),
   training_start_date: z.string().nullable().optional(),
   profile_image_url: z.string().nullable().optional(),
+  bio: z.string().max(500).nullable().optional(),
+  publicity_setting: z.enum(["public", "closed", "private"]).optional(),
 });
 
 const signUpSchema = z.object({
@@ -388,7 +390,7 @@ app.post("/", async (c) => {
         username,
         profile_image_url: null,
         training_start_date: null,
-        publicity_setting: "private",
+        publicity_setting: "public",
         language: "ja",
         is_email_verified: false,
         verification_token: verificationToken,
@@ -510,7 +512,7 @@ app.get("/:userId", async (c) => {
     const { data: userData, error } = await supabase
       .from("User")
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date",
+        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting",
       )
       .eq("id", userId)
       .single();
@@ -616,7 +618,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       const { data: currentUser, error: fetchError } = await supabase
         .from("User")
         .select(
-          "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date",
+          "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting",
         )
         .eq("id", userId)
         .single();
@@ -644,7 +646,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .update(updateData)
       .eq("id", userId)
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date",
+        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting",
       )
       .single();
 

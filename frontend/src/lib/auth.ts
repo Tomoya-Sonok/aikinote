@@ -47,7 +47,7 @@ export async function signUp(credentials: SignUpCredentials) {
       username: credentials.username,
       profile_image_url: null,
       training_start_date: null,
-      publicity_setting: "private",
+      publicity_setting: "public",
       language: "ja",
       is_email_verified: false,
       password_hash: "",
