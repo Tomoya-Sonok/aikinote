@@ -83,7 +83,7 @@
 
 .filterSelect:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--primary-color);
 }
 
 .results {

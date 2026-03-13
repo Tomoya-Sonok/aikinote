@@ -30,7 +30,7 @@
 
 .textarea:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--primary-color);
 }
 
 .textarea::placeholder {
@@ -53,7 +53,7 @@
 }
 
 .radioInput {
-  accent-color: var(--accent-color);
+  accent-color: var(--primary-color);
 }
 
 .linkSection {

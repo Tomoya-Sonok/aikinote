@@ -118,7 +118,7 @@
   font-family: var(--font-inter);
   font-size: var(--font-size-sm);
   color: var(--black);
-  border: 1px solid var(--accent-color);
+  border: 1px solid var(--primary-color);
   border-radius: 8px;
   resize: vertical;
   line-height: 1.6;
@@ -127,7 +127,7 @@
 
 .editTextarea:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--primary-color);
 }
 
 .editActions {

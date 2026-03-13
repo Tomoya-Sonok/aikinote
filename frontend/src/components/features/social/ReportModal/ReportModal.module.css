@@ -53,7 +53,7 @@
 }
 
 .radioInput {
-  accent-color: var(--accent-color);
+  accent-color: var(--primary-color);
 }
 
 .detailSection {
@@ -76,7 +76,7 @@
 
 .textarea:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--primary-color);
 }
 
 .actions {
