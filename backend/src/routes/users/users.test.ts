@@ -6,6 +6,7 @@ import usersRoute from "./index.js";
 // Supabaseクライアントのモック関数
 const mockSingle = vi.fn();
 const mockUpdateSingle = vi.fn();
+const mockMaybeSingle = vi.fn();
 
 // モジュールのモック
 vi.mock("@supabase/supabase-js", () => ({
@@ -14,6 +15,9 @@ vi.mock("@supabase/supabase-js", () => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: mockSingle,
+          neq: vi.fn(() => ({
+            maybeSingle: mockMaybeSingle,
+          })),
         })),
       })),
       update: vi.fn(() => ({
@@ -55,6 +59,10 @@ describe("ユーザープロフィールAPI", () => {
     vi.clearAllMocks();
     mockSingle.mockClear();
     mockUpdateSingle.mockClear();
+    mockMaybeSingle.mockClear();
+
+    // username重複チェック: デフォルトは「重複なし」
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
   });
 
   describe("プロフィール取得API", () => {
