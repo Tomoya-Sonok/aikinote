@@ -28,7 +28,7 @@
 }
 
 .filterActive {
-  color: var(--accent-color);
+  color: var(--primary-color);
 }
 
 .filterSection {
@@ -67,7 +67,7 @@
 
 .filterInput:focus {
   outline: none;
-  border-color: var(--accent-color);
+  border-color: var(--primary-color);
 }
 
 .filterSelect {
