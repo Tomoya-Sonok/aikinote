@@ -20,6 +20,7 @@ export interface UserProfile {
   dojo_style_id?: string | null;
   training_start_date?: string | null;
   publicity_setting?: string | null;
+  aikido_rank?: string | null;
   language?: string;
   is_email_verified?: boolean;
   password_hash?: string;
@@ -70,9 +71,7 @@ export const MyPageContent: FC<MyPageContentProps> = ({
             dojoStyleName={
               user.dojo_style_name || t("mypageContent.notEntered")
             }
-            trainingStartDate={
-              user.training_start_date || t("mypageContent.notEntered")
-            }
+            aikidoRank={user.aikido_rank || t("mypageContent.notEntered")}
             profileImageUrl={user.profile_image_url}
             onEditClick={handleEditBasicInfo}
           />

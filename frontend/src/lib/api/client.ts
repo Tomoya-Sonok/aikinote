@@ -471,6 +471,7 @@ export interface UpdateUserBasicInfoPayload {
   profile_image_url?: string | null;
   bio?: string | null;
   publicity_setting?: "public" | "closed" | "private";
+  aikido_rank?: string | null;
 }
 
 // 道場検索

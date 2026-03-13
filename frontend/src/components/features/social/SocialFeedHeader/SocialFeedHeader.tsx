@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./SocialFeedHeader.module.css";
 
 interface SocialFeedHeaderProps {
@@ -16,11 +17,12 @@ export const SocialFeedHeader: FC<SocialFeedHeaderProps> = ({
 }) => {
   const t = useTranslations("socialPosts");
   const locale = useLocale();
+  const { user } = useAuth();
 
   return (
     <SocialHeader>
       <a
-        href={`/${locale}/social/profile`}
+        href={`/${locale}/social/profile/${user?.id ?? ""}`}
         className={styles.profileLink}
         aria-label={t("profile")}
       >

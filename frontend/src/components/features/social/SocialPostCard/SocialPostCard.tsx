@@ -108,9 +108,21 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
         }}
       >
         <div className={styles.authorHeader}>
-          <ProfileImage src={post.author.profile_image_url} size="small" />
+          <a
+            href={`/${locale}/social/profile/${post.author.id}`}
+            className={styles.authorLink}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ProfileImage src={post.author.profile_image_url} size="small" />
+          </a>
           <div className={styles.authorInfo}>
-            <span className={styles.authorName}>{post.author.username}</span>
+            <a
+              href={`/${locale}/social/profile/${post.author.id}`}
+              className={styles.authorNameLink}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {post.author.username}
+            </a>
             <span className={styles.authorMeta}>
               {post.author_dojo_name && (
                 <span className={styles.dojoName}>{post.author_dojo_name}</span>

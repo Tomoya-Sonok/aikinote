@@ -196,6 +196,7 @@
     "notEntered": "未入力",
     "currentDojo": "現在所属している道場（流派）",
     "aikidoStartDate": "合気道を始めたのはいつ？",
+    "rank": "段級位",
     "profileImage": "のプロフィール画像"
   },
   "pageModal": {
@@ -567,7 +568,12 @@
     "reportFailed": "通報の送信に失敗しました",
     "editFailed": "投稿の更新に失敗しました",
     "myPosts": "自分の投稿",
+    "userPosts": "投稿",
     "totalFavorites": "累計お気に入り数",
+    "otherUserFavoritesHidden": "他のユーザーのお気に入り数は閲覧できません",
+    "profileNotFound": "プロフィールが見つかりませんでした",
+    "profileRestricted": "このプロフィールは非公開です",
+    "bioLabel": "自己紹介",
     "dojoFilter": "道場名",
     "rankFilter": "段級位",
     "shareSuccess": "リンクをコピーしました",
@@ -682,7 +688,9 @@
     "approved": "承認済み",
     "dojoStyleNotRegistered": "候補から選択するか、「新しく登録する」を選択してください",
     "usernameTaken": "このユーザー名は既に使用されています",
-    "usernameCheckFailed": "ユーザー名の確認に失敗しました"
+    "usernameCheckFailed": "ユーザー名の確認に失敗しました",
+    "aikidoRank": "段級位",
+    "aikidoRankPlaceholder": "選択してください"
   },
   "mypageContent": {
     "basicInfoSection": "基本情報",

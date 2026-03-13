@@ -478,9 +478,19 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
       <div className={styles.postContent}>
         <div className={styles.authorHeader}>
-          <ProfileImage src={detail.author.profile_image_url} size="small" />
+          <a
+            href={`/${locale}/social/profile/${detail.author.id}`}
+            className={styles.authorLink}
+          >
+            <ProfileImage src={detail.author.profile_image_url} size="small" />
+          </a>
           <div className={styles.authorInfo}>
-            <span className={styles.authorName}>{detail.author.username}</span>
+            <a
+              href={`/${locale}/social/profile/${detail.author.id}`}
+              className={styles.authorNameLink}
+            >
+              {detail.author.username}
+            </a>
             <span className={styles.authorMeta}>
               {detail.author.aikido_rank && (
                 <span>{detail.author.aikido_rank}</span>

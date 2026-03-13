@@ -196,6 +196,7 @@
     "notEntered": "Not entered",
     "currentDojo": "Current dojo (style)",
     "aikidoStartDate": "When did you start Aikido?",
+    "rank": "Rank/Grade",
     "profileImage": "profile image"
   },
   "pageModal": {
@@ -565,7 +566,12 @@
     "reportFailed": "Failed to submit report",
     "editFailed": "Failed to update post",
     "myPosts": "My Posts",
+    "userPosts": "Posts",
     "totalFavorites": "Total Favorites",
+    "otherUserFavoritesHidden": "Other users' favorite counts are not visible",
+    "profileNotFound": "Profile not found",
+    "profileRestricted": "This profile is private",
+    "bioLabel": "Bio",
     "dojoFilter": "Dojo",
     "rankFilter": "Rank/Grade",
     "shareSuccess": "Link copied",
@@ -680,7 +686,9 @@
     "approved": "Approved",
     "dojoStyleNotRegistered": "Please select from suggestions or choose \"Register as new\"",
     "usernameTaken": "This username is already taken",
-    "usernameCheckFailed": "Failed to check username availability"
+    "usernameCheckFailed": "Failed to check username availability",
+    "aikidoRank": "Rank/Grade",
+    "aikidoRankPlaceholder": "Select rank"
   },
   "mypageContent": {
     "basicInfoSection": "Basic Info",

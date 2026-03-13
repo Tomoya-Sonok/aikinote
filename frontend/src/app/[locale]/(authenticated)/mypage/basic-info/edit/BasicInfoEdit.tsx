@@ -32,8 +32,9 @@ import {
   getUserBasicInfo,
   updateUserBasicInfo,
 } from "@/lib/api/client";
+import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { compressImage } from "@/lib/utils/compressImage";
+import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./BasicInfoEdit.module.css";
 
@@ -52,18 +53,24 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
   const usernameInputId = useId();
-  const trainingStartInputId = useId();
+  const aikidoRankInputId = useId();
 
   const [formData, setFormData] = useState({
     username: user.username,
     dojo_name: user.dojo_style_name || "",
     dojo_style_id: user.dojo_style_id || (null as string | null),
-    training_start_date: user.training_start_date || "",
+    aikido_rank: user.aikido_rank || "",
     profile_image_url: user.profile_image_url || "",
   });
 
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const {
+    profileImageFile,
+    previewUrl,
+    handleImageChange,
+    handleDeleteImage: handleDeleteImageHook,
+    uploadImageToS3,
+    cleanup: cleanupImagePreview,
+  } = useProfileImageUpload();
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [dojoStyleError, setDojoStyleError] = useState<string | null>(null);
@@ -106,7 +113,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         username: formData.username,
         dojo_style_name: formData.dojo_name || null,
         dojo_style_id: formData.dojo_style_id,
-        training_start_date: formData.training_start_date || null,
+        aikido_rank: formData.aikido_rank || null,
         profile_image_url: updatedProfileImageUrl || null,
       };
 
@@ -138,65 +145,8 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
   };
 
   const handleCancel = () => {
-    // プレビューURLをクリーンアップ
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
+    cleanupImagePreview();
     router.push(`/${locale}/mypage`);
-  };
-
-  // 画像アップロード用のヘルパー関数
-  const uploadImageToS3 = async (file: File): Promise<string> => {
-    const uploadUrlResponse = await fetch("/api/upload-url", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        filename: file.name,
-        contentType: file.type,
-        fileSize: file.size,
-      }),
-    });
-
-    if (!uploadUrlResponse.ok) {
-      const errorData = await uploadUrlResponse.json();
-      throw new Error(errorData.error || t("basicInfoEdit.uploadUrlFailed"));
-    }
-
-    const { uploadUrl, fileKey } = await uploadUrlResponse.json();
-
-    const uploadResponse = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": file.type,
-      },
-      body: file,
-    });
-
-    if (!uploadResponse.ok) {
-      throw new Error(t("basicInfoEdit.s3UploadFailed"));
-    }
-
-    const updateResponse = await fetch("/api/profile-image", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fileKey,
-      }),
-    });
-
-    if (!updateResponse.ok) {
-      const errorData = await updateResponse.json();
-      throw new Error(
-        errorData.error || t("basicInfoEdit.profileImageUpdateFailed"),
-      );
-    }
-
-    const { imageUrl } = await updateResponse.json();
-    return imageUrl;
   };
 
   // 最新の基本情報を取得
@@ -219,7 +169,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         username: latestUser.username,
         dojo_name: latestUser.dojo_style_name || "",
         dojo_style_id: latestUser.dojo_style_id || null,
-        training_start_date: latestUser.training_start_date || "",
+        aikido_rank: latestUser.aikido_rank || "",
         profile_image_url: latestUser.profile_image_url || "",
       }));
     } catch (error) {
@@ -235,7 +185,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
   }, [fetchUserBasicInfo]);
 
   const handleInputChange =
-    (field: "username" | "training_start_date" | "profile_image_url") =>
+    (field: "username" | "profile_image_url") =>
     (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
@@ -322,32 +272,14 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
     }));
   };
 
-  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const compressedFile = await compressImage(file, {
-          maxWidth: 512,
-          maxHeight: 512,
-          quality: 0.85,
-          outputType: "image/jpeg",
-          maxFileSize: 1024 * 1024,
-        });
-        setProfileImageFile(compressedFile);
-        const url = URL.createObjectURL(compressedFile);
-        setPreviewUrl(url);
-      } catch {
-        showToast(t("basicInfoEdit.communicationFailed"), "error");
-      }
-    }
+  const onImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    await handleImageChange(event, () => {
+      showToast(t("basicInfoEdit.communicationFailed"), "error");
+    });
   };
 
   const handleDeleteImage = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setProfileImageFile(null);
-    setPreviewUrl(null);
+    handleDeleteImageHook();
     setFormData((prev) => ({ ...prev, profile_image_url: "" }));
   };
 
@@ -397,7 +329,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageChange}
+                onChange={onImageChange}
                 className={styles.fileInput}
               />
               <ImagesSquareIcon size={16} weight="light" color="var(--black)" />
@@ -495,17 +427,29 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor={trainingStartInputId} className={styles.label}>
-              {t("basicInfoEdit.trainingStartDate")}
+            <label htmlFor={aikidoRankInputId} className={styles.label}>
+              {t("basicInfoEdit.aikidoRank")}
             </label>
-            <input
-              type="text"
-              id={trainingStartInputId}
-              value={formData.training_start_date}
-              onChange={handleInputChange("training_start_date")}
-              placeholder={t("basicInfoEdit.trainingStartPlaceholder")}
-              className={styles.inputField}
-            />
+            <select
+              id={aikidoRankInputId}
+              value={formData.aikido_rank}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  aikido_rank: e.target.value,
+                }))
+              }
+              className={styles.selectField}
+            >
+              <option value="">
+                {t("basicInfoEdit.aikidoRankPlaceholder")}
+              </option>
+              {AIKIDO_RANK_OPTIONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

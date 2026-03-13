@@ -1,6 +1,6 @@
 "use client";
 
-import { PencilSimpleIcon } from "@phosphor-icons/react";
+import { InfoIcon, PencilSimpleIcon } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
@@ -10,11 +10,13 @@ import {
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { Tooltip } from "@/components/shared/Tooltip";
 import { getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./SocialProfile.module.css";
 
 interface ProfileData {
+  is_restricted: boolean;
   user: {
     id: string;
     username: string;
@@ -22,7 +24,7 @@ interface ProfileData {
     bio: string | null;
     aikido_rank: string | null;
     dojo_style_name: string | null;
-  };
+  } | null;
   posts: {
     id: string;
     content: string;
@@ -32,18 +34,24 @@ interface ProfileData {
   total_favorites?: number;
 }
 
-export function SocialProfile() {
-  const { user } = useAuth();
+interface SocialProfileViewProps {
+  userId: string;
+}
+
+export function SocialProfileView({ userId }: SocialProfileViewProps) {
+  const { user: currentUser } = useAuth();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const isOwnProfile = currentUser?.id === userId;
+
   useEffect(() => {
-    if (!user?.id) return;
+    if (!currentUser?.id) return;
     const fetchProfile = async () => {
       try {
-        const result = await getSocialProfile(user.id);
+        const result = await getSocialProfile(userId);
         if (result.success && result.data) {
           setProfile(result.data as ProfileData);
         }
@@ -54,7 +62,7 @@ export function SocialProfile() {
       }
     };
     fetchProfile();
-  }, [user?.id]);
+  }, [currentUser?.id, userId]);
 
   const handleBack = useCallback(() => {
     window.location.href = `/${locale}/social/posts`;
@@ -75,8 +83,45 @@ export function SocialProfile() {
   if (!profile) {
     return (
       <SocialLayout>
+        <SocialHeader
+          title={t("profileTitle")}
+          onBack={handleBack}
+          backLabel={t("back")}
+        />
         <div className={styles.empty}>
-          <p>プロフィールが見つかりませんでした</p>
+          <p>{t("profileNotFound")}</p>
+        </div>
+      </SocialLayout>
+    );
+  }
+
+  // 非公開プロフィール
+  if (profile.is_restricted) {
+    return (
+      <SocialLayout>
+        <SocialHeader
+          title={t("profileTitle")}
+          onBack={handleBack}
+          backLabel={t("back")}
+        />
+        <div className={styles.empty}>
+          <p>{t("profileRestricted")}</p>
+        </div>
+      </SocialLayout>
+    );
+  }
+
+  const profileUser = profile.user;
+  if (!profileUser) {
+    return (
+      <SocialLayout>
+        <SocialHeader
+          title={t("profileTitle")}
+          onBack={handleBack}
+          backLabel={t("back")}
+        />
+        <div className={styles.empty}>
+          <p>{t("profileNotFound")}</p>
         </div>
       </SocialLayout>
     );
@@ -91,40 +136,49 @@ export function SocialProfile() {
       />
 
       <div className={styles.profileCard}>
-        <ProfileImage src={profile.user.profile_image_url} size="large" />
-        <h2 className={styles.username}>{profile.user.username}</h2>
+        <ProfileImage src={profileUser.profile_image_url} size="large" />
+        <h2 className={styles.username}>{profileUser.username}</h2>
 
-        {profile.user.aikido_rank && (
-          <span className={styles.rank}>{profile.user.aikido_rank}</span>
+        {profileUser.aikido_rank && (
+          <span className={styles.rank}>{profileUser.aikido_rank}</span>
         )}
-        {profile.user.dojo_style_name && (
-          <span className={styles.dojo}>{profile.user.dojo_style_name}</span>
+        {profileUser.dojo_style_name && (
+          <span className={styles.dojo}>{profileUser.dojo_style_name}</span>
         )}
-        {profile.user.bio && <p className={styles.bio}>{profile.user.bio}</p>}
+        {profileUser.bio && <p className={styles.bio}>{profileUser.bio}</p>}
 
         <div className={styles.stats}>
           <div className={styles.statItem}>
             <span className={styles.statValue}>{profile.posts.length}</span>
-            <span className={styles.statLabel}>{t("myPosts")}</span>
+            <span className={styles.statLabel}>{t("userPosts")}</span>
           </div>
-          {profile.total_favorites !== undefined && (
-            <div className={styles.statItem}>
+          <div className={styles.statItem}>
+            {isOwnProfile ? (
               <span className={styles.statValue}>
-                {profile.total_favorites}
+                {profile.total_favorites ?? 0}
               </span>
-              <span className={styles.statLabel}>{t("totalFavorites")}</span>
-            </div>
-          )}
+            ) : (
+              <span className={styles.statValueWithInfo}>
+                ???
+                <Tooltip text={t("otherUserFavoritesHidden")} position="bottom">
+                  <InfoIcon size={14} weight="regular" />
+                </Tooltip>
+              </span>
+            )}
+            <span className={styles.statLabel}>{t("totalFavorites")}</span>
+          </div>
         </div>
 
-        <Button variant="secondary" size="small" onClick={handleEdit}>
-          <PencilSimpleIcon size={16} weight="regular" />
-          {t("profileEdit")}
-        </Button>
+        {isOwnProfile && (
+          <Button variant="secondary" size="small" onClick={handleEdit}>
+            <PencilSimpleIcon size={16} weight="regular" />
+            {t("profileEdit")}
+          </Button>
+        )}
       </div>
 
       <div className={styles.postsSection}>
-        <h3 className={styles.sectionTitle}>{t("myPosts")}</h3>
+        <h3 className={styles.sectionTitle}>{t("userPosts")}</h3>
         {profile.posts.length === 0 ? (
           <p className={styles.emptyPosts}>{t("emptyAll")}</p>
         ) : (

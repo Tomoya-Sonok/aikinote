@@ -74,6 +74,7 @@ const updateProfileSchema = z.object({
   profile_image_url: z.string().nullable().optional(),
   bio: z.string().max(500).nullable().optional(),
   publicity_setting: z.enum(["public", "closed", "private"]).optional(),
+  aikido_rank: z.string().nullable().optional(),
 });
 
 const signUpSchema = z.object({
@@ -547,7 +548,7 @@ app.get("/:userId", async (c) => {
     const { data: userData, error } = await supabase
       .from("User")
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting",
+        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank",
       )
       .eq("id", userId)
       .single();
@@ -683,7 +684,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       const { data: currentUser, error: fetchError } = await supabase
         .from("User")
         .select(
-          "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting",
+          "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank",
         )
         .eq("id", userId)
         .single();
@@ -711,7 +712,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .update(updateData)
       .eq("id", userId)
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting",
+        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank",
       )
       .single();
 

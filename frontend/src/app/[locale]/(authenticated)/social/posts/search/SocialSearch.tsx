@@ -11,30 +11,11 @@ import {
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
+import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
 import styles from "./SocialSearch.module.css";
-
-// TODO: 技名、カテゴリなど追加フィルター
-const RANK_OPTIONS = [
-  "",
-  "十段",
-  "九段",
-  "八段",
-  "七段",
-  "六段",
-  "五段",
-  "四段",
-  "三段",
-  "二段",
-  "初段",
-  "一級",
-  "二級",
-  "三級",
-  "四級",
-  "五級",
-];
 
 export function SocialSearch() {
   const { user } = useAuth();
@@ -156,9 +137,10 @@ export function SocialSearch() {
               value={rank}
               onChange={(e) => handleRankChange(e.target.value)}
             >
-              {RANK_OPTIONS.map((r) => (
+              <option value="">-</option>
+              {AIKIDO_RANK_OPTIONS.map((r) => (
                 <option key={r} value={r}>
-                  {r || "-"}
+                  {r}
                 </option>
               ))}
             </select>

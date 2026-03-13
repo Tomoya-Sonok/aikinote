@@ -1,21 +1,17 @@
-import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { buildMetadata } from "@/lib/metadata";
-import { SocialProfile } from "./SocialProfile";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/server/auth";
 
-export async function generateMetadata({
+export default async function SocialProfilePage({
   params,
 }: {
   params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+}) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "socialPosts" });
+  const user = await getCurrentUser();
 
-  return buildMetadata({
-    title: t("profileTitle"),
-  });
-}
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
 
-export default async function SocialProfilePage() {
-  return <SocialProfile />;
+  redirect(`/${locale}/social/profile/${user.id}`);
 }

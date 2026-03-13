@@ -73,6 +73,7 @@ type UserProfile = {
   training_start_date: string | null;
   bio: string | null;
   publicity_setting: string | null;
+  aikido_rank: string | null;
 };
 
 type TagStatItem = {
@@ -487,6 +488,7 @@ export const updateUserBasicInfoProcedure = publicProcedure
       profile_image_url: z.string().nullable().optional(),
       bio: z.string().max(500).nullable().optional(),
       publicity_setting: z.enum(["public", "closed", "private"]).optional(),
+      aikido_rank: z.string().nullable().optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -696,6 +698,7 @@ type NotificationItem = {
 };
 
 type SocialProfileData = {
+  is_restricted: boolean;
   user: {
     id: string;
     username: string;
@@ -703,7 +706,7 @@ type SocialProfileData = {
     bio: string | null;
     aikido_rank: string | null;
     dojo_style_name: string | null;
-  };
+  } | null;
   posts: SocialPostBasic[];
   total_favorites?: number;
 };

@@ -53,6 +53,15 @@
   color: var(--black);
 }
 
+.statValueWithInfo {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-light);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .statLabel {
   font-size: var(--font-size-xs);
   color: var(--text-light);

@@ -7,7 +7,7 @@ import styles from "./BasicInfoCard.module.css";
 interface BasicInfoCardProps {
   username: string;
   dojoStyleName?: string;
-  trainingStartDate?: string;
+  aikidoRank?: string;
   profileImageUrl?: string | null;
   onEditClick: () => void;
 }
@@ -15,7 +15,7 @@ interface BasicInfoCardProps {
 export const BasicInfoCard: FC<BasicInfoCardProps> = ({
   username,
   dojoStyleName,
-  trainingStartDate,
+  aikidoRank,
   profileImageUrl,
   onEditClick,
 }) => {
@@ -50,9 +50,9 @@ export const BasicInfoCard: FC<BasicInfoCardProps> = ({
         </div>
 
         <div className={styles.detail}>
-          <span className={styles.label}>{t("basicInfo.aikidoStartDate")}</span>
+          <span className={styles.label}>{t("basicInfo.rank")}</span>
           <span className={styles.value}>
-            {trainingStartDate || defaultNotEntered}
+            {aikidoRank || defaultNotEntered}
           </span>
         </div>
       </div>

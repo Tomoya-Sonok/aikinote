@@ -2130,6 +2130,7 @@ export const getSocialProfile = async (
   viewerId: string,
   viewerDojoStyleId: string | null,
 ): Promise<{
+  is_restricted: boolean;
   user: {
     id: string;
     username: string;
@@ -2138,7 +2139,7 @@ export const getSocialProfile = async (
     aikido_rank: string | null;
     dojo_style_name: string | null;
     publicity_setting: string | null;
-  };
+  } | null;
   posts: SocialPostRow[];
   total_favorites?: number;
 } | null> => {
@@ -2154,7 +2155,18 @@ export const getSocialProfile = async (
     return null;
   }
 
-  // 公開投稿を取得（公開範囲チェック適用）
+  // 他ユーザーの非公開プロフィールは制限付きレスポンスを返す
+  const publicity = user.publicity_setting;
+  if (targetUserId !== viewerId) {
+    if (publicity === "private") {
+      return { is_restricted: true, user: null, posts: [] };
+    }
+    if (publicity === "closed" && user.dojo_style_id !== viewerDojoStyleId) {
+      return { is_restricted: true, user: null, posts: [] };
+    }
+  }
+
+  // 公開投稿を取得
   const postsQuery = supabaseClient
     .from("SocialPost")
     .select("*")
@@ -2165,25 +2177,12 @@ export const getSocialProfile = async (
 
   const { data: posts } = await postsQuery;
 
-  // User.publicity_setting で一括判定
-  const publicity = user.publicity_setting;
-  let visiblePosts = posts ?? [];
-  if (targetUserId !== viewerId) {
-    if (publicity === "private") {
-      visiblePosts = [];
-    } else if (
-      publicity === "closed" &&
-      user.dojo_style_id !== viewerDojoStyleId
-    ) {
-      visiblePosts = [];
-    }
-  }
-
   const result: {
+    is_restricted: boolean;
     user: typeof user;
     posts: SocialPostRow[];
     total_favorites?: number;
-  } = { user, posts: visiblePosts };
+  } = { is_restricted: false, user, posts: posts ?? [] };
 
   // 本人のみ累計お気に入り数を返却
   if (targetUserId === viewerId) {
