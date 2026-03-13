@@ -700,6 +700,18 @@ export const toggleFavorite = async (postId: string) => {
   }
 };
 
+export const toggleReplyFavorite = async (replyId: string) => {
+  try {
+    const response = await trpcClient.socialReplies.toggleFavorite.mutate({
+      replyId,
+    });
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+  }
+};
+
 export interface ReportPostPayload {
   postId: string;
   user_id: string;
@@ -787,6 +799,7 @@ export const getNotifications = async (params: GetNotificationsParams = {}) => {
 export interface MarkNotificationsReadPayload {
   notificationIds?: string[];
   markAll?: boolean;
+  postId?: string;
 }
 
 export const markNotificationsRead = async (
@@ -794,9 +807,47 @@ export const markNotificationsRead = async (
 ) => {
   try {
     const response = await trpcClient.notifications.markAsRead.mutate(payload);
-    invalidateQueryCacheByPrefixes(["notifications:getList"]);
+    invalidateQueryCacheByPrefixes([
+      "notifications:getList",
+      "notifications:unreadCount",
+      "notifications:unreadPostIds",
+    ]);
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "通知の既読化に失敗しました"));
+  }
+};
+
+export const getUnreadNotificationPostIds = async (): Promise<string[]> => {
+  try {
+    const result = await cachedQuery(
+      "notifications:unreadPostIds",
+      {},
+      CACHE_TTL_MS.notifications,
+      async () => trpcClient.notifications.getUnreadPostIds.query(),
+    );
+    if (result?.success && "data" in result) {
+      return result.data?.post_ids ?? [];
+    }
+    return [];
+  } catch {
+    return [];
+  }
+};
+
+export const getUnreadNotificationCount = async (): Promise<number> => {
+  try {
+    const result = await cachedQuery(
+      "notifications:unreadCount",
+      {},
+      CACHE_TTL_MS.notifications,
+      async () => trpcClient.notifications.getUnreadCount.query(),
+    );
+    if (result?.success && "data" in result) {
+      return result.data?.count ?? 0;
+    }
+    return 0;
+  } catch {
+    return 0;
   }
 };

@@ -587,7 +587,13 @@
     "replyEditFailed": "Failed to update reply",
     "replyDeleteSuccess": "Reply deleted successfully",
     "replyDeleteFailed": "Failed to delete reply",
-    "edited": "(edited)"
+    "edited": "(edited)",
+    "ngwordError": "Your post contains prohibited content",
+    "rateLimitError": "You are posting too frequently. Please wait a moment",
+    "notificationFavorite": "{name} favorited your post",
+    "notificationFavoriteReply": "{name} favorited your reply",
+    "notificationReply": "{name} replied to your post",
+    "notificationReplyToThread": "{name} replied to the thread"
   },
   "tagFilter": {
     "title": "Filter by Tags",

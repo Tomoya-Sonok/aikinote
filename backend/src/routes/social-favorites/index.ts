@@ -4,7 +4,10 @@ import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import {
   createNotification,
   deleteNotificationByFavorite,
+  deleteNotificationByReplyFavorite,
   getSocialPostById,
+  getSocialReplyById,
+  toggleReplyFavorite,
   toggleSocialFavorite,
 } from "../../lib/supabase.js";
 
@@ -78,6 +81,71 @@ app.post("/:postId", async (c) => {
       return c.json({ success: false, error: "認証に失敗しました" }, 401);
     }
     console.error("お気に入りトグルエラー:", error);
+    return c.json(
+      { success: false, error: "お気に入りの更新に失敗しました" },
+      500,
+    );
+  }
+});
+
+// POST /reply/:replyId — 返信お気に入りトグル
+app.post("/reply/:replyId", async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    const token = extractTokenFromHeader(authHeader);
+    const payload = await verifyToken(token, c.env);
+
+    const replyId = c.req.param("replyId");
+
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    // 返信存在チェック
+    const reply = await getSocialReplyById(supabase, replyId);
+    if (!reply) {
+      return c.json({ success: false, error: "返信が見つかりません" }, 404);
+    }
+
+    const result = await toggleReplyFavorite(supabase, replyId, payload.userId);
+
+    // 通知管理
+    if (result.is_favorited) {
+      await createNotification(supabase, {
+        type: "favorite_reply",
+        recipient_user_id: reply.user_id,
+        actor_user_id: payload.userId,
+        post_id: reply.post_id,
+        reply_id: replyId,
+      });
+    } else {
+      await deleteNotificationByReplyFavorite(
+        supabase,
+        replyId,
+        payload.userId,
+      );
+    }
+
+    // 最新の favorite_count を取得
+    const updatedReply = await getSocialReplyById(supabase, replyId);
+
+    return c.json({
+      success: true,
+      data: {
+        is_favorited: result.is_favorited,
+        favorite_count: updatedReply?.favorite_count ?? 0,
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("token") ||
+        error.message.includes("Authorization"))
+    ) {
+      return c.json({ success: false, error: "認証に失敗しました" }, 401);
+    }
+    console.error("返信お気に入りトグルエラー:", error);
     return c.json(
       { success: false, error: "お気に入りの更新に失敗しました" },
       500,

@@ -19,6 +19,7 @@ import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
+import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
 import styles from "./page.module.css";
 
 const VALID_TABS: SocialTab[] = ["all", "training", "favorites"];
@@ -41,6 +42,7 @@ export function SocialPostsFeed() {
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
     useSocialFeed(user?.id, activeTab);
   const { handleToggleFavorite } = useSocialFavorite();
+  const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Intersection Observer で無限スクロール
@@ -114,6 +116,7 @@ export function SocialPostsFeed() {
                 key={post.id}
                 post={post}
                 currentUserId={user?.id ?? ""}
+                hasUnreadReplies={unreadReplyPostIds.has(post.id)}
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
               />

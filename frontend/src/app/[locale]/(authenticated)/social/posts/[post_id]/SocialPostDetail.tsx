@@ -5,9 +5,18 @@ import {
   HeartIcon,
   ShareFatIcon,
 } from "@phosphor-icons/react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ReportModal } from "@/components/features/social/ReportModal/ReportModal";
+
+const ReportModal = dynamic(
+  () =>
+    import("@/components/features/social/ReportModal/ReportModal").then(
+      (m) => m.ReportModal,
+    ),
+  { ssr: false },
+);
+
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/SocialReplyForm";
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
@@ -24,9 +33,11 @@ import {
   deleteSocialPost,
   deleteSocialReply,
   getSocialPost,
+  markNotificationsRead,
   reportPost,
   reportReply,
   toggleFavorite,
+  toggleReplyFavorite,
   updateSocialPost,
   updateSocialReply,
 } from "@/lib/api/client";
@@ -40,6 +51,7 @@ interface SocialReplyData {
   user_id: string;
   content: string;
   is_deleted: boolean;
+  favorite_count: number;
   created_at: string;
   updated_at: string;
   user: {
@@ -47,6 +59,7 @@ interface SocialReplyData {
     username: string;
     profile_image_url: string | null;
   };
+  is_favorited: boolean;
 }
 
 interface PostDetailData {
@@ -105,6 +118,8 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         const result = await getSocialPost(postId);
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);
+          // この投稿に紐づく未読通知を既読化（fire-and-forget）
+          markNotificationsRead({ postId }).catch(() => {});
         }
       } catch (error) {
         console.error("投稿詳細取得エラー:", error);
@@ -275,6 +290,59 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
       }
     },
     [postId, showToast, t],
+  );
+
+  const handleReplyFavoriteToggle = useCallback(
+    (replyId: string) => {
+      if (!detail) return;
+
+      const targetReply = detail.replies.find((r) => r.id === replyId);
+      if (!targetReply) return;
+
+      const wasFavorited = targetReply.is_favorited;
+      const prevCount = targetReply.favorite_count;
+
+      // 楽観的更新
+      setDetail((prev) =>
+        prev
+          ? {
+              ...prev,
+              replies: prev.replies.map((r) =>
+                r.id === replyId
+                  ? {
+                      ...r,
+                      is_favorited: !wasFavorited,
+                      favorite_count: wasFavorited
+                        ? Math.max(0, prevCount - 1)
+                        : prevCount + 1,
+                    }
+                  : r,
+              ),
+            }
+          : null,
+      );
+
+      toggleReplyFavorite(replyId).catch(() => {
+        // エラー時ロールバック
+        setDetail((prev) =>
+          prev
+            ? {
+                ...prev,
+                replies: prev.replies.map((r) =>
+                  r.id === replyId
+                    ? {
+                        ...r,
+                        is_favorited: wasFavorited,
+                        favorite_count: prevCount,
+                      }
+                    : r,
+                ),
+              }
+            : null,
+        );
+      });
+    },
+    [detail],
   );
 
   const handleStartEdit = useCallback(() => {
@@ -496,6 +564,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               onReport={handleReplyReport}
               onEdit={handleReplyEdit}
               onDelete={handleReplyDelete}
+              onFavoriteToggle={handleReplyFavoriteToggle}
             />
           ))}
       </div>

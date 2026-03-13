@@ -17,6 +17,8 @@ import {
   getTagsProcedure,
   getTrainingDatesMonthProcedure,
   getTrainingStatsProcedure,
+  getUnreadNotificationCountProcedure,
+  getUnreadNotificationPostIdsProcedure,
   getUserBasicInfoProcedure,
   healthProcedure,
   honoBridgeTodoProcedure,
@@ -30,6 +32,7 @@ import {
   searchDojoStylesProcedure,
   searchSocialPostsProcedure,
   toggleFavoriteProcedure,
+  toggleReplyFavoriteProcedure,
   updatePageProcedure,
   updateSocialPostProcedure,
   updateSocialReplyProcedure,
@@ -87,6 +90,7 @@ export const appRouter = createTRPCRouter({
     update: updateSocialReplyProcedure,
     remove: removeSocialReplyProcedure,
     report: reportReplyProcedure,
+    toggleFavorite: toggleReplyFavoriteProcedure,
   }),
   socialSearch: createTRPCRouter({
     search: searchSocialPostsProcedure,
@@ -97,6 +101,8 @@ export const appRouter = createTRPCRouter({
   notifications: createTRPCRouter({
     getList: getNotificationsProcedure,
     markAsRead: markNotificationsReadProcedure,
+    getUnreadCount: getUnreadNotificationCountProcedure,
+    getUnreadPostIds: getUnreadNotificationPostIdsProcedure,
   }),
 });
 

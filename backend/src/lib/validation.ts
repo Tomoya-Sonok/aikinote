@@ -357,6 +357,7 @@ export type GetNotificationsInput = z.infer<typeof getNotificationsSchema>;
 export const markNotificationsReadSchema = z.object({
   notification_ids: z.array(z.string().uuid()).optional(),
   mark_all: z.boolean().optional(),
+  post_id: z.string().uuid().optional(),
 });
 
 export type MarkNotificationsReadInput = z.infer<

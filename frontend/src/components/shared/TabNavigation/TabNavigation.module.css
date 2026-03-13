@@ -63,3 +63,18 @@
   color: var(--white);
   font-weight: 600;
 }
+
+.iconWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--error-color);
+}

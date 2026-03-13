@@ -35,6 +35,12 @@ export function normalizeText(text: string): string {
     String.fromCharCode(ch.charCodeAt(0) - 0x60),
   );
 
+  // 空白・区切り文字・ゼロ幅文字を除去
+  result = result.replace(
+    /[\s\u3000\-_.,!?・。、！？\u200B\u200C\uFEFF]|\u200D/g,
+    "",
+  );
+
   return result;
 }
 

@@ -93,7 +93,9 @@
   padding-top: 8px;
 }
 
-.actionButton {
+/* 詳細度を (0,2,0) に上げて Button の .button/.primary/.medium (0,1,0) に
+   CSS チャンク読み込み順序に関係なく勝つようにする */
+.actions .actionButton {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -112,17 +114,32 @@
   letter-spacing: normal;
 }
 
-.actionButton:hover {
+.actions .actionButton:hover {
   color: var(--black);
   background: none;
   opacity: 1;
 }
 
-.actionButton.favorited {
+.actions .actionButton.favorited {
   color: var(--error-color);
 }
 
 .count {
   font-size: var(--font-size-xs);
   line-height: 1;
+}
+
+.iconWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--error-color);
 }

@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import { containsNgWord } from "../../lib/ng-word.js";
 import {
+  checkRateLimit,
   createNotification,
   createSocialPost,
   createSocialPostTags,
@@ -161,6 +162,24 @@ app.post("/", zValidator("json", createSocialPostSchema), async (c) => {
     const supabase = resolveSupabase(c);
     if (!supabase) {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    // レート制限チェック（60分以内に10件まで）
+    const rateLimited = await checkRateLimit(
+      supabase,
+      payload.userId,
+      "SocialPost",
+      60,
+      10,
+    );
+    if (rateLimited) {
+      return c.json(
+        {
+          success: false,
+          error: "投稿の頻度が高すぎます。しばらくお待ちください。",
+        },
+        429,
+      );
     }
 
     // NGワードチェック
@@ -410,6 +429,24 @@ app.post(
         return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
       }
 
+      // レート制限チェック（60分以内に20件まで）
+      const rateLimited = await checkRateLimit(
+        supabase,
+        payload.userId,
+        "SocialReply",
+        60,
+        20,
+      );
+      if (rateLimited) {
+        return c.json(
+          {
+            success: false,
+            error: "返信の頻度が高すぎます。しばらくお待ちください。",
+          },
+          429,
+        );
+      }
+
       // 投稿存在・公開範囲チェック
       const post = await getSocialPostById(supabase, postId);
       if (!post) {
@@ -478,7 +515,7 @@ app.post(
           post_id: postId,
           reply_id: reply.id,
         }));
-        await supabase.from("SocialNotification").insert(notifications);
+        await supabase.from("Notification").insert(notifications);
       }
 
       return c.json(

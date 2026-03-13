@@ -1397,13 +1397,15 @@ export interface SocialReplyRow {
   user_id: string;
   content: string;
   is_deleted: boolean;
+  favorite_count: number;
   created_at: string;
   updated_at: string;
 }
 
 export interface SocialFavoriteRow {
   id: string;
-  post_id: string;
+  post_id: string | null;
+  reply_id: string | null;
   user_id: string;
   created_at: string;
 }
@@ -1607,6 +1609,7 @@ export const getSocialPostWithDetails = async (
   };
   replies: (SocialReplyRow & {
     user: { id: string; username: string; profile_image_url: string | null };
+    is_favorited: boolean;
   })[];
   is_favorited: boolean;
 } | null> => {
@@ -1655,6 +1658,23 @@ export const getSocialPostWithDetails = async (
     category: row.UserTag?.category ?? "",
   }));
 
+  // 返信の is_favorited 判定用: viewerがお気に入りしている返信IDを一括取得
+  const replyIds = (repliesResult.data ?? []).map(
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    (row: any) => row.id as string,
+  );
+  const favoritedReplyIds = new Set<string>();
+  if (replyIds.length > 0) {
+    const { data: replyFavs } = await supabaseClient
+      .from("SocialFavorite")
+      .select("reply_id")
+      .in("reply_id", replyIds)
+      .eq("user_id", viewerId);
+    for (const fav of replyFavs ?? []) {
+      if (fav.reply_id) favoritedReplyIds.add(fav.reply_id);
+    }
+  }
+
   // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
   const replies = (repliesResult.data ?? []).map((row: any) => ({
     id: row.id,
@@ -1662,6 +1682,7 @@ export const getSocialPostWithDetails = async (
     user_id: row.user_id,
     content: row.content,
     is_deleted: row.is_deleted,
+    favorite_count: row.favorite_count ?? 0,
     created_at: row.created_at,
     updated_at: row.updated_at,
     user: {
@@ -1669,6 +1690,7 @@ export const getSocialPostWithDetails = async (
       username: row.User?.username ?? "",
       profile_image_url: row.User?.profile_image_url ?? null,
     },
+    is_favorited: favoritedReplyIds.has(row.id),
   }));
 
   return {
@@ -1850,6 +1872,59 @@ export const deleteNotificationByFavorite = async (
   }
 };
 
+export const toggleReplyFavorite = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+): Promise<{ is_favorited: boolean }> => {
+  const { data: existing } = await supabaseClient
+    .from("SocialFavorite")
+    .select("id")
+    .eq("reply_id", replyId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabaseClient
+      .from("SocialFavorite")
+      .delete()
+      .eq("id", existing.id);
+
+    if (error) {
+      throw new Error(`お気に入り解除に失敗しました: ${error.message}`);
+    }
+
+    return { is_favorited: false };
+  }
+
+  const { error } = await supabaseClient
+    .from("SocialFavorite")
+    .insert({ reply_id: replyId, user_id: userId });
+
+  if (error) {
+    throw new Error(`お気に入り登録に失敗しました: ${error.message}`);
+  }
+
+  return { is_favorited: true };
+};
+
+export const deleteNotificationByReplyFavorite = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("Notification")
+    .delete()
+    .eq("type", "favorite_reply")
+    .eq("actor_user_id", userId)
+    .eq("reply_id", replyId);
+
+  if (error) {
+    console.error("通知の削除に失敗しました:", error);
+  }
+};
+
 export const getNotifications = async (
   supabaseClient: SupabaseClient,
   userId: string,
@@ -1872,11 +1947,32 @@ export const getNotifications = async (
   return data ?? [];
 };
 
+export const checkRateLimit = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  table: "SocialPost" | "SocialReply",
+  windowMinutes: number,
+  maxCount: number,
+): Promise<boolean> => {
+  const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+  const { count, error } = await supabaseClient
+    .from(table)
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", since);
+  if (error) {
+    console.error("Rate limit check error:", error);
+    return false; // fail open
+  }
+  return (count ?? 0) >= maxCount;
+};
+
 export const markNotificationsRead = async (
   supabaseClient: SupabaseClient,
   userId: string,
   ids?: string[],
   markAll?: boolean,
+  postId?: string,
 ): Promise<void> => {
   let query = supabaseClient
     .from("Notification")
@@ -1884,7 +1980,9 @@ export const markNotificationsRead = async (
     .eq("recipient_user_id", userId)
     .eq("is_read", false);
 
-  if (!markAll && ids && ids.length > 0) {
+  if (postId) {
+    query = query.eq("post_id", postId);
+  } else if (!markAll && ids && ids.length > 0) {
     query = query.in("id", ids);
   }
 
@@ -1893,6 +1991,35 @@ export const markNotificationsRead = async (
   if (error) {
     throw new Error(`通知の既読化に失敗しました: ${error.message}`);
   }
+};
+
+export const getUnreadNotificationCount = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<number> => {
+  const { count, error } = await supabaseClient
+    .from("Notification")
+    .select("id", { count: "exact", head: true })
+    .eq("recipient_user_id", userId)
+    .eq("is_read", false)
+    .in("type", ["reply", "reply_to_thread"]);
+  if (error) throw new Error(`未読通知数の取得に失敗: ${error.message}`);
+  return count ?? 0;
+};
+
+export const getUnreadNotificationPostIds = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<string[]> => {
+  const { data, error } = await supabaseClient
+    .from("Notification")
+    .select("post_id")
+    .eq("recipient_user_id", userId)
+    .eq("is_read", false)
+    .in("type", ["reply", "reply_to_thread"])
+    .not("post_id", "is", null);
+  if (error) throw new Error(`未読通知投稿IDの取得に失敗: ${error.message}`);
+  return [...new Set((data ?? []).map((n) => n.post_id as string))];
 };
 
 export const createPostReport = async (

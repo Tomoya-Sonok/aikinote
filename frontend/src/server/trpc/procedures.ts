@@ -610,6 +610,7 @@ type SocialReplyItem = {
   user_id: string;
   content: string;
   is_deleted: boolean;
+  favorite_count: number;
   created_at: string;
   updated_at: string;
   user: {
@@ -617,6 +618,7 @@ type SocialReplyItem = {
     username: string;
     profile_image_url: string | null;
   };
+  is_favorited: boolean;
 };
 
 type SocialPostDetail = {
@@ -907,6 +909,22 @@ export const reportReplyProcedure = publicProcedure
     );
   });
 
+export const toggleReplyFavoriteProcedure = publicProcedure
+  .input(
+    z.object({
+      replyId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<
+      ApiResponse<{ is_favorited: boolean; favorite_count: number }>
+    >(`/api/social/favorites/reply/${input.replyId}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
 export const searchSocialPostsProcedure = publicProcedure
   .input(
     z.object({
@@ -981,6 +999,7 @@ export const markNotificationsReadProcedure = publicProcedure
     z.object({
       notificationIds: z.array(z.string().uuid()).optional(),
       markAll: z.boolean().optional(),
+      postId: z.string().uuid().optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -991,6 +1010,31 @@ export const markNotificationsReadProcedure = publicProcedure
       body: JSON.stringify({
         notification_ids: input.notificationIds,
         mark_all: input.markAll,
+        post_id: input.postId,
       }),
     });
   });
+
+export const getUnreadNotificationCountProcedure = publicProcedure.query(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ count: number }>>(
+      "/api/social/notifications/unread-count",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);
+
+export const getUnreadNotificationPostIdsProcedure = publicProcedure.query(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ post_ids: string[] }>>(
+      "/api/social/notifications/unread-post-ids",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);

@@ -54,7 +54,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
                 <PencilSimpleIcon
                   size={16}
                   weight="light"
-                  color="var(--black)"
+                  color="var(--text-light)"
                 />
               </button>
             )}
@@ -64,7 +64,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
                 className={styles.iconButton}
                 onClick={handleDelete}
               >
-                <TrashIcon size={16} weight="light" color="var(--black)" />
+                <TrashIcon size={16} weight="light" color="var(--text-light)" />
               </button>
             )}
           </div>
