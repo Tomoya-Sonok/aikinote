@@ -6,7 +6,7 @@ import {
   getUnreadNotificationPostIds,
 } from "@/lib/api/client";
 
-const POLLING_INTERVAL_MS = 30_000;
+const POLLING_INTERVAL_MS = 180_000;
 
 export function useUnreadNotificationCount(userId: string | undefined): number {
   const [count, setCount] = useState(0);

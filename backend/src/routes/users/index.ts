@@ -475,6 +475,41 @@ app.post("/", async (c) => {
   }
 });
 
+// ユーザー名重複チェックAPI
+app.get("/check-username", async (c) => {
+  const username = c.req.query("username");
+  const excludeUserId = c.req.query("excludeUserId");
+
+  if (!username) {
+    return c.json({ success: false, error: "ユーザー名は必須です" }, 400);
+  }
+
+  const supabase = resolveSupabaseClient(c, { useContext: false });
+  if (!supabase) {
+    return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+  }
+
+  let query = supabase.from("User").select("id").eq("username", username);
+
+  if (excludeUserId) {
+    query = query.neq("id", excludeUserId);
+  }
+
+  const { data, error } = await query.maybeSingle();
+
+  if (error) {
+    return c.json(
+      { success: false, error: "ユーザー名の確認に失敗しました" },
+      500,
+    );
+  }
+
+  return c.json({
+    success: true,
+    data: { available: !data },
+  });
+});
+
 // ユーザープロフィール取得API
 app.get("/:userId", async (c) => {
   try {
@@ -611,6 +646,36 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
         },
         500,
       );
+    }
+
+    // ユーザー名の重複チェック（自分以外）
+    if (updateData.username) {
+      const { data: existingUser, error: checkError } = await supabase
+        .from("User")
+        .select("id")
+        .eq("username", updateData.username)
+        .neq("id", userId)
+        .maybeSingle();
+
+      if (checkError) {
+        return c.json(
+          {
+            success: false,
+            error: "ユーザー名の確認に失敗しました",
+          },
+          500,
+        );
+      }
+
+      if (existingUser) {
+        return c.json(
+          {
+            success: false,
+            error: "このユーザー名は既に使用されています",
+          },
+          400,
+        );
+      }
     }
 
     // 更新データが空の場合はupdateをスキップして現在のデータを返す

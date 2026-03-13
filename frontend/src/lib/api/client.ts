@@ -504,6 +504,21 @@ export const createDojoStyle = async (payload: CreateDojoStylePayload) => {
   }
 };
 
+export const checkUsernameAvailability = async (
+  username: string,
+  excludeUserId?: string,
+): Promise<boolean> => {
+  try {
+    const result = await trpcClient.users.checkUsername.query({
+      username,
+      excludeUserId,
+    });
+    return result?.success && result.data?.available === true;
+  } catch {
+    return true;
+  }
+};
+
 export const getUserBasicInfo = async (userId: string) => {
   try {
     const input = { userId };

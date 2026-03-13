@@ -1,5 +1,6 @@
 import { createTRPCRouter } from "./index";
 import {
+  checkUsernameProcedure,
   createDojoStyleProcedure,
   createPageProcedure,
   createSocialPostProcedure,
@@ -75,6 +76,7 @@ export const appRouter = createTRPCRouter({
     getBasicInfo: getUserBasicInfoProcedure,
     updateBasicInfo: updateUserBasicInfoProcedure,
     create: createUserProcedure,
+    checkUsername: checkUsernameProcedure,
   }),
   socialPosts: createTRPCRouter({
     getFeed: getSocialFeedProcedure,

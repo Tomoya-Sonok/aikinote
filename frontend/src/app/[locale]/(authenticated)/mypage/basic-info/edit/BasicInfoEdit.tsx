@@ -27,6 +27,7 @@ import {
 import { Loader } from "@/components/shared/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import {
+  checkUsernameAvailability,
   createDojoStyle,
   getUserBasicInfo,
   updateUserBasicInfo,
@@ -64,6 +65,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [dojoStyleError, setDojoStyleError] = useState<string | null>(null);
 
   const handleSave = async () => {
@@ -77,6 +79,11 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         );
         return;
       }
+    }
+
+    // 重複チェック中または重複エラーがある場合は保存しない
+    if (checkingUsername || usernameError) {
+      return;
     }
 
     // 道場名: テキスト入力があるのに未登録の場合はエラー
@@ -105,7 +112,12 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
 
       const result = await updateUserBasicInfo(updatedData);
       if (!result.success) {
-        throw new Error(result.error || t("basicInfoEdit.communicationFailed"));
+        const errorMsg = result.error || "";
+        if (errorMsg.includes("既に使用されています")) {
+          setUsernameError(t("basicInfoEdit.usernameTaken"));
+          return;
+        }
+        throw new Error(errorMsg || t("basicInfoEdit.communicationFailed"));
       }
 
       // ユーザー情報を再取得してセッションを更新
@@ -244,6 +256,33 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         }
       }
     };
+
+  const handleUsernameBlur = useCallback(async () => {
+    const username = formData.username;
+
+    // フォーマットエラーがある場合はスキップ
+    if (usernameError) return;
+
+    // 変更がない場合はスキップ
+    if (username === user.username) return;
+
+    // Zodバリデーションを再チェック
+    try {
+      usernameSchema.parse({ username });
+    } catch {
+      return;
+    }
+
+    setCheckingUsername(true);
+    try {
+      const available = await checkUsernameAvailability(username, user.id);
+      if (!available) {
+        setUsernameError(t("basicInfoEdit.usernameTaken"));
+      }
+    } finally {
+      setCheckingUsername(false);
+    }
+  }, [formData.username, user.username, user.id, usernameError, t]);
 
   const handleDojoStyleSelect = (dojoStyle: DojoStyleOption) => {
     setFormData((prev) => ({
@@ -419,6 +458,7 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
               id={usernameInputId}
               value={formData.username}
               onChange={handleInputChange("username")}
+              onBlur={handleUsernameBlur}
               className={`${styles.inputField} ${usernameError ? styles.error : ""}`}
               placeholder={t("basicInfoEdit.usernamePlaceholder")}
               maxLength={20}
@@ -473,7 +513,11 @@ export const BasicInfoEdit: FC<BasicInfoEditProps> = ({
         <Button variant="cancel" onClick={handleCancel}>
           {t("basicInfoEdit.cancel")}
         </Button>
-        <Button variant="primary" onClick={handleSave}>
+        <Button
+          variant="primary"
+          onClick={handleSave}
+          disabled={!!usernameError || checkingUsername}
+        >
           {t("basicInfoEdit.save")}
         </Button>
       </div>

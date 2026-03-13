@@ -502,6 +502,24 @@ export const updateUserBasicInfoProcedure = publicProcedure
     });
   });
 
+export const checkUsernameProcedure = publicProcedure
+  .input(
+    z.object({
+      username: z.string().min(1),
+      excludeUserId: z.string().optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const params = new URLSearchParams({ username: input.username });
+    if (input.excludeUserId) {
+      params.set("excludeUserId", input.excludeUserId);
+    }
+
+    return callHonoApi<ApiResponse<{ available: boolean }>>(
+      `/api/users/check-username?${params.toString()}`,
+    );
+  });
+
 export const createUserProcedure = publicProcedure
   .input(
     z.object({
