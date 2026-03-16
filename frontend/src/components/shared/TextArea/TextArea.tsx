@@ -9,6 +9,7 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   required?: boolean;
   error?: string;
   enableHashtagHighlight?: boolean;
+  showCharCount?: boolean;
 }
 
 export const TextArea: FC<TextAreaProps> = ({
@@ -17,6 +18,7 @@ export const TextArea: FC<TextAreaProps> = ({
   error,
   className,
   enableHashtagHighlight = false,
+  showCharCount = false,
   value,
   onChange,
   placeholder,
@@ -27,6 +29,8 @@ export const TextArea: FC<TextAreaProps> = ({
   const t = useTranslations();
   const inputId = useId();
   const errorId = useId();
+
+  const currentLength = typeof value === "string" ? value.length : 0;
 
   return (
     <div className={`${styles.container} ${className || ""}`}>
@@ -59,6 +63,11 @@ export const TextArea: FC<TextAreaProps> = ({
           rows={rows}
           {...props}
         />
+      )}
+      {showCharCount && maxLength && (
+        <span className={styles.charCount}>
+          {currentLength}/{maxLength}
+        </span>
       )}
       {error && (
         <span id={errorId} className={styles.errorMessage}>

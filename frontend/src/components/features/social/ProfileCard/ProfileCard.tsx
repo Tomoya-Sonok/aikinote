@@ -42,7 +42,11 @@ export const ProfileCard: FC<ProfileCardProps> = ({
         </div>
       )}
 
-      {bio && <p className={styles.bio}>{bio}</p>}
+      {bio && (
+        <p className={styles.bio} style={{ whiteSpace: "pre-line" }}>
+          {bio}
+        </p>
+      )}
     </div>
   );
 };

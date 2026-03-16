@@ -14,6 +14,7 @@ interface NavigationDrawerProps {
   onTextSizeClick: () => void;
   onLanguageClick: () => void;
   onTagManagementClick: () => void;
+  onPublicityClick: () => void;
 }
 
 export const NavigationDrawer: FC<NavigationDrawerProps> = ({
@@ -24,6 +25,7 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   onTextSizeClick,
   onLanguageClick,
   onTagManagementClick,
+  onPublicityClick,
 }) => {
   const t = useTranslations();
   // ESCキーでドロワーを閉じる
@@ -76,6 +78,9 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
           <div className={styles.menu}>
             <SettingItem onClick={onUserInfoEditClick}>
               {t("navigation.userInfo")}
+            </SettingItem>
+            <SettingItem onClick={onPublicityClick}>
+              {t("navigation.publicity")}
             </SettingItem>
             <SettingItem onClick={onTagManagementClick}>
               {t("navigation.tagManagement")}

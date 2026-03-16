@@ -500,7 +500,7 @@ export interface SearchDojoStylesParams {
 
 export const searchDojoStyles = async ({
   query,
-  limit = 10,
+  limit,
 }: SearchDojoStylesParams) => {
   try {
     return await trpcClient.dojoStyles.search.query({ query, limit });
@@ -566,6 +566,28 @@ export const updateUserInfo = async (payload: UpdateUserInfoPayload) => {
     return response;
   } catch (error) {
     throw new Error(getErrorMessage(error, "ユーザー情報の更新に失敗しました"));
+  }
+};
+
+export const getPublicityDojos = async (userId: string) => {
+  try {
+    return await trpcClient.users.getPublicityDojos.query({ userId });
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開対象道場の取得に失敗しました"));
+  }
+};
+
+export const updatePublicityDojos = async (
+  userId: string,
+  dojoStyleIds: string[],
+) => {
+  try {
+    return await trpcClient.users.updatePublicityDojos.mutate({
+      userId,
+      dojoStyleIds,
+    });
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開対象道場の更新に失敗しました"));
   }
 };
 
@@ -783,6 +805,7 @@ export interface SearchSocialPostsParams {
   dojoName?: string;
   rank?: string;
   hashtag?: string;
+  postType?: "post" | "training_record";
   limit?: number;
   offset?: number;
 }

@@ -60,6 +60,38 @@
   gap: 10px;
 }
 
+.postTypeSelector {
+  display: flex;
+  gap: 8px;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.postTypeButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: var(--font-zen-old-mincho);
+  color: var(--black);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.postTypeButton.postTypeActive {
+  border-color: var(--primary-color);
+  background: var(--bg-base);
+}
+
 .filterRow {
   display: flex;
   align-items: center;
@@ -74,20 +106,9 @@
   min-width: 50px;
 }
 
-.filterInput {
+.filterFieldWrapper {
   flex: 1;
-  padding: 8px 10px;
-  font-size: var(--font-size-sm);
-  color: var(--black);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--white, #fdfcfa);
-  font-family: inherit;
-}
-
-.filterInput:focus {
-  outline: none;
-  border-color: var(--primary-color);
+  position: relative;
 }
 
 .filterSelect {
@@ -107,7 +128,12 @@
 }
 
 .results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 60px;
   min-height: calc(100vh - 120px);
+  background: var(--bg-base);
 }
 
 .empty {

@@ -26,6 +26,27 @@
   transition: border-color 0.4s ease-out;
 }
 
+.searchInputWithClear {
+  padding-right: 36px;
+}
+
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--light-gray);
+  cursor: pointer;
+}
+
 .searchInput::placeholder {
   color: var(--primary-color);
 }

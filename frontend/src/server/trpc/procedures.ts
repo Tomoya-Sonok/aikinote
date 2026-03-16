@@ -467,14 +467,15 @@ export const searchDojoStylesProcedure = publicProcedure
   .input(
     z.object({
       query: z.string().min(1),
-      limit: z.number().int().min(1).max(50).default(10),
+      limit: z.number().int().min(1).max(50).optional(),
     }),
   )
   .query(async ({ input }) => {
-    const query = new URLSearchParams({
-      query: input.query,
-      limit: String(input.limit),
-    });
+    const params = new URLSearchParams({ query: input.query });
+    if (input.limit != null) {
+      params.set("limit", String(input.limit));
+    }
+    const query = params;
 
     return callHonoApi<ApiResponse<DojoStyleSearchResult[]>>(
       `/api/dojo-styles/search?${query.toString()}`,
@@ -566,6 +567,36 @@ export const checkUsernameProcedure = publicProcedure
 
     return callHonoApi<ApiResponse<{ available: boolean }>>(
       `/api/users/check-username?${params.toString()}`,
+    );
+  });
+
+export const getPublicityDojosProcedure = publicProcedure
+  .input(z.object({ userId: z.string().min(1) }))
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<
+      ApiResponse<{ dojo_style_id: string; dojo_name: string }[]>
+    >(`/api/users/${input.userId}/publicity-dojos`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+export const updatePublicityDojosProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      dojoStyleIds: z.array(z.string()),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<null>>(
+      `/api/users/${input.userId}/publicity-dojos`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ dojo_style_ids: input.dojoStyleIds }),
+      },
     );
   });
 
@@ -1004,6 +1035,7 @@ export const searchSocialPostsProcedure = publicProcedure
       dojoName: z.string().optional(),
       rank: z.string().optional(),
       hashtag: z.string().optional(),
+      postType: z.enum(["post", "training_record"]).optional(),
       limit: z.number().int().positive().optional(),
       offset: z.number().int().min(0).optional(),
     }),
@@ -1017,6 +1049,7 @@ export const searchSocialPostsProcedure = publicProcedure
     if (input.dojoName) params.set("dojo_name", input.dojoName);
     if (input.rank) params.set("rank", input.rank);
     if (input.hashtag) params.set("hashtag", input.hashtag);
+    if (input.postType) params.set("post_type", input.postType);
     if (input.limit) params.set("limit", String(input.limit));
     if (input.offset) params.set("offset", String(input.offset));
 

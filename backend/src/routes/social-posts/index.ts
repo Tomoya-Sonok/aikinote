@@ -17,6 +17,7 @@ import {
   getSocialPostWithDetails,
   getSocialReplyById,
   getSourcePageData,
+  getUserPublicityDojos,
   softDeleteSocialPost,
   softDeleteSocialReply,
   updateSocialPost,
@@ -91,7 +92,8 @@ const checkPostVisibility = async (
     .eq("id", viewerId)
     .single();
 
-  if (postOwner?.dojo_style_id !== viewer?.dojo_style_id) {
+  const allowedDojos = await getUserPublicityDojos(supabase, postOwnerId);
+  if (!viewer?.dojo_style_id || !allowedDojos.includes(viewer.dojo_style_id)) {
     return "forbidden";
   }
 

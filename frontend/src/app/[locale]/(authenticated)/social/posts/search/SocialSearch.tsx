@@ -9,13 +9,22 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import {
   type ChangeEvent,
+  forwardRef,
+  memo,
   useCallback,
   useEffect,
   useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
   useState,
 } from "react";
 import { SocialPostCard } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
+import {
+  DojoStyleAutocomplete,
+  type DojoStyleOption,
+} from "@/components/shared/DojoStyleAutocomplete/DojoStyleAutocomplete";
 import { Loader } from "@/components/shared/Loader/Loader";
 import {
   SocialHeader,
@@ -30,15 +39,96 @@ import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
 import { useTrendingHashtags } from "@/lib/hooks/useTrendingHashtags";
 import styles from "./SocialSearch.module.css";
 
+interface SearchBarHandle {
+  setQuery: (value: string) => void;
+  getQuery: () => string;
+}
+
+/**
+ * 検索バー子コンポーネント — query ステートをローカル管理し、
+ * 親の再レンダリングを防止する。
+ */
+const SocialSearchBar = memo(
+  forwardRef<
+    SearchBarHandle,
+    {
+      onSearch: (query: string) => void;
+      onSubmit: (query: string) => void;
+      onQueryActiveChange: (active: boolean) => void;
+      placeholder: string;
+    }
+  >(function SocialSearchBar(
+    { onSearch, onSubmit, onQueryActiveChange, placeholder },
+    ref,
+  ) {
+    const [query, setQuery] = useState("");
+    const queryRef = useRef(query);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        setQuery: (value: string) => {
+          setQuery(value);
+          queryRef.current = value;
+          onQueryActiveChange(value.trim() !== "");
+        },
+        getQuery: () => queryRef.current,
+      }),
+      [onQueryActiveChange],
+    );
+
+    const handleChange = useCallback(
+      (e: ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setQuery(value);
+        queryRef.current = value;
+        onSearch(value);
+        onQueryActiveChange(value.trim() !== "");
+      },
+      [onSearch, onQueryActiveChange],
+    );
+
+    const handleKeyDown = useCallback(
+      (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+          onSubmit(queryRef.current);
+        }
+      },
+      [onSubmit],
+    );
+
+    const handleClear = useCallback(() => {
+      setQuery("");
+      queryRef.current = "";
+      onSearch("");
+      onQueryActiveChange(false);
+    }, [onSearch, onQueryActiveChange]);
+
+    return (
+      <SearchInput
+        value={query}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onClear={handleClear}
+        placeholder={placeholder}
+      />
+    );
+  }),
+);
+
 export function SocialSearch() {
   const { user } = useAuth();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
-  const [query, setQuery] = useState("");
+  const searchBarRef = useRef<SearchBarHandle>(null);
+  const [isQueryActive, setIsQueryActive] = useState(false);
   const [dojoName, setDojoName] = useState("");
+  const [dojoStyleId, setDojoStyleId] = useState<string | null>(null);
   const [rank, setRank] = useState("");
+  const [postTypes, setPostTypes] = useState<Set<"post" | "training_record">>(
+    new Set<"post" | "training_record">(["post", "training_record"]),
+  );
   const [showFilters, setShowFilters] = useState(false);
-  const dojoFilterId = useId();
   const rankFilterId = useId();
   const { results, isLoading, search, updateResult } = useSocialSearch(
     user?.id,
@@ -56,42 +146,104 @@ export function SocialSearch() {
     const hashtagParam = params.get("hashtag");
     if (hashtagParam && user?.id) {
       const searchQuery = `#${hashtagParam}`;
-      setQuery(searchQuery);
+      searchBarRef.current?.setQuery(searchQuery);
       search(searchQuery, undefined, undefined, hashtagParam);
       addToHistory(searchQuery);
     }
   }, [user?.id]);
 
-  const triggerSearch = useCallback(
-    (q: string, d: string, r: string) => {
-      search(q, d || undefined, r || undefined);
+  const getPostTypeParam = useCallback(
+    (types: Set<"post" | "training_record">) => {
+      if (types.size === 2) return undefined;
+      return types.values().next().value as "post" | "training_record";
     },
-    [search],
+    [],
   );
 
-  const handleQueryChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setQuery(value);
-      triggerSearch(value, dojoName, rank);
+  const triggerSearch = useCallback(
+    (
+      q: string,
+      d: string,
+      r: string,
+      types?: Set<"post" | "training_record">,
+    ) => {
+      const pt = getPostTypeParam(types ?? postTypes);
+      search(q, d || undefined, r || undefined, undefined, pt);
+    },
+    [search, postTypes, getPostTypeParam],
+  );
+
+  const handleSearchBarSearch = useCallback(
+    (q: string) => {
+      triggerSearch(q, dojoName, rank);
     },
     [triggerSearch, dojoName, rank],
   );
 
-  const handleDojoNameChange = useCallback(
-    (value: string) => {
-      setDojoName(value);
-      triggerSearch(query, value, rank);
+  const handleSearchBarSubmit = useCallback(
+    (q: string) => {
+      if (q.trim()) {
+        addToHistory(q.trim());
+      }
     },
-    [triggerSearch, query, rank],
+    [addToHistory],
+  );
+
+  const handleQueryActiveChange = useCallback((active: boolean) => {
+    setIsQueryActive(active);
+  }, []);
+
+  const handleDojoNameChange = useCallback((value: string) => {
+    setDojoName(value);
+    setDojoStyleId(null);
+  }, []);
+
+  const handleDojoStyleSelect = useCallback(
+    (dojoStyle: DojoStyleOption) => {
+      setDojoName(dojoStyle.dojo_name);
+      setDojoStyleId(dojoStyle.id);
+      triggerSearch(
+        searchBarRef.current?.getQuery() ?? "",
+        dojoStyle.dojo_name,
+        rank,
+      );
+    },
+    [triggerSearch, rank],
+  );
+
+  const handleDojoStyleClear = useCallback(() => {
+    setDojoName("");
+    setDojoStyleId(null);
+    triggerSearch(searchBarRef.current?.getQuery() ?? "", "", rank);
+  }, [triggerSearch, rank]);
+
+  const handlePostTypeToggle = useCallback(
+    (type: "post" | "training_record") => {
+      setPostTypes((prev) => {
+        const next = new Set(prev);
+        if (next.has(type) && next.size > 1) {
+          next.delete(type);
+        } else {
+          next.add(type);
+        }
+        triggerSearch(
+          searchBarRef.current?.getQuery() ?? "",
+          dojoName,
+          rank,
+          next,
+        );
+        return next;
+      });
+    },
+    [triggerSearch, dojoName, rank],
   );
 
   const handleRankChange = useCallback(
     (value: string) => {
       setRank(value);
-      triggerSearch(query, dojoName, value);
+      triggerSearch(searchBarRef.current?.getQuery() ?? "", dojoName, value);
     },
-    [triggerSearch, query, dojoName],
+    [triggerSearch, dojoName],
   );
 
   const handleFavoriteToggle = useCallback(
@@ -114,7 +266,7 @@ export function SocialSearch() {
 
   const handleHistoryClick = useCallback(
     (historyQuery: string) => {
-      setQuery(historyQuery);
+      searchBarRef.current?.setQuery(historyQuery);
       triggerSearch(historyQuery, dojoName, rank);
       addToHistory(historyQuery);
     },
@@ -124,7 +276,7 @@ export function SocialSearch() {
   const handleTrendingClick = useCallback(
     (hashtagName: string) => {
       const searchQuery = `#${hashtagName}`;
-      setQuery(searchQuery);
+      searchBarRef.current?.setQuery(searchQuery);
       search(
         searchQuery,
         dojoName || undefined,
@@ -136,24 +288,64 @@ export function SocialSearch() {
     [search, dojoName, rank, addToHistory],
   );
 
-  const handleSearchSubmit = useCallback(() => {
-    if (query.trim()) {
-      addToHistory(query.trim());
-    }
-  }, [query, addToHistory]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        handleSearchSubmit();
+  const handleFilterToggle = useCallback(() => {
+    setShowFilters((prev) => {
+      const willHide = prev;
+      if (willHide) {
+        setDojoName("");
+        setDojoStyleId(null);
+        setRank("");
+        setPostTypes(
+          new Set<"post" | "training_record">(["post", "training_record"]),
+        );
+        triggerSearch(
+          searchBarRef.current?.getQuery() ?? "",
+          "",
+          "",
+          new Set<"post" | "training_record">(["post", "training_record"]),
+        );
       }
-    },
-    [handleSearchSubmit],
+      return !prev;
+    });
+  }, [triggerSearch]);
+
+  const hasActiveFilters =
+    dojoName.trim() !== "" || rank !== "" || postTypes.size < 2;
+  const isSearchActive = isQueryActive || hasActiveFilters;
+  const showEmptyState = !isSearchActive && results.length === 0 && !isLoading;
+
+  // SocialHeader の center / right を useMemo で安定化
+  // 結果到着時の親再レンダリングで SocialHeader（memo化済み）の再描画を防止
+  const centerElement = useMemo(
+    () => (
+      <div className={styles.searchWrapper}>
+        <SocialSearchBar
+          ref={searchBarRef}
+          onSearch={handleSearchBarSearch}
+          onSubmit={handleSearchBarSubmit}
+          onQueryActiveChange={handleQueryActiveChange}
+          placeholder={t("searchPlaceholder")}
+        />
+      </div>
+    ),
+    [handleSearchBarSearch, handleSearchBarSubmit, handleQueryActiveChange, t],
   );
 
-  const hasActiveFilters = dojoName.trim() !== "" || rank !== "";
-  const isSearchActive = query.trim() !== "" || hasActiveFilters;
-  const showEmptyState = !isSearchActive && results.length === 0 && !isLoading;
+  const rightElement = useMemo(
+    () => (
+      <Button
+        className={`${styles.filterButton} ${hasActiveFilters ? styles.filterActive : ""}`}
+        onClick={handleFilterToggle}
+        aria-label={t("filterToggle")}
+      >
+        <FunnelIcon size={20} weight={hasActiveFilters ? "fill" : "regular"} />
+        <span className={styles.filterButtonLabel}>
+          {hasActiveFilters ? t("filterClear") : t("filterToggle")}
+        </span>
+      </Button>
+    ),
+    [handleFilterToggle, hasActiveFilters, t],
+  );
 
   return (
     <SocialLayout>
@@ -161,58 +353,42 @@ export function SocialSearch() {
         <SocialHeader
           onBack={handleBack}
           backLabel={t("back")}
-          center={
-            <div className={styles.searchWrapper}>
-              <SearchInput
-                value={query}
-                onChange={handleQueryChange}
-                onKeyDown={handleKeyDown}
-                placeholder={t("searchPlaceholder")}
-              />
-            </div>
-          }
-          right={
-            <Button
-              className={`${styles.filterButton} ${hasActiveFilters ? styles.filterActive : ""}`}
-              onClick={() => {
-                setShowFilters((prev) => {
-                  const willHide = prev;
-                  // フィルター非表示時に条件をクリア
-                  if (willHide) {
-                    setDojoName("");
-                    setRank("");
-                    triggerSearch(query, "", "");
-                  }
-                  return !prev;
-                });
-              }}
-              aria-label={t("filterToggle")}
-            >
-              <FunnelIcon
-                size={20}
-                weight={hasActiveFilters ? "fill" : "regular"}
-              />
-              <span className={styles.filterButtonLabel}>
-                {hasActiveFilters ? t("filterClear") : t("filterToggle")}
-              </span>
-            </Button>
-          }
+          center={centerElement}
+          right={rightElement}
         />
 
         {showFilters && (
           <div className={styles.filterSection}>
+            <fieldset className={styles.postTypeSelector}>
+              <button
+                type="button"
+                className={`${styles.postTypeButton} ${postTypes.has("post") ? styles.postTypeActive : ""}`}
+                aria-pressed={postTypes.has("post")}
+                onClick={() => handlePostTypeToggle("post")}
+              >
+                {t("createTypePost")}
+              </button>
+              <button
+                type="button"
+                className={`${styles.postTypeButton} ${postTypes.has("training_record") ? styles.postTypeActive : ""}`}
+                aria-pressed={postTypes.has("training_record")}
+                onClick={() => handlePostTypeToggle("training_record")}
+              >
+                {t("createTypeTraining")}
+              </button>
+            </fieldset>
             <div className={styles.filterRow}>
-              <label className={styles.filterLabel} htmlFor={dojoFilterId}>
-                {t("dojoFilter")}
-              </label>
-              <input
-                id={dojoFilterId}
-                type="text"
-                className={styles.filterInput}
-                value={dojoName}
-                onChange={(e) => handleDojoNameChange(e.target.value)}
-                placeholder={t("dojoFilter")}
-              />
+              <span className={styles.filterLabel}>{t("dojoFilter")}</span>
+              <div className={styles.filterFieldWrapper}>
+                <DojoStyleAutocomplete
+                  value={dojoName}
+                  onChange={handleDojoNameChange}
+                  onSelect={handleDojoStyleSelect}
+                  placeholder={t("dojoFilter")}
+                  selectedId={dojoStyleId}
+                  onClear={handleDojoStyleClear}
+                />
+              </div>
             </div>
             <div className={styles.filterRow}>
               <label className={styles.filterLabel} htmlFor={rankFilterId}>
@@ -237,7 +413,7 @@ export function SocialSearch() {
       </div>
 
       <div className={styles.results}>
-        {isLoading ? (
+        {results.length === 0 && isLoading ? (
           <Loader centered size="small" />
         ) : showEmptyState ? (
           <>

@@ -59,7 +59,7 @@ const resolveSupabaseClient = (
 
 const searchQuerySchema = z.object({
   query: z.string().min(1, "検索クエリは必須です"),
-  limit: z.coerce.number().int().min(1).max(50).default(10),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
 });
 
 const createDojoStyleSchema = z.object({
@@ -71,11 +71,11 @@ const createDojoStyleSchema = z.object({
 app.get("/search", async (c) => {
   try {
     const rawQuery = c.req.query("query") ?? "";
-    const rawLimit = c.req.query("limit") ?? "10";
+    const rawLimit = c.req.query("limit");
 
     const parsed = searchQuerySchema.safeParse({
       query: rawQuery,
-      limit: rawLimit,
+      ...(rawLimit != null && { limit: rawLimit }),
     });
 
     if (!parsed.success) {
@@ -103,12 +103,17 @@ app.get("/search", async (c) => {
 
     const pattern = `%${query}%`;
 
-    const { data, error } = await supabase
+    let queryBuilder = supabase
       .from("DojoStyleMaster")
       .select("id, dojo_name, dojo_name_kana, is_approved")
       .eq("is_approved", true)
-      .or(`dojo_name.ilike.${pattern},dojo_name_kana.ilike.${pattern}`)
-      .limit(limit);
+      .or(`dojo_name.ilike.${pattern},dojo_name_kana.ilike.${pattern}`);
+
+    if (limit != null) {
+      queryBuilder = queryBuilder.limit(limit);
+    }
+
+    const { data, error } = await queryBuilder;
 
     if (error) {
       return c.json(

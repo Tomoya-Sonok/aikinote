@@ -248,11 +248,13 @@
   },
   "navigation": {
     "settings": "Settings",
+    "userInfo": "Edit Profile",
     "userInfoEdit": "User Info",
     "email": "Email",
     "fontSize": "Font Size",
     "language": "Language / 言語",
     "tagManagement": "Tags",
+    "publicity": "Privacy",
     "close": "Close settings",
     "fontSizeTooltip": "You can change the font size in Settings"
   },
@@ -368,6 +370,7 @@
     "newCreate": "New Create",
     "searchPlaceholder": "Filter by keywords",
     "searchIcon": "Search",
+    "clear": "Clear",
     "helpContact": "Help & Contact",
     "logout": "Logout",
     "personal": "Personal",
@@ -742,10 +745,14 @@
     "description": "Choose who can see your profile and posts.",
     "public": "Public",
     "publicDescription": "Visible to all AikiNote users",
-    "closed": "Followers Only",
-    "closedDescription": "Visible only to users in the same dojo (style)",
+    "closed": "Selected dojos only",
+    "closedDescription": "Visible only to users in the selected dojos",
     "private": "Private",
-    "privateDescription": "Only you can see your profile. Others will see \"This profile is private\"",
+    "privateDescription": "Only you can see your profile and posts.",
+    "closedDojoDescription": "Your profile and posts will be visible to users belonging to the following dojos",
+    "addDojoPlaceholder": "Search and add a dojo...",
+    "defaultDojo": "Primary dojo",
+    "noDojoWarning": "No dojo registered. Please register your dojo in profile settings.",
     "saveButton": "Save",
     "saved": "Visibility updated",
     "saveFailed": "Failed to update visibility"
@@ -778,5 +785,17 @@
     "legalInfo": "Legal Information",
     "agreeToTerms": "By registering, you agree to the {terms} and {privacy}",
     "agreeCheckbox": "I agree to the above"
+  },
+  "surveyModal": {
+    "title": "Quick Survey",
+    "description": "To provide a personalized experience, please share the following if you'd like. Everything is optional. You can change your answers anytime from the profile edit screen.",
+    "ageRangeLabel": "Age Range",
+    "genderLabel": "Gender",
+    "privacyNote": "This information is used only for service improvement and personalization. You can change or delete it at any time. See our <privacyPolicyLink>Privacy Policy</privacyPolicyLink> for details.",
+    "close": "Close",
+    "save": "Save",
+    "saving": "Saving...",
+    "saveSuccess": "Survey saved successfully",
+    "saveFailed": "Failed to save survey"
   }
 }

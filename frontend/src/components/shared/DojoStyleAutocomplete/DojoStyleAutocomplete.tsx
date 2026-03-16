@@ -63,7 +63,6 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
     try {
       const result = await searchDojoStyles({
         query,
-        limit: 10,
       });
 
       if (result.success && result.data) {

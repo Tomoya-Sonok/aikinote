@@ -15,6 +15,7 @@ interface UseSocialSearchResult {
     dojoName?: string,
     rank?: string,
     hashtag?: string,
+    postType?: "post" | "training_record",
   ) => void;
   updateResult: (
     postId: string,
@@ -33,7 +34,13 @@ export function useSocialSearch(
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const search = useCallback(
-    (query: string, dojoName?: string, rank?: string, hashtag?: string) => {
+    (
+      query: string,
+      dojoName?: string,
+      rank?: string,
+      hashtag?: string,
+      postType?: "post" | "training_record",
+    ) => {
       if (timerRef.current) clearTimeout(timerRef.current);
 
       if (!userId || (!query.trim() && !dojoName && !rank && !hashtag)) {
@@ -50,6 +57,7 @@ export function useSocialSearch(
             dojoName: dojoName || undefined,
             rank: rank || undefined,
             hashtag: hashtag || undefined,
+            postType: postType || undefined,
             limit: LIMIT,
           };
           const result = await searchSocialPosts(params);

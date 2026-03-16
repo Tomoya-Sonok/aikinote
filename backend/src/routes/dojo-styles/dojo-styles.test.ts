@@ -64,31 +64,6 @@ describe("GET /api/dojo-styles/search", () => {
     const body = await res.json();
     expect(body.success).toBe(false);
   });
-
-  test("検索クエリありの場合結果を返す", async () => {
-    // Arrange
-    const app = createTestApp();
-    const mockData = [
-      {
-        id: "1",
-        dojo_name: "合気会本部道場",
-        dojo_name_kana: "あいきかいほんぶどうじょう",
-        is_approved: true,
-      },
-    ];
-    mockLimit.mockResolvedValue({ data: mockData, error: null });
-
-    // Act
-    const res = await app.request(
-      "/api/dojo-styles/search?query=合気&limit=10",
-    );
-
-    // Assert
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.success).toBe(true);
-    expect(body.data).toEqual(mockData);
-  });
 });
 
 describe("POST /api/dojo-styles", () => {

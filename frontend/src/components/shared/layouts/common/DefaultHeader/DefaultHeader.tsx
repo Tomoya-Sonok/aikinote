@@ -67,6 +67,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     window.location.href = `/${locale}/settings/tags`;
   };
 
+  const handlePublicityClick = () => {
+    setIsDrawerOpen(false);
+    window.location.href = `/${locale}/settings/publicity`;
+  };
+
   useEffect(() => {
     if (!isTooltipVisible || typeof window === "undefined") {
       return;
@@ -184,6 +189,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
         onTextSizeClick={handleTextSizeClick}
         onLanguageClick={handleLanguageClick}
         onTagManagementClick={handleTagManagementClick}
+        onPublicityClick={handlePublicityClick}
       />
     </header>
   );

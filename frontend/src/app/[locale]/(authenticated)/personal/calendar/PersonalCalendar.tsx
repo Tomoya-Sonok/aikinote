@@ -439,25 +439,30 @@ export function PersonalCalendar() {
           </button>
         </div>
 
-        {loading || authLoading ? (
-          <div className={styles.loaderArea}>
-            <Loader
-              size="large"
-              centered
-              text={t("personalCalendar.loading")}
+        <div className={styles.calendarArea}>
+          <div
+            style={
+              loading || authLoading
+                ? { opacity: 0.4, pointerEvents: "none" as const }
+                : undefined
+            }
+          >
+            <CalendarGrid
+              currentMonth={currentMonth}
+              dayNames={dayNames}
+              selectedDate={selectedDate}
+              onDateClick={handleDateClick}
+              highlightSelectedDate={false}
+              getDateStatus={(date) => dayStatusMap[formatDateKey(date)]}
+              onMonthChange={navigateMonth}
             />
           </div>
-        ) : (
-          <CalendarGrid
-            currentMonth={currentMonth}
-            dayNames={dayNames}
-            selectedDate={selectedDate}
-            onDateClick={handleDateClick}
-            highlightSelectedDate={false}
-            getDateStatus={(date) => dayStatusMap[formatDateKey(date)]}
-            onMonthChange={navigateMonth}
-          />
-        )}
+          {(loading || authLoading) && (
+            <div className={styles.calendarLoader}>
+              <Loader size="small" centered />
+            </div>
+          )}
+        </div>
       </div>
 
       <p className={styles.legend}>{t("personalCalendar.legend")}</p>

@@ -1,0 +1,32 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  min-height: 36px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-light);
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  box-sizing: border-box;
+}
+
+.pill:hover {
+  opacity: 0.85;
+}
+
+.pill.selected {
+  border-color: var(--black);
+  background-color: var(--black);
+  color: var(--white);
+}

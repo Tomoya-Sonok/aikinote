@@ -323,6 +323,7 @@ export const searchSocialPostsSchema = z.object({
   dojo_name: z.string().optional(),
   rank: z.string().optional(),
   hashtag: z.string().optional(),
+  post_type: z.enum(["post", "training_record"]).optional(),
   limit: z
     .string()
     .optional()

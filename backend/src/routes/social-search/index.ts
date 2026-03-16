@@ -72,8 +72,16 @@ app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
     const token = extractTokenFromHeader(authHeader);
     const payload = await verifyToken(token, c.env);
 
-    const { user_id, query, dojo_name, rank, hashtag, limit, offset } =
-      c.req.valid("query");
+    const {
+      user_id,
+      query,
+      dojo_name,
+      rank,
+      hashtag,
+      post_type,
+      limit,
+      offset,
+    } = c.req.valid("query");
 
     if (payload.userId !== user_id) {
       return c.json({ success: false, error: "認証エラー" }, 403);
@@ -102,6 +110,7 @@ app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
         dojo_name,
         rank,
         hashtag,
+        post_type,
         limit,
         offset,
       },

@@ -763,4 +763,103 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
   }
 });
 
+// GET /:userId/publicity-dojos — 公開対象道場一覧の取得
+app.get("/:userId/publicity-dojos", async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    const token = extractTokenFromHeader(authHeader);
+    const payload = await verifyToken(token, c.env);
+
+    const userId = c.req.param("userId");
+    if (payload.userId !== userId) {
+      return c.json({ success: false, error: "認証エラー" }, 403);
+    }
+
+    const supabase = resolveSupabaseClient(c);
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const { data, error } = await supabase
+      .from("UserPublicityDojo")
+      .select("dojo_style_id, DojoStyleMaster!inner(dojo_name)")
+      .eq("user_id", userId);
+
+    if (error) {
+      return c.json(
+        { success: false, error: "公開対象道場の取得に失敗しました" },
+        500,
+      );
+    }
+
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const dojos = (data ?? []).map((row: any) => ({
+      dojo_style_id: row.dojo_style_id,
+      dojo_name: row.DojoStyleMaster?.dojo_name ?? "",
+    }));
+
+    return c.json({ success: true, data: dojos });
+  } catch {
+    return c.json(
+      { success: false, error: "公開対象道場の取得に失敗しました" },
+      500,
+    );
+  }
+});
+
+// PUT /:userId/publicity-dojos — 公開対象道場一覧の一括更新
+const updatePublicityDojosSchema = z.object({
+  dojo_style_ids: z.array(z.string()),
+});
+
+app.put(
+  "/:userId/publicity-dojos",
+  zValidator("json", updatePublicityDojosSchema),
+  async (c) => {
+    try {
+      const authHeader = c.req.header("Authorization");
+      const token = extractTokenFromHeader(authHeader);
+      const payload = await verifyToken(token, c.env);
+
+      const userId = c.req.param("userId");
+      if (payload.userId !== userId) {
+        return c.json({ success: false, error: "認証エラー" }, 403);
+      }
+
+      const { dojo_style_ids } = c.req.valid("json");
+      const supabase = resolveSupabaseClient(c);
+      if (!supabase) {
+        return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+      }
+
+      // 既存レコードを削除
+      await supabase.from("UserPublicityDojo").delete().eq("user_id", userId);
+
+      // 新しいレコードを挿入
+      if (dojo_style_ids.length > 0) {
+        const rows = dojo_style_ids.map((dojoId) => ({
+          user_id: userId,
+          dojo_style_id: dojoId,
+        }));
+
+        const { error } = await supabase.from("UserPublicityDojo").insert(rows);
+
+        if (error) {
+          return c.json(
+            { success: false, error: "公開対象道場の更新に失敗しました" },
+            500,
+          );
+        }
+      }
+
+      return c.json({ success: true, data: null });
+    } catch {
+      return c.json(
+        { success: false, error: "公開対象道場の更新に失敗しました" },
+        500,
+      );
+    }
+  },
+);
+
 export default app;

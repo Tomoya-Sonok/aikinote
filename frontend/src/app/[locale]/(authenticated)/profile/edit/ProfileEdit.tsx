@@ -3,9 +3,7 @@
 import {
   ImagesSquareIcon,
   TrashIcon as PhosphorTrashIcon,
-  UserIcon,
 } from "@phosphor-icons/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -25,6 +23,11 @@ import {
   type DojoStyleOption,
 } from "@/components/shared/DojoStyleAutocomplete/DojoStyleAutocomplete";
 import { Loader } from "@/components/shared/Loader/Loader";
+import { PillSelect } from "@/components/shared/PillSelect/PillSelect";
+import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
+import { TextArea } from "@/components/shared/TextArea/TextArea";
+import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { useToast } from "@/contexts/ToastContext";
 import {
   checkUsernameAvailability,
@@ -34,13 +37,11 @@ import {
   updateUserInfo,
 } from "@/lib/api/client";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
+import { AGE_RANGE_OPTIONS, GENDER_OPTIONS } from "@/lib/constants/userProfile";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
-
-const AGE_RANGE_OPTIONS = ["lt20", "20s", "30s", "40s", "50s", "gt60"] as const;
-const GENDER_OPTIONS = ["male", "female", "other", "not_specified"] as const;
 
 interface ProfileEditProps {
   user: UserProfile;
@@ -58,10 +59,6 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
   const { refreshUser } = useAuth();
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
-  const fullNameInputId = useId();
-  const usernameInputId = useId();
-  const aikidoRankInputId = useId();
-  const bioInputId = useId();
   const ageRangeGroupId = useId();
   const genderGroupId = useId();
 
@@ -333,20 +330,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
         {/* プロフィール画像 */}
         <div className={styles.imageSection}>
           <label className={styles.profileImageContainer}>
-            <div className={styles.profileImage}>
-              {currentImageUrl ? (
-                <Image
-                  src={currentImageUrl}
-                  alt={t("userInfoEdit.profileImageAlt")}
-                  fill
-                  sizes="96px"
-                  style={{ objectFit: "cover" }}
-                  unoptimized
-                />
-              ) : (
-                <UserIcon size={48} weight="light" color="var(--black)" />
-              )}
-            </div>
+            <ProfileImage src={currentImageUrl} size="medium" />
             <div className={styles.editIcon}>
               <input
                 type="file"
@@ -379,67 +363,46 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
                   ? profileImageFile.name
                   : t("userInfoEdit.noFileUploaded")}
               </p>
-              <button
-                className={styles.deleteButton}
-                type="button"
-                onClick={handleDeleteImage}
-                disabled={!canDeleteImage}
-                style={{
-                  opacity: canDeleteImage ? 1 : 0.5,
-                  cursor: canDeleteImage ? "pointer" : "not-allowed",
-                }}
-              >
-                <PhosphorTrashIcon
-                  size={24}
-                  weight="light"
-                  color="var(--black)"
-                />
-              </button>
+              {canDeleteImage && (
+                <button
+                  className={styles.deleteButton}
+                  type="button"
+                  onClick={handleDeleteImage}
+                >
+                  <PhosphorTrashIcon
+                    size={16}
+                    weight="light"
+                    color="var(--black)"
+                  />
+                </button>
+              )}
             </div>
           </div>
         </div>
 
         <div className={styles.formSection}>
-          {/* 名前 */}
-          <div className={styles.formGroup}>
-            <label htmlFor={fullNameInputId} className={styles.label}>
-              {t("userInfoEdit.fullName")}
-            </label>
-            <input
-              type="text"
-              id={fullNameInputId}
-              value={formData.full_name}
-              onChange={handleInputChange("full_name")}
-              className={styles.inputField}
-              placeholder={t("userInfoEdit.fullNamePlaceholder")}
-              maxLength={50}
-            />
-          </div>
-
           {/* ユーザー名 */}
-          <div className={styles.formGroup}>
-            <label htmlFor={usernameInputId} className={styles.label}>
-              {t("userInfoEdit.username")}
-              <span className={styles.required}>
-                {t("userInfoEdit.required")}
-              </span>
-            </label>
-            <input
-              type="text"
-              id={usernameInputId}
-              value={formData.username}
-              onChange={handleInputChange("username")}
-              onBlur={handleUsernameBlur}
-              className={`${styles.inputField} ${usernameError ? styles.error : ""}`}
-              placeholder={t("userInfoEdit.usernamePlaceholder")}
-              maxLength={20}
-            />
-            {usernameError && (
-              <div className={styles.errorText}>{usernameError}</div>
-            )}
-          </div>
+          <TextInput
+            label={t("userInfoEdit.username")}
+            required
+            value={formData.username}
+            onChange={handleInputChange("username")}
+            onBlur={handleUsernameBlur}
+            placeholder={t("userInfoEdit.usernamePlaceholder")}
+            maxLength={20}
+            error={usernameError ?? undefined}
+          />
 
-          {/* 道場名 */}
+          {/* 名前 */}
+          <TextInput
+            label={t("userInfoEdit.fullName")}
+            value={formData.full_name}
+            onChange={handleInputChange("full_name")}
+            placeholder={t("userInfoEdit.fullNamePlaceholder")}
+            maxLength={50}
+          />
+
+          {/* 所属道場名 */}
           <div className={styles.formGroup}>
             <span className={styles.label}>{t("userInfoEdit.dojoName")}</span>
             <DojoStyleAutocomplete
@@ -459,49 +422,36 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
           </div>
 
           {/* 段級位 */}
-          <div className={styles.formGroup}>
-            <label htmlFor={aikidoRankInputId} className={styles.label}>
-              {t("userInfoEdit.aikidoRank")}
-            </label>
-            <select
-              id={aikidoRankInputId}
-              value={formData.aikido_rank}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  aikido_rank: e.target.value,
-                }))
-              }
-              className={styles.selectField}
-            >
-              <option value="">
-                {t("userInfoEdit.aikidoRankPlaceholder")}
+          <SelectInput
+            label={t("userInfoEdit.aikidoRank")}
+            value={formData.aikido_rank}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                aikido_rank: e.target.value,
+              }))
+            }
+          >
+            <option value="">{t("userInfoEdit.aikidoRankPlaceholder")}</option>
+            {AIKIDO_RANK_OPTIONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
               </option>
-              {AIKIDO_RANK_OPTIONS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
+            ))}
+          </SelectInput>
 
           {/* 自己紹介 */}
-          <div className={styles.formGroup}>
-            <label className={styles.label} htmlFor={bioInputId}>
-              {t("userInfoEdit.bio")}
-            </label>
-            <textarea
-              id={bioInputId}
-              className={styles.textarea}
-              value={formData.bio}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, bio: e.target.value }))
-              }
-              placeholder={t("userInfoEdit.bioPlaceholder")}
-              rows={4}
-              maxLength={500}
-            />
-          </div>
+          <TextArea
+            label={t("userInfoEdit.bio")}
+            value={formData.bio}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, bio: e.target.value }))
+            }
+            placeholder={t("userInfoEdit.bioPlaceholder")}
+            rows={4}
+            maxLength={500}
+            showCharCount
+          />
 
           {/* その他の情報 */}
           <div className={styles.divider} />
@@ -514,27 +464,17 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
             <span className={styles.label} id={ageRangeGroupId}>
               {t("userInfoEdit.ageRange")}
             </span>
-            <div
-              className={styles.radioGroup}
-              role="radiogroup"
-              aria-labelledby={ageRangeGroupId}
-            >
-              {AGE_RANGE_OPTIONS.map((option) => (
-                <label key={option} className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="ageRange"
-                    value={option}
-                    checked={formData.age_range === option}
-                    onChange={() =>
-                      setFormData((prev) => ({ ...prev, age_range: option }))
-                    }
-                    className={styles.radioInput}
-                  />
-                  <span>{t(`userInfoEdit.ageRangeOptions.${option}`)}</span>
-                </label>
-              ))}
-            </div>
+            <PillSelect
+              options={AGE_RANGE_OPTIONS.map((value) => ({
+                value,
+                label: t(`userInfoEdit.ageRangeOptions.${value}`),
+              }))}
+              value={formData.age_range ?? null}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, age_range: value }))
+              }
+              groupLabelId={ageRangeGroupId}
+            />
           </div>
 
           {/* 性別 */}
@@ -542,27 +482,17 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
             <span className={styles.label} id={genderGroupId}>
               {t("userInfoEdit.gender")}
             </span>
-            <div
-              className={styles.radioGroup}
-              role="radiogroup"
-              aria-labelledby={genderGroupId}
-            >
-              {GENDER_OPTIONS.map((option) => (
-                <label key={option} className={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value={option}
-                    checked={formData.gender === option}
-                    onChange={() =>
-                      setFormData((prev) => ({ ...prev, gender: option }))
-                    }
-                    className={styles.radioInput}
-                  />
-                  <span>{t(`userInfoEdit.genderOptions.${option}`)}</span>
-                </label>
-              ))}
-            </div>
+            <PillSelect
+              options={GENDER_OPTIONS.map((value) => ({
+                value,
+                label: t(`userInfoEdit.genderOptions.${value}`),
+              }))}
+              value={formData.gender ?? null}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, gender: value }))
+              }
+              groupLabelId={genderGroupId}
+            />
           </div>
         </div>
       </div>

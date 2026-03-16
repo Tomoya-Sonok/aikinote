@@ -1,5 +1,5 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { Button } from "@/components/shared/Button/Button";
 import styles from "./SocialHeader.module.css";
 
@@ -18,7 +18,7 @@ interface SocialHeaderProps {
   right?: ReactNode;
 }
 
-export function SocialHeader({
+export const SocialHeader = memo(function SocialHeader({
   children,
   title,
   center,
@@ -47,4 +47,4 @@ export function SocialHeader({
       {right || <div className={styles.headerSpacer} />}
     </header>
   );
-}
+});

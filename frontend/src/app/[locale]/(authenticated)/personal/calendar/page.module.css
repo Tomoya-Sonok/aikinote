@@ -60,6 +60,18 @@
   min-height: 300px;
 }
 
+.calendarArea {
+  position: relative;
+}
+
+.calendarLoader {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .actionOverlay {
   position: fixed;
   inset: 0;

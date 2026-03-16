@@ -2224,6 +2224,7 @@ export const searchSocialPosts = async (
     dojo_name?: string;
     rank?: string;
     hashtag?: string;
+    post_type?: "post" | "training_record";
     limit: number;
     offset: number;
   },
@@ -2303,6 +2304,10 @@ export const searchSocialPosts = async (
     dbQuery = dbQuery.in("id", hashtagPostIds);
   }
 
+  if (params.post_type) {
+    dbQuery = dbQuery.eq("post_type", params.post_type);
+  }
+
   if (params.dojo_name) {
     dbQuery = dbQuery.ilike("author_dojo_name", `%${params.dojo_name}%`);
   }
@@ -2329,21 +2334,62 @@ export const searchSocialPosts = async (
     throw new Error(`投稿検索に失敗しました: ${error.message}`);
   }
 
-  // 公開範囲フィルタ（User.publicity_setting ベース）
+  // 公開範囲フィルタ（User.publicity_setting + UserPublicityDojo ベース）
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const closedOwnerIds = (data ?? [])
+    .filter((post: any) => post.User?.publicity_setting === "closed")
+    .map((post: any) => post.user_id as string);
+  const publicityMap = await getUsersPublicityDojosBatch(supabaseClient, [
+    ...new Set(closedOwnerIds),
+  ]);
+
   // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
   const filtered = (data ?? []).filter((post: any) => {
     const publicity = post.User?.publicity_setting;
     if (publicity === "public") return true;
-    if (
-      publicity === "closed" &&
-      post.author_dojo_style_id === viewerDojoStyleId
-    )
-      return true;
+    if (publicity === "closed" && viewerDojoStyleId) {
+      const allowedDojos = publicityMap.get(post.user_id);
+      return allowedDojos?.has(viewerDojoStyleId) ?? false;
+    }
     if (post.user_id === viewerId) return true;
     return false;
   });
 
   return filtered;
+};
+
+// 単一ユーザーの公開対象道場ID配列を取得
+export const getUserPublicityDojos = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<string[]> => {
+  const { data } = await supabaseClient
+    .from("UserPublicityDojo")
+    .select("dojo_style_id")
+    .eq("user_id", userId);
+  return (data ?? []).map((d) => d.dojo_style_id);
+};
+
+// 複数ユーザーの公開対象道場をバッチ取得（N+1回避）
+export const getUsersPublicityDojosBatch = async (
+  supabaseClient: SupabaseClient,
+  userIds: string[],
+): Promise<Map<string, Set<string>>> => {
+  const map = new Map<string, Set<string>>();
+  if (userIds.length === 0) return map;
+
+  const { data } = await supabaseClient
+    .from("UserPublicityDojo")
+    .select("user_id, dojo_style_id")
+    .in("user_id", userIds);
+
+  for (const row of data ?? []) {
+    if (!map.has(row.user_id)) {
+      map.set(row.user_id, new Set());
+    }
+    map.get(row.user_id)!.add(row.dojo_style_id);
+  }
+  return map;
 };
 
 export const getSocialProfile = async (
@@ -2392,14 +2438,20 @@ export const getSocialProfile = async (
         public_pages: [],
       };
     }
-    if (publicity === "closed" && user.dojo_style_id !== viewerDojoStyleId) {
-      return {
-        is_restricted: true,
-        user: null,
-        posts: [],
-        total_pages: 0,
-        public_pages: [],
-      };
+    if (publicity === "closed") {
+      const allowedDojos = await getUserPublicityDojos(
+        supabaseClient,
+        targetUserId,
+      );
+      if (!viewerDojoStyleId || !allowedDojos.includes(viewerDojoStyleId)) {
+        return {
+          is_restricted: true,
+          user: null,
+          posts: [],
+          total_pages: 0,
+          public_pages: [],
+        };
+      }
     }
   }
 

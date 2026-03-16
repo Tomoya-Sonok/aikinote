@@ -4,8 +4,11 @@ import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/features/personal/MyPageContent/MyPageContent";
+import { SurveyModal } from "@/components/shared/SurveyModal/SurveyModal";
 import { useToast } from "@/contexts/ToastContext";
-import { getUserInfo } from "@/lib/api/client";
+import { getUserInfo, updateUserInfo } from "@/lib/api/client";
+import type { AgeRange, Gender } from "@/lib/constants/userProfile";
+import { useSurveyModal } from "@/lib/hooks/useSurveyModal";
 
 interface MyPageProps {
   initialUser: UserProfile;
@@ -14,7 +17,7 @@ interface MyPageProps {
 export default function MyPage({ initialUser }: MyPageProps) {
   const t = useTranslations();
   const [user, setUser] = useState<UserProfile>(initialUser);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
   const fetchUserInfo = useCallback(async () => {
@@ -43,5 +46,40 @@ export default function MyPage({ initialUser }: MyPageProps) {
     fetchUserInfo();
   }, [fetchUserInfo]);
 
-  return <MyPageContent user={user} loading={loading} />;
+  const { isOpen: isSurveyOpen, dismiss: dismissSurvey } = useSurveyModal({
+    ageRange: user.age_range ?? null,
+    gender: user.gender ?? null,
+    loading,
+  });
+
+  const handleSurveySave = async (data: {
+    ageRange: AgeRange | null;
+    gender: Gender | null;
+  }) => {
+    const result = await updateUserInfo({
+      userId: user.id,
+      age_range: data.ageRange,
+      gender: data.gender,
+    });
+    if (!result.success) {
+      showToast(t("surveyModal.saveFailed"), "error");
+      throw new Error(t("surveyModal.saveFailed"));
+    }
+    await fetchUserInfo();
+    showToast(t("surveyModal.saveSuccess"), "success");
+    dismissSurvey();
+  };
+
+  return (
+    <>
+      <MyPageContent user={user} loading={loading} />
+      <SurveyModal
+        isOpen={isSurveyOpen}
+        onDismiss={dismissSurvey}
+        onSave={handleSurveySave}
+        initialAgeRange={user.age_range}
+        initialGender={user.gender}
+      />
+    </>
+  );
 }
