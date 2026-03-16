@@ -103,6 +103,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             title: item.page.title,
             content: item.page.content,
             comment: item.page.comment,
+            is_public: item.page.is_public ?? false,
             date: formatToLocalDateString(item.page.created_at),
             tags: item.tags.map((tag) => tag.name),
           }),
@@ -163,6 +164,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           title: pageData.title.trim(),
           content: pageData.content,
           comment: pageData.comment,
+          is_public: false,
           date: formatToLocalDateString(new Date().toISOString()),
           tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
         };
@@ -226,6 +228,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             title: response.data.page.title,
             content: response.data.page.content,
             comment: response.data.page.comment,
+            is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
           };
@@ -279,6 +282,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           title: pageData.title,
           content: pageData.content,
           comment: pageData.comment,
+          is_public: originalPage.is_public,
           date:
             originalPage.date ||
             formatToLocalDateString(new Date().toISOString()),
@@ -297,6 +301,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             title: response.data.page.title,
             content: response.data.page.content,
             comment: response.data.page.comment,
+            is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
           };

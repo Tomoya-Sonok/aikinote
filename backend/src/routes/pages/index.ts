@@ -3,8 +3,11 @@ import { Hono } from "hono";
 import {
   createTrainingPage,
   deleteTrainingPage,
+  getPublicTrainingPages,
   getTrainingPageById,
   getTrainingPages,
+  supabase,
+  syncSocialPostForTrainingPage,
   updateTrainingPage,
 } from "../../lib/supabase.js";
 import {
@@ -31,6 +34,7 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
         content: input.content,
         comment: input.comment,
         user_id: input.user_id,
+        is_public: input.is_public ?? false,
         created_at: input.created_at,
       },
       {
@@ -39,6 +43,21 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
         waza: input.waza,
       },
     );
+
+    // is_public=true の場合、SocialPost を連動作成
+    if (input.is_public && supabase) {
+      try {
+        await syncSocialPostForTrainingPage(
+          supabase,
+          result.page.id,
+          input.user_id,
+          input.content,
+          true,
+        );
+      } catch (socialError) {
+        console.error("SocialPost 連動作成エラー:", socialError);
+      }
+    }
 
     const response: ApiResponse<PageWithTagsResponse> = {
       success: true,
@@ -96,6 +115,7 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
         content: page.content,
         comment: page.comment,
         user_id: page.user_id,
+        is_public: page.is_public,
         created_at: page.created_at,
         updated_at: page.updated_at,
       },
@@ -144,6 +164,7 @@ app.get("/:id", zValidator("query", getPageSchema), async (c) => {
         content: result.page.content,
         comment: result.page.comment,
         user_id: result.page.user_id,
+        is_public: result.page.is_public,
         created_at: result.page.created_at,
         updated_at: result.page.updated_at,
       },
@@ -190,6 +211,7 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
     }
 
     // Supabaseでページを更新
+    const newIsPublic = input.is_public ?? false;
     const result = await updateTrainingPage(
       {
         id: input.id,
@@ -197,6 +219,7 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
         content: input.content,
         comment: input.comment,
         user_id: input.user_id,
+        is_public: newIsPublic,
       },
       {
         tori: input.tori,
@@ -204,6 +227,21 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
         waza: input.waza,
       },
     );
+
+    // is_public が明示指定されている場合のみ SocialPost を同期
+    if (supabase && input.is_public !== undefined) {
+      try {
+        await syncSocialPostForTrainingPage(
+          supabase,
+          input.id,
+          input.user_id,
+          input.content,
+          newIsPublic,
+        );
+      } catch (socialError) {
+        console.error("SocialPost 連動更新エラー:", socialError);
+      }
+    }
 
     const response: ApiResponse<PageWithTagsResponse> = {
       success: true,
@@ -249,6 +287,35 @@ app.delete("/:id", zValidator("query", getPageSchema), async (c) => {
     };
 
     return c.json(errorResponse, 500);
+  }
+});
+
+// 公開稽古記録一覧取得API
+app.get("/public/feed", async (c) => {
+  try {
+    const limit = Number(c.req.query("limit") || "20");
+    const offset = Number(c.req.query("offset") || "0");
+
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const result = await getPublicTrainingPages(supabase, limit, offset);
+
+    return c.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error("公開稽古記録取得エラー:", error);
+    return c.json(
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "不明なエラーが発生しました",
+      },
+      500,
+    );
   }
 });
 

@@ -20,6 +20,7 @@ describe("ページ作成API", () => {
         content: "今日は基本動作の稽古を行いました",
         comment: "姿勢に注意が必要",
         user_id: "test-user-id",
+        is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
         updated_at: "2023-01-01T00:00:00.000Z",
       },
@@ -91,6 +92,7 @@ describe("ページ作成API", () => {
         content: "今日は基本動作の稽古を行いました",
         comment: "姿勢に注意が必要",
         user_id: "test-user-id",
+        is_public: false,
         created_at: "2026-03-13T00:00:00.000Z",
         updated_at: "2026-03-13T00:00:00.000Z",
       },
@@ -130,6 +132,7 @@ describe("ページ作成API", () => {
         content: "今日は基本動作の稽古を行いました",
         comment: "姿勢に注意が必要",
         user_id: "test-user-id",
+        is_public: false,
         created_at: "2026-03-13T00:00:00.000Z",
       },
       {
@@ -269,6 +272,7 @@ describe("ページ詳細取得API", () => {
         content: "今日は基本動作の稽古を行いました",
         comment: "姿勢に注意が必要",
         user_id: "test-user-id",
+        is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
         updated_at: "2023-01-01T00:00:00.000Z",
       },
@@ -411,6 +415,7 @@ describe("ページ詳細取得API", () => {
         content: "タグを設定していない稽古の記録",
         comment: "",
         user_id: "test-user-id",
+        is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
         updated_at: "2023-01-01T00:00:00.000Z",
       },
@@ -447,6 +452,7 @@ type PageWithTags = {
     content: string;
     comment: string;
     user_id: string;
+    is_public: boolean;
     created_at: string;
     updated_at: string;
   };
@@ -478,6 +484,7 @@ describe("ページ一覧取得API", () => {
           content: "基本動作の稽古",
           comment: "姿勢改善が必要",
           user_id: "test-user-id",
+          is_public: false,
           created_at: "2023-01-01T00:00:00.000Z",
           updated_at: "2023-01-01T00:00:00.000Z",
         },
@@ -499,6 +506,7 @@ describe("ページ一覧取得API", () => {
           content: "応用技の稽古",
           comment: "タイミングに注意",
           user_id: "test-user-id",
+          is_public: false,
           created_at: "2023-01-02T00:00:00.000Z",
           updated_at: "2023-01-02T00:00:00.000Z",
         },
@@ -579,6 +587,7 @@ describe("ページ一覧取得API", () => {
           content: "基本動作の稽古",
           comment: "",
           user_id: "test-user-id",
+          is_public: false,
           created_at: "2023-01-01T00:00:00.000Z",
           updated_at: "2023-01-01T00:00:00.000Z",
         },

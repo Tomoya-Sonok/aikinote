@@ -9,6 +9,7 @@
   overflow-y: auto;
   display: flex;
   justify-content: center;
+  background: var(--white);
 }
 
 .main {

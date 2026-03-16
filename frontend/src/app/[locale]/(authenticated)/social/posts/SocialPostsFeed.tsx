@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SocialCreateModal } from "@/components/features/social/SocialCreateModal/SocialCreateModal";
 import { SocialFeedHeader } from "@/components/features/social/SocialFeedHeader/SocialFeedHeader";
 import {
   type SocialFeedPostData,
@@ -39,8 +40,15 @@ export function SocialPostsFeed() {
   const [activeTab, setActiveTab] = useState<SocialTab>(() =>
     parseTabParam(searchParams.get("tab")),
   );
-  const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
-    useSocialFeed(user?.id, activeTab);
+  const {
+    posts,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    updatePost,
+    refetch,
+  } = useSocialFeed(user?.id, activeTab);
   const { handleToggleFavorite } = useSocialFavorite();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -88,9 +96,19 @@ export function SocialPostsFeed() {
     window.history.replaceState(null, "", url.toString());
   }, []);
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
   const handleCreatePost = useCallback(() => {
-    window.location.href = `/${locale}/social/posts/new`;
-  }, [locale]);
+    setShowCreateModal(true);
+  }, []);
+
+  const handleCreateModalClose = useCallback(() => {
+    setShowCreateModal(false);
+  }, []);
+
+  const handleCreated = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const emptyKey =
     activeTab === "all"
@@ -135,6 +153,12 @@ export function SocialPostsFeed() {
       <FloatingActionButton
         onClick={handleCreatePost}
         label={t("createPost")}
+      />
+
+      <SocialCreateModal
+        isOpen={showCreateModal}
+        onClose={handleCreateModalClose}
+        onCreated={handleCreated}
       />
     </SocialLayout>
   );

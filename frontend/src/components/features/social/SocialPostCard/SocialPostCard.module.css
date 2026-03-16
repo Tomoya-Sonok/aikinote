@@ -80,6 +80,14 @@
   margin-bottom: 8px;
 }
 
+.trainingTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--black);
+  margin: 0 0 8px;
+  font-family: var(--font-zen-old-mincho);
+}
+
 .text {
   font-size: var(--font-size-sm);
   color: var(--black);

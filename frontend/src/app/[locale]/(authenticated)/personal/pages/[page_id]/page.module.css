@@ -1,8 +1,8 @@
 .contentArea {
   background: #ffffff;
-  margin: 0 auto 48px; /* Center the page */
+  margin: 0 auto; /* Center the page */
   border-radius: 3px; /* A subtle radius for a paper feel */
-  min-height: 600px;
+  min-height: 60vh;
   position: relative;
   max-width: 800px; /* A comfortable reading width on desktop */
   padding: 24px 16px 24px 32px; /* Inner padding, with more space on the left for the line */
@@ -109,7 +109,7 @@
 .buttonsContainer {
   display: flex;
   gap: 8px;
-  margin-top: 32px;
+  margin-top: 24px;
   padding: 0; /* Padding is now on contentArea */
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -215,4 +215,51 @@
     min-width: 133px;
     flex: initial;
   }
+}
+
+.publicToggle {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  cursor: pointer;
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--light-gray);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle.toggleOn {
+  background: var(--primary-color);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.toggle.toggleOn .toggleKnob {
+  transform: translateX(20px);
 }

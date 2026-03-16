@@ -1,19 +1,21 @@
 "use client";
 
-import { InfoIcon, PencilSimpleIcon } from "@phosphor-icons/react";
+import { InfoIcon } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+import { ProfileCard } from "@/components/features/social/ProfileCard/ProfileCard";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
 import {
   SocialHeader,
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
-import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { Tooltip } from "@/components/shared/Tooltip";
 import { getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./SocialProfile.module.css";
+
+type ProfileTab = "posts" | "training";
 
 interface ProfileData {
   is_restricted: boolean;
@@ -21,6 +23,7 @@ interface ProfileData {
     id: string;
     username: string;
     profile_image_url: string | null;
+    full_name: string | null;
     bio: string | null;
     aikido_rank: string | null;
     dojo_style_name: string | null;
@@ -32,6 +35,8 @@ interface ProfileData {
     created_at: string;
   }[];
   total_favorites?: number;
+  total_pages: number;
+  public_pages: { id: string; title: string; created_at: string }[];
 }
 
 interface SocialProfileViewProps {
@@ -44,6 +49,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const t = useTranslations("socialPosts");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
 
   const isOwnProfile = currentUser?.id === userId;
 
@@ -69,7 +75,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   }, [locale]);
 
   const handleEdit = useCallback(() => {
-    window.location.href = `/${locale}/social/profile/edit`;
+    window.location.href = `/${locale}/profile/edit?from=social`;
   }, [locale]);
 
   if (isLoading) {
@@ -95,7 +101,6 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
     );
   }
 
-  // 非公開プロフィール
   if (profile.is_restricted) {
     return (
       <SocialLayout>
@@ -133,24 +138,33 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
         title={t("profileTitle")}
         onBack={handleBack}
         backLabel={t("back")}
+        right={
+          isOwnProfile ? (
+            <Button variant="primary" size="small" onClick={handleEdit}>
+              {t("profileEditButton")}
+            </Button>
+          ) : undefined
+        }
       />
 
-      <div className={styles.profileCard}>
-        <ProfileImage src={profileUser.profile_image_url} size="large" />
-        <h2 className={styles.username}>{profileUser.username}</h2>
+      <ProfileCard
+        profileImageUrl={profileUser.profile_image_url}
+        fullName={profileUser.full_name}
+        username={profileUser.username}
+        dojoStyleName={profileUser.dojo_style_name}
+        aikidoRank={profileUser.aikido_rank}
+        bio={profileUser.bio}
+      />
 
-        {profileUser.aikido_rank && (
-          <span className={styles.rank}>{profileUser.aikido_rank}</span>
-        )}
-        {profileUser.dojo_style_name && (
-          <span className={styles.dojo}>{profileUser.dojo_style_name}</span>
-        )}
-        {profileUser.bio && <p className={styles.bio}>{profileUser.bio}</p>}
-
+      <div className={styles.statsSection}>
         <div className={styles.stats}>
           <div className={styles.statItem}>
             <span className={styles.statValue}>{profile.posts.length}</span>
             <span className={styles.statLabel}>{t("userPosts")}</span>
+          </div>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{profile.total_pages}</span>
+            <span className={styles.statLabel}>{t("trainingRecords")}</span>
           </div>
           <div className={styles.statItem}>
             {isOwnProfile ? (
@@ -168,32 +182,68 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
             <span className={styles.statLabel}>{t("totalFavorites")}</span>
           </div>
         </div>
-
-        {isOwnProfile && (
-          <Button variant="secondary" size="small" onClick={handleEdit}>
-            <PencilSimpleIcon size={16} weight="regular" />
-            {t("profileEdit")}
-          </Button>
-        )}
       </div>
 
+      {/* タブ切り替え */}
+      <div className={styles.tabBar} role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "posts"}
+          className={`${styles.tab} ${activeTab === "posts" ? styles.tabActive : ""}`}
+          onClick={() => setActiveTab("posts")}
+        >
+          {t("profileTabPosts")}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "training"}
+          className={`${styles.tab} ${activeTab === "training" ? styles.tabActive : ""}`}
+          onClick={() => setActiveTab("training")}
+        >
+          {t("profileTabTraining")}
+        </button>
+      </div>
+
+      {/* タブコンテンツ */}
       <div className={styles.postsSection}>
-        <h3 className={styles.sectionTitle}>{t("userPosts")}</h3>
-        {profile.posts.length === 0 ? (
-          <p className={styles.emptyPosts}>{t("emptyAll")}</p>
-        ) : (
-          profile.posts.map((post) => (
-            <a
-              key={post.id}
-              href={`/${locale}/social/posts/${post.id}`}
-              className={styles.postLink}
-            >
-              <p className={styles.postContent}>{post.content}</p>
-              <span className={styles.postDate}>
-                {new Date(post.created_at).toLocaleDateString()}
-              </span>
-            </a>
-          ))
+        {activeTab === "posts" && (
+          <>
+            {profile.posts.length === 0 ? (
+              <p className={styles.emptyPosts}>{t("emptyAll")}</p>
+            ) : (
+              profile.posts.map((post) => (
+                <a
+                  key={post.id}
+                  href={`/${locale}/social/posts/${post.id}`}
+                  className={styles.postLink}
+                >
+                  <p className={styles.postContent}>{post.content}</p>
+                  <span className={styles.postDate}>
+                    {new Date(post.created_at).toLocaleDateString()}
+                  </span>
+                </a>
+              ))
+            )}
+          </>
+        )}
+
+        {activeTab === "training" && (
+          <>
+            {profile.public_pages.length === 0 ? (
+              <p className={styles.emptyPosts}>{t("emptyTrainingRecords")}</p>
+            ) : (
+              profile.public_pages.map((page) => (
+                <div key={page.id} className={styles.postLink}>
+                  <p className={styles.postContent}>{page.title}</p>
+                  <span className={styles.postDate}>
+                    {new Date(page.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              ))
+            )}
+          </>
         )}
       </div>
     </SocialLayout>

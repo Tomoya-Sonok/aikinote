@@ -65,9 +65,13 @@ const resolveSupabaseClient = (
   return supabaseForUsers;
 };
 
+const USER_PROFILE_COLUMNS =
+  "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank, full_name, age_range, gender";
+
 // プロフィール更新のスキーマ
 const updateProfileSchema = z.object({
   username: z.string().min(1, "ユーザー名は必須です").optional(),
+  full_name: z.string().max(50).nullable().optional(),
   dojo_style_name: z.string().nullable().optional(),
   dojo_style_id: z.string().uuid().nullable().optional(),
   training_start_date: z.string().nullable().optional(),
@@ -75,6 +79,14 @@ const updateProfileSchema = z.object({
   bio: z.string().max(500).nullable().optional(),
   publicity_setting: z.enum(["public", "closed", "private"]).optional(),
   aikido_rank: z.string().nullable().optional(),
+  age_range: z
+    .enum(["lt20", "20s", "30s", "40s", "50s", "gt60"])
+    .nullable()
+    .optional(),
+  gender: z
+    .enum(["male", "female", "other", "not_specified"])
+    .nullable()
+    .optional(),
 });
 
 const signUpSchema = z.object({
@@ -547,9 +559,7 @@ app.get("/:userId", async (c) => {
     // Supabaseからユーザー情報を取得
     const { data: userData, error } = await supabase
       .from("User")
-      .select(
-        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank",
-      )
+      .select(USER_PROFILE_COLUMNS)
       .eq("id", userId)
       .single();
 
@@ -683,9 +693,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
     if (Object.keys(updateData).length === 0) {
       const { data: currentUser, error: fetchError } = await supabase
         .from("User")
-        .select(
-          "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank",
-        )
+        .select(USER_PROFILE_COLUMNS)
         .eq("id", userId)
         .single();
 
@@ -711,9 +719,7 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .from("User")
       .update(updateData)
       .eq("id", userId)
-      .select(
-        "id, email, username, profile_image_url, dojo_style_name, dojo_style_id, training_start_date, bio, publicity_setting, aikido_rank",
-      )
+      .select(USER_PROFILE_COLUMNS)
       .single();
 
     if (updateError) {

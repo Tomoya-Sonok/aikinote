@@ -16,11 +16,15 @@ export interface UserProfile {
   username: string;
   email: string;
   profile_image_url?: string | null;
+  full_name?: string | null;
   dojo_style_name?: string | null;
   dojo_style_id?: string | null;
   training_start_date?: string | null;
   publicity_setting?: string | null;
   aikido_rank?: string | null;
+  bio?: string | null;
+  age_range?: string | null;
+  gender?: string | null;
   language?: string;
   is_email_verified?: boolean;
   password_hash?: string;
@@ -43,14 +47,12 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   const { signOutUser } = useAuth();
 
   const handleEditUserInfo = () => {
-    router.push(`/${locale}/mypage/user-info/edit`);
+    router.push(`/${locale}/profile/edit`);
   };
 
   const handleLogout = async () => {
     await signOutUser();
   };
-
-  const handlePublicityClick = () => {};
 
   const handleHelpClick = () => {
     window.open(
@@ -62,16 +64,16 @@ export const MyPageContent: FC<MyPageContentProps> = ({
 
   return (
     <div className={`${styles.content} ${className}`}>
-      <MenuSection title={t("mypageContent.userInfoSection")}>
+      <MenuSection title={t("mypageContent.profileSection")}>
         {loading ? (
           <UserInfoCardSkeleton />
         ) : (
           <UserInfoCard
             username={user.username}
-            dojoStyleName={
-              user.dojo_style_name || t("mypageContent.notEntered")
-            }
-            aikidoRank={user.aikido_rank || t("mypageContent.notEntered")}
+            fullName={user.full_name}
+            dojoStyleName={user.dojo_style_name}
+            aikidoRank={user.aikido_rank}
+            bio={user.bio}
             profileImageUrl={user.profile_image_url}
             onEditClick={handleEditUserInfo}
           />
@@ -79,7 +81,7 @@ export const MyPageContent: FC<MyPageContentProps> = ({
       </MenuSection>
 
       <MenuSection title={t("mypageContent.settingsSection")}>
-        <SettingsMenu onPublicityClick={handlePublicityClick} />
+        <SettingsMenu />
       </MenuSection>
 
       <MenuSection title={t("mypageContent.otherSection")}>

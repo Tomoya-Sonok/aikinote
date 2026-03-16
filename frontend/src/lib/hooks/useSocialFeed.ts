@@ -56,29 +56,29 @@ export function useSocialFeed(
     async (targetTab: SocialTab, offset: number, append: boolean) => {
       if (!userId) return;
 
-      const params: GetSocialFeedParams = {
-        userId,
-        tab: targetTab,
-        limit: LIMIT,
-        offset,
-      };
-
       try {
+        const params: GetSocialFeedParams = {
+          userId,
+          tab: targetTab,
+          limit: LIMIT,
+          offset,
+        };
+
         const result = await getSocialFeed(params);
-        if (result.success && result.data) {
-          const newPosts = result.data as SocialFeedPostData[];
-          setTabCache((prev) => ({
-            ...prev,
-            [targetTab]: {
-              posts: append
-                ? [...prev[targetTab].posts, ...newPosts]
-                : newPosts,
-              offset: offset + newPosts.length,
-              hasMore: newPosts.length >= LIMIT,
-              initialLoading: false,
-            },
-          }));
-        }
+        const newPosts =
+          result.success && result.data
+            ? (result.data as SocialFeedPostData[])
+            : [];
+
+        setTabCache((prev) => ({
+          ...prev,
+          [targetTab]: {
+            posts: append ? [...prev[targetTab].posts, ...newPosts] : newPosts,
+            offset: offset + newPosts.length,
+            hasMore: newPosts.length >= LIMIT,
+            initialLoading: false,
+          },
+        }));
       } catch (error) {
         console.error("フィード取得エラー:", error);
         setTabCache((prev) => ({

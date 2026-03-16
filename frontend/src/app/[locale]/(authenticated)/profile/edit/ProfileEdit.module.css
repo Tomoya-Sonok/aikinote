@@ -16,13 +16,15 @@
 
 .profileImageContainer {
   position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .profileImage {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #f5f5f9;
+  background: var(--bg-base);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -42,10 +44,10 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
 }
 
 .imageUpload {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -53,37 +55,33 @@
 
 .uploadText {
   font-size: var(--font-size-xs);
-  color: var(--black);
+  color: var(--text-light);
   line-height: 1.5;
+  margin: 0;
 }
 
 .fileInfoContainer {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .fileInfo {
   font-size: var(--font-size-xs);
-  color: var(--text-light);
-  border-bottom: 1px solid var(--light-gray);
-  display: inline-block;
-  padding-bottom: 8px;
-  min-width: 180px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .deleteButton {
-  width: 24px;
-  height: 24px;
-  background: var(--background-light);
-  border-radius: 8px;
+  background: none;
+  border: none;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  border: none;
-  font-size: var(--font-size-base);
 }
 
 .fileInput {
@@ -119,10 +117,19 @@
   font-size: var(--font-size-sm);
   color: var(--primary-color);
   outline: none;
+  box-sizing: border-box;
 }
 
 .inputField::placeholder {
   color: var(--primary-color);
+}
+
+.inputField:focus {
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.inputField.error {
+  box-shadow: 0 0 0 2px var(--error-color);
 }
 
 .selectField {
@@ -136,6 +143,7 @@
   font-size: var(--font-size-sm);
   color: var(--primary-color);
   outline: none;
+  box-sizing: border-box;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -147,18 +155,70 @@
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
-.inputField:focus {
-  box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-.inputField.error {
-  box-shadow: 0 0 0 2px var(--error-color);
-}
-
 .required {
   color: var(--error-color);
   font-size: var(--font-size-xs);
   padding-left: 4px;
+}
+
+.errorText {
+  color: var(--error-color);
+  font-size: var(--font-size-xs);
+  margin-top: 4px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  font-family: var(--font-inter);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.textarea::placeholder {
+  color: var(--light-gray);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 8px 0;
+}
+
+.sectionSubtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  margin: 0;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  cursor: pointer;
+}
+
+.radioInput {
+  accent-color: var(--primary-color);
 }
 
 .actions {
@@ -166,25 +226,4 @@
   gap: 16px;
   justify-content: center;
   margin-top: 12px;
-}
-
-.cancelButton,
-.saveButton {
-  padding: 12px 32px;
-  border-radius: 24px;
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  min-width: 120px;
-}
-
-.cancelButton {
-  background: var(--secondary-color);
-  color: var(--black);
-}
-
-.saveButton {
-  background: var(--primary-color);
-  color: var(--white);
 }

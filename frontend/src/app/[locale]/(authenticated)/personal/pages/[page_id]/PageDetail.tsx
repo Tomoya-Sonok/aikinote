@@ -11,6 +11,7 @@ import {
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag } from "@/components/shared/Tag/Tag";
+import { useToast } from "@/contexts/ToastContext";
 import {
   deletePage,
   type UpdatePagePayload,
@@ -35,12 +36,53 @@ export function PageDetail() {
 
   const { availableTags } = useTrainingTags();
 
+  const { showToast } = useToast();
   const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeletingPage, setDeletingPage] = useState(false);
+  const [isTogglingPublic, setTogglingPublic] = useState(false);
 
   const handleBackToList = () => {
     router.push(`/${locale}/personal/pages`);
+  };
+
+  const handleTogglePublic = async () => {
+    if (!pageData || !user?.id || isTogglingPublic) return;
+    setTogglingPublic(true);
+    try {
+      const newValue = !pageData.is_public;
+      const response = await updatePage({
+        id: pageData.id,
+        title: pageData.title,
+        tori: pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "取り"),
+        ),
+        uke: pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "受け"),
+        ),
+        waza: pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "技"),
+        ),
+        content: pageData.content,
+        comment: pageData.comment || "",
+        user_id: user.id,
+        is_public: newValue,
+      });
+      if (response.success) {
+        setPageData({ ...pageData, is_public: newValue });
+        showToast(
+          newValue
+            ? t("pageDetail.publicEnabled")
+            : t("pageDetail.publicDisabled"),
+          "success",
+        );
+      }
+    } catch (error) {
+      console.error("公開設定変更エラー:", error);
+      showToast(t("pageDetail.publicToggleFailed"), "error");
+    } finally {
+      setTogglingPublic(false);
+    }
   };
 
   const handleEdit = () => {
@@ -58,6 +100,7 @@ export function PageDetail() {
           title: response.data.page.title,
           content: response.data.page.content,
           comment: response.data.page.comment,
+          is_public: response.data.page.is_public ?? false,
           date: response.data.page.created_at,
           tags: response.data.tags.map((tag) => tag.name),
         };
@@ -289,30 +332,47 @@ export function PageDetail() {
           </div>
         )}
 
-        {/* アクションボタン */}
-        <div className={styles.buttonsContainer}>
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={handleBackToList}
-          >
-            {t("pageDetail.backToList")}
-          </button>
-          <button
-            type="button"
-            className={styles.editButton}
-            onClick={handleEdit}
-          >
-            {t("pageDetail.edit")}
-          </button>
-          <button
-            type="button"
-            className={styles.deleteButton}
-            onClick={handleDelete}
-          >
-            {t("pageDetail.delete")}
-          </button>
+        {/* 公開設定 */}
+        <div className={styles.publicToggle}>
+          <label className={styles.toggleLabel}>
+            <span>{t("pageDetail.publicToggle")}</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={pageData.is_public}
+              className={`${styles.toggle} ${pageData.is_public ? styles.toggleOn : ""}`}
+              onClick={handleTogglePublic}
+              disabled={isTogglingPublic}
+            >
+              <span className={styles.toggleKnob} />
+            </button>
+          </label>
         </div>
+      </div>
+
+      {/* アクションボタン */}
+      <div className={styles.buttonsContainer}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={handleBackToList}
+        >
+          {t("pageDetail.backToList")}
+        </button>
+        <button
+          type="button"
+          className={styles.editButton}
+          onClick={handleEdit}
+        >
+          {t("pageDetail.edit")}
+        </button>
+        <button
+          type="button"
+          className={styles.deleteButton}
+          onClick={handleDelete}
+        >
+          {t("pageDetail.delete")}
+        </button>
       </div>
 
       {editData && (

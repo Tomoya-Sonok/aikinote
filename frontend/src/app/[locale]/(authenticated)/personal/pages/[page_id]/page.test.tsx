@@ -26,6 +26,12 @@ vi.mock("@/lib/hooks/useAuth", () => ({
   useAuth: vi.fn(),
 }));
 
+vi.mock("@/contexts/ToastContext", () => ({
+  useToast: vi.fn(() => ({
+    showToast: vi.fn(),
+  })),
+}));
+
 vi.mock("@/components/shared/TabNavigation/TabNavigation", () => ({
   TabNavigation: () => <div data-testid="tab-navigation">TabNavigation</div>,
 }));
@@ -73,6 +79,7 @@ describe("ページ詳細画面", () => {
         content: "今日は基本動作の稽古を行いました",
         comment: "姿勢に注意が必要",
         user_id: "test-user-id",
+        is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
         updated_at: "2023-01-01T00:00:00.000Z",
       },
@@ -301,6 +308,7 @@ describe("ページ詳細画面", () => {
             content: "更新された内容",
             comment: "更新されたコメント",
             user_id: "test-user-id",
+            is_public: false,
             created_at: "2023-01-01T00:00:00.000Z",
             updated_at: "2023-01-02T00:00:00.000Z",
           },

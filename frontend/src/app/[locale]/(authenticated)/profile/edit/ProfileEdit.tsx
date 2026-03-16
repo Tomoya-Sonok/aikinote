@@ -30,19 +30,27 @@ import {
   checkUsernameAvailability,
   createDojoStyle,
   getUserInfo,
+  type UpdateUserInfoPayload,
   updateUserInfo,
 } from "@/lib/api/client";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
 import { usernameSchema } from "@/lib/utils/validation";
-import styles from "./UserInfoEdit.module.css";
+import styles from "./ProfileEdit.module.css";
 
-interface UserInfoEditProps {
+const AGE_RANGE_OPTIONS = ["lt20", "20s", "30s", "40s", "50s", "gt60"] as const;
+const GENDER_OPTIONS = ["male", "female", "other", "not_specified"] as const;
+
+interface ProfileEditProps {
   user: UserProfile;
+  from?: "social";
 }
 
-export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
+export const ProfileEdit: FC<ProfileEditProps> = ({
+  user: initialUser,
+  from,
+}) => {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -50,15 +58,23 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
   const { refreshUser } = useAuth();
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
+  const fullNameInputId = useId();
   const usernameInputId = useId();
   const aikidoRankInputId = useId();
+  const bioInputId = useId();
+  const ageRangeGroupId = useId();
+  const genderGroupId = useId();
 
   const [formData, setFormData] = useState({
+    full_name: user.full_name || "",
     username: user.username,
     dojo_name: user.dojo_style_name || "",
     dojo_style_id: user.dojo_style_id || (null as string | null),
     aikido_rank: user.aikido_rank || "",
     profile_image_url: user.profile_image_url || "",
+    bio: user.bio || "",
+    age_range: user.age_range || "",
+    gender: user.gender || "",
   });
 
   const {
@@ -74,7 +90,6 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
   const [dojoStyleError, setDojoStyleError] = useState<string | null>(null);
 
   const handleSave = async () => {
-    // バリデーションチェック
     try {
       usernameSchema.parse({ username: formData.username });
     } catch (error) {
@@ -86,12 +101,10 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
       }
     }
 
-    // 重複チェック中または重複エラーがある場合は保存しない
     if (checkingUsername || usernameError) {
       return;
     }
 
-    // 道場名: テキスト入力があるのに未登録の場合はエラー
     if (formData.dojo_name && !formData.dojo_style_id) {
       setDojoStyleError(t("userInfoEdit.dojoStyleNotRegistered"));
       return;
@@ -101,18 +114,22 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
     try {
       let updatedProfileImageUrl = formData.profile_image_url;
 
-      // 画像アップロード処理
       if (profileImageFile) {
         updatedProfileImageUrl = await uploadImageToS3(profileImageFile);
       }
 
       const updatedData = {
         userId: user.id,
+        full_name: formData.full_name.trim() || null,
         username: formData.username,
         dojo_style_name: formData.dojo_name || null,
         dojo_style_id: formData.dojo_style_id,
         aikido_rank: formData.aikido_rank || null,
         profile_image_url: updatedProfileImageUrl || null,
+        bio: formData.bio.trim() || null,
+        age_range: (formData.age_range ||
+          null) as UpdateUserInfoPayload["age_range"],
+        gender: (formData.gender || null) as UpdateUserInfoPayload["gender"],
       };
 
       const result = await updateUserInfo(updatedData);
@@ -125,14 +142,17 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
         throw new Error(errorMsg || t("userInfoEdit.communicationFailed"));
       }
 
-      // ユーザー情報を再取得してセッションを更新
       await refreshUser();
 
       showToast(t("userInfoEdit.updateSuccess"), "success");
 
-      router.push(`/${locale}/mypage`);
+      if (from === "social") {
+        router.push(`/${locale}/social/profile/${user.id}`);
+      } else {
+        router.push(`/${locale}/mypage`);
+      }
     } catch (error) {
-      console.error("ユーザー情報更新エラー:", error);
+      console.error("プロフィール更新エラー:", error);
       showToast(
         error instanceof Error
           ? error.message
@@ -144,10 +164,13 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
 
   const handleCancel = () => {
     cleanupImagePreview();
-    router.push(`/${locale}/mypage`);
+    if (from === "social") {
+      router.push(`/${locale}/social/profile/${user.id}`);
+    } else {
+      router.push(`/${locale}/mypage`);
+    }
   };
 
-  // 最新のユーザー情報を取得
   const fetchUserInfo = useCallback(async () => {
     try {
       const result = await getUserInfo(user.id);
@@ -164,11 +187,15 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
       setUser(latestUser);
       setFormData((prev) => ({
         ...prev,
+        full_name: latestUser.full_name || "",
         username: latestUser.username,
         dojo_name: latestUser.dojo_style_name || "",
         dojo_style_id: latestUser.dojo_style_id || null,
         aikido_rank: latestUser.aikido_rank || "",
         profile_image_url: latestUser.profile_image_url || "",
+        bio: latestUser.bio || "",
+        age_range: latestUser.age_range || "",
+        gender: latestUser.gender || "",
       }));
     } catch (error) {
       console.error("ユーザー情報取得エラー:", error);
@@ -183,7 +210,7 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
   }, [fetchUserInfo]);
 
   const handleInputChange =
-    (field: "username" | "profile_image_url") =>
+    (field: "full_name" | "username" | "profile_image_url") =>
     (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
@@ -208,13 +235,9 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
   const handleUsernameBlur = useCallback(async () => {
     const username = formData.username;
 
-    // フォーマットエラーがある場合はスキップ
     if (usernameError) return;
-
-    // 変更がない場合はスキップ
     if (username === user.username) return;
 
-    // Zodバリデーションを再チェック
     try {
       usernameSchema.parse({ username });
     } catch {
@@ -307,6 +330,7 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
   return (
     <>
       <div className={styles.content}>
+        {/* プロフィール画像 */}
         <div className={styles.imageSection}>
           <label className={styles.profileImageContainer}>
             <div className={styles.profileImage}>
@@ -376,6 +400,23 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
         </div>
 
         <div className={styles.formSection}>
+          {/* 名前 */}
+          <div className={styles.formGroup}>
+            <label htmlFor={fullNameInputId} className={styles.label}>
+              {t("userInfoEdit.fullName")}
+            </label>
+            <input
+              type="text"
+              id={fullNameInputId}
+              value={formData.full_name}
+              onChange={handleInputChange("full_name")}
+              className={styles.inputField}
+              placeholder={t("userInfoEdit.fullNamePlaceholder")}
+              maxLength={50}
+            />
+          </div>
+
+          {/* ユーザー名 */}
           <div className={styles.formGroup}>
             <label htmlFor={usernameInputId} className={styles.label}>
               {t("userInfoEdit.username")}
@@ -394,14 +435,11 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
               maxLength={20}
             />
             {usernameError && (
-              <div
-                style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}
-              >
-                {usernameError}
-              </div>
+              <div className={styles.errorText}>{usernameError}</div>
             )}
           </div>
 
+          {/* 道場名 */}
           <div className={styles.formGroup}>
             <span className={styles.label}>{t("userInfoEdit.dojoName")}</span>
             <DojoStyleAutocomplete
@@ -416,14 +454,11 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
               onClear={handleClearDojoStyle}
             />
             {dojoStyleError && (
-              <div
-                style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}
-              >
-                {dojoStyleError}
-              </div>
+              <div className={styles.errorText}>{dojoStyleError}</div>
             )}
           </div>
 
+          {/* 段級位 */}
           <div className={styles.formGroup}>
             <label htmlFor={aikidoRankInputId} className={styles.label}>
               {t("userInfoEdit.aikidoRank")}
@@ -448,6 +483,86 @@ export const UserInfoEdit: FC<UserInfoEditProps> = ({ user: initialUser }) => {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* 自己紹介 */}
+          <div className={styles.formGroup}>
+            <label className={styles.label} htmlFor={bioInputId}>
+              {t("userInfoEdit.bio")}
+            </label>
+            <textarea
+              id={bioInputId}
+              className={styles.textarea}
+              value={formData.bio}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, bio: e.target.value }))
+              }
+              placeholder={t("userInfoEdit.bioPlaceholder")}
+              rows={4}
+              maxLength={500}
+            />
+          </div>
+
+          {/* その他の情報 */}
+          <div className={styles.divider} />
+          <p className={styles.sectionSubtitle}>
+            {t("userInfoEdit.otherInfo")}
+          </p>
+
+          {/* 年代 */}
+          <div className={styles.formGroup}>
+            <span className={styles.label} id={ageRangeGroupId}>
+              {t("userInfoEdit.ageRange")}
+            </span>
+            <div
+              className={styles.radioGroup}
+              role="radiogroup"
+              aria-labelledby={ageRangeGroupId}
+            >
+              {AGE_RANGE_OPTIONS.map((option) => (
+                <label key={option} className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="ageRange"
+                    value={option}
+                    checked={formData.age_range === option}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, age_range: option }))
+                    }
+                    className={styles.radioInput}
+                  />
+                  <span>{t(`userInfoEdit.ageRangeOptions.${option}`)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* 性別 */}
+          <div className={styles.formGroup}>
+            <span className={styles.label} id={genderGroupId}>
+              {t("userInfoEdit.gender")}
+            </span>
+            <div
+              className={styles.radioGroup}
+              role="radiogroup"
+              aria-labelledby={genderGroupId}
+            >
+              {GENDER_OPTIONS.map((option) => (
+                <label key={option} className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value={option}
+                    checked={formData.gender === option}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, gender: option }))
+                    }
+                    className={styles.radioInput}
+                  />
+                  <span>{t(`userInfoEdit.genderOptions.${option}`)}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser, getUserInfo } from "@/lib/server/auth";
-import { UserInfoEdit } from "./UserInfoEdit";
+import { ProfileEdit } from "./ProfileEdit";
 
 export async function generateMetadata({
   params,
@@ -20,15 +20,17 @@ export async function generateMetadata({
   });
 }
 
-export default async function UserInfoEditPage({
+export default async function ProfileEditPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { locale } = await params;
+  const { from } = await searchParams;
   const t = await getTranslations({ locale, namespace: "userInfoEdit" });
   const loginPath = `/${locale}/login`;
-  const myPagePath = `/${locale}/mypage`;
 
   const user = await getCurrentUser();
 
@@ -55,9 +57,18 @@ export default async function UserInfoEditPage({
     password_hash: "",
   };
 
+  // 遷移元に応じた戻り先を決定
+  const backHref =
+    from === "social"
+      ? `/${locale}/social/profile/${user.id}`
+      : `/${locale}/mypage`;
+
   return (
-    <MinimalLayout backHref={myPagePath} headerTitle={t("title")}>
-      <UserInfoEdit user={profile} />
+    <MinimalLayout backHref={backHref} headerTitle={t("title")}>
+      <ProfileEdit
+        user={profile}
+        from={from === "social" ? "social" : undefined}
+      />
     </MinimalLayout>
   );
 }

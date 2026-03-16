@@ -133,17 +133,16 @@ describe("PageModal", () => {
     expect(screen.getByText("カスタム実行")).toBeInTheDocument();
   });
 
-  it("キャンセルボタンをクリックすると確認ダイアログ経由でonCloseが呼ばれる", async () => {
-    // Arrange: モーダルが開いている状態でプロパティを準備する
+  it("テキスト入力がない状態でキャンセルすると確認ダイアログなしで直接閉じる", async () => {
+    // Arrange
     const user = userEvent.setup();
     const mockOnClose = vi.fn();
     const mockOnSubmit = vi.fn();
-    const isOpen = true;
 
     render(
       <I18nTestProvider>
         <PageModal
-          isOpen={isOpen}
+          isOpen={true}
           onClose={mockOnClose}
           onSubmit={mockOnSubmit}
           modalTitle="テストモーダル"
@@ -152,19 +151,50 @@ describe("PageModal", () => {
       </I18nTestProvider>,
     );
 
+    // Act: 何も入力せずにキャンセルボタンをクリック
     const cancelButton = screen.getByText("キャンセル");
-
-    // Act: キャンセルボタンをクリックする
     await user.click(cancelButton);
 
-    // Assert: まず確認ダイアログが表示され、onCloseはまだ呼ばれない
+    // Assert: 確認ダイアログなしで直接onCloseが呼ばれる
+    expect(
+      screen.queryByText("保存せずに戻りますか？"),
+    ).not.toBeInTheDocument();
+    expect(mockOnClose).toHaveBeenCalledOnce();
+  });
+
+  it("テキスト入力がある状態でキャンセルすると確認ダイアログ経由でonCloseが呼ばれる", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const mockOnClose = vi.fn();
+    const mockOnSubmit = vi.fn();
+
+    render(
+      <I18nTestProvider>
+        <PageModal
+          isOpen={true}
+          onClose={mockOnClose}
+          onSubmit={mockOnSubmit}
+          modalTitle="テストモーダル"
+          actionButtonText="実行"
+        />
+      </I18nTestProvider>,
+    );
+
+    // Act: タイトルに入力してからキャンセル
+    const titleInput = screen.getByRole("textbox", { name: /タイトル/i });
+    await user.type(titleInput, "テスト");
+    const cancelButton = screen.getByText("キャンセル");
+    await user.click(cancelButton);
+
+    // Assert: 確認ダイアログが表示され、onCloseはまだ呼ばれない
     expect(screen.getByText("保存せずに戻りますか？")).toBeInTheDocument();
     expect(mockOnClose).not.toHaveBeenCalled();
 
+    // Act: 破棄を確定
     const discardButton = screen.getByRole("button", { name: "戻る" });
     await user.click(discardButton);
 
-    // Assert: 破棄を確定するとonCloseが呼ばれる
+    // Assert: onCloseが呼ばれる
     expect(mockOnClose).toHaveBeenCalledOnce();
   });
 
@@ -186,7 +216,9 @@ describe("PageModal", () => {
       </I18nTestProvider>,
     );
 
-    // Act: PageModalのキャンセルで確認ダイアログを開く
+    // Act: テキスト入力してからキャンセルで確認ダイアログを開く
+    const titleInput = screen.getByRole("textbox", { name: /タイトル/i });
+    await user.type(titleInput, "テスト");
     const pageModalCancel = screen.getByText("キャンセル");
     await user.click(pageModalCancel);
 

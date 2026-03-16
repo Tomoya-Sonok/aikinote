@@ -124,6 +124,67 @@
   word-break: break-word;
 }
 
+/* 稽古記録用ノート罫線スタイル */
+.notebookArea {
+  position: relative;
+  background: var(--white);
+  border-radius: 3px;
+  padding: 16px 16px 16px 28px;
+}
+
+.notebookArea::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--border-color);
+}
+
+.notebookTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  color: var(--black);
+  margin: 0 0 12px;
+  font-family: var(--font-zen-old-mincho);
+}
+
+.notebookContent {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-zen-old-mincho);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    var(--border-color) 28px
+  );
+  background-size: 100% 28px;
+  padding-top: 4px;
+}
+
+.notebookComment {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.notebookCommentLabel {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
 .editSection {
   margin-bottom: 8px;
 }

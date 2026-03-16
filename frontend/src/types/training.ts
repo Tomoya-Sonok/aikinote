@@ -3,6 +3,7 @@ export type TrainingPageData = {
   title: string;
   content: string;
   comment?: string;
+  is_public: boolean;
   date: string;
   tags: string[];
 };

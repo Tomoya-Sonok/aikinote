@@ -315,7 +315,16 @@ export const PageModal: FC<PageModalProps> = ({
     if (isCloseConfirmOpen) {
       return;
     }
-    setIsCloseConfirmOpen(true);
+    // いずれかのテキスト項目に入力がある場合のみ確認ダイアログを表示
+    const hasTextInput =
+      formData.title.trim() !== "" ||
+      formData.content.trim() !== "" ||
+      formData.comment.trim() !== "";
+    if (hasTextInput) {
+      setIsCloseConfirmOpen(true);
+    } else {
+      closeModal();
+    }
   };
 
   const handleCancelCloseConfirm = () => {
