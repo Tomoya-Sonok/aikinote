@@ -106,6 +106,7 @@ export interface CreatePagePayload {
   content: string;
   comment: string;
   user_id: string;
+  is_public?: boolean;
   created_at?: string;
 }
 
@@ -183,6 +184,18 @@ export const getPage = async (pageId: string, userId: string) => {
     );
   } catch (error) {
     throw new Error(getErrorMessage(error, "ページ詳細の取得に失敗しました"));
+  }
+};
+
+// 公開稽古記録フィード取得API
+export const getPublicPagesFeed = async (params: {
+  limit?: number;
+  offset?: number;
+}) => {
+  try {
+    return await trpcClient.pages.getPublicFeed.query(params);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開稽古記録の取得に失敗しました"));
   }
 };
 
@@ -312,6 +325,7 @@ export interface UpdatePagePayload {
   content: string;
   comment: string;
   user_id: string;
+  is_public?: boolean;
 }
 
 // ページ更新API関数
@@ -322,6 +336,7 @@ export const updatePage = async (pageData: UpdatePagePayload) => {
       "pages:getList",
       "pages:getById",
       "trainingDates:getMonth",
+      "socialProfile:get",
     ]);
     return response;
   } catch (error) {
@@ -465,6 +480,7 @@ export const getTrainingStats = async ({
 export interface UpdateUserInfoPayload {
   userId: string;
   username?: string;
+  full_name?: string | null;
   dojo_style_name?: string | null;
   dojo_style_id?: string | null;
   training_start_date?: string | null;
@@ -472,6 +488,8 @@ export interface UpdateUserInfoPayload {
   bio?: string | null;
   publicity_setting?: "public" | "closed" | "private";
   aikido_rank?: string | null;
+  age_range?: "lt20" | "20s" | "30s" | "40s" | "50s" | "gt60" | null;
+  gender?: "male" | "female" | "other" | "not_specified" | null;
 }
 
 // 道場検索
@@ -539,7 +557,10 @@ export const updateUserInfo = async (payload: UpdateUserInfoPayload) => {
     const response = await trpcClient.users.updateUserInfo.mutate(payload);
 
     if (response.success) {
-      invalidateQueryCacheByPrefixes(["users:getUserInfo"]);
+      invalidateQueryCacheByPrefixes([
+        "users:getUserInfo",
+        "socialProfile:get",
+      ]);
     }
 
     return response;
@@ -761,6 +782,7 @@ export interface SearchSocialPostsParams {
   query?: string;
   dojoName?: string;
   rank?: string;
+  hashtag?: string;
   limit?: number;
   offset?: number;
 }
@@ -775,6 +797,22 @@ export const searchSocialPosts = async (params: SearchSocialPostsParams) => {
     );
   } catch (error) {
     throw new Error(getErrorMessage(error, "投稿の検索に失敗しました"));
+  }
+};
+
+export const getTrendingHashtags = async (limit?: number) => {
+  try {
+    const input = limit ? { limit } : undefined;
+    return await cachedQuery(
+      "socialSearch:trending",
+      input ?? {},
+      CACHE_TTL_MS.socialSearch,
+      async () => trpcClient.socialSearch.trending.query(input),
+    );
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "トレンドハッシュタグの取得に失敗しました"),
+    );
   }
 };
 

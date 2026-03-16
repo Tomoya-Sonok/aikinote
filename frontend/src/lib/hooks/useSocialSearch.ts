@@ -10,7 +10,12 @@ import {
 interface UseSocialSearchResult {
   results: SocialFeedPostData[];
   isLoading: boolean;
-  search: (query: string, dojoName?: string, rank?: string) => void;
+  search: (
+    query: string,
+    dojoName?: string,
+    rank?: string,
+    hashtag?: string,
+  ) => void;
   updateResult: (
     postId: string,
     updater: (post: SocialFeedPostData) => SocialFeedPostData,
@@ -28,10 +33,10 @@ export function useSocialSearch(
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const search = useCallback(
-    (query: string, dojoName?: string, rank?: string) => {
+    (query: string, dojoName?: string, rank?: string, hashtag?: string) => {
       if (timerRef.current) clearTimeout(timerRef.current);
 
-      if (!userId || (!query.trim() && !dojoName && !rank)) {
+      if (!userId || (!query.trim() && !dojoName && !rank && !hashtag)) {
         setResults([]);
         return;
       }
@@ -44,6 +49,7 @@ export function useSocialSearch(
             query: query.trim() || undefined,
             dojoName: dojoName || undefined,
             rank: rank || undefined,
+            hashtag: hashtag || undefined,
             limit: LIMIT,
           };
           const result = await searchSocialPosts(params);

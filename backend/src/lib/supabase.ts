@@ -34,6 +34,7 @@ export interface TrainingPageRow {
   title: string; // text
   content: string; // text
   comment: string; // text
+  is_public: boolean; // boolean (デフォルト: false)
   created_at: string; // timestamp
   updated_at: string; // timestamp
 }
@@ -113,6 +114,7 @@ export const createTrainingPage = async (
           content: pageData.content,
           comment: pageData.comment,
           user_id: pageData.user_id,
+          is_public: pageData.is_public ?? false,
           created_at: pageData.created_at,
         }
       : {
@@ -120,6 +122,7 @@ export const createTrainingPage = async (
           content: pageData.content,
           comment: pageData.comment,
           user_id: pageData.user_id,
+          is_public: pageData.is_public ?? false,
         };
 
     const { data: newPage, error: pageError } = await supabase
@@ -857,14 +860,18 @@ export const updateTrainingPage = async (
     }
 
     // 2. TrainingPageを更新
+    const updateFields: Record<string, unknown> = {
+      title: pageData.title,
+      content: pageData.content,
+      comment: pageData.comment,
+      updated_at: new Date().toISOString(),
+    };
+    if (pageData.is_public !== undefined) {
+      updateFields.is_public = pageData.is_public;
+    }
     const { data: updatedPage, error: pageError } = await supabase
       .from("TrainingPage")
-      .update({
-        title: pageData.title,
-        content: pageData.content,
-        comment: pageData.comment,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateFields)
       .eq("id", pageData.id)
       .eq("user_id", pageData.user_id)
       .select("*")
@@ -1511,6 +1518,144 @@ export const getSocialPostById = async (
   return data;
 };
 
+/**
+ * TrainingPage の is_public 変更に連動して SocialPost を作成/更新/soft-delete する
+ */
+export const syncSocialPostForTrainingPage = async (
+  supabaseClient: SupabaseClient,
+  pageId: string,
+  userId: string,
+  content: string,
+  isPublic: boolean,
+): Promise<void> => {
+  // 既存の SocialPost を検索
+  const { data: existingPost } = await supabaseClient
+    .from("SocialPost")
+    .select("id, is_deleted")
+    .eq("source_page_id", pageId)
+    .maybeSingle();
+
+  if (isPublic) {
+    if (existingPost) {
+      // 既存の SocialPost を更新（再公開含む）
+      await supabaseClient
+        .from("SocialPost")
+        .update({
+          content,
+          is_deleted: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existingPost.id);
+    } else {
+      // 新規作成: User の道場情報を取得
+      const { data: userData } = await supabaseClient
+        .from("User")
+        .select("dojo_style_id, dojo_style_name")
+        .eq("id", userId)
+        .single();
+
+      await createSocialPost(supabaseClient, {
+        user_id: userId,
+        content,
+        post_type: "training_record",
+        author_dojo_style_id: userData?.dojo_style_id ?? null,
+        author_dojo_name: userData?.dojo_style_name ?? null,
+        source_page_id: pageId,
+      });
+    }
+  } else if (existingPost && !existingPost.is_deleted) {
+    // 非公開化: soft-delete
+    await supabaseClient
+      .from("SocialPost")
+      .update({
+        is_deleted: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingPost.id);
+  }
+};
+
+/**
+ * source_page_id から TrainingPage の詳細データ（タイトル、タグ含む）を取得する
+ */
+export const getSourcePageData = async (
+  supabaseClient: SupabaseClient,
+  sourcePageId: string,
+): Promise<{
+  id: string;
+  title: string;
+  content: string;
+  comment: string;
+  tags: { name: string; category: string }[];
+} | null> => {
+  const { data: pageData } = await supabaseClient
+    .from("TrainingPage")
+    .select("id, title, content, comment")
+    .eq("id", sourcePageId)
+    .single();
+
+  if (!pageData) return null;
+
+  const { data: pageTagsData } = await supabaseClient
+    .from("TrainingPageTag")
+    .select("UserTag(name, category)")
+    .eq("training_page_id", sourcePageId);
+
+  return {
+    ...pageData,
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    tags: (pageTagsData ?? []).map((row: any) => ({
+      name: row.UserTag?.name ?? "",
+      category: row.UserTag?.category ?? "",
+    })),
+  };
+};
+
+/**
+ * 公開稽古記録フィードを取得する（is_public=true の TrainingPage）
+ */
+export const getPublicTrainingPages = async (
+  supabaseClient: SupabaseClient,
+  limit: number,
+  offset: number,
+): Promise<{
+  pages: {
+    id: string;
+    title: string;
+    content: string;
+    user_id: string;
+    is_public: boolean;
+    created_at: string;
+    User: {
+      username: string;
+      profile_image_url: string | null;
+      dojo_style_name: string | null;
+      aikido_rank: string | null;
+    };
+  }[];
+  total_count: number;
+}> => {
+  const { data, count, error } = await supabaseClient
+    .from("TrainingPage")
+    .select(
+      "id, title, content, user_id, is_public, created_at, User!inner(username, profile_image_url, dojo_style_name, aikido_rank)",
+      { count: "exact" },
+    )
+    .eq("is_public", true)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    throw new Error(`公開稽古記録の取得に失敗しました: ${error.message}`);
+  }
+
+  return {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    pages: (data ?? []) as any[],
+    total_count: count ?? 0,
+  };
+};
+
 export const updateSocialPost = async (
   supabaseClient: SupabaseClient,
   postId: string,
@@ -2078,19 +2223,84 @@ export const searchSocialPosts = async (
     query?: string;
     dojo_name?: string;
     rank?: string;
+    hashtag?: string;
     limit: number;
     offset: number;
   },
 ): Promise<SocialPostRow[]> => {
+  // ハッシュタグ検索の場合:
+  //   1. Hashtag テーブル経由（通常のハッシュタグ投稿）
+  //   2. SocialPostTag → UserTag 経由（同名の稽古記録タグを持つ投稿）
+  // 両方の結果をマージして投稿IDセットを構築する
+  let hashtagPostIds: string[] | null = null;
+  if (params.hashtag) {
+    const [hashtagResult, tagResult] = await Promise.all([
+      // 1. ハッシュタグテーブル経由
+      (async () => {
+        const { data: hashtagData } = await supabaseClient
+          .from("Hashtag")
+          .select("id")
+          .eq("name", params.hashtag)
+          .single();
+        if (!hashtagData) return [];
+        const { data: postHashtags } = await supabaseClient
+          .from("SocialPostHashtag")
+          .select("post_id")
+          .eq("hashtag_id", hashtagData.id);
+        return (postHashtags ?? []).map((ph) => ph.post_id);
+      })(),
+      // 2. 稽古記録タグ（UserTag）経由: 同名のタグを持つ投稿もヒットさせる
+      (async () => {
+        const { data: userTags } = await supabaseClient
+          .from("UserTag")
+          .select("id")
+          .eq("name", params.hashtag);
+        if (!userTags || userTags.length === 0) return [];
+        const tagIds = userTags.map((t) => t.id);
+        const { data: postTags } = await supabaseClient
+          .from("SocialPostTag")
+          .select("post_id")
+          .in("user_tag_id", tagIds);
+        return (postTags ?? []).map((pt) => pt.post_id);
+      })(),
+    ]);
+
+    // 両方のIDをマージして重複排除
+    const mergedIds = [...new Set([...hashtagResult, ...tagResult])];
+    if (mergedIds.length === 0) return [];
+    hashtagPostIds = mergedIds;
+  }
+
+  // キーワード検索の場合: content に加えて稽古記録の title もヒット対象にする
+  // TrainingPage.title にマッチする source_page_id を先に取得
+  let titleMatchPostIds: string[] | null = null;
+  if (params.query) {
+    const { data: matchingPages } = await supabaseClient
+      .from("TrainingPage")
+      .select("id")
+      .ilike("title", `%${params.query}%`);
+
+    if (matchingPages && matchingPages.length > 0) {
+      const pageIds = matchingPages.map((p) => p.id);
+      const { data: titlePosts } = await supabaseClient
+        .from("SocialPost")
+        .select("id")
+        .eq("is_deleted", false)
+        .eq("post_type", "training_record")
+        .in("source_page_id", pageIds);
+      titleMatchPostIds = (titlePosts ?? []).map((p) => p.id);
+    }
+  }
+
+  // content 検索クエリ
   let dbQuery = supabaseClient
     .from("SocialPost")
     .select("*, User!inner(id, aikido_rank, dojo_style_id, publicity_setting)")
     .eq("is_deleted", false)
-    .order("created_at", { ascending: false })
-    .range(params.offset, params.offset + params.limit - 1);
+    .order("created_at", { ascending: false });
 
-  if (params.query) {
-    dbQuery = dbQuery.ilike("content", `%${params.query}%`);
+  if (hashtagPostIds) {
+    dbQuery = dbQuery.in("id", hashtagPostIds);
   }
 
   if (params.dojo_name) {
@@ -2100,6 +2310,18 @@ export const searchSocialPosts = async (
   if (params.rank) {
     dbQuery = dbQuery.eq("User.aikido_rank", params.rank);
   }
+
+  // query 検索: content OR title のどちらかにマッチ
+  if (params.query && titleMatchPostIds && titleMatchPostIds.length > 0) {
+    // content にマッチする投稿と title にマッチする投稿を OR で取得
+    dbQuery = dbQuery.or(
+      `content.ilike.%${params.query}%,id.in.(${titleMatchPostIds.join(",")})`,
+    );
+  } else if (params.query) {
+    dbQuery = dbQuery.ilike("content", `%${params.query}%`);
+  }
+
+  dbQuery = dbQuery.range(params.offset, params.offset + params.limit - 1);
 
   const { data, error } = await dbQuery;
 
@@ -2139,14 +2361,17 @@ export const getSocialProfile = async (
     aikido_rank: string | null;
     dojo_style_name: string | null;
     publicity_setting: string | null;
+    full_name: string | null;
   } | null;
   posts: SocialPostRow[];
   total_favorites?: number;
+  total_pages: number;
+  public_pages: { id: string; title: string; created_at: string }[];
 } | null> => {
   const { data: user, error: userError } = await supabaseClient
     .from("User")
     .select(
-      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, dojo_style_id, publicity_setting",
+      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, dojo_style_id, publicity_setting, full_name",
     )
     .eq("id", targetUserId)
     .single();
@@ -2159,30 +2384,65 @@ export const getSocialProfile = async (
   const publicity = user.publicity_setting;
   if (targetUserId !== viewerId) {
     if (publicity === "private") {
-      return { is_restricted: true, user: null, posts: [] };
+      return {
+        is_restricted: true,
+        user: null,
+        posts: [],
+        total_pages: 0,
+        public_pages: [],
+      };
     }
     if (publicity === "closed" && user.dojo_style_id !== viewerDojoStyleId) {
-      return { is_restricted: true, user: null, posts: [] };
+      return {
+        is_restricted: true,
+        user: null,
+        posts: [],
+        total_pages: 0,
+        public_pages: [],
+      };
     }
   }
 
-  // 公開投稿を取得
-  const postsQuery = supabaseClient
-    .from("SocialPost")
-    .select("*")
-    .eq("user_id", targetUserId)
-    .eq("is_deleted", false)
-    .order("created_at", { ascending: false })
-    .limit(20);
+  // 公開投稿・稽古記録数・公開稽古記録を並列取得
+  const [postsResult, totalPagesResult, publicPagesResult] = await Promise.all([
+    supabaseClient
+      .from("SocialPost")
+      .select("*")
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    supabaseClient
+      .from("TrainingPage")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", targetUserId),
+    supabaseClient
+      .from("TrainingPage")
+      .select("id, title, created_at")
+      .eq("user_id", targetUserId)
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
 
-  const { data: posts } = await postsQuery;
+  const posts = postsResult.data;
+  const totalPagesCount = totalPagesResult.count;
+  const publicPages = publicPagesResult.data;
 
   const result: {
     is_restricted: boolean;
     user: typeof user;
     posts: SocialPostRow[];
     total_favorites?: number;
-  } = { is_restricted: false, user, posts: posts ?? [] };
+    total_pages: number;
+    public_pages: { id: string; title: string; created_at: string }[];
+  } = {
+    is_restricted: false,
+    user,
+    posts: posts ?? [],
+    total_pages: totalPagesCount ?? 0,
+    public_pages: publicPages ?? [],
+  };
 
   // 本人のみ累計お気に入り数を返却
   if (targetUserId === viewerId) {
@@ -2214,29 +2474,62 @@ export const enrichSocialPosts = async (
 
   const postIds = posts.map((p) => p.id);
   const authorIds = [...new Set(posts.map((p) => p.user_id))];
+  const sourcePageIds = posts
+    .filter((p) => p.post_type === "training_record" && p.source_page_id)
+    .map((p) => p.source_page_id)
+    .filter((id): id is string => !!id);
 
-  // 4つのバッチクエリを並列実行（N+1 → 4クエリ固定）
-  const [authorsResult, attachmentsResult, tagsResult, favoritesResult] =
-    await Promise.all([
+  // バッチクエリを並列実行（N+1 → 固定クエリ数）
+  const [
+    authorsResult,
+    attachmentsResult,
+    tagsResult,
+    favoritesResult,
+    hashtagsResult,
+  ] = await Promise.all([
+    supabaseClient
+      .from("User")
+      .select("id, username, profile_image_url, aikido_rank")
+      .in("id", authorIds),
+    supabaseClient
+      .from("SocialPostAttachment")
+      .select("*")
+      .in("post_id", postIds)
+      .order("sort_order", { ascending: true }),
+    supabaseClient
+      .from("SocialPostTag")
+      .select("post_id, user_tag_id, UserTag(id, name, category)")
+      .in("post_id", postIds),
+    supabaseClient
+      .from("SocialFavorite")
+      .select("post_id")
+      .in("post_id", postIds)
+      .eq("user_id", viewerUserId),
+    supabaseClient
+      .from("SocialPostHashtag")
+      .select("post_id, hashtag_id, Hashtag(id, name)")
+      .in("post_id", postIds),
+  ]);
+
+  // source_page のクエリも並列実行
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  let sourcePagesData: any[] = [];
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  let sourcePageTagsData: any[] = [];
+  if (sourcePageIds.length > 0) {
+    const [pagesRes, pageTagsRes] = await Promise.all([
       supabaseClient
-        .from("User")
-        .select("id, username, profile_image_url, aikido_rank")
-        .in("id", authorIds),
+        .from("TrainingPage")
+        .select("id, title")
+        .in("id", sourcePageIds),
       supabaseClient
-        .from("SocialPostAttachment")
-        .select("*")
-        .in("post_id", postIds)
-        .order("sort_order", { ascending: true }),
-      supabaseClient
-        .from("SocialPostTag")
-        .select("post_id, user_tag_id, UserTag(id, name, category)")
-        .in("post_id", postIds),
-      supabaseClient
-        .from("SocialFavorite")
-        .select("post_id")
-        .in("post_id", postIds)
-        .eq("user_id", viewerUserId),
+        .from("TrainingPageTag")
+        .select("training_page_id, UserTag(name, category)")
+        .in("training_page_id", sourcePageIds),
     ]);
+    sourcePagesData = pagesRes.data ?? [];
+    sourcePageTagsData = pageTagsRes.data ?? [];
+  }
 
   // ルックアップマップを構築
   const authorMap = new Map((authorsResult.data ?? []).map((a) => [a.id, a]));
@@ -2268,19 +2561,185 @@ export const enrichSocialPosts = async (
     (favoritesResult.data ?? []).map((f) => f.post_id),
   );
 
+  const hashtagMap = new Map<string, { id: string; name: string }[]>();
+  for (const row of hashtagsResult.data ?? []) {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const r = row as any;
+    const hashtag = r.Hashtag;
+    if (!hashtag?.id || !hashtag?.name) continue;
+    const list = hashtagMap.get(r.post_id) ?? [];
+    list.push({ id: hashtag.id, name: hashtag.name });
+    hashtagMap.set(r.post_id, list);
+  }
+
+  // training_record 用: source_page データを構築（既にバッチ取得済み）
+  const sourcePageMap = new Map<
+    string,
+    { title: string; tags: { name: string; category: string }[] }
+  >();
+
+  if (sourcePageIds.length > 0) {
+    const pagesData = sourcePagesData;
+    const pageTagsData = sourcePageTagsData;
+
+    for (const page of pagesData) {
+      sourcePageMap.set(page.id, { title: page.title, tags: [] });
+    }
+
+    for (const row of pageTagsData) {
+      const entry = sourcePageMap.get(row.training_page_id);
+      if (entry && row.UserTag) {
+        entry.tags.push({
+          name: row.UserTag.name,
+          category: row.UserTag.category,
+        });
+      }
+    }
+  }
+
   // 結合
-  return posts.map((post) => ({
-    ...post,
-    favorite_count:
-      post.user_id === viewerUserId ? post.favorite_count : undefined,
-    author: authorMap.get(post.user_id) ?? {
-      id: post.user_id,
-      username: "",
-      profile_image_url: null,
-      aikido_rank: null,
-    },
-    attachments: attachmentMap.get(post.id) ?? [],
-    tags: tagMap.get(post.id) ?? [],
-    is_favorited: favoritedPostIds.has(post.id),
-  }));
+  return posts.map((post) => {
+    const sourcePage = post.source_page_id
+      ? sourcePageMap.get(post.source_page_id)
+      : undefined;
+    return {
+      ...post,
+      favorite_count:
+        post.user_id === viewerUserId ? post.favorite_count : undefined,
+      author: authorMap.get(post.user_id) ?? {
+        id: post.user_id,
+        username: "",
+        profile_image_url: null,
+        aikido_rank: null,
+      },
+      attachments: attachmentMap.get(post.id) ?? [],
+      tags: tagMap.get(post.id) ?? [],
+      hashtags: hashtagMap.get(post.id) ?? [],
+      is_favorited: favoritedPostIds.has(post.id),
+      source_page_title: sourcePage?.title ?? null,
+      source_page_tags: sourcePage?.tags ?? [],
+    };
+  });
+};
+
+// ============================================
+// ハッシュタグ関連
+// ============================================
+
+/**
+ * ハッシュタグ名の配列を受け取り、存在すれば取得・なければ作成して返す
+ */
+export const upsertHashtags = async (
+  supabaseClient: SupabaseClient,
+  names: string[],
+): Promise<{ id: string; name: string }[]> => {
+  if (names.length === 0) return [];
+
+  // 既存のハッシュタグを取得
+  const { data: existing } = await supabaseClient
+    .from("Hashtag")
+    .select("id, name")
+    .in("name", names);
+
+  const existingMap = new Map((existing ?? []).map((h) => [h.name, h]));
+
+  // 未登録のハッシュタグを一括作成
+  const newNames = names.filter((n) => !existingMap.has(n));
+  if (newNames.length > 0) {
+    const { data: inserted, error } = await supabaseClient
+      .from("Hashtag")
+      .insert(newNames.map((name) => ({ name })))
+      .select("id, name");
+
+    if (error) {
+      throw new Error(`ハッシュタグの作成に失敗しました: ${error.message}`);
+    }
+
+    for (const h of inserted ?? []) {
+      existingMap.set(h.name, h);
+    }
+  }
+
+  return names
+    .map((n) => existingMap.get(n))
+    .filter((h): h is { id: string; name: string } => !!h);
+};
+
+/**
+ * 投稿にハッシュタグを紐付ける（一括INSERT）
+ */
+export const createSocialPostHashtags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  hashtagIds: string[],
+): Promise<void> => {
+  if (hashtagIds.length === 0) return;
+
+  const { error } = await supabaseClient
+    .from("SocialPostHashtag")
+    .insert(hashtagIds.map((hashtag_id) => ({ post_id: postId, hashtag_id })));
+
+  if (error) {
+    throw new Error(`ハッシュタグの紐付けに失敗しました: ${error.message}`);
+  }
+};
+
+/**
+ * 投稿のハッシュタグを更新する（既存を削除して再作成）
+ */
+export const updateSocialPostHashtags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  hashtagIds: string[],
+): Promise<void> => {
+  // 既存の紐付けを削除
+  await supabaseClient.from("SocialPostHashtag").delete().eq("post_id", postId);
+
+  // 新しい紐付けを作成
+  if (hashtagIds.length > 0) {
+    await createSocialPostHashtags(supabaseClient, postId, hashtagIds);
+  }
+};
+
+/**
+ * 直近7日間のトレンドハッシュタグを取得する
+ */
+export const getTrendingHashtags = async (
+  supabaseClient: SupabaseClient,
+  limit: number,
+): Promise<{ name: string; count: number }[]> => {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const { data, error } = await supabaseClient
+    .from("SocialPostHashtag")
+    .select("hashtag_id, Hashtag(name)")
+    .gte("created_at", sevenDaysAgo.toISOString());
+
+  if (error) {
+    throw new Error(
+      `トレンドハッシュタグの取得に失敗しました: ${error.message}`,
+    );
+  }
+
+  // 集計: hashtag_id ごとにカウント
+  const countMap = new Map<string, { name: string; count: number }>();
+  for (const row of data ?? []) {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const r = row as any;
+    const name = r.Hashtag?.name;
+    if (!name) continue;
+
+    const entry = countMap.get(name);
+    if (entry) {
+      entry.count++;
+    } else {
+      countMap.set(name, { name, count: 1 });
+    }
+  }
+
+  // カウント降順でソートし、上位N件を返す
+  return [...countMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
 };

@@ -1,27 +1,21 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
+import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
 import {
   SocialHeader,
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
-import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import { useToast } from "@/contexts/ToastContext";
-import { createSocialPost, getTags } from "@/lib/api/client";
+import { createSocialPost } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./SocialPostCreate.module.css";
 
 const MAX_CONTENT_LENGTH = 2000;
-
-interface UserTag {
-  id: string;
-  name: string;
-  category: string;
-}
 
 export function SocialPostCreate() {
   const { user } = useAuth();
@@ -32,23 +26,6 @@ export function SocialPostCreate() {
   const [postType, setPostType] = useState<"post" | "training_record">("post");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentData[]>([]);
-  const [userTags, setUserTags] = useState<UserTag[]>([]);
-  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!user?.id) return;
-    const fetchTags = async () => {
-      try {
-        const result = await getTags(user.id);
-        if (result.success && result.data) {
-          setUserTags(result.data as UserTag[]);
-        }
-      } catch {
-        // タグ取得失敗は致命的ではない
-      }
-    };
-    fetchTags();
-  }, [user?.id]);
 
   const handleBack = useCallback(() => {
     window.location.href = `/${locale}/social/posts`;
@@ -62,30 +39,15 @@ export function SocialPostCreate() {
     setAttachments((prev) => prev.filter((a) => a.id !== id));
   }, []);
 
-  const handleTagToggle = useCallback((tagName: string) => {
-    setSelectedTagNames((prev) =>
-      prev.includes(tagName)
-        ? prev.filter((n) => n !== tagName)
-        : [...prev, tagName],
-    );
-  }, []);
-
   const handleSubmit = useCallback(async () => {
     if (!user?.id || !content.trim() || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      // タグ名からIDに変換
-      const tagIds = userTags
-        .filter((tag) => selectedTagNames.includes(tag.name))
-        .map((tag) => tag.id);
-
-      // 投稿を作成
       const result = await createSocialPost({
         user_id: user.id,
         content: content.trim(),
         post_type: postType,
-        tag_ids: tagIds.length > 0 ? tagIds : undefined,
       });
 
       // 添付ファイルのメタデータを保存
@@ -129,17 +91,10 @@ export function SocialPostCreate() {
     locale,
     showToast,
     t,
-    userTags,
-    selectedTagNames,
     attachments,
   ]);
 
   const isDisabled = !content.trim() || isSubmitting;
-
-  // タグをカテゴリごとに整理
-  const wazaTags = userTags
-    .filter((tag) => tag.category === "技")
-    .map((tag) => tag.name);
 
   return (
     <SocialLayout>
@@ -161,7 +116,7 @@ export function SocialPostCreate() {
 
       <div className={styles.form}>
         <div className={styles.textareaWrapper}>
-          <textarea
+          <HashtagTextarea
             className={styles.textarea}
             value={content}
             onChange={(e) =>
@@ -203,18 +158,6 @@ export function SocialPostCreate() {
             </label>
           </div>
         </div>
-
-        {wazaTags.length > 0 && (
-          <div className={styles.section}>
-            <TagSelection
-              title={t("tags")}
-              tags={wazaTags}
-              selectedTags={selectedTagNames}
-              onTagToggle={handleTagToggle}
-              showAddButton={false}
-            />
-          </div>
-        )}
 
         <div className={styles.section}>
           <AttachmentUpload

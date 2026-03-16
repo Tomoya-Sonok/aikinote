@@ -2,8 +2,15 @@ import { zValidator } from "@hono/zod-validator";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
-import { enrichSocialPosts, searchSocialPosts } from "../../lib/supabase.js";
-import { searchSocialPostsSchema } from "../../lib/validation.js";
+import {
+  enrichSocialPosts,
+  getTrendingHashtags,
+  searchSocialPosts,
+} from "../../lib/supabase.js";
+import {
+  getTrendingHashtagsSchema,
+  searchSocialPostsSchema,
+} from "../../lib/validation.js";
 
 type SearchBindings = {
   JWT_SECRET?: string;
@@ -18,6 +25,46 @@ const app = new Hono<{
   Variables: SearchVariables;
 }>();
 
+// GET /trending — トレンドハッシュタグ取得
+app.get(
+  "/trending",
+  zValidator("query", getTrendingHashtagsSchema),
+  async (c) => {
+    try {
+      const authHeader = c.req.header("Authorization");
+      const token = extractTokenFromHeader(authHeader);
+      await verifyToken(token, c.env);
+
+      const { limit } = c.req.valid("query");
+
+      const supabase = c.get("supabase");
+      if (!supabase) {
+        return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+      }
+
+      const trending = await getTrendingHashtags(supabase, limit);
+
+      return c.json({
+        success: true,
+        data: trending,
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.message.includes("token") ||
+          error.message.includes("Authorization"))
+      ) {
+        return c.json({ success: false, error: "認証に失敗しました" }, 401);
+      }
+      console.error("トレンド取得エラー:", error);
+      return c.json(
+        { success: false, error: "トレンドの取得に失敗しました" },
+        500,
+      );
+    }
+  },
+);
+
 // GET / — 投稿検索
 app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
   try {
@@ -25,7 +72,7 @@ app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
     const token = extractTokenFromHeader(authHeader);
     const payload = await verifyToken(token, c.env);
 
-    const { user_id, query, dojo_name, rank, limit, offset } =
+    const { user_id, query, dojo_name, rank, hashtag, limit, offset } =
       c.req.valid("query");
 
     if (payload.userId !== user_id) {
@@ -54,6 +101,7 @@ app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
         query,
         dojo_name,
         rank,
+        hashtag,
         limit,
         offset,
       },

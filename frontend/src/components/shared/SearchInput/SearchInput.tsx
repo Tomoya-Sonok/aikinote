@@ -1,17 +1,19 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
-import type { ChangeEvent, FC } from "react";
+import type { ChangeEvent, FC, KeyboardEvent } from "react";
 import styles from "./SearchInput.module.css";
 
 interface SearchInputProps {
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
   placeholder?: string;
 }
 
 export const SearchInput: FC<SearchInputProps> = ({
   value,
   onChange,
+  onKeyDown,
   placeholder,
 }) => {
   const t = useTranslations();
@@ -29,6 +31,7 @@ export const SearchInput: FC<SearchInputProps> = ({
         placeholder={defaultPlaceholder}
         value={value}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         className={styles.searchInput}
       />
     </div>

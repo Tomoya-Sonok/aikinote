@@ -194,9 +194,11 @@
   "userInfo": {
     "edit": "編集する",
     "notEntered": "未入力",
+    "fullName": "名前",
     "currentDojo": "現在所属している道場（流派）",
     "aikidoStartDate": "合気道を始めたのはいつ？",
     "rank": "段級位",
+    "bio": "自己紹介",
     "profileImage": "のプロフィール画像"
   },
   "pageModal": {
@@ -524,7 +526,15 @@
     "favorite": "お気に入り",
     "share": "共有",
     "createPost": "投稿する",
+    "createModalTitle": "新規作成",
+    "createTypePost": "投稿",
+    "createTypeTraining": "稽古記録",
+    "trainingCreateSuccess": "稽古記録を作成しました",
+    "comment": "その他・コメント",
     "newPost": "新規投稿",
+    "contentLabel": "内容",
+    "contentRequired": "内容を入力してください",
+    "contentTooLong": "内容は2000文字以内で入力してください",
     "contentPlaceholder": "今日の稽古で学んだことや気づきを共有しましょう！",
     "charCount": "{count}/2000",
     "postType": "投稿タイプ",
@@ -554,6 +564,7 @@
     "searchResults": "検索結果",
     "profileTitle": "プロフィール",
     "profileEdit": "プロフィールを編集",
+    "profileEditButton": "編集する",
     "bioPlaceholder": "自己紹介を入力してください",
     "publicitySetting": "公開設定",
     "publicityPublic": "公開",
@@ -569,8 +580,12 @@
     "editFailed": "投稿の更新に失敗しました",
     "myPosts": "自分の投稿",
     "userPosts": "投稿",
+    "trainingRecords": "稽古記録",
     "totalFavorites": "累計お気に入り数",
     "otherUserFavoritesHidden": "他のユーザーのお気に入り数は閲覧できません",
+    "profileTabPosts": "投稿",
+    "profileTabTraining": "稽古記録",
+    "emptyTrainingRecords": "公開されている稽古記録はありません",
     "profileNotFound": "プロフィールが見つかりませんでした",
     "profileRestricted": "このプロフィールは非公開です",
     "bioLabel": "自己紹介",
@@ -587,7 +602,8 @@
     "menuEdit": "編集",
     "menuDelete": "削除",
     "menuReport": "通報",
-    "filterToggle": "フィルター",
+    "filterToggle": "絞り込み",
+    "filterClear": "クリア",
     "editSave": "保存",
     "editCancel": "キャンセル",
     "deleteReplyConfirm": "この返信を削除してもよろしいですか？",
@@ -601,7 +617,13 @@
     "notificationFavorite": "{name}さんがあなたの投稿をお気に入りしました",
     "notificationFavoriteReply": "{name}さんがあなたの返信をお気に入りしました",
     "notificationReply": "{name}さんがあなたの投稿に返信しました",
-    "notificationReplyToThread": "{name}さんがスレッドに返信しました"
+    "notificationReplyToThread": "{name}さんがスレッドに返信しました",
+    "recentSearches": "最近の検索",
+    "clearAll": "すべて削除",
+    "trendingHashtags": "トレンド",
+    "postsCount": "{count}件の投稿",
+    "noTrending": "トレンドはありません",
+    "deleteHistoryItem": "履歴を削除"
   },
   "tagFilter": {
     "title": "タグで絞り込み",
@@ -617,7 +639,11 @@
     "content": "内容",
     "comment": "その他・コメント",
     "updateFailed": "ページの更新に失敗しました",
-    "deleteFailed": "ページの削除に失敗しました"
+    "deleteFailed": "ページの削除に失敗しました",
+    "publicToggle": "他のユーザーに公開",
+    "publicEnabled": "稽古記録を公開しました",
+    "publicDisabled": "稽古記録を非公開にしました",
+    "publicToggleFailed": "公開設定の変更に失敗しました"
   },
   "tagSelection": {
     "add": "＋追加"
@@ -658,7 +684,7 @@
     "description": "あなたの基本情報と練習記録を管理できます"
   },
   "userInfoEdit": {
-    "title": "ユーザー情報の編集",
+    "title": "プロフィール編集",
     "description": "ユーザー情報を編集できます",
     "loading": "読み込み中...",
     "username": "ユーザー名",
@@ -690,9 +716,44 @@
     "usernameTaken": "このユーザー名は既に使用されています",
     "usernameCheckFailed": "ユーザー名の確認に失敗しました",
     "aikidoRank": "段級位",
-    "aikidoRankPlaceholder": "選択してください"
+    "aikidoRankPlaceholder": "選択してください",
+    "fullName": "名前",
+    "fullNamePlaceholder": "山田 太郎",
+    "bio": "自己紹介",
+    "bioPlaceholder": "自己紹介を入力してください（500文字以内）",
+    "otherInfo": "その他の情報",
+    "ageRange": "年代",
+    "ageRangeOptions": {
+      "lt20": "20歳未満",
+      "20s": "20代",
+      "30s": "30代",
+      "40s": "40代",
+      "50s": "50代",
+      "gt60": "60歳以上"
+    },
+    "gender": "性別",
+    "genderOptions": {
+      "male": "男性",
+      "female": "女性",
+      "other": "その他",
+      "not_specified": "回答しない"
+    }
+  },
+  "publicitySetting": {
+    "title": "公開範囲",
+    "description": "プロフィールや投稿を誰に見せるかを設定できます。",
+    "public": "公開",
+    "publicDescription": "すべてのAikiNoteユーザーに表示されます",
+    "closed": "フォロワーのみ",
+    "closedDescription": "同じ道場（流派）に所属するユーザーだけに表示されます",
+    "private": "非公開",
+    "privateDescription": "自分だけが閲覧できます。他のユーザーには「このプロフィールは非公開です」と表示されます",
+    "saveButton": "保存する",
+    "saved": "公開範囲を更新しました",
+    "saveFailed": "公開範囲の更新に失敗しました"
   },
   "mypageContent": {
+    "profileSection": "プロフィール",
     "userInfoSection": "ユーザー情報",
     "settingsSection": "設定",
     "otherSection": "その他",

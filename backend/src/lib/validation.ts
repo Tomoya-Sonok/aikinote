@@ -18,6 +18,7 @@ export const createPageSchema = z.object({
     .max(1000, "その他・コメントは1000文字以内で入力してください")
     .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
+  is_public: z.boolean().optional().default(false),
   created_at: z
     .string()
     .regex(
@@ -48,6 +49,7 @@ export const updatePageSchema = z.object({
     .max(1000, "その他・コメントは1000文字以内で入力してください")
     .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
+  is_public: z.boolean().optional(),
 });
 
 export type UpdatePageInput = z.infer<typeof updatePageSchema>;
@@ -59,6 +61,7 @@ export const pageResponseSchema = z.object({
   content: z.string(),
   comment: z.string(),
   user_id: z.string(),
+  is_public: z.boolean().default(false),
   created_at: z.string(),
   updated_at: z.string(),
 });
@@ -319,6 +322,7 @@ export const searchSocialPostsSchema = z.object({
   query: z.string().optional(),
   dojo_name: z.string().optional(),
   rank: z.string().optional(),
+  hashtag: z.string().optional(),
   limit: z
     .string()
     .optional()
@@ -334,6 +338,16 @@ export const searchSocialPostsSchema = z.object({
 });
 
 export type SearchSocialPostsInput = z.infer<typeof searchSocialPostsSchema>;
+
+// トレンドハッシュタグ取得
+export const getTrendingHashtagsSchema = z.object({
+  limit: z
+    .string()
+    .optional()
+    .default("10")
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().int().min(1).max(20)),
+});
 
 // 通知取得
 export const getNotificationsSchema = z.object({

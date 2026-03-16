@@ -12,12 +12,14 @@ import {
   getNotificationsProcedure,
   getPageProcedure,
   getPagesProcedure,
+  getPublicPagesFeedProcedure,
   getSocialFeedProcedure,
   getSocialPostByIdProcedure,
   getSocialProfileProcedure,
   getTagsProcedure,
   getTrainingDatesMonthProcedure,
   getTrainingStatsProcedure,
+  getTrendingHashtagsProcedure,
   getUnreadNotificationCountProcedure,
   getUnreadNotificationPostIdsProcedure,
   getUserInfoProcedure,
@@ -52,6 +54,7 @@ export const appRouter = createTRPCRouter({
     create: createPageProcedure,
     update: updatePageProcedure,
     remove: deletePageProcedure,
+    getPublicFeed: getPublicPagesFeedProcedure,
   }),
   stats: createTRPCRouter({
     get: getTrainingStatsProcedure,
@@ -96,6 +99,7 @@ export const appRouter = createTRPCRouter({
   }),
   socialSearch: createTRPCRouter({
     search: searchSocialPostsProcedure,
+    trending: getTrendingHashtagsProcedure,
   }),
   socialProfile: createTRPCRouter({
     get: getSocialProfileProcedure,

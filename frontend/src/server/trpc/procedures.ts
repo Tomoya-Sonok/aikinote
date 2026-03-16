@@ -25,6 +25,7 @@ type Page = {
   content: string;
   comment: string;
   user_id: string;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -68,12 +69,15 @@ type UserProfile = {
   email: string;
   username: string;
   profile_image_url: string | null;
+  full_name: string | null;
   dojo_style_name: string | null;
   dojo_style_id: string | null;
   training_start_date: string | null;
   bio: string | null;
   publicity_setting: string | null;
   aikido_rank: string | null;
+  age_range: string | null;
+  gender: string | null;
 };
 
 type TagStatItem = {
@@ -229,6 +233,7 @@ export const createPageProcedure = publicProcedure
       content: z.string(),
       comment: z.string(),
       user_id: z.string(),
+      is_public: z.boolean().optional(),
       created_at: z
         .string()
         .regex(
@@ -256,6 +261,7 @@ export const updatePageProcedure = publicProcedure
       content: z.string(),
       comment: z.string(),
       user_id: z.string(),
+      is_public: z.boolean().optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -263,6 +269,38 @@ export const updatePageProcedure = publicProcedure
       method: "PUT",
       body: JSON.stringify(input as UpdatePageInput),
     });
+  });
+
+export type PublicTrainingPage = {
+  id: string;
+  title: string;
+  content: string;
+  user_id: string;
+  is_public: boolean;
+  created_at: string;
+  User: {
+    username: string;
+    profile_image_url: string | null;
+    dojo_style_name: string | null;
+    aikido_rank: string | null;
+  };
+};
+
+export const getPublicPagesFeedProcedure = publicProcedure
+  .input(
+    z.object({
+      limit: z.number().int().positive().optional(),
+      offset: z.number().int().min(0).optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const params = new URLSearchParams();
+    if (input.limit) params.set("limit", String(input.limit));
+    if (input.offset) params.set("offset", String(input.offset));
+
+    return callHonoApi<
+      ApiResponse<{ pages: PublicTrainingPage[]; total_count: number }>
+    >(`/api/pages/public/feed?${params.toString()}`);
   });
 
 export const deletePageProcedure = publicProcedure
@@ -482,6 +520,7 @@ export const updateUserInfoProcedure = publicProcedure
     z.object({
       userId: z.string().min(1),
       username: z.string().optional(),
+      full_name: z.string().max(50).nullable().optional(),
       dojo_style_name: z.string().nullable().optional(),
       dojo_style_id: z.string().uuid().nullable().optional(),
       training_start_date: z.string().nullable().optional(),
@@ -489,6 +528,14 @@ export const updateUserInfoProcedure = publicProcedure
       bio: z.string().max(500).nullable().optional(),
       publicity_setting: z.enum(["public", "closed", "private"]).optional(),
       aikido_rank: z.string().nullable().optional(),
+      age_range: z
+        .enum(["lt20", "20s", "30s", "40s", "50s", "gt60"])
+        .nullable()
+        .optional(),
+      gender: z
+        .enum(["male", "female", "other", "not_specified"])
+        .nullable()
+        .optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -703,12 +750,15 @@ type SocialProfileData = {
     id: string;
     username: string;
     profile_image_url: string | null;
+    full_name: string | null;
     bio: string | null;
     aikido_rank: string | null;
     dojo_style_name: string | null;
   } | null;
   posts: SocialPostBasic[];
   total_favorites?: number;
+  total_pages: number;
+  public_pages: { id: string; title: string; created_at: string }[];
 };
 
 export const getSocialFeedProcedure = publicProcedure
@@ -953,6 +1003,7 @@ export const searchSocialPostsProcedure = publicProcedure
       query: z.string().optional(),
       dojoName: z.string().optional(),
       rank: z.string().optional(),
+      hashtag: z.string().optional(),
       limit: z.number().int().positive().optional(),
       offset: z.number().int().min(0).optional(),
     }),
@@ -965,6 +1016,7 @@ export const searchSocialPostsProcedure = publicProcedure
     if (input.query) params.set("query", input.query);
     if (input.dojoName) params.set("dojo_name", input.dojoName);
     if (input.rank) params.set("rank", input.rank);
+    if (input.hashtag) params.set("hashtag", input.hashtag);
     if (input.limit) params.set("limit", String(input.limit));
     if (input.offset) params.set("offset", String(input.offset));
 
@@ -974,6 +1026,29 @@ export const searchSocialPostsProcedure = publicProcedure
         headers: { Authorization: `Bearer ${token}` },
       },
     );
+  });
+
+export const getTrendingHashtagsProcedure = publicProcedure
+  .input(
+    z
+      .object({
+        limit: z.number().int().min(1).max(20).optional(),
+      })
+      .optional(),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const params = new URLSearchParams();
+    if (input?.limit) params.set("limit", String(input.limit));
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/api/social/search/trending?${queryString}`
+      : "/api/social/search/trending";
+
+    return callHonoApi<ApiResponse<{ name: string; count: number }[]>>(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
   });
 
 export const getSocialProfileProcedure = publicProcedure

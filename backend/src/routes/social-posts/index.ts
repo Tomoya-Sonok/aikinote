@@ -1,12 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
+import { extractHashtags } from "../../lib/hashtag.js";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import { containsNgWord } from "../../lib/ng-word.js";
 import {
   checkRateLimit,
   createNotification,
   createSocialPost,
+  createSocialPostHashtags,
   createSocialPostTags,
   createSocialReply,
   enrichSocialPosts,
@@ -14,11 +16,14 @@ import {
   getSocialPostById,
   getSocialPostWithDetails,
   getSocialReplyById,
+  getSourcePageData,
   softDeleteSocialPost,
   softDeleteSocialReply,
   updateSocialPost,
+  updateSocialPostHashtags,
   updateSocialPostTags,
   updateSocialReply,
+  upsertHashtags,
 } from "../../lib/supabase.js";
 import {
   createSocialPostSchema,
@@ -219,6 +224,17 @@ app.post("/", zValidator("json", createSocialPostSchema), async (c) => {
       await createSocialPostTags(supabase, post.id, input.tag_ids);
     }
 
+    // ハッシュタグ抽出・登録
+    const hashtagNames = extractHashtags(input.content);
+    if (hashtagNames.length > 0) {
+      const hashtags = await upsertHashtags(supabase, hashtagNames);
+      await createSocialPostHashtags(
+        supabase,
+        post.id,
+        hashtags.map((h) => h.id),
+      );
+    }
+
     return c.json(
       {
         success: true,
@@ -272,6 +288,16 @@ app.get("/:id", async (c) => {
       return c.json({ success: false, error: "この投稿は閲覧できません" }, 403);
     }
 
+    // training_record の場合、source_page_id からページデータを取得
+    let sourcePage = null;
+    if (
+      post.post_type === "training_record" &&
+      post.source_page_id &&
+      supabase
+    ) {
+      sourcePage = await getSourcePageData(supabase, post.source_page_id);
+    }
+
     return c.json({
       success: true,
       data: {
@@ -282,6 +308,7 @@ app.get("/:id", async (c) => {
           favorite_count:
             post.user_id === payload.userId ? post.favorite_count : undefined,
         },
+        source_page: sourcePage,
       },
     });
   } catch (error) {
@@ -348,6 +375,20 @@ app.put("/:id", zValidator("json", updateSocialPostSchema), async (c) => {
     // タグ更新
     if (input.tag_ids) {
       await updateSocialPostTags(supabase, postId, input.tag_ids);
+    }
+
+    // ハッシュタグ更新（contentが変更された場合）
+    if (input.content) {
+      const hashtagNames = extractHashtags(input.content);
+      const hashtags =
+        hashtagNames.length > 0
+          ? await upsertHashtags(supabase, hashtagNames)
+          : [];
+      await updateSocialPostHashtags(
+        supabase,
+        postId,
+        hashtags.map((h) => h.id),
+      );
     }
 
     return c.json({

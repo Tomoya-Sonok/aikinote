@@ -1,0 +1,32 @@
+/* コンテナは position: relative のみ。外部classNameは付けない */
+.container {
+  position: relative;
+  width: 100%;
+}
+
+/* ミラーDiv — textarea と完全に重なるよう absolute + inset: 0 */
+.mirror {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--black);
+  overflow: hidden;
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* textarea — position: relative で通常フローに配置 */
+.textarea {
+  position: relative;
+  width: 100%;
+  caret-color: var(--black);
+  resize: none;
+  outline: none;
+}
+
+/* ハッシュタグ部分のハイライトスタイル */
+.highlight {
+  color: var(--primary-color);
+  font-weight: 600;
+}

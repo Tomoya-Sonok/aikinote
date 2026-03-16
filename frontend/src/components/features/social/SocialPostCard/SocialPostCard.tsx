@@ -4,6 +4,7 @@ import { ChatDotsIcon, HeartIcon, ShareFatIcon } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { type FC, memo, useCallback } from "react";
 import { Button } from "@/components/shared/Button/Button";
+import { HashtagText } from "@/components/shared/HashtagText/HashtagText";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
@@ -44,7 +45,11 @@ export interface SocialFeedPostData {
   author: SocialPostAuthor;
   attachments: SocialPostAttachment[];
   tags: SocialPostTag[];
+  hashtags?: { id: string; name: string }[];
   is_favorited: boolean;
+  source_page_id?: string | null;
+  source_page_title?: string | null;
+  source_page_tags?: { name: string; category: string }[];
 }
 
 interface SocialPostCardProps {
@@ -135,7 +140,25 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
         </div>
 
         <div className={styles.content}>
-          <p className={styles.text}>{post.content}</p>
+          {post.post_type === "training_record" && post.source_page_title ? (
+            <>
+              <p className={styles.trainingTitle}>{post.source_page_title}</p>
+              {post.source_page_tags && post.source_page_tags.length > 0 && (
+                <div className={styles.tags}>
+                  {post.source_page_tags.map((tag) => (
+                    <Tag key={`${tag.category}-${tag.name}`}>{tag.name}</Tag>
+                  ))}
+                </div>
+              )}
+              <p className={styles.text}>
+                <HashtagText content={post.content} locale={locale} />
+              </p>
+            </>
+          ) : (
+            <p className={styles.text}>
+              <HashtagText content={post.content} locale={locale} />
+            </p>
+          )}
         </div>
 
         {post.attachments.length > 0 && (

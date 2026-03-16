@@ -22,6 +22,8 @@ import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/So
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { HashtagText } from "@/components/shared/HashtagText/HashtagText";
+import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { ChatLayout } from "@/components/shared/layouts/ChatLayout";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
@@ -62,6 +64,14 @@ interface SocialReplyData {
   is_favorited: boolean;
 }
 
+interface SourcePageData {
+  id: string;
+  title: string;
+  content: string;
+  comment: string;
+  tags: { name: string; category: string }[];
+}
+
 interface PostDetailData {
   post: {
     id: string;
@@ -73,6 +83,7 @@ interface PostDetailData {
     reply_count: number;
     created_at: string;
     updated_at: string;
+    source_page_id?: string | null;
   };
   attachments: {
     id: string;
@@ -90,6 +101,7 @@ interface PostDetailData {
   };
   replies: SocialReplyData[];
   is_favorited: boolean;
+  source_page?: SourcePageData | null;
 }
 
 interface SocialPostDetailProps {
@@ -505,7 +517,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
         {isEditing ? (
           <div className={styles.editSection}>
-            <textarea
+            <HashtagTextarea
               className={styles.editTextarea}
               value={editContent}
               onChange={(e) => setEditContent(e.target.value.slice(0, 2000))}
@@ -526,8 +538,33 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               </Button>
             </div>
           </div>
+        ) : detail.source_page &&
+          detail.post.post_type === "training_record" ? (
+          <div className={styles.notebookArea}>
+            <h2 className={styles.notebookTitle}>{detail.source_page.title}</h2>
+            {detail.source_page.tags.length > 0 && (
+              <div className={styles.tags}>
+                {detail.source_page.tags.map((tag) => (
+                  <Tag key={`${tag.category}-${tag.name}`}>{tag.name}</Tag>
+                ))}
+              </div>
+            )}
+            <div className={styles.notebookContent}>
+              {detail.source_page.content}
+            </div>
+            {detail.source_page.comment && (
+              <div className={styles.notebookComment}>
+                <span className={styles.notebookCommentLabel}>
+                  {t("comment")}
+                </span>
+                {detail.source_page.comment}
+              </div>
+            )}
+          </div>
         ) : (
-          <p className={styles.text}>{detail.post.content}</p>
+          <p className={styles.text}>
+            <HashtagText content={detail.post.content} locale={locale} />
+          </p>
         )}
 
         {detail.attachments.length > 0 && (
