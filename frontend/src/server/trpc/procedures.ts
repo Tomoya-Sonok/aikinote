@@ -36,9 +36,18 @@ type PageTag = {
   category: string;
 };
 
+type PageAttachment = {
+  id: string;
+  type: string;
+  url: string;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+};
+
 type PageWithTags = {
   page: Page;
   tags: PageTag[];
+  attachments?: PageAttachment[];
 };
 
 type PagesList = {

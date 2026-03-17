@@ -76,6 +76,17 @@ export const pageWithTagsResponseSchema = z.object({
       category: z.string(),
     }),
   ),
+  attachments: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.string(),
+        url: z.string(),
+        thumbnail_url: z.string().nullable(),
+        original_filename: z.string().nullable(),
+      }),
+    )
+    .optional(),
 });
 
 export type PageResponse = z.infer<typeof pageResponseSchema>;

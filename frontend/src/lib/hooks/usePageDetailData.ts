@@ -40,6 +40,7 @@ export function usePageDetailData(pageId: string) {
               is_public: response.data.page.is_public ?? false,
               date: response.data.page.created_at,
               tags: response.data.tags.map((tag) => tag.name),
+              attachments: response.data.attachments ?? [],
             };
             setPageData(convertedData);
 

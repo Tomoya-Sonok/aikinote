@@ -106,6 +106,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             is_public: item.page.is_public ?? false,
             date: formatToLocalDateString(item.page.created_at),
             tags: item.tags.map((tag) => tag.name),
+            attachments: item.attachments ?? [],
           }),
         );
 
@@ -167,6 +168,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           is_public: false,
           date: formatToLocalDateString(new Date().toISOString()),
           tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+          attachments: [],
         };
         setAllTrainingPageData((prev) => [optimisticPage, ...prev]);
 
@@ -231,6 +233,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
+            attachments: response.data.attachments ?? [],
           };
 
           setAllTrainingPageData((prev) =>
@@ -287,6 +290,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             originalPage.date ||
             formatToLocalDateString(new Date().toISOString()),
           tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+          attachments: originalPage.attachments ?? [],
         };
         return next;
       });
@@ -304,6 +308,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
+            attachments: response.data.attachments ?? [],
           };
 
           setAllTrainingPageData((prev) =>

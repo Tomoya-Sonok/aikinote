@@ -17,13 +17,13 @@ const ReportModal = dynamic(
   { ssr: false },
 );
 
+import { SocialEditModal } from "@/components/features/social/SocialEditModal/SocialEditModal";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/SocialReplyForm";
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { HashtagText } from "@/components/shared/HashtagText/HashtagText";
-import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { ChatLayout } from "@/components/shared/layouts/ChatLayout";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
@@ -40,7 +40,6 @@ import {
   reportReply,
   toggleFavorite,
   toggleReplyFavorite,
-  updateSocialPost,
   updateSocialReply,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -119,9 +118,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState("");
-  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -155,7 +152,14 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   }, [showMenu]);
 
   const handleBack = useCallback(() => {
-    window.location.href = `/${locale}/social/posts`;
+    if (
+      document.referrer?.startsWith(window.location.origin) &&
+      document.referrer.includes("/social/posts")
+    ) {
+      window.history.back();
+    } else {
+      window.location.href = `/${locale}/social/posts`;
+    }
   }, [locale]);
 
   const handleFavoriteToggle = useCallback(async () => {
@@ -358,37 +362,17 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   );
 
   const handleStartEdit = useCallback(() => {
-    if (!detail) return;
-    setEditContent(detail.post.content);
-    setIsEditing(true);
+    setIsEditModalOpen(true);
     setShowMenu(false);
-  }, [detail]);
-
-  const handleCancelEdit = useCallback(() => {
-    setIsEditing(false);
-    setEditContent("");
   }, []);
 
-  const handleSaveEdit = useCallback(async () => {
-    if (!editContent.trim() || isSavingEdit) return;
-    setIsSavingEdit(true);
-    try {
-      await updateSocialPost({
-        postId,
-        content: editContent.trim(),
-      });
-      const result = await getSocialPost(postId);
-      if (result.success && result.data) {
-        setDetail(result.data as PostDetailData);
-      }
-      setIsEditing(false);
-      showToast(t("editSuccess"), "success");
-    } catch {
-      showToast(t("editFailed"), "error");
-    } finally {
-      setIsSavingEdit(false);
+  const handleEditUpdate = useCallback(async () => {
+    // 編集後にデータをリフレッシュ
+    const result = await getSocialPost(postId);
+    if (result.success && result.data) {
+      setDetail(result.data as PostDetailData);
     }
-  }, [postId, editContent, isSavingEdit, showToast, t]);
+  }, [postId]);
 
   const handleShare = useCallback(async () => {
     if (!detail) return;
@@ -515,31 +499,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           </div>
         </div>
 
-        {isEditing ? (
-          <div className={styles.editSection}>
-            <HashtagTextarea
-              className={styles.editTextarea}
-              value={editContent}
-              onChange={(e) => setEditContent(e.target.value.slice(0, 2000))}
-              rows={6}
-              maxLength={2000}
-            />
-            <div className={styles.editActions}>
-              <Button size="small" onClick={handleCancelEdit}>
-                {t("editCancel")}
-              </Button>
-              <Button
-                variant="primary"
-                size="small"
-                onClick={handleSaveEdit}
-                disabled={!editContent.trim() || isSavingEdit}
-              >
-                {isSavingEdit ? "..." : t("editSave")}
-              </Button>
-            </div>
-          </div>
-        ) : detail.source_page &&
-          detail.post.post_type === "training_record" ? (
+        {detail.source_page && detail.post.post_type === "training_record" ? (
           <div className={styles.notebookArea}>
             <h2 className={styles.notebookTitle}>{detail.source_page.title}</h2>
             {detail.source_page.tags.length > 0 && (
@@ -633,6 +593,23 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         onSubmit={handleReportSubmit}
         title={t("reportTitle")}
       />
+
+      {detail && detail.post.post_type !== "training_record" && (
+        <SocialEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={handleEditUpdate}
+          postId={postId}
+          initialContent={detail.post.content}
+          initialAttachments={detail.attachments.map((a) => ({
+            id: a.id,
+            type: a.type as "image" | "video" | "youtube",
+            url: a.url,
+            thumbnail_url: a.thumbnail_url,
+            original_filename: a.original_filename,
+          }))}
+        />
+      )}
     </ChatLayout>
   );
 }

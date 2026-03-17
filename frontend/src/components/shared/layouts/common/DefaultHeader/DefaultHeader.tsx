@@ -49,7 +49,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 
   const handleUserInfoEditClick = () => {
     setIsDrawerOpen(false);
-    window.location.href = `/${locale}/mypage/user-info/edit`;
+    window.location.href = `/${locale}/profile/edit`;
   };
 
   const handleEmailClick = () => {
@@ -119,7 +119,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 
       <div className={styles.headerRight}>
         {showUserSection && user && (
-          <div className={styles.userSection}>
+          <Link href={`/${locale}/mypage`} className={styles.userSection}>
             {user.profile_image_url ? (
               <Image
                 src={user.profile_image_url}
@@ -145,7 +145,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                 </span>
               )}
             </div>
-          </div>
+          </Link>
         )}
 
         {showSettings && (

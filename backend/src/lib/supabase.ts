@@ -1838,9 +1838,47 @@ export const getSocialPostWithDetails = async (
     is_favorited: favoritedReplyIds.has(row.id),
   }));
 
+  // training_record の場合、PageAttachment をフォールバックとして取得
+  let finalAttachments = attachmentsResult.data ?? [];
+  if (
+    finalAttachments.length === 0 &&
+    post.post_type === "training_record" &&
+    post.source_page_id
+  ) {
+    const { data: pageAtts } = await supabaseClient
+      .from("PageAttachment")
+      .select(
+        "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+      )
+      .eq("page_id", post.source_page_id)
+      .order("sort_order", { ascending: true });
+    finalAttachments = (pageAtts ?? []).map(
+      (pa: {
+        id: string;
+        page_id: string;
+        type: string;
+        url: string;
+        thumbnail_url: string | null;
+        original_filename: string | null;
+        sort_order: number;
+      }) => ({
+        id: pa.id,
+        post_id: postId,
+        user_id: post.user_id,
+        type: pa.type,
+        url: pa.url,
+        thumbnail_url: pa.thumbnail_url,
+        original_filename: pa.original_filename,
+        file_size_bytes: null,
+        sort_order: pa.sort_order,
+        created_at: "",
+      }),
+    );
+  }
+
   return {
     post,
-    attachments: attachmentsResult.data ?? [],
+    attachments: finalAttachments,
     tags,
     author: authorResult.data ?? {
       id: post.user_id,
@@ -2568,8 +2606,10 @@ export const enrichSocialPosts = async (
   let sourcePagesData: any[] = [];
   // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
   let sourcePageTagsData: any[] = [];
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  let pageAttachmentsData: any[] = [];
   if (sourcePageIds.length > 0) {
-    const [pagesRes, pageTagsRes] = await Promise.all([
+    const [pagesRes, pageTagsRes, pageAttRes] = await Promise.all([
       supabaseClient
         .from("TrainingPage")
         .select("id, title")
@@ -2578,13 +2618,29 @@ export const enrichSocialPosts = async (
         .from("TrainingPageTag")
         .select("training_page_id, UserTag(name, category)")
         .in("training_page_id", sourcePageIds),
+      supabaseClient
+        .from("PageAttachment")
+        .select(
+          "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+        )
+        .in("page_id", sourcePageIds)
+        .order("sort_order", { ascending: true }),
     ]);
     sourcePagesData = pagesRes.data ?? [];
     sourcePageTagsData = pageTagsRes.data ?? [];
+    pageAttachmentsData = pageAttRes.data ?? [];
   }
 
   // ルックアップマップを構築
   const authorMap = new Map((authorsResult.data ?? []).map((a) => [a.id, a]));
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  const pageAttachmentMap = new Map<string, any[]>();
+  for (const att of pageAttachmentsData) {
+    const list = pageAttachmentMap.get(att.page_id) ?? [];
+    list.push(att);
+    pageAttachmentMap.set(att.page_id, list);
+  }
 
   const attachmentMap = new Map<string, typeof attachmentsResult.data>();
   for (const att of attachmentsResult.data ?? []) {
@@ -2664,7 +2720,32 @@ export const enrichSocialPosts = async (
         profile_image_url: null,
         aikido_rank: null,
       },
-      attachments: attachmentMap.get(post.id) ?? [],
+      attachments: (() => {
+        const postAtts = attachmentMap.get(post.id) ?? [];
+        if (postAtts.length > 0) return postAtts;
+        if (!post.source_page_id) return [];
+        return (pageAttachmentMap.get(post.source_page_id) ?? []).map(
+          (pa: {
+            id: string;
+            type: string;
+            url: string;
+            thumbnail_url: string | null;
+            original_filename: string | null;
+            sort_order: number;
+          }) => ({
+            id: pa.id,
+            post_id: post.id,
+            user_id: post.user_id,
+            type: pa.type,
+            url: pa.url,
+            thumbnail_url: pa.thumbnail_url,
+            original_filename: pa.original_filename,
+            file_size_bytes: null,
+            sort_order: pa.sort_order,
+            created_at: "",
+          }),
+        );
+      })(),
       tags: tagMap.get(post.id) ?? [],
       hashtags: hashtagMap.get(post.id) ?? [],
       is_favorited: favoritedPostIds.has(post.id),

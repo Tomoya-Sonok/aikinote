@@ -107,6 +107,29 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
       sortOrder: sort_order,
     });
 
+    // 添付ファイルをバッチ取得
+    const pageIds = pagesWithTags.map(({ page }) => page.id);
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+    let attachmentsData: any[] = [];
+    if (pageIds.length > 0) {
+      const { data } = await supabase
+        .from("PageAttachment")
+        .select(
+          "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+        )
+        .in("page_id", pageIds)
+        .order("sort_order", { ascending: true });
+      attachmentsData = data ?? [];
+    }
+
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+    const attachmentMap = new Map<string, any[]>();
+    for (const att of attachmentsData) {
+      const list = attachmentMap.get(att.page_id) ?? [];
+      list.push(att);
+      attachmentMap.set(att.page_id, list);
+    }
+
     // レスポンス形式に変換
     const trainingPages = pagesWithTags.map(({ page, tags }) => ({
       page: {
@@ -124,6 +147,21 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
         name: tag.name,
         category: tag.category,
       })),
+      attachments: (attachmentMap.get(page.id) ?? []).map(
+        (att: {
+          id: string;
+          type: string;
+          url: string;
+          thumbnail_url: string | null;
+          original_filename: string | null;
+        }) => ({
+          id: att.id,
+          type: att.type,
+          url: att.url,
+          thumbnail_url: att.thumbnail_url,
+          original_filename: att.original_filename,
+        }),
+      ),
     }));
 
     const response: ApiResponse<PagesListResponse> = {

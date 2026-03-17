@@ -2,7 +2,7 @@
 
 import { ChatDotsIcon, HeartIcon, ShareFatIcon } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
-import { type FC, memo, useCallback } from "react";
+import { type FC, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
 import { HashtagText } from "@/components/shared/HashtagText/HashtagText";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
@@ -71,6 +71,17 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     const t = useTranslations("socialPosts");
     const locale = useLocale();
     const { showToast } = useToast();
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isTruncated, setIsTruncated] = useState(false);
+    const textRef = useRef<HTMLParagraphElement>(null);
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: post.content はエフェクト内で直接参照しないが、内容変更時にDOM高さを再計測する必要がある
+    useEffect(() => {
+      const el = textRef.current;
+      if (el) {
+        setIsTruncated(el.scrollHeight > el.clientHeight);
+      }
+    }, [post.content]);
 
     const handleShare = useCallback(
       async (e: React.MouseEvent) => {
@@ -150,14 +161,32 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
                   ))}
                 </div>
               )}
-              <p className={styles.text}>
+              <p
+                ref={textRef}
+                className={`${styles.text} ${isExpanded ? styles.textExpanded : ""}`}
+              >
                 <HashtagText content={post.content} locale={locale} />
               </p>
             </>
           ) : (
-            <p className={styles.text}>
+            <p
+              ref={textRef}
+              className={`${styles.text} ${isExpanded ? styles.textExpanded : ""}`}
+            >
               <HashtagText content={post.content} locale={locale} />
             </p>
+          )}
+          {(isTruncated || isExpanded) && (
+            <button
+              type="button"
+              className={styles.showMoreButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded((prev) => !prev);
+              }}
+            >
+              {isExpanded ? t("showLess") : t("showMore")}
+            </button>
           )}
         </div>
 

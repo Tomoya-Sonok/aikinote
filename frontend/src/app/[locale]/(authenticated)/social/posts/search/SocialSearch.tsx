@@ -129,6 +129,7 @@ export function SocialSearch() {
     new Set<"post" | "training_record">(["post", "training_record"]),
   );
   const [showFilters, setShowFilters] = useState(false);
+  const isInitializedRef = useRef(false);
   const rankFilterId = useId();
   const { results, isLoading, search, updateResult } = useSocialSearch(
     user?.id,
@@ -138,24 +139,89 @@ export function SocialSearch() {
     useSearchHistory();
   const { trending, isLoading: trendingLoading } = useTrendingHashtags();
 
-  // URLパラメータからハッシュタグを読み取り（HashtagTextリンクからの遷移対応）
+  // URLパラメータから検索条件を読み取り・復元（ブラウザバック/ハッシュタグリンク対応）
   // biome-ignore lint/correctness/useExhaustiveDependencies: 初回マウント + user.id 確定時のみ実行
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !user?.id) return;
     const params = new URLSearchParams(window.location.search);
     const hashtagParam = params.get("hashtag");
-    if (hashtagParam && user?.id) {
+    const qParam = params.get("q");
+    const dojoParam = params.get("dojo");
+    const rankParam = params.get("rank");
+    const typeParam = params.get("type");
+    const validType =
+      typeParam === "post" || typeParam === "training_record"
+        ? typeParam
+        : undefined;
+
+    if (dojoParam) setDojoName(dojoParam);
+    if (rankParam) setRank(rankParam);
+    if (validType)
+      setPostTypes(new Set<"post" | "training_record">([validType]));
+    if (dojoParam || rankParam || validType) setShowFilters(true);
+
+    if (hashtagParam) {
       const searchQuery = `#${hashtagParam}`;
       searchBarRef.current?.setQuery(searchQuery);
-      search(searchQuery, undefined, undefined, hashtagParam);
+      search(
+        searchQuery,
+        dojoParam || undefined,
+        rankParam || undefined,
+        hashtagParam,
+        validType,
+      );
       addToHistory(searchQuery);
+    } else if (qParam) {
+      searchBarRef.current?.setQuery(qParam);
+      search(
+        qParam,
+        dojoParam || undefined,
+        rankParam || undefined,
+        undefined,
+        validType,
+      );
+    } else if (dojoParam || rankParam || validType) {
+      search(
+        "",
+        dojoParam || undefined,
+        rankParam || undefined,
+        undefined,
+        validType,
+      );
     }
+
+    isInitializedRef.current = true;
   }, [user?.id]);
 
   const getPostTypeParam = useCallback(
     (types: Set<"post" | "training_record">) => {
       if (types.size === 2) return undefined;
       return types.values().next().value as "post" | "training_record";
+    },
+    [],
+  );
+
+  const syncUrlParams = useCallback(
+    (params: {
+      q?: string;
+      hashtag?: string;
+      dojo?: string;
+      rank?: string;
+      type?: string;
+    }) => {
+      if (!isInitializedRef.current) return;
+      const url = new URL(window.location.href);
+      url.searchParams.delete("q");
+      url.searchParams.delete("hashtag");
+      url.searchParams.delete("dojo");
+      url.searchParams.delete("rank");
+      url.searchParams.delete("type");
+      for (const [key, value] of Object.entries(params)) {
+        if (value) {
+          url.searchParams.set(key, value);
+        }
+      }
+      window.history.replaceState(null, "", url.toString());
     },
     [],
   );
@@ -176,8 +242,14 @@ export function SocialSearch() {
   const handleSearchBarSearch = useCallback(
     (q: string) => {
       triggerSearch(q, dojoName, rank);
+      syncUrlParams({
+        q: q.trim() || undefined,
+        dojo: dojoName || undefined,
+        rank: rank || undefined,
+        type: getPostTypeParam(postTypes),
+      });
     },
-    [triggerSearch, dojoName, rank],
+    [triggerSearch, dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleSearchBarSubmit = useCallback(
@@ -202,48 +274,64 @@ export function SocialSearch() {
     (dojoStyle: DojoStyleOption) => {
       setDojoName(dojoStyle.dojo_name);
       setDojoStyleId(dojoStyle.id);
-      triggerSearch(
-        searchBarRef.current?.getQuery() ?? "",
-        dojoStyle.dojo_name,
-        rank,
-      );
+      const q = searchBarRef.current?.getQuery() ?? "";
+      triggerSearch(q, dojoStyle.dojo_name, rank);
+      syncUrlParams({
+        q: q.trim() || undefined,
+        dojo: dojoStyle.dojo_name || undefined,
+        rank: rank || undefined,
+        type: getPostTypeParam(postTypes),
+      });
     },
-    [triggerSearch, rank],
+    [triggerSearch, rank, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleDojoStyleClear = useCallback(() => {
     setDojoName("");
     setDojoStyleId(null);
-    triggerSearch(searchBarRef.current?.getQuery() ?? "", "", rank);
-  }, [triggerSearch, rank]);
+    const q = searchBarRef.current?.getQuery() ?? "";
+    triggerSearch(q, "", rank);
+    syncUrlParams({
+      q: q.trim() || undefined,
+      rank: rank || undefined,
+      type: getPostTypeParam(postTypes),
+    });
+  }, [triggerSearch, rank, syncUrlParams, getPostTypeParam, postTypes]);
 
   const handlePostTypeToggle = useCallback(
     (type: "post" | "training_record") => {
-      setPostTypes((prev) => {
-        const next = new Set(prev);
-        if (next.has(type) && next.size > 1) {
-          next.delete(type);
-        } else {
-          next.add(type);
-        }
-        triggerSearch(
-          searchBarRef.current?.getQuery() ?? "",
-          dojoName,
-          rank,
-          next,
-        );
-        return next;
+      const next = new Set(postTypes);
+      if (next.has(type) && next.size > 1) {
+        next.delete(type);
+      } else {
+        next.add(type);
+      }
+      setPostTypes(next);
+      const q = searchBarRef.current?.getQuery() ?? "";
+      triggerSearch(q, dojoName, rank, next);
+      syncUrlParams({
+        q: q.trim() || undefined,
+        dojo: dojoName || undefined,
+        rank: rank || undefined,
+        type: getPostTypeParam(next),
       });
     },
-    [triggerSearch, dojoName, rank],
+    [postTypes, triggerSearch, dojoName, rank, syncUrlParams, getPostTypeParam],
   );
 
   const handleRankChange = useCallback(
     (value: string) => {
       setRank(value);
-      triggerSearch(searchBarRef.current?.getQuery() ?? "", dojoName, value);
+      const q = searchBarRef.current?.getQuery() ?? "";
+      triggerSearch(q, dojoName, value);
+      syncUrlParams({
+        q: q.trim() || undefined,
+        dojo: dojoName || undefined,
+        rank: value || undefined,
+        type: getPostTypeParam(postTypes),
+      });
     },
-    [triggerSearch, dojoName],
+    [triggerSearch, dojoName, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleFavoriteToggle = useCallback(
@@ -269,8 +357,22 @@ export function SocialSearch() {
       searchBarRef.current?.setQuery(historyQuery);
       triggerSearch(historyQuery, dojoName, rank);
       addToHistory(historyQuery);
+      syncUrlParams({
+        q: historyQuery.trim() || undefined,
+        dojo: dojoName || undefined,
+        rank: rank || undefined,
+        type: getPostTypeParam(postTypes),
+      });
     },
-    [triggerSearch, dojoName, rank, addToHistory],
+    [
+      triggerSearch,
+      dojoName,
+      rank,
+      addToHistory,
+      syncUrlParams,
+      getPostTypeParam,
+      postTypes,
+    ],
   );
 
   const handleTrendingClick = useCallback(
@@ -284,30 +386,45 @@ export function SocialSearch() {
         hashtagName,
       );
       addToHistory(searchQuery);
+      syncUrlParams({
+        hashtag: hashtagName,
+        dojo: dojoName || undefined,
+        rank: rank || undefined,
+        type: getPostTypeParam(postTypes),
+      });
     },
-    [search, dojoName, rank, addToHistory],
+    [
+      search,
+      dojoName,
+      rank,
+      addToHistory,
+      syncUrlParams,
+      getPostTypeParam,
+      postTypes,
+    ],
   );
 
   const handleFilterToggle = useCallback(() => {
-    setShowFilters((prev) => {
-      const willHide = prev;
-      if (willHide) {
-        setDojoName("");
-        setDojoStyleId(null);
-        setRank("");
-        setPostTypes(
-          new Set<"post" | "training_record">(["post", "training_record"]),
-        );
-        triggerSearch(
-          searchBarRef.current?.getQuery() ?? "",
-          "",
-          "",
-          new Set<"post" | "training_record">(["post", "training_record"]),
-        );
-      }
-      return !prev;
-    });
-  }, [triggerSearch]);
+    if (showFilters) {
+      setDojoName("");
+      setDojoStyleId(null);
+      setRank("");
+      setPostTypes(
+        new Set<"post" | "training_record">(["post", "training_record"]),
+      );
+      const q = searchBarRef.current?.getQuery() ?? "";
+      triggerSearch(
+        q,
+        "",
+        "",
+        new Set<"post" | "training_record">(["post", "training_record"]),
+      );
+      syncUrlParams({
+        q: q.trim() || undefined,
+      });
+    }
+    setShowFilters((prev) => !prev);
+  }, [showFilters, triggerSearch, syncUrlParams]);
 
   const hasActiveFilters =
     dojoName.trim() !== "" || rank !== "" || postTypes.size < 2;

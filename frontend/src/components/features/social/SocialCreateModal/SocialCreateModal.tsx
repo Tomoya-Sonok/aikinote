@@ -20,6 +20,7 @@ import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { useToast } from "@/contexts/ToastContext";
 import {
   type CreateTagPayload,
+  createAttachment,
   createPage,
   createSocialPost,
   createTag,
@@ -328,6 +329,31 @@ export const SocialCreateModal: FC<SocialCreateModalProps> = ({
       });
 
       if (result.success) {
+        const pageId = result.data?.page?.id;
+
+        // 添付ファイルを PageAttachment に保存
+        if (pageId && trainingAttachments.length > 0) {
+          for (const attachment of trainingAttachments) {
+            try {
+              const attachmentPayload: Record<string, unknown> = {
+                page_id: pageId,
+                type: attachment.type,
+                original_filename: attachment.original_filename ?? null,
+                file_size_bytes: attachment.file_size_bytes ?? null,
+                thumbnail_url: attachment.thumbnail_url ?? null,
+              };
+              if (attachment.type === "youtube") {
+                attachmentPayload.url = attachment.url;
+              } else {
+                attachmentPayload.file_key = attachment._fileKey;
+              }
+              await createAttachment(attachmentPayload);
+            } catch (attachError) {
+              console.warn("添付メタデータの保存に失敗:", attachError);
+            }
+          }
+        }
+
         // 稽古参加登録（カレンダーに◯を付ける）
         try {
           const createdAt =
@@ -362,6 +388,7 @@ export const SocialCreateModal: FC<SocialCreateModalProps> = ({
     selectedTori,
     selectedUke,
     selectedWaza,
+    trainingAttachments,
     showToast,
     tSocial,
     onCreated,

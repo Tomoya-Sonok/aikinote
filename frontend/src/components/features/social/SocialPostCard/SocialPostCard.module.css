@@ -103,11 +103,29 @@
   overflow: hidden;
 }
 
+.textExpanded {
+  display: block;
+  line-clamp: unset;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow: visible;
+}
+
+.showMoreButton {
+  background: none;
+  border: none;
+  padding: 4px 0 0;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
 .actions {
