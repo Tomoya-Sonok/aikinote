@@ -183,7 +183,7 @@ describe("ページ一覧画面", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("ページ一覧が正常に表示されること", async () => {
+  it("ページ一覧取得成功時にページタイトルが描画される", async () => {
     // Arrange
     const mockPagesResponse = {
       success: true,
@@ -309,7 +309,7 @@ describe("ページ一覧画面", () => {
     });
   });
 
-  it("読み込み中の状態が表示されること", async () => {
+  it("API応答待ちの間にスケルトンが描画される", async () => {
     // Arrange
     mockGetPages.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 1000)),
@@ -328,7 +328,7 @@ describe("ページ一覧画面", () => {
     expect(screen.getByTestId("training-card-skeleton")).toBeInTheDocument();
   });
 
-  it("ユーザー情報取得中でもクラッシュせず描画できること", async () => {
+  it("ユーザー情報がnullかつloading中でもクラッシュせずスケルトンが描画される", async () => {
     // Arrange
     mockUseAuth.mockReturnValue({
       user: null,
@@ -359,7 +359,7 @@ describe("ページ一覧画面", () => {
     expect(screen.getByTestId("training-card-skeleton")).toBeInTheDocument();
   });
 
-  it("ページが存在しない場合に空の状態が表示されること", async () => {
+  it("ページが0件の場合にTrainingCardが描画されない", async () => {
     // Arrange
     const mockEmptyResponse = {
       success: true,
@@ -384,7 +384,7 @@ describe("ページ一覧画面", () => {
     expect(screen.queryByTestId("training-card")).not.toBeInTheDocument();
   });
 
-  it("API呼び出しが正しいパラメータで実行されること", async () => {
+  it("初回レンダリング時にgetPagesがデフォルトパラメータで呼ばれる", async () => {
     // Arrange
     const mockPagesResponse = {
       success: true,
@@ -507,7 +507,7 @@ describe("ページ一覧画面", () => {
     });
   });
 
-  it("25件のページが表示される場合に正しく表示されること", async () => {
+  it("25件取得時にtotal_count=25なら「全25件表示中」と表示される", async () => {
     // Arrange
     const createMockPages = (count: number) =>
       Array.from({ length: count }, (_, i) => ({
@@ -556,7 +556,7 @@ describe("ページ一覧画面", () => {
     });
   });
 
-  it("25件を超えるページがある場合にもっと見るボタンが表示されること", async () => {
+  it("total_countが取得件数を超える場合に「もっと見る」ボタンが表示される", async () => {
     // Arrange
     const createMockPages = (count: number) =>
       Array.from({ length: count }, (_, i) => ({

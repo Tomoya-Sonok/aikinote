@@ -12,7 +12,8 @@ describe("稽古参加日API", () => {
     vi.clearAllMocks();
   });
 
-  it("月次データを取得できること", async () => {
+  it("year・month・user_id指定時に稽古日一覧とページ件数を返す", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "getTrainingDatesByMonth").mockResolvedValue([
       {
         id: "td-1",
@@ -29,18 +30,21 @@ describe("稽古参加日API", () => {
       },
     ]);
 
+    // Act
     const response = await app.fetch(
       new Request("http://localhost/?user_id=user-1&year=2026&month=3"),
     );
     const body = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.data.training_dates).toHaveLength(1);
     expect(body.data.page_counts).toHaveLength(1);
   });
 
-  it("参加登録(upsert)できること", async () => {
+  it("PUTリクエストで稽古参加日をupsertし200を返す", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "upsertTrainingDateAttendance").mockResolvedValue({
       id: "td-1",
       user_id: "user-1",
@@ -49,6 +53,7 @@ describe("稽古参加日API", () => {
       created_at: "2026-03-05T00:00:00.000Z",
     });
 
+    // Act
     const response = await app.fetch(
       new Request("http://localhost/", {
         method: "PUT",
@@ -63,16 +68,19 @@ describe("稽古参加日API", () => {
     );
     const body = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.data.training_date).toBe("2026-03-05");
   });
 
-  it("稽古参加を取り消し時にレコードを削除できること", async () => {
+  it("DELETEリクエストでdeleteTrainingDateAttendanceが呼ばれ200を返す", async () => {
+    // Arrange
     const deleteSpy = vi
       .spyOn(supabaseModule, "deleteTrainingDateAttendance")
       .mockResolvedValue();
 
+    // Act
     const response = await app.fetch(
       new Request("http://localhost/?user_id=user-1&training_date=2026-03-05", {
         method: "DELETE",
@@ -80,33 +88,40 @@ describe("稽古参加日API", () => {
     );
     const body = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(deleteSpy).toHaveBeenCalledWith("user-1", "2026-03-05");
   });
 
-  it("必須クエリ欠落時にバリデーションエラーを返すこと", async () => {
-    const response = await app.fetch(
-      new Request("http://localhost/?year=2026&month=3"),
-    );
+  it("user_id未指定の場合に400を返す", async () => {
+    // Arrange
+    const request = new Request("http://localhost/?year=2026&month=3");
 
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
     expect(response.status).toBe(400);
   });
 
-  it("不正な日付フォーマットはバリデーションエラーを返すこと", async () => {
-    const response = await app.fetch(
-      new Request("http://localhost/", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: "user-1",
-          training_date: "2026/03/05",
-        }),
+  it("日付がYYYY-MM-DD形式でない場合に400を返す", async () => {
+    // Arrange
+    const request = new Request("http://localhost/", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: "user-1",
+        training_date: "2026/03/05",
       }),
-    );
+    });
 
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
     expect(response.status).toBe(400);
   });
 });

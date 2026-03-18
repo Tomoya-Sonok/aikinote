@@ -138,7 +138,7 @@ describe("PageEditModal", () => {
     expect(screen.getByText("ページ編集")).toBeInTheDocument();
   });
 
-  it("初期データがフォームフィールドに正しく表示される", async () => {
+  it("isOpen=trueの場合にinitialDataのtitle・bodyがフォームに反映される", async () => {
     // Arrange: 初期データを含むプロパティを準備する
     const mockOnClose = vi.fn();
     const mockOnUpdate = vi.fn();
@@ -160,27 +160,7 @@ describe("PageEditModal", () => {
     ).toBeInTheDocument();
   });
 
-  it("更新ボタンが表示される", async () => {
-    // Arrange: モーダルが開いている状態でプロパティを準備する
-    const mockOnClose = vi.fn();
-    const mockOnUpdate = vi.fn();
-    const isOpen = true;
-
-    // Act: モーダルをレンダリングする
-    render(
-      <PageEditModal
-        isOpen={isOpen}
-        onClose={mockOnClose}
-        onUpdate={mockOnUpdate}
-        initialData={testInitialData}
-      />,
-    );
-
-    // Assert: 更新ボタンが表示される
-    expect(screen.getByText("更新")).toBeInTheDocument();
-  });
-
-  it("更新ボタンをクリックするとonUpdateが正しいデータで呼ばれる", async () => {
+  it("更新ボタンをクリックするとonUpdateがページデータとuser_idで呼ばれる", async () => {
     // Arrange: モーダルが開いている状態でプロパティを準備する
     const user = userEvent.setup();
     const mockOnClose = vi.fn();

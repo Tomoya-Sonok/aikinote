@@ -25,28 +25,35 @@ describe("DatePickerModal", () => {
     });
   });
 
-  it("renders title and inputs when open", () => {
+  it("isOpen=trueの場合にタイトルと開始日・終了日入力欄が描画される", () => {
+    // Arrange
+    const isOpen = true;
+
+    // Act
     render(
       <I18nTestProvider>
         <DatePickerModal
-          isOpen={true}
+          isOpen={isOpen}
           onClose={mockOnClose}
           onDateSelect={mockOnDateSelect}
         />
       </I18nTestProvider>,
     );
 
+    // Assert
     expect(screen.getByText("日付で絞り込み")).toBeInTheDocument();
     expect(screen.getByLabelText("開始日")).toBeInTheDocument();
     expect(screen.getByLabelText("終了日")).toBeInTheDocument();
   });
 
-  it("pre-populates date inputs from selectedRange", () => {
+  it("selectedRangeを渡すと開始日・終了日に初期値がセットされる", () => {
+    // Arrange
     const selectedRange: DateRangeSelection = {
       startDate: new Date(2024, 0, 5),
       endDate: new Date(2024, 0, 12),
     };
 
+    // Act
     render(
       <I18nTestProvider>
         <DatePickerModal
@@ -58,13 +65,16 @@ describe("DatePickerModal", () => {
       </I18nTestProvider>,
     );
 
+    // Assert
     expect(screen.getByLabelText("開始日")).toHaveValue("2024-01-05");
     expect(screen.getByLabelText("終了日")).toHaveValue("2024-01-12");
   });
 
-  it("calls onDateSelect with range when filter button clicked", async () => {
+  it("絞り込みボタンをクリックするとonDateSelectが入力した日付範囲で呼ばれる", async () => {
+    // Arrange
     const user = userEvent.setup();
 
+    // Act
     render(
       <I18nTestProvider>
         <DatePickerModal
@@ -79,6 +89,7 @@ describe("DatePickerModal", () => {
     await user.type(screen.getByLabelText("終了日"), "2024-01-07");
     await user.click(screen.getByText("絞り込み"));
 
+    // Assert
     expect(mockOnDateSelect).toHaveBeenCalledWith({
       startDate: new Date("2024-01-03T00:00:00"),
       endDate: new Date("2024-01-07T00:00:00"),

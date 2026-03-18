@@ -12,7 +12,8 @@ describe("ページ作成API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常なリクエストでページが作成されること", async () => {
+  it("有効なリクエストボディでページが作成され201を返す", async () => {
+    // Arrange
     const mockCreatedPage = {
       page: {
         id: "test-page-id",
@@ -74,9 +75,11 @@ describe("ページ作成API", () => {
       body: JSON.stringify(requestBody),
     });
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(201);
     expect(responseBody.success).toBe(true);
     expect(responseBody.message).toBe("ページが正常に作成されました");
@@ -144,6 +147,7 @@ describe("ページ作成API", () => {
   });
 
   it("必須フィールドが不足している場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const requestBody = {
       content: "今日は基本動作の稽古を行いました",
       user_id: "test-user-id",
@@ -157,12 +161,15 @@ describe("ページ作成API", () => {
       body: JSON.stringify(requestBody),
     });
 
+    // Act
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("タイトルが100文字を超える場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const longTitle = "あ".repeat(101);
     const requestBody = {
       title: longTitle,
@@ -178,12 +185,15 @@ describe("ページ作成API", () => {
       body: JSON.stringify(requestBody),
     });
 
+    // Act
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("稽古内容が3000文字を超える場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const longContent = "あ".repeat(3001);
     const requestBody = {
       title: "テスト稽古ページ",
@@ -199,12 +209,15 @@ describe("ページ作成API", () => {
       body: JSON.stringify(requestBody),
     });
 
+    // Act
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("コメントが1000文字を超える場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const longComment = "あ".repeat(1001);
     const requestBody = {
       title: "テスト稽古ページ",
@@ -221,12 +234,15 @@ describe("ページ作成API", () => {
       body: JSON.stringify(requestBody),
     });
 
+    // Act
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "createTrainingPage").mockRejectedValue(
       new Error("データベース接続エラー"),
     );
@@ -245,9 +261,11 @@ describe("ページ作成API", () => {
       body: JSON.stringify(requestBody),
     });
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("データベース接続エラー");
@@ -263,7 +281,7 @@ describe("ページ詳細取得API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常なリクエストでページ詳細が取得されること", async () => {
+  it("有効なページIDとuser_idでページ詳細と200を返す", async () => {
     // Arrange
     const mockPageWithTags = {
       page: {
@@ -406,7 +424,7 @@ describe("ページ詳細取得API", () => {
     expect(responseBody.error).toBe("データベース接続エラー");
   });
 
-  it("タグが存在しないページの詳細が正常に取得されること", async () => {
+  it("タグが0件のページでもページ詳細と空タグ配列を返す", async () => {
     // Arrange
     const mockPageWithoutTags = {
       page: {
@@ -475,7 +493,8 @@ describe("ページ一覧取得API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常なリクエストでページ一覧が取得されること", async () => {
+  it("user_idとlimit指定時にページ一覧と200を返す", async () => {
+    // Arrange
     const mockPagesWithTags: PageWithTags[] = [
       {
         page: {
@@ -526,9 +545,11 @@ describe("ページ一覧取得API", () => {
       },
     );
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(responseBody.success).toBe(true);
     expect(responseBody.message).toBe("ページ一覧を取得しました");
@@ -539,16 +560,19 @@ describe("ページ一覧取得API", () => {
   });
 
   it("user_idが未指定の場合にバリデーションエラーが返されること", async () => {
+    // Arrange & Act
     const request = new Request("http://localhost/?limit=20", {
       method: "GET",
     });
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("limitが1未満の場合にバリデーションエラーが返されること", async () => {
+    // Arrange & Act
     const request = new Request(
       "http://localhost/?user_id=test-user-id&limit=0",
       {
@@ -558,6 +582,7 @@ describe("ページ一覧取得API", () => {
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
@@ -577,7 +602,7 @@ describe("ページ一覧取得API", () => {
     expect(response.status).toBe(400);
   });
 
-  it("limit=100の場合に正常に処理されること", async () => {
+  it("limit=100の場合にgetTrainingPagesがlimit:100で呼ばれる", async () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [
       {
@@ -625,7 +650,7 @@ describe("ページ一覧取得API", () => {
     });
   });
 
-  it("offsetパラメータが正常に処理されること", async () => {
+  it("offset=40の場合にgetTrainingPagesがoffset:40で呼ばれる", async () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
@@ -659,7 +684,7 @@ describe("ページ一覧取得API", () => {
     });
   });
 
-  it("queryパラメータが正常に処理されること", async () => {
+  it("query指定時にgetTrainingPagesにquery値が渡される", async () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
@@ -693,7 +718,7 @@ describe("ページ一覧取得API", () => {
     });
   });
 
-  it("tagsパラメータが正常に処理されること", async () => {
+  it("tags指定時にgetTrainingPagesにtags値が渡される", async () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
@@ -727,7 +752,7 @@ describe("ページ一覧取得API", () => {
     });
   });
 
-  it("dateパラメータが正常に処理されること", async () => {
+  it("date指定時にgetTrainingPagesにdate値が渡される", async () => {
     // Arrange
     const mockPagesWithTags: PageWithTags[] = [];
 
@@ -762,6 +787,7 @@ describe("ページ一覧取得API", () => {
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "getTrainingPages").mockRejectedValue(
       new Error("データベース接続エラー"),
     );
@@ -770,15 +796,18 @@ describe("ページ一覧取得API", () => {
       method: "GET",
     });
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("データベース接続エラー");
   });
 
-  it("ページが存在しない場合に空の配列が返されること", async () => {
+  it("ページが0件の場合に空配列と200を返す", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
       pages: [],
       totalCount: 0,
@@ -788,9 +817,11 @@ describe("ページ一覧取得API", () => {
       method: "GET",
     });
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(responseBody.success).toBe(true);
     expect(responseBody.data.training_pages).toHaveLength(0);
@@ -806,7 +837,8 @@ describe("ページ削除API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常にページが削除されること", async () => {
+  it("有効なページIDとuser_idでページを削除し200を返す", async () => {
+    // Arrange
     const deleteSpy = vi
       .spyOn(supabaseModule, "deleteTrainingPage")
       .mockResolvedValue();
@@ -818,9 +850,11 @@ describe("ページ削除API", () => {
       },
     );
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(responseBody.success).toBe(true);
     expect(responseBody.message).toBe("ページが正常に削除されました");
@@ -828,16 +862,19 @@ describe("ページ削除API", () => {
   });
 
   it("user_idが指定されていない場合にバリデーションエラーが返されること", async () => {
+    // Arrange & Act
     const request = new Request("http://localhost/test-page-id", {
       method: "DELETE",
     });
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("削除処理でエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "deleteTrainingPage").mockRejectedValue(
       new Error("削除に失敗しました"),
     );
@@ -849,9 +886,11 @@ describe("ページ削除API", () => {
       },
     );
 
+    // Act
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("削除に失敗しました");
