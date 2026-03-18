@@ -2447,7 +2447,8 @@ export const getSocialProfile = async (
     publicity_setting: string | null;
     full_name: string | null;
   } | null;
-  posts: SocialPostRow[];
+  // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
+  posts: any[];
   total_favorites?: number;
   total_pages: number;
   public_pages: { id: string; title: string; created_at: string }[];
@@ -2519,17 +2520,25 @@ export const getSocialProfile = async (
   const totalPagesCount = totalPagesResult.count;
   const publicPages = publicPagesResult.data;
 
+  // 投稿データをエンリッチ（author, attachments, tags, hashtags, is_favorited 等を付与）
+  const enrichedPosts = await enrichSocialPosts(
+    supabaseClient,
+    posts ?? [],
+    viewerId,
+  );
+
   const result: {
     is_restricted: boolean;
     user: typeof user;
-    posts: SocialPostRow[];
+    // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
+    posts: any[];
     total_favorites?: number;
     total_pages: number;
     public_pages: { id: string; title: string; created_at: string }[];
   } = {
     is_restricted: false,
     user,
-    posts: posts ?? [],
+    posts: enrichedPosts,
     total_pages: totalPagesCount ?? 0,
     public_pages: publicPages ?? [],
   };

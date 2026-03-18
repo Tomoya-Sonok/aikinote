@@ -796,7 +796,7 @@ type SocialProfileData = {
     aikido_rank: string | null;
     dojo_style_name: string | null;
   } | null;
-  posts: SocialPostBasic[];
+  posts: SocialFeedPost[];
   total_favorites?: number;
   total_pages: number;
   public_pages: { id: string; title: string; created_at: string }[];

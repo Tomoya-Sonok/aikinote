@@ -2,8 +2,12 @@
 
 import { InfoIcon } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProfileCard } from "@/components/features/social/ProfileCard/ProfileCard";
+import {
+  type SocialFeedPostData,
+  SocialPostCard,
+} from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
 import {
@@ -13,6 +17,7 @@ import {
 import { Tooltip } from "@/components/shared/Tooltip";
 import { getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import styles from "./SocialProfile.module.css";
 
 type ProfileTab = "posts" | "training";
@@ -28,12 +33,7 @@ interface ProfileData {
     aikido_rank: string | null;
     dojo_style_name: string | null;
   } | null;
-  posts: {
-    id: string;
-    content: string;
-    post_type: string;
-    created_at: string;
-  }[];
+  posts: SocialFeedPostData[];
   total_favorites?: number;
   total_pages: number;
   public_pages: { id: string; title: string; created_at: string }[];
@@ -48,8 +48,10 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const locale = useLocale();
   const t = useTranslations("socialPosts");
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [posts, setPosts] = useState<SocialFeedPostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
+  const { handleToggleFavorite } = useSocialFavorite();
 
   const isOwnProfile = currentUser?.id === userId;
 
@@ -59,7 +61,9 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
       try {
         const result = await getSocialProfile(userId);
         if (result.success && result.data) {
-          setProfile(result.data as ProfileData);
+          const data = result.data as ProfileData;
+          setProfile(data);
+          setPosts(data.posts);
         }
       } catch (error) {
         console.error("プロフィール取得エラー:", error);
@@ -70,6 +74,30 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
     fetchProfile();
   }, [currentUser?.id, userId]);
 
+  const updatePost = useCallback(
+    (
+      postId: string,
+      updater: (post: SocialFeedPostData) => SocialFeedPostData,
+    ) => {
+      setPosts((prev) => prev.map((p) => (p.id === postId ? updater(p) : p)));
+    },
+    [],
+  );
+
+  const handleFavoriteToggle = useCallback(
+    (postId: string) => {
+      handleToggleFavorite(postId, posts, updatePost);
+    },
+    [handleToggleFavorite, posts, updatePost],
+  );
+
+  const handlePostClick = useCallback(
+    (postId: string) => {
+      window.location.href = `/${locale}/social/posts/${postId}`;
+    },
+    [locale],
+  );
+
   const handleBack = useCallback(() => {
     window.location.href = `/${locale}/social/posts`;
   }, [locale]);
@@ -77,6 +105,16 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const handleEdit = useCallback(() => {
     window.location.href = `/${locale}/profile/edit?from=social`;
   }, [locale]);
+
+  const regularPosts = useMemo(
+    () => posts.filter((p) => p.post_type !== "training_record"),
+    [posts],
+  );
+
+  const trainingPosts = useMemo(
+    () => posts.filter((p) => p.post_type === "training_record"),
+    [posts],
+  );
 
   if (isLoading) {
     return (
@@ -210,20 +248,17 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
       <div className={styles.postsSection}>
         {activeTab === "posts" && (
           <>
-            {profile.posts.length === 0 ? (
+            {regularPosts.length === 0 ? (
               <p className={styles.emptyPosts}>{t("emptyAll")}</p>
             ) : (
-              profile.posts.map((post) => (
-                <a
+              regularPosts.map((post) => (
+                <SocialPostCard
                   key={post.id}
-                  href={`/${locale}/social/posts/${post.id}`}
-                  className={styles.postLink}
-                >
-                  <p className={styles.postContent}>{post.content}</p>
-                  <span className={styles.postDate}>
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </span>
-                </a>
+                  post={post}
+                  currentUserId={currentUser?.id ?? ""}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  onClick={handlePostClick}
+                />
               ))
             )}
           </>
@@ -231,16 +266,17 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
 
         {activeTab === "training" && (
           <>
-            {profile.public_pages.length === 0 ? (
+            {trainingPosts.length === 0 ? (
               <p className={styles.emptyPosts}>{t("emptyTrainingRecords")}</p>
             ) : (
-              profile.public_pages.map((page) => (
-                <div key={page.id} className={styles.postLink}>
-                  <p className={styles.postContent}>{page.title}</p>
-                  <span className={styles.postDate}>
-                    {new Date(page.created_at).toLocaleDateString()}
-                  </span>
-                </div>
+              trainingPosts.map((post) => (
+                <SocialPostCard
+                  key={post.id}
+                  post={post}
+                  currentUserId={currentUser?.id ?? ""}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  onClick={handlePostClick}
+                />
               ))
             )}
           </>

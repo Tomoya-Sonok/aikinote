@@ -3,6 +3,7 @@
   flex-direction: column;
   align-items: center;
   padding: 24px 16px;
+  background: var(--white);
 }
 
 .fullName {
@@ -39,7 +40,7 @@
 
 .rank {
   font-size: var(--font-size-sm);
-  color: var(--accent-color);
+  color: var(--text-light);
 }
 
 .bio {

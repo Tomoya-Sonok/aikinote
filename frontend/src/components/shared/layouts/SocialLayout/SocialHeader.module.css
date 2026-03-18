@@ -35,11 +35,15 @@
 }
 
 .headerTitle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--black);
   margin: 0;
+  white-space: nowrap;
 }
 
 .headerSpacer {
