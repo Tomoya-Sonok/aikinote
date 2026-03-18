@@ -478,12 +478,6 @@ export default async function RootPage({ params }: RootPageProps) {
       <footer className={styles.footer} data-scroll-footer>
         <div className={styles.footerInner}>
           <div className={styles.footerBrand}>
-            <Image
-              src="/images/aikinote_logo_bg_black.png"
-              alt="AikiNote logo"
-              width={36}
-              height={36}
-            />
             <span className={styles.footerText}>
               © {currentYear} {footer.brand}
             </span>
