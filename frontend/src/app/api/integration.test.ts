@@ -13,7 +13,7 @@ import { POST as createUserAPI } from "./users/route";
 // Supabaseクライアントのモック
 const mockServerSupabase = {
   auth: {
-    getSession: vi.fn(),
+    getUser: vi.fn(),
   },
 };
 
@@ -77,8 +77,8 @@ describe("API Integration Tests - Response Format Consistency", () => {
       };
 
       // セッションありをモック
-      mockServerSupabase.auth.getSession.mockResolvedValue({
-        data: { session: { user: { id: "user-123" } } },
+      mockServerSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "user-123" } },
         error: null,
       });
 
@@ -339,8 +339,8 @@ describe("API Integration Tests - Response Format Consistency", () => {
 
     it("Not Found エラーは常に 404 を返す", async () => {
       // Arrange: セッションユーザーとリクエスト対象を一致させてcanAccess=trueにする
-      mockServerSupabase.auth.getSession.mockResolvedValue({
-        data: { session: { user: { id: "nonexistent" } } },
+      mockServerSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "nonexistent" } },
         error: null,
       });
 
@@ -391,8 +391,8 @@ describe("API Integration Tests - Response Format Consistency", () => {
   describe("タイムスタンプの一貫性", () => {
     it("全てのレスポンスにISO 8601形式のタイムスタンプが含まれる", async () => {
       // 成功レスポンスのテスト
-      mockServerSupabase.auth.getSession.mockResolvedValue({
-        data: { session: { user: { id: "user-123" } } },
+      mockServerSupabase.auth.getUser.mockResolvedValue({
+        data: { user: { id: "user-123" } },
         error: null,
       });
 

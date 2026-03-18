@@ -1,4 +1,4 @@
-import type { Session } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { revalidateTag, unstable_cache } from "next/cache";
 import type { UserSession } from "@/lib/auth";
 import { fetchUserInfoFromHono } from "@/lib/server/auth";
@@ -18,12 +18,12 @@ export const getUserInfoCacheTag = (userId: string) => {
  */
 export const getCachedUserInfo = async (
   userId: string,
-  session: Session,
+  user: User,
 ): Promise<UserSession | null> => {
   const getUserInfo = unstable_cache(
     async () => {
       // キャッシュミス時にHono APIから取得
-      return fetchUserInfoFromHono(userId, session);
+      return fetchUserInfoFromHono(userId, user);
     },
     [getUserInfoCacheTag(userId)],
     {

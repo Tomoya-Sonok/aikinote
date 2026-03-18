@@ -10,7 +10,7 @@ import { GET } from "./route";
 // Supabaseクライアントのモック
 const mockServerSupabase = {
   auth: {
-    getSession: vi.fn(),
+    getUser: vi.fn(),
   },
 };
 
@@ -40,11 +40,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     };
 
     // セッションありをシミュレート（本人）
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });
@@ -86,11 +84,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     };
 
     // セッションありをシミュレート（他人）
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: requestingUserId },
-        },
+        user: { id: requestingUserId },
       },
       error: null,
     });
@@ -127,8 +123,8 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     };
 
     // セッションなしをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
-      data: { session: null },
+    mockServerSupabase.auth.getUser.mockResolvedValue({
+      data: { user: null },
       error: null,
     });
 
@@ -168,11 +164,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     // Arrange
     const userId = "nonexistent-user";
 
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });
@@ -207,11 +201,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     // Arrange
     const userId = "user-123";
 
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });
@@ -244,7 +236,7 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     // Arrange
     const userId = "user-123";
 
-    mockServerSupabase.auth.getSession.mockRejectedValue(
+    mockServerSupabase.auth.getUser.mockRejectedValue(
       new Error("Unexpected error"),
     );
 
@@ -263,11 +255,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     const userId = "user-123";
 
     // セッションありをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });

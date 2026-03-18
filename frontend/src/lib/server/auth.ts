@@ -1,4 +1,4 @@
-import type { Session } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
 import { getCachedUserInfo } from "@/lib/server/cache";
@@ -28,15 +28,15 @@ const buildApiUrl = (path: string) => {
   return `${HONO_API_BASE_URL}${normalizedPath}`;
 };
 
-const createBackendAuthTokenFromSession = (session: Session | null) => {
-  if (!session?.user) {
+const createBackendAuthTokenFromUser = (user: User | null) => {
+  if (!user) {
     return null;
   }
 
   return jwt.sign(
     {
-      userId: session.user.id,
-      email: session.user.email ?? "",
+      userId: user.id,
+      email: user.email ?? "",
     },
     JWT_SECRET,
     {
@@ -48,17 +48,17 @@ const createBackendAuthTokenFromSession = (session: Session | null) => {
 const createBackendAuthToken = async () => {
   const supabase = await getServerSupabase();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return createBackendAuthTokenFromSession(session);
+    data: { user },
+  } = await supabase.auth.getUser();
+  return createBackendAuthTokenFromUser(user);
 };
 
 export const fetchUserInfoFromHono = async (
   userId: string,
-  sessionOverride?: Session | null,
+  userOverride?: User | null,
 ): Promise<UserSession | null> => {
   const token =
-    createBackendAuthTokenFromSession(sessionOverride ?? null) ||
+    createBackendAuthTokenFromUser(userOverride ?? null) ||
     (await createBackendAuthToken());
   if (!token) {
     return null;
@@ -104,16 +104,16 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 
   try {
     const {
-      data: { session },
+      data: { user },
       error,
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getUser();
 
-    if (error || !session?.user) {
+    if (error || !user) {
       return null;
     }
 
     // キャッシュを利用してユーザー情報取得
-    return await getCachedUserInfo(session.user.id, session);
+    return await getCachedUserInfo(user.id, user);
   } catch (error) {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;

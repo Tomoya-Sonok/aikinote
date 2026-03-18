@@ -36,10 +36,11 @@ export async function POST(request: Request) {
   try {
     const serverSupabase = await getServerSupabase();
     const {
-      data: { session },
-    } = await serverSupabase.auth.getSession();
+      data: { user: authenticatedUser },
+      error: authError,
+    } = await serverSupabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !authenticatedUser) {
       return createUnauthorizedResponse("認証が必要です");
     }
 
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
     const { data: user, error: userError } = await serviceSupabase
       .from("User")
       .select("id, email, username, password_hash")
-      .eq("id", session.user.id)
+      .eq("id", authenticatedUser.id)
       .maybeSingle();
 
     if (userError) {

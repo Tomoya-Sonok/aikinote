@@ -130,10 +130,11 @@ type UpdatePageInput = CreatePageInput & {
 const createBackendAuthToken = async () => {
   const serverSupabase = await getServerSupabase();
   const {
-    data: { session },
-  } = await serverSupabase.auth.getSession();
+    data: { user },
+    error,
+  } = await serverSupabase.auth.getUser();
 
-  if (!session?.user) {
+  if (error || !user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "認証が必要です",
@@ -142,8 +143,8 @@ const createBackendAuthToken = async () => {
 
   return jwt.sign(
     {
-      userId: session.user.id,
-      email: session.user.email ?? "",
+      userId: user.id,
+      email: user.email ?? "",
     },
     JWT_SECRET,
     {

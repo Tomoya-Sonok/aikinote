@@ -20,7 +20,7 @@ vi.mock("./auth", () => ({
 describe("cache.ts", () => {
   const userId = "test-user-id";
   // biome-ignore lint/suspicious/noExplicitAny: mock data
-  const mockSession: any = { user: { id: userId } };
+  const mockUser: any = { id: userId, email: "test@example.com" };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -35,10 +35,10 @@ describe("cache.ts", () => {
       // biome-ignore lint/suspicious/noExplicitAny: mock function
       (unstable_cache as any).mockImplementation((fn: any) => fn);
 
-      const result = await getCachedUserInfo(userId, mockSession);
+      const result = await getCachedUserInfo(userId, mockUser);
 
       expect(unstable_cache).toHaveBeenCalled();
-      expect(fetchUserInfoFromHono).toHaveBeenCalledWith(userId, mockSession);
+      expect(fetchUserInfoFromHono).toHaveBeenCalledWith(userId, mockUser);
       expect(result).toEqual(mockProfile);
     });
   });
