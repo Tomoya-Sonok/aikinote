@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { TagFilterModal } from "./TagFilterModal";
 
 const meta: Meta<typeof TagFilterModal> = {
-  title: "Organisms/TagFilterModal",
+  title: "Features/Personal/TagFilterModal",
   component: TagFilterModal,
   parameters: {
     layout: "fullscreen",

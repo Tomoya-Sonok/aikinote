@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { DatePickerModal } from "./DatePickerModal";
 
 const meta: Meta<typeof DatePickerModal> = {
-  title: "Organisms/DatePickerModal",
+  title: "Features/Personal/DatePickerModal",
   component: DatePickerModal,
   parameters: {
     layout: "fullscreen",

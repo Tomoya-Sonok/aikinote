@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/nextjs-vite";
 import { NextIntlClientProvider } from "next-intl";
+import { ToastProvider } from "../src/contexts/ToastContext";
 import jaMessages from "../src/translations/ja.json";
 import "../src/styles/globals.css";
 
@@ -7,7 +8,9 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <NextIntlClientProvider locale="ja" messages={jaMessages}>
-        <Story />
+        <ToastProvider>
+          <Story />
+        </ToastProvider>
       </NextIntlClientProvider>
     ),
   ],

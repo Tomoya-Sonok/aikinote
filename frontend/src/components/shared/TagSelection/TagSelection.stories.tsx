@@ -3,7 +3,7 @@ import { useState } from "react";
 import { TagSelection } from "./TagSelection";
 
 const meta: Meta<typeof TagSelection> = {
-  title: "Molecules/TagSelection",
+  title: "Shared/TagSelection",
   component: TagSelection,
   parameters: {
     layout: "centered",

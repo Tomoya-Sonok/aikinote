@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { TrainingCard } from "./TrainingCard";
 
 const meta: Meta<typeof TrainingCard> = {
-  title: "Molecules/TrainingCard",
+  title: "Features/Personal/TrainingCard",
   component: TrainingCard,
   parameters: {
     layout: "padded",

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { FilterArea } from "./FilterArea";
 
 const meta: Meta<typeof FilterArea> = {
-  title: "Molecules/FilterArea",
+  title: "Features/Personal/FilterArea",
   component: FilterArea,
   parameters: {
     layout: "padded",
