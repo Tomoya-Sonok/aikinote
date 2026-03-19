@@ -14,22 +14,12 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FilterArea } from "@/components/features/personal/FilterArea/FilterArea";
-import {
-  type PageCreateData,
-  PageCreateModal,
-} from "@/components/features/personal/PageCreateModal/PageCreateModal";
-import {
-  type PageEditData,
-  PageEditModal,
-} from "@/components/features/personal/PageEditModal/PageEditModal";
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
 import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
 import { TrainingCardSkeleton } from "@/components/features/personal/TrainingCard/TrainingCardSkeleton";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Skeleton } from "@/components/shared/Skeleton";
-import { useToast } from "@/contexts/ToastContext";
-import { type UpdatePagePayload } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
@@ -42,7 +32,6 @@ export function PersonalPages() {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
-  const { showToast } = useToast();
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -69,8 +58,6 @@ export function PersonalPages() {
     unfilteredTotalCount,
     hasMore,
     loadMore,
-    addPage,
-    updatePageData,
     removePage,
   } = useTrainingPagesData({
     query: debouncedSearchQuery,
@@ -88,12 +75,6 @@ export function PersonalPages() {
     selectedDateRange.endDate
   );
   const {
-    isPageCreateModalOpen,
-    setPageCreateModalOpen,
-    isPageEditModalOpen,
-    editingPageData,
-    openEditModal,
-    closeEditModal,
     isDeleteDialogOpen,
     deleteTargetPageId,
     openDeleteDialog,
@@ -126,50 +107,8 @@ export function PersonalPages() {
     setIsSortDropdownOpen(false);
   };
 
-  const handleCreatePage = () => {
-    setPageCreateModalOpen(true);
-  };
-
-  const handleSavePage = async (pageData: PageCreateData) => {
-    setIsProcessing(true);
-    const success = await addPage(pageData);
-    setIsProcessing(false);
-    if (success) {
-      setPageCreateModalOpen(false);
-      showToast(t("pageCreate.success"), "success");
-    }
-  };
-
   const handleEditTraining = (id: string) => {
-    const pageToEdit = allTrainingPageData.find((page) => page.id === id);
-    if (pageToEdit) {
-      const editData: PageEditData = {
-        id: pageToEdit.id,
-        title: pageToEdit.title,
-        content: pageToEdit.content,
-        comment: pageToEdit.comment || "",
-        tori: pageToEdit.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "取り"),
-        ),
-        uke: pageToEdit.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "受け"),
-        ),
-        waza: pageToEdit.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "技"),
-        ),
-        attachments: [],
-      };
-      openEditModal(editData);
-    }
-  };
-
-  const handleUpdatePage = async (pageData: UpdatePagePayload) => {
-    setIsProcessing(true);
-    const success = await updatePageData(pageData);
-    setIsProcessing(false);
-    if (success) {
-      closeEditModal();
-    }
+    window.location.href = `/${locale}/personal/pages/${id}/edit`;
   };
 
   const handleConfirmDelete = async () => {
@@ -365,7 +304,7 @@ export function PersonalPages() {
         )}
       </div>
 
-      <FloatingActionButton onClick={handleCreatePage} />
+      <FloatingActionButton href={`/${locale}/personal/pages/new`} />
 
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
@@ -377,21 +316,6 @@ export function PersonalPages() {
         onCancel={closeDeleteDialog}
         isProcessing={isProcessing}
       />
-
-      <PageCreateModal
-        isOpen={isPageCreateModalOpen}
-        onClose={() => setPageCreateModalOpen(false)}
-        onSave={handleSavePage}
-      />
-
-      {editingPageData && (
-        <PageEditModal
-          isOpen={isPageEditModalOpen}
-          onClose={closeEditModal}
-          onUpdate={handleUpdatePage}
-          initialData={editingPageData}
-        />
-      )}
 
       <TagFilterModal
         isOpen={isTagModalOpen}

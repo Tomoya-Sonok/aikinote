@@ -17,7 +17,6 @@ const ReportModal = dynamic(
   { ssr: false },
 );
 
-import { SocialEditModal } from "@/components/features/social/SocialEditModal/SocialEditModal";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/SocialReplyForm";
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
@@ -118,7 +117,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,9 +150,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   }, [showMenu]);
 
   const handleBack = useCallback(() => {
+    const referrer = document.referrer || "";
     if (
-      document.referrer?.startsWith(window.location.origin) &&
-      document.referrer.includes("/social/posts")
+      referrer.startsWith(window.location.origin) &&
+      referrer.includes("/social/posts") &&
+      !referrer.includes("/edit")
     ) {
       window.history.back();
     } else {
@@ -362,17 +362,9 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   );
 
   const handleStartEdit = useCallback(() => {
-    setIsEditModalOpen(true);
     setShowMenu(false);
-  }, []);
-
-  const handleEditUpdate = useCallback(async () => {
-    // 編集後にデータをリフレッシュ
-    const result = await getSocialPost(postId);
-    if (result.success && result.data) {
-      setDetail(result.data as PostDetailData);
-    }
-  }, [postId]);
+    window.location.href = `/${locale}/social/posts/${postId}/edit`;
+  }, [locale, postId]);
 
   const handleShare = useCallback(async () => {
     if (!detail) return;
@@ -593,23 +585,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         onSubmit={handleReportSubmit}
         title={t("reportTitle")}
       />
-
-      {detail && detail.post.post_type !== "training_record" && (
-        <SocialEditModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onUpdate={handleEditUpdate}
-          postId={postId}
-          initialContent={detail.post.content}
-          initialAttachments={detail.attachments.map((a) => ({
-            id: a.id,
-            type: a.type as "image" | "video" | "youtube",
-            url: a.url,
-            thumbnail_url: a.thumbnail_url,
-            original_filename: a.original_filename,
-          }))}
-        />
-      )}
     </ChatLayout>
   );
 }

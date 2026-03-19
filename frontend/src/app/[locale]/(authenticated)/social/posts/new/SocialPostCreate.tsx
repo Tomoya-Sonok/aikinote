@@ -1,107 +1,252 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useState } from "react";
-import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
-import {
-  SocialHeader,
-  SocialLayout,
-} from "@/components/shared/layouts/SocialLayout";
+import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
+import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
+import { TextArea } from "@/components/shared/TextArea/TextArea";
+import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { useToast } from "@/contexts/ToastContext";
-import { createSocialPost } from "@/lib/api/client";
+import {
+  createPage,
+  createSocialPost,
+  upsertTrainingDateAttendance,
+} from "@/lib/api/client";
+import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
+import { useTagManagement } from "@/lib/hooks/useTagManagement";
+import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./SocialPostCreate.module.css";
 
-const MAX_CONTENT_LENGTH = 2000;
+type CreateMode = "post" | "training";
+
+const MAX_POST_CONTENT_LENGTH = 2000;
 
 export function SocialPostCreate() {
   const { user } = useAuth();
   const locale = useLocale();
-  const t = useTranslations("socialPosts");
+  const t = useTranslations();
+  const tSocial = useTranslations("socialPosts");
   const { showToast } = useToast();
-  const [content, setContent] = useState("");
-  const [postType, setPostType] = useState<"post" | "training_record">("post");
+  const searchParams = useSearchParams();
+  const modeGroupId = useId();
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  const initialMode =
+    searchParams.get("mode") === "training" ? "training" : "post";
+  const [mode, setMode] = useState<CreateMode>(initialMode);
+
+  // 投稿モード用
+  const [postContent, setPostContent] = useState("");
+  const postAttachmentMgmt = useAttachmentManagement("social-post");
+
+  // 稽古記録モード用
+  const [trainingTitle, setTrainingTitle] = useState("");
+  const [trainingContent, setTrainingContent] = useState("");
+  const [trainingComment, setTrainingComment] = useState("");
+  const trainingAttachmentMgmt = useAttachmentManagement("page");
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [attachments, setAttachments] = useState<AttachmentData[]>([]);
+  const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
 
-  const handleBack = useCallback(() => {
-    window.location.href = `/${locale}/social/posts`;
-  }, [locale]);
+  const tagManagement = useTagManagement({
+    shouldCreateInitialTags: true,
+    enabled: mode === "training",
+  });
 
-  const handleAttachmentAdd = useCallback((attachment: AttachmentData) => {
-    setAttachments((prev) => [...prev, attachment]);
-  }, []);
+  // 稽古記録モード切り替え時にタイトルへフォーカス
+  useEffect(() => {
+    if (mode === "training" && titleInputRef.current) {
+      const id = setTimeout(() => titleInputRef.current?.focus(), 100);
+      return () => clearTimeout(id);
+    }
+  }, [mode]);
 
-  const handleAttachmentDelete = useCallback((id: string) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+  // 未保存データの保護
+  const hasUnsavedChanges = useCallback(() => {
+    if (mode === "post") {
+      return (
+        postContent.trim() !== "" || postAttachmentMgmt.attachments.length > 0
+      );
+    }
+    return (
+      trainingTitle.trim() !== "" ||
+      trainingContent.trim() !== "" ||
+      trainingComment.trim() !== "" ||
+      trainingAttachmentMgmt.attachments.length > 0
+    );
+  }, [
+    mode,
+    postContent,
+    postAttachmentMgmt.attachments,
+    trainingTitle,
+    trainingContent,
+    trainingComment,
+    trainingAttachmentMgmt.attachments,
+  ]);
+  useBeforeUnload(hasUnsavedChanges);
 
-  const handleSubmit = useCallback(async () => {
-    if (!user?.id || !content.trim() || isSubmitting) return;
+  // バリデーション
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    if (mode === "post") {
+      if (!postContent.trim()) {
+        newErrors.content = tSocial("contentRequired");
+      } else if (postContent.length > MAX_POST_CONTENT_LENGTH) {
+        newErrors.content = tSocial("contentTooLong");
+      }
+    } else {
+      if (!trainingTitle.trim()) {
+        newErrors.title = t("pageModal.titleRequired");
+      } else if (trainingTitle.length > 35) {
+        newErrors.title = t("pageModal.titleTooLong");
+      }
+      if (!trainingContent.trim()) {
+        newErrors.content = t("pageModal.contentRequired");
+      } else if (trainingContent.length > 3000) {
+        newErrors.content = t("pageModal.contentTooLong");
+      }
+      if (trainingComment.length > 1000) {
+        newErrors.comment = t("pageModal.commentTooLong");
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
+  // 投稿モード送信
+  const handlePostSubmit = useCallback(async () => {
+    if (!user?.id || isSubmitting) return;
     setIsSubmitting(true);
     try {
       const result = await createSocialPost({
         user_id: user.id,
-        content: content.trim(),
-        post_type: postType,
+        content: postContent.trim(),
+        post_type: "post",
       });
 
-      // 添付ファイルのメタデータを保存
-      if (result.success && result.data && attachments.length > 0) {
+      if (result.success && result.data) {
         const postId = (result.data as { id: string }).id;
-        for (let i = 0; i < attachments.length; i++) {
-          const att = attachments[i];
-          const fileKey = (att as unknown as Record<string, string>)._fileKey;
-          try {
-            await fetch("/api/social-post-attachments", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                post_id: postId,
-                type: att.type,
-                file_key: fileKey || undefined,
-                url: att.type === "youtube" ? att.url : undefined,
-                original_filename: att.original_filename || undefined,
-                file_size_bytes: att.file_size_bytes || undefined,
-                sort_order: i,
-              }),
-            });
-          } catch {
-            // 個別の添付保存失敗は投稿自体を失敗にしない
-          }
-        }
+        await postAttachmentMgmt.saveNewAttachments(postId);
       }
 
-      showToast(t("createSuccess"), "success");
+      showToast(tSocial("createSuccess"), "success");
       window.location.href = `/${locale}/social/posts`;
     } catch {
-      showToast(t("createFailed"), "error");
+      showToast(tSocial("createFailed"), "error");
     } finally {
       setIsSubmitting(false);
     }
   }, [
     user?.id,
-    content,
-    postType,
+    postContent,
     isSubmitting,
-    locale,
+    postAttachmentMgmt,
     showToast,
-    t,
-    attachments,
+    tSocial,
+    locale,
   ]);
 
-  const isDisabled = !content.trim() || isSubmitting;
+  // 稽古記録モード送信
+  const handleTrainingSubmit = useCallback(async () => {
+    if (!user?.id || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const result = await createPage({
+        title: trainingTitle.trim(),
+        tori: tagManagement.selectedTori,
+        uke: tagManagement.selectedUke,
+        waza: tagManagement.selectedWaza,
+        content: trainingContent.trim(),
+        comment: trainingComment.trim(),
+        user_id: user.id,
+        is_public: true,
+      });
+
+      if (result.success) {
+        const pageId = result.data?.page?.id;
+        if (pageId) {
+          await trainingAttachmentMgmt.saveNewAttachments(pageId);
+        }
+
+        try {
+          const createdAt =
+            result.data?.page?.created_at ?? new Date().toISOString();
+          await upsertTrainingDateAttendance({
+            userId: user.id,
+            trainingDate: formatToLocalDateString(createdAt),
+          });
+        } catch (err) {
+          console.warn("稽古参加の自動登録に失敗:", err);
+        }
+
+        showToast(tSocial("trainingCreateSuccess"), "success");
+        window.location.href = `/${locale}/social/posts`;
+      } else {
+        throw new Error(
+          ("error" in result && result.error) || tSocial("createFailed"),
+        );
+      }
+    } catch {
+      showToast(tSocial("createFailed"), "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [
+    user?.id,
+    isSubmitting,
+    trainingTitle,
+    trainingContent,
+    trainingComment,
+    tagManagement.selectedTori,
+    tagManagement.selectedUke,
+    tagManagement.selectedWaza,
+    trainingAttachmentMgmt,
+    showToast,
+    tSocial,
+    locale,
+  ]);
+
+  const handleSubmit = () => {
+    if (!validateForm()) return;
+    if (mode === "post") {
+      handlePostSubmit();
+    } else {
+      handleTrainingSubmit();
+    }
+  };
+
+  const handleBack = useCallback(() => {
+    if (hasUnsavedChanges()) {
+      setIsBackConfirmOpen(true);
+    } else {
+      window.location.href = `/${locale}/social/posts`;
+    }
+  }, [hasUnsavedChanges, locale]);
+
+  const handleConfirmBack = useCallback(() => {
+    setIsBackConfirmOpen(false);
+    window.location.href = `/${locale}/social/posts`;
+  }, [locale]);
+
+  const isDisabled =
+    isSubmitting ||
+    (mode === "post"
+      ? !postContent.trim()
+      : !trainingTitle.trim() || !trainingContent.trim());
 
   return (
-    <SocialLayout>
+    <div className={styles.layout}>
       <SocialHeader
-        title={t("newPost")}
+        title={tSocial("createModalTitle")}
         onBack={handleBack}
-        backLabel={t("back")}
+        backLabel={tSocial("back")}
         right={
           <Button
             variant="primary"
@@ -109,66 +254,221 @@ export function SocialPostCreate() {
             onClick={handleSubmit}
             disabled={isDisabled}
           >
-            {isSubmitting ? t("submitting") : t("submit")}
+            {isSubmitting
+              ? tSocial("submitting")
+              : mode === "post"
+                ? tSocial("submit")
+                : t("pageCreate.save")}
           </Button>
         }
       />
 
-      <div className={styles.form}>
-        <div className={styles.textareaWrapper}>
-          <HashtagTextarea
-            className={styles.textarea}
-            value={content}
-            onChange={(e) =>
-              setContent(e.target.value.slice(0, MAX_CONTENT_LENGTH))
-            }
-            placeholder={t("contentPlaceholder")}
-            maxLength={MAX_CONTENT_LENGTH}
-            rows={8}
-          />
-          <span className={styles.charCount}>
-            {t("charCount", { count: content.length })}
-          </span>
-        </div>
-
+      <main className={styles.main}>
+        {/* モード切り替え */}
         <div className={styles.section}>
-          <span className={styles.sectionLabel}>{t("postType")}</span>
-          <div className={styles.radioGroup}>
-            <label className={styles.radioLabel}>
+          <span id={modeGroupId} className={styles.srOnly}>
+            {tSocial("postType")}
+          </span>
+          <div
+            className={styles.modeSelector}
+            role="radiogroup"
+            aria-labelledby={modeGroupId}
+          >
+            <label
+              className={`${styles.modeButton} ${mode === "post" ? styles.modeActive : ""}`}
+            >
               <input
                 type="radio"
-                name="postType"
+                name="createMode"
                 value="post"
-                checked={postType === "post"}
-                onChange={() => setPostType("post")}
-                className={styles.radioInput}
+                checked={mode === "post"}
+                onChange={() => setMode("post")}
+                className={styles.modeRadio}
               />
-              <span>{t("postTypePost")}</span>
+              <span className={styles.modeText}>
+                {tSocial("createTypePost")}
+              </span>
             </label>
-            <label className={styles.radioLabel}>
+            <label
+              className={`${styles.modeButton} ${mode === "training" ? styles.modeActive : ""}`}
+            >
               <input
                 type="radio"
-                name="postType"
-                value="training_record"
-                checked={postType === "training_record"}
-                onChange={() => setPostType("training_record")}
-                className={styles.radioInput}
+                name="createMode"
+                value="training"
+                checked={mode === "training"}
+                onChange={() => setMode("training")}
+                className={styles.modeRadio}
               />
-              <span>{t("postTypeTraining")}</span>
+              <span className={styles.modeText}>
+                {tSocial("createTypeTraining")}
+              </span>
             </label>
           </div>
         </div>
 
-        <div className={styles.section}>
-          <AttachmentUpload
-            attachments={attachments}
-            onAttachmentAdd={handleAttachmentAdd}
-            onAttachmentDelete={handleAttachmentDelete}
-            disabled={isSubmitting}
-            uploadType="social-post-attachment"
-          />
-        </div>
-      </div>
-    </SocialLayout>
+        {/* 投稿モード */}
+        {mode === "post" && (
+          <>
+            <div className={styles.section}>
+              <HashtagTextarea
+                className={styles.textarea}
+                value={postContent}
+                onChange={(e) =>
+                  setPostContent(
+                    e.target.value.slice(0, MAX_POST_CONTENT_LENGTH),
+                  )
+                }
+                placeholder={tSocial("contentPlaceholder")}
+                maxLength={MAX_POST_CONTENT_LENGTH}
+                rows={8}
+              />
+              <span className={styles.charCount}>
+                {tSocial("charCount", { count: postContent.length })}
+              </span>
+              {errors.content && (
+                <span className={styles.errorText}>{errors.content}</span>
+              )}
+            </div>
+
+            <div className={styles.section}>
+              <AttachmentUpload
+                attachments={postAttachmentMgmt.attachments}
+                onAttachmentAdd={postAttachmentMgmt.handleAttachmentAdd}
+                onAttachmentDelete={postAttachmentMgmt.handleAttachmentDelete}
+                disabled={isSubmitting}
+                uploadType="social-post-attachment"
+              />
+            </div>
+          </>
+        )}
+
+        {/* 稽古記録モード */}
+        {mode === "training" && (
+          <>
+            <div className={styles.section}>
+              <TextInput
+                ref={titleInputRef}
+                label={t("pageModal.title")}
+                required
+                value={trainingTitle}
+                placeholder={t("pageCreate.contentPlaceholder")}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setTrainingTitle(v);
+                  if (v.length > 35) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      title: t("pageModal.titleTooLong"),
+                    }));
+                  } else {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.title;
+                      return next;
+                    });
+                  }
+                }}
+                error={errors.title}
+              />
+            </div>
+
+            <TagSectionWithNewInput
+              category="tori"
+              titleKey="pageModal.tori"
+              tags={tagManagement.toriTags}
+              selectedTags={tagManagement.selectedTori}
+              tagManagement={tagManagement}
+            />
+            <TagSectionWithNewInput
+              category="uke"
+              titleKey="pageModal.uke"
+              tags={tagManagement.ukeTags}
+              selectedTags={tagManagement.selectedUke}
+              tagManagement={tagManagement}
+            />
+            <TagSectionWithNewInput
+              category="waza"
+              titleKey="pageModal.waza"
+              tags={tagManagement.wazaTags}
+              selectedTags={tagManagement.selectedWaza}
+              tagManagement={tagManagement}
+            />
+
+            <div className={styles.section}>
+              <TextArea
+                label={t("pageModal.content")}
+                required
+                value={trainingContent}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setTrainingContent(v);
+                  if (v.length > 3000) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      content: t("pageModal.contentTooLong"),
+                    }));
+                  } else {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.content;
+                      return next;
+                    });
+                  }
+                }}
+                error={errors.content}
+                rows={5}
+              />
+            </div>
+
+            <div className={styles.section}>
+              <TextArea
+                label={t("pageModal.comment")}
+                value={trainingComment}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setTrainingComment(v);
+                  if (v.length > 1000) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      comment: t("pageModal.commentTooLong"),
+                    }));
+                  } else {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.comment;
+                      return next;
+                    });
+                  }
+                }}
+                rows={3}
+                error={errors.comment}
+              />
+            </div>
+
+            <div className={styles.section}>
+              <AttachmentUpload
+                attachments={trainingAttachmentMgmt.attachments}
+                onAttachmentAdd={trainingAttachmentMgmt.handleAttachmentAdd}
+                onAttachmentDelete={
+                  trainingAttachmentMgmt.handleAttachmentDelete
+                }
+                disabled={isSubmitting}
+              />
+            </div>
+          </>
+        )}
+      </main>
+
+      <ConfirmDialog
+        isOpen={isBackConfirmOpen}
+        title={t("pageModal.closeConfirmTitle")}
+        message={t("pageModal.closeConfirmMessage")}
+        confirmLabel={t("pageModal.closeConfirmAction")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={handleConfirmBack}
+        onCancel={() => setIsBackConfirmOpen(false)}
+      />
+    </div>
   );
 }

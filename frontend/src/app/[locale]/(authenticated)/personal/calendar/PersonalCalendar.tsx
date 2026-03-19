@@ -1,21 +1,14 @@
 "use client";
 
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { CalendarGrid } from "@/components/features/personal/CalendarGrid/CalendarGrid";
-import {
-  type PageCreateData,
-  PageCreateModal,
-} from "@/components/features/personal/PageCreateModal/PageCreateModal";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
 import { useToast } from "@/contexts/ToastContext";
 import {
-  type CreatePagePayload,
-  createAttachment,
-  createPage,
   getTrainingDatesMonth,
   removeTrainingDateAttendance,
   upsertTrainingDateAttendance,
@@ -33,10 +26,6 @@ const formatDateKey = (date: Date): string => {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-};
-
-const formatCreatedAtForSelectedDate = (date: Date): string => {
-  return `${formatDateKey(date)}T00:00:00.000Z`;
 };
 
 const buildDayStatusMap = (
@@ -139,6 +128,7 @@ function CalendarActionModal({
 }
 
 export function PersonalCalendar() {
+  const locale = useLocale();
   const t = useTranslations();
   const { showToast } = useToast();
   const showToastRef = useRef(showToast);
@@ -155,7 +145,6 @@ export function PersonalCalendar() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
-  const [isPageCreateModalOpen, setIsPageCreateModalOpen] = useState(false);
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -329,77 +318,9 @@ export function PersonalCalendar() {
 
   const handleOpenCreatePage = () => {
     setIsActionModalOpen(false);
-    setIsPageCreateModalOpen(true);
-  };
-
-  const handleSavePage = async (pageData: PageCreateData) => {
-    if (!user?.id || !selectedDate) {
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const payload: CreatePagePayload = {
-        title: pageData.title.trim(),
-        tori: pageData.tori,
-        uke: pageData.uke,
-        waza: pageData.waza,
-        content: pageData.content,
-        comment: pageData.comment,
-        user_id: user.id,
-        created_at: formatCreatedAtForSelectedDate(selectedDate),
-      };
-
-      const response = await createPage(payload);
-      if (!response.success || !response.data) {
-        throw new Error(t("personalPages.pageCreationFailed"));
-      }
-
-      const pageId = response.data.page.id;
-      for (const attachment of pageData.attachments) {
-        try {
-          const attachmentPayload: Record<string, unknown> = {
-            page_id: pageId,
-            type: attachment.type,
-            original_filename: attachment.original_filename ?? null,
-            file_size_bytes: attachment.file_size_bytes ?? null,
-            thumbnail_url: attachment.thumbnail_url ?? null,
-          };
-
-          if (attachment.type === "youtube") {
-            attachmentPayload.url = attachment.url;
-          } else {
-            attachmentPayload.file_key = attachment._fileKey;
-          }
-
-          await createAttachment(attachmentPayload);
-        } catch (attachmentError) {
-          console.warn("Failed to save attachment metadata:", attachmentError);
-        }
-      }
-
-      setIsPageCreateModalOpen(false);
-      showToast(t("pageCreate.success"), "success");
-      if (selectedDateKey) {
-        try {
-          await upsertTrainingDateAttendance({
-            userId: user.id,
-            trainingDate: selectedDateKey,
-          });
-        } catch (attendanceError) {
-          console.error(
-            "Failed to mark attendance after page creation:",
-            attendanceError,
-          );
-          showToast(t("personalCalendar.attendanceUpdateFailed"), "error");
-        }
-      }
-      await fetchMonthData();
-    } catch (error) {
-      console.error("Failed to create page from calendar:", error);
-      showToast(t("personalPages.pageCreationFailed"), "error");
-    } finally {
-      setIsProcessing(false);
+    if (selectedDateKey) {
+      const returnUrl = `/${locale}/personal/calendar`;
+      window.location.href = `/${locale}/personal/pages/new?date=${selectedDateKey}&returnUrl=${encodeURIComponent(returnUrl)}`;
     }
   };
 
@@ -481,13 +402,6 @@ export function PersonalCalendar() {
         onClose={() => setIsActionModalOpen(false)}
         onToggleAttendance={handleToggleAttendance}
         onCreatePage={handleOpenCreatePage}
-      />
-
-      <PageCreateModal
-        isOpen={isPageCreateModalOpen}
-        onClose={() => setIsPageCreateModalOpen(false)}
-        onSave={handleSavePage}
-        placeholderDate={selectedDate ?? undefined}
       />
     </div>
   );

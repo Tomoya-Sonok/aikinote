@@ -4,23 +4,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
-import {
-  type PageEditData,
-  PageEditModal,
-} from "@/components/features/personal/PageEditModal/PageEditModal";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
-import {
-  deletePage,
-  type UpdatePagePayload,
-  updatePage,
-} from "@/lib/api/client";
+import { deletePage, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
-import type { TrainingPageData } from "@/types/training";
 import styles from "./page.module.css";
 
 export function PageDetail() {
@@ -31,13 +22,12 @@ export function PageDetail() {
   const { user } = useAuth();
   const pageId = params.page_id as string;
 
-  const { loading, pageData, setPageData, attachments, fetchAttachments } =
+  const { loading, pageData, setPageData, attachments } =
     usePageDetailData(pageId);
 
   const { availableTags } = useTrainingTags();
 
   const { showToast } = useToast();
-  const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeletingPage, setDeletingPage] = useState(false);
   const [isTogglingPublic, setTogglingPublic] = useState(false);
@@ -87,43 +77,7 @@ export function PageDetail() {
 
   const handleEdit = () => {
     if (!pageData) return;
-    setPageEditModalOpen(true);
-  };
-
-  const handleUpdatePage = async (pageUpdateData: UpdatePagePayload) => {
-    try {
-      const response = await updatePage(pageUpdateData);
-
-      if (response.success && response.data) {
-        const convertedData: TrainingPageData = {
-          id: response.data.page.id,
-          title: response.data.page.title,
-          content: response.data.page.content,
-          comment: response.data.page.comment,
-          is_public: response.data.page.is_public ?? false,
-          date: response.data.page.created_at,
-          tags: response.data.tags.map((tag) => tag.name),
-          attachments: response.data.attachments ?? [],
-        };
-        setPageData(convertedData);
-
-        // 添付一覧を再取得（PageEditModalでの追加/削除を反映）
-        await fetchAttachments();
-
-        setPageEditModalOpen(false);
-      } else {
-        console.error(
-          "Failed to update page:",
-          "error" in response ? response.error : undefined,
-        );
-        alert(t("pageDetail.updateFailed"));
-      }
-    } catch (error) {
-      console.error("Failed to update page:", error);
-      alert(
-        error instanceof Error ? error.message : t("pageDetail.updateFailed"),
-      );
-    }
+    window.location.href = `/${locale}/personal/pages/${pageId}/edit`;
   };
 
   const handleDelete = () => {
@@ -264,25 +218,6 @@ export function PageDetail() {
   const trainingContent = pageData.content;
   const comments = pageData.comment || "";
 
-  const editData: PageEditData | null = pageData
-    ? {
-        id: pageData.id,
-        title: pageData.title,
-        content: pageData.content,
-        comment: pageData.comment || "",
-        tori: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "取り"),
-        ),
-        uke: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "受け"),
-        ),
-        waza: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "技"),
-        ),
-        attachments,
-      }
-    : null;
-
   return (
     <div className={styles.container}>
       <div className={styles.contentArea}>
@@ -375,15 +310,6 @@ export function PageDetail() {
           {t("pageDetail.delete")}
         </button>
       </div>
-
-      {editData && (
-        <PageEditModal
-          isOpen={isPageEditModalOpen}
-          onClose={() => setPageEditModalOpen(false)}
-          onUpdate={handleUpdatePage}
-          initialData={editData}
-        />
-      )}
 
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}

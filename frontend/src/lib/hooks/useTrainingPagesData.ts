@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type PageCreateData } from "@/components/features/personal/PageCreateModal/PageCreateModal";
+import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import {
   type CreatePagePayload,
   createAttachment,
@@ -14,6 +14,16 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { type TrainingPageData } from "@/types/training";
+
+interface PageCreateData {
+  title: string;
+  tori: string[];
+  uke: string[];
+  waza: string[];
+  content: string;
+  comment: string;
+  attachments: AttachmentData[];
+}
 
 // 楽観的更新用の一時的なプレフィックス
 const OPTIMISTIC_ID_PREFIX = "optimistic-";
