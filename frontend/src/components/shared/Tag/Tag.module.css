@@ -15,7 +15,7 @@
 }
 
 .default {
-  background: var(--black);
+  background: linear-gradient(180deg, #3e3e3c 0%, var(--black) 40%);
   color: var(--white);
 }
 

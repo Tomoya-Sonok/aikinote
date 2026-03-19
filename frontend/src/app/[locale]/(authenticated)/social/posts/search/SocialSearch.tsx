@@ -13,7 +13,6 @@ import {
   memo,
   useCallback,
   useEffect,
-  useId,
   useImperativeHandle,
   useMemo,
   useRef,
@@ -31,6 +30,7 @@ import {
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
+import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
@@ -130,7 +130,6 @@ export function SocialSearch() {
   );
   const [showFilters, setShowFilters] = useState(false);
   const isInitializedRef = useRef(false);
-  const rankFilterId = useId();
   const { results, isLoading, search, updateResult } = useSocialSearch(
     user?.id,
   );
@@ -508,14 +507,12 @@ export function SocialSearch() {
               </div>
             </div>
             <div className={styles.filterRow}>
-              <label className={styles.filterLabel} htmlFor={rankFilterId}>
-                {t("rankFilter")}
-              </label>
-              <select
-                id={rankFilterId}
-                className={styles.filterSelect}
+              <span className={styles.filterLabel}>{t("rankFilter")}</span>
+              <SelectInput
+                className={styles.filterSelectWrapper}
                 value={rank}
                 onChange={(e) => handleRankChange(e.target.value)}
+                aria-label={t("rankFilter")}
               >
                 <option value="">-</option>
                 {AIKIDO_RANK_OPTIONS.map((r) => (
@@ -523,7 +520,7 @@ export function SocialSearch() {
                     {r}
                   </option>
                 ))}
-              </select>
+              </SelectInput>
             </div>
           </div>
         )}

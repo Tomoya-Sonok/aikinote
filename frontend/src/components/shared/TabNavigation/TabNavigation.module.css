@@ -36,7 +36,8 @@
 .icon {
   width: 32px;
   height: 32px;
-  transition: filter 0.4s ease-out;
+  color: var(--text-light);
+  transition: color 0.4s ease-out;
 }
 
 .label {
@@ -44,23 +45,21 @@
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.4;
-  color: var(--black);
+  color: var(--text-light);
   text-align: center;
   transition: all 0.4s ease-out;
 }
 
-.tab.active .tabContent {
-  background: var(--primary-color);
-  border-radius: 40px;
-  box-shadow: 0 2px 12px rgba(91, 122, 94, 0.2);
+.tab.active {
+  border-bottom: 2px solid var(--black);
 }
 
 .tab.active .icon {
-  filter: brightness(0) invert(1);
+  color: var(--black);
 }
 
 .tab.active .label {
-  color: var(--white);
+  color: var(--black);
   font-weight: 600;
 }
 

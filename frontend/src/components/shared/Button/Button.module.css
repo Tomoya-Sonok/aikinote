@@ -12,7 +12,7 @@
 }
 
 .primary {
-  background-color: var(--primary-color);
+  background: linear-gradient(180deg, #918f8a 0%, #706e69 60%, #5e5c58 100%);
   color: var(--white);
   border: none;
   border-radius: 6px;
@@ -27,11 +27,11 @@
 }
 
 .primary:hover {
-  background-color: var(--primary-dark);
+  background: linear-gradient(180deg, #868480 0%, #656360 60%, #535250 100%);
 }
 
 .secondary {
-  background-color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #faf8f5 60%, #f5f2ef 100%);
   color: var(--black);
   border: 0.5px solid var(--border-color);
   border-radius: 6px;
@@ -46,12 +46,12 @@
 }
 
 .secondary:hover {
-  background-color: var(--hover-gray);
+  background: linear-gradient(180deg, #f5f2ed 0%, #ece8e2 60%, #e5e1db 100%);
   border-color: var(--primary-color);
 }
 
 .cancel {
-  background-color: var(--secondary-color);
+  background: linear-gradient(180deg, #d2d0cc 0%, #c5c3bf 60%, #b9b7b3 100%);
   color: var(--black);
   border: none;
   border-radius: 6px;
@@ -66,11 +66,16 @@
 }
 
 .cancel:hover {
-  background-color: #b5b5b5;
+  background: linear-gradient(180deg, #c2c0bc 0%, #b5b3af 60%, #a9a7a3 100%);
 }
 
 .danger {
-  background-color: var(--error-color);
+  background: linear-gradient(
+    180deg,
+    #f54e4e 0%,
+    var(--error-color) 60%,
+    #d92525 100%
+  );
   color: var(--white);
   border: none;
   border-radius: 6px;
@@ -85,7 +90,7 @@
 }
 
 .danger:hover {
-  background-color: #a94d4d;
+  background: linear-gradient(180deg, #bb5a5a 0%, #a94d4d 60%, #984444 100%);
 }
 
 .small {

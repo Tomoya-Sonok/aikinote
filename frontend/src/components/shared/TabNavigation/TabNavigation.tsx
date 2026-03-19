@@ -91,7 +91,6 @@ export const TabNavigation: FC = () => {
                 <IconComponent
                   size={24}
                   weight="light"
-                  color="var(--black)"
                   className={styles.icon}
                 />
                 {tab.badge !== undefined && tab.badge > 0 && (

@@ -111,20 +111,8 @@
   position: relative;
 }
 
-.filterSelect {
+.filterSelectWrapper {
   flex: 1;
-  padding: 8px 10px;
-  font-size: var(--font-size-sm);
-  color: var(--black);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--white, #fdfcfa);
-  font-family: inherit;
-}
-
-.filterSelect:focus {
-  outline: none;
-  border-color: var(--primary-color);
 }
 
 .results {
