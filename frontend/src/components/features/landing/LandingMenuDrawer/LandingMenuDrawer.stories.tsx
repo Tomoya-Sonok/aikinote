@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { LandingMenuDrawer } from "./LandingMenuDrawer";
 
 const meta: Meta<typeof LandingMenuDrawer> = {
