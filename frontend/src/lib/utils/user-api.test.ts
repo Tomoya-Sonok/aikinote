@@ -25,6 +25,8 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
       dojo_style_name: null,
+      aikido_rank: null,
+      full_name: null,
     };
 
     mockFetch.mockResolvedValue({
@@ -152,6 +154,8 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: null,
       dojo_style_name: null,
+      aikido_rank: null,
+      full_name: null,
     });
   });
 });
