@@ -54,7 +54,6 @@ export function PageDetail() {
           availableTags.find((t) => t.name === tag && t.category === "技"),
         ),
         content: pageData.content,
-        comment: pageData.comment || "",
         user_id: user.id,
         is_public: newValue,
       });
@@ -216,7 +215,6 @@ export function PageDetail() {
   }
 
   const trainingContent = pageData.content;
-  const comments = pageData.comment || "";
 
   return (
     <div className={styles.container}>
@@ -239,15 +237,6 @@ export function PageDetail() {
           <div className={styles.divider} />
           <div className={styles.content}>{trainingContent}</div>
         </div>
-
-        {/* その他・コメントセクション */}
-        {comments && (
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("pageDetail.comment")}</h2>
-            <div className={styles.divider} />
-            <div className={styles.content}>{comments}</div>
-          </div>
-        )}
 
         {/* 添付ファイルセクション */}
         {attachments.length > 0 && (

@@ -13,10 +13,6 @@ export const createPageSchema = z.object({
     .string()
     .min(1, "内容は必須です")
     .max(3000, "内容は3000文字以内で入力してください"),
-  comment: z
-    .string()
-    .max(1000, "その他・コメントは1000文字以内で入力してください")
-    .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
   is_public: z.boolean().optional().default(false),
   created_at: z
@@ -44,10 +40,6 @@ export const updatePageSchema = z.object({
     .string()
     .min(1, "内容は必須です")
     .max(3000, "内容は3000文字以内で入力してください"),
-  comment: z
-    .string()
-    .max(1000, "その他・コメントは1000文字以内で入力してください")
-    .default(""),
   user_id: z.string().min(1, "ユーザーIDは必須です"),
   is_public: z.boolean().optional(),
 });
@@ -59,7 +51,6 @@ export const pageResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   content: z.string(),
-  comment: z.string(),
   user_id: z.string(),
   is_public: z.boolean().default(false),
   created_at: z.string(),
@@ -319,9 +310,12 @@ export type UpdateSocialReplyInput = z.infer<typeof updateSocialReplySchema>;
 // 通報
 export const createReportSchema = z.object({
   user_id: z.string().min(1, "ユーザーIDは必須です"),
-  reason: z.enum(["spam", "harassment", "inappropriate", "other"], {
-    errorMap: () => ({ message: "通報理由を選択してください" }),
-  }),
+  reason: z.enum(
+    ["spam", "harassment", "inappropriate", "impersonation", "other"],
+    {
+      errorMap: () => ({ message: "通報理由を選択してください" }),
+    },
+  ),
   detail: z.string().max(500, "詳細は500文字以内で入力してください").optional(),
 });
 

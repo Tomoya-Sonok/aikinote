@@ -66,7 +66,6 @@ interface SourcePageData {
   id: string;
   title: string;
   content: string;
-  comment: string;
   tags: { name: string; category: string }[];
 }
 
@@ -234,7 +233,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleReportSubmit = useCallback(
     async (
-      reason: "spam" | "harassment" | "inappropriate" | "other",
+      reason:
+        | "spam"
+        | "harassment"
+        | "inappropriate"
+        | "impersonation"
+        | "other",
       detailText?: string,
     ) => {
       if (!user?.id) return;
@@ -257,7 +261,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const handleReplyReport = useCallback(
     async (
       replyId: string,
-      reason: "spam" | "harassment" | "inappropriate" | "other",
+      reason:
+        | "spam"
+        | "harassment"
+        | "inappropriate"
+        | "impersonation"
+        | "other",
       detailText?: string,
     ) => {
       if (!user?.id) return;
@@ -504,14 +513,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             <div className={styles.notebookContent}>
               {detail.source_page.content}
             </div>
-            {detail.source_page.comment && (
-              <div className={styles.notebookComment}>
-                <span className={styles.notebookCommentLabel}>
-                  {t("comment")}
-                </span>
-                {detail.source_page.comment}
-              </div>
-            )}
           </div>
         ) : (
           <p className={styles.text}>

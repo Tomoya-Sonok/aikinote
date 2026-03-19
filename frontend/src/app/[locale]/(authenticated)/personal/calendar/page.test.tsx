@@ -42,7 +42,6 @@ vi.mock(
       onSave: (pageData: {
         title: string;
         content: string;
-        comment: string;
         tori: string[];
         uke: string[];
         waza: string[];
@@ -57,7 +56,6 @@ vi.mock(
               onSave({
                 title: "新規ページ",
                 content: "本文",
-                comment: "コメント",
                 tori: [],
                 uke: [],
                 waza: [],
@@ -147,7 +145,6 @@ describe("カレンダー画面", () => {
           id: "page-1",
           title: "新規ページ",
           content: "本文",
-          comment: "コメント",
           user_id: "test-user-id",
           created_at: `${currentMonthDate20()}T00:00:00.000Z`,
           updated_at: `${currentMonthDate20()}T00:00:00.000Z`,

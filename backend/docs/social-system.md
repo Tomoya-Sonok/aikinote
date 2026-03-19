@@ -155,7 +155,7 @@ User (既存)
 | `reporter_user_id` | UUID FK→User | |
 | `post_id` | UUID FK→SocialPost NULL | |
 | `reply_id` | UUID FK→SocialReply NULL | |
-| `reason` | TEXT | `'spam'` / `'harassment'` / `'inappropriate'` / `'other'` |
+| `reason` | TEXT | `'spam'` / `'harassment'` / `'inappropriate'` / `'impersonation'` / `'other'` |
 | `detail` | TEXT (≤500) NULL | |
 | `status` | TEXT DEFAULT `'pending'` | `'pending'` / `'reviewed'` / `'resolved'` |
 | `created_at` | TIMESTAMPTZ | |

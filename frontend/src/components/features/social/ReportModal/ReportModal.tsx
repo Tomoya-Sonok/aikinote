@@ -5,7 +5,12 @@ import { type FC, useCallback, useId, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
 import styles from "./ReportModal.module.css";
 
-type ReportReason = "spam" | "harassment" | "inappropriate" | "other";
+type ReportReason =
+  | "spam"
+  | "harassment"
+  | "inappropriate"
+  | "impersonation"
+  | "other";
 
 interface ReportModalProps {
   isOpen: boolean;
@@ -45,6 +50,7 @@ export const ReportModal: FC<ReportModalProps> = ({
     { value: "spam", label: t("reportReasonSpam") },
     { value: "harassment", label: t("reportReasonHarassment") },
     { value: "inappropriate", label: t("reportReasonInappropriate") },
+    { value: "impersonation", label: t("reportReasonImpersonation") },
     { value: "other", label: t("reportReasonOther") },
   ];
 
@@ -102,7 +108,7 @@ export const ReportModal: FC<ReportModalProps> = ({
         </div>
 
         <div className={styles.actions}>
-          <Button size="small" onClick={handleClose}>
+          <Button variant="cancel" size="small" onClick={handleClose}>
             {t("editCancel")}
           </Button>
           <Button

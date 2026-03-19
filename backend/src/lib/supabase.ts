@@ -33,7 +33,6 @@ export interface TrainingPageRow {
   user_id: string; // uuid FK
   title: string; // text
   content: string; // text
-  comment: string; // text
   is_public: boolean; // boolean (デフォルト: false)
   created_at: string; // timestamp
   updated_at: string; // timestamp
@@ -112,7 +111,6 @@ export const createTrainingPage = async (
       ? {
           title: pageData.title,
           content: pageData.content,
-          comment: pageData.comment,
           user_id: pageData.user_id,
           is_public: pageData.is_public ?? false,
           created_at: pageData.created_at,
@@ -120,7 +118,6 @@ export const createTrainingPage = async (
       : {
           title: pageData.title,
           content: pageData.content,
-          comment: pageData.comment,
           user_id: pageData.user_id,
           is_public: pageData.is_public ?? false,
         };
@@ -863,7 +860,6 @@ export const updateTrainingPage = async (
     const updateFields: Record<string, unknown> = {
       title: pageData.title,
       content: pageData.content,
-      comment: pageData.comment,
       updated_at: new Date().toISOString(),
     };
     if (pageData.is_public !== undefined) {
@@ -1585,12 +1581,11 @@ export const getSourcePageData = async (
   id: string;
   title: string;
   content: string;
-  comment: string;
   tags: { name: string; category: string }[];
 } | null> => {
   const { data: pageData } = await supabaseClient
     .from("TrainingPage")
-    .select("id, title, content, comment")
+    .select("id, title, content")
     .eq("id", sourcePageId)
     .single();
 

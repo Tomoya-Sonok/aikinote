@@ -49,7 +49,6 @@ export function SocialPostCreate() {
   // 稽古記録モード用
   const [trainingTitle, setTrainingTitle] = useState("");
   const [trainingContent, setTrainingContent] = useState("");
-  const [trainingComment, setTrainingComment] = useState("");
   const trainingAttachmentMgmt = useAttachmentManagement("page");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,7 +77,6 @@ export function SocialPostCreate() {
     return (
       trainingTitle.trim() !== "" ||
       trainingContent.trim() !== "" ||
-      trainingComment.trim() !== "" ||
       trainingAttachmentMgmt.attachments.length > 0
     );
   }, [
@@ -87,7 +85,6 @@ export function SocialPostCreate() {
     postAttachmentMgmt.attachments,
     trainingTitle,
     trainingContent,
-    trainingComment,
     trainingAttachmentMgmt.attachments,
   ]);
   useBeforeUnload(hasUnsavedChanges);
@@ -111,9 +108,6 @@ export function SocialPostCreate() {
         newErrors.content = t("pageModal.contentRequired");
       } else if (trainingContent.length > 3000) {
         newErrors.content = t("pageModal.contentTooLong");
-      }
-      if (trainingComment.length > 1000) {
-        newErrors.comment = t("pageModal.commentTooLong");
       }
     }
     setErrors(newErrors);
@@ -164,7 +158,6 @@ export function SocialPostCreate() {
         uke: tagManagement.selectedUke,
         waza: tagManagement.selectedWaza,
         content: trainingContent.trim(),
-        comment: trainingComment.trim(),
         user_id: user.id,
         is_public: true,
       });
@@ -203,7 +196,6 @@ export function SocialPostCreate() {
     isSubmitting,
     trainingTitle,
     trainingContent,
-    trainingComment,
     tagManagement.selectedTori,
     tagManagement.selectedUke,
     tagManagement.selectedWaza,
@@ -418,31 +410,6 @@ export function SocialPostCreate() {
                 }}
                 error={errors.content}
                 rows={5}
-              />
-            </div>
-
-            <div className={styles.section}>
-              <TextArea
-                label={t("pageModal.comment")}
-                value={trainingComment}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setTrainingComment(v);
-                  if (v.length > 1000) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      comment: t("pageModal.commentTooLong"),
-                    }));
-                  } else {
-                    setErrors((prev) => {
-                      const next = { ...prev };
-                      delete next.comment;
-                      return next;
-                    });
-                  }
-                }}
-                rows={3}
-                error={errors.comment}
               />
             </div>
 

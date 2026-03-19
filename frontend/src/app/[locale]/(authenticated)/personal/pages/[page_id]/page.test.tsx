@@ -61,7 +61,6 @@ describe("ページ詳細画面", () => {
         id: "test-page-id",
         title: "テスト稽古ページ",
         content: "今日は基本動作の稽古を行いました",
-        comment: "姿勢に注意が必要",
         user_id: "test-user-id",
         is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
@@ -134,7 +133,6 @@ describe("ページ詳細画面", () => {
       expect(
         screen.getByText("今日は基本動作の稽古を行いました"),
       ).toBeInTheDocument();
-      expect(screen.getByText("姿勢に注意が必要")).toBeInTheDocument();
       expect(screen.getByText("立技")).toBeInTheDocument();
       expect(screen.getByText("正面打ち")).toBeInTheDocument();
     });

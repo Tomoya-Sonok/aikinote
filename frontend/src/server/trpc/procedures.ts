@@ -23,7 +23,6 @@ type Page = {
   id: string;
   title: string;
   content: string;
-  comment: string;
   user_id: string;
   is_public: boolean;
   created_at: string;
@@ -119,7 +118,6 @@ type CreatePageInput = {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   user_id: string;
 };
 
@@ -241,7 +239,6 @@ export const createPageProcedure = publicProcedure
       uke: z.array(z.string()),
       waza: z.array(z.string()),
       content: z.string(),
-      comment: z.string(),
       user_id: z.string(),
       is_public: z.boolean().optional(),
       created_at: z
@@ -269,7 +266,6 @@ export const updatePageProcedure = publicProcedure
       uke: z.array(z.string()),
       waza: z.array(z.string()),
       content: z.string(),
-      comment: z.string(),
       user_id: z.string(),
       is_public: z.boolean().optional(),
     }),
@@ -982,7 +978,13 @@ export const reportPostProcedure = publicProcedure
     z.object({
       postId: z.string().min(1),
       user_id: z.string().min(1),
-      reason: z.enum(["spam", "harassment", "inappropriate", "other"]),
+      reason: z.enum([
+        "spam",
+        "harassment",
+        "inappropriate",
+        "impersonation",
+        "other",
+      ]),
       detail: z.string().max(500).optional(),
     }),
   )
@@ -1004,7 +1006,13 @@ export const reportReplyProcedure = publicProcedure
     z.object({
       replyId: z.string().min(1),
       user_id: z.string().min(1),
-      reason: z.enum(["spam", "harassment", "inappropriate", "other"]),
+      reason: z.enum([
+        "spam",
+        "harassment",
+        "inappropriate",
+        "impersonation",
+        "other",
+      ]),
       detail: z.string().max(500).optional(),
     }),
   )

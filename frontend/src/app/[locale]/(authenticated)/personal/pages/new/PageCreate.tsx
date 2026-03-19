@@ -37,7 +37,6 @@ export function PageCreate() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [comment, setComment] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
@@ -64,9 +63,8 @@ export function PageCreate() {
     () =>
       title.trim() !== "" ||
       content.trim() !== "" ||
-      comment.trim() !== "" ||
       attachmentMgmt.attachments.length > 0,
-    [title, content, comment, attachmentMgmt.attachments],
+    [title, content, attachmentMgmt.attachments],
   );
   useBeforeUnload(hasUnsavedChanges);
 
@@ -83,12 +81,9 @@ export function PageCreate() {
     } else if (content.length > 3000) {
       newErrors.content = t("pageModal.contentTooLong");
     }
-    if (comment.length > 1000) {
-      newErrors.comment = t("pageModal.commentTooLong");
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [title, content, comment, t]);
+  }, [title, content, t]);
 
   const handleSubmit = useCallback(async () => {
     if (!user?.id || isSubmitting) return;
@@ -102,7 +97,6 @@ export function PageCreate() {
         uke: tagManagement.selectedUke,
         waza: tagManagement.selectedWaza,
         content: content.trim(),
-        comment: comment.trim(),
         user_id: user.id,
         is_public: false,
         ...(dateParam ? { created_at: `${dateParam}T00:00:00.000Z` } : {}),
@@ -145,7 +139,6 @@ export function PageCreate() {
     validateForm,
     title,
     content,
-    comment,
     tagManagement.selectedTori,
     tagManagement.selectedUke,
     tagManagement.selectedWaza,
@@ -263,31 +256,6 @@ export function PageCreate() {
             }}
             error={errors.content}
             rows={5}
-          />
-        </div>
-
-        <div className={styles.section}>
-          <TextArea
-            label={t("pageModal.comment")}
-            value={comment}
-            onChange={(e) => {
-              const v = e.target.value;
-              setComment(v);
-              if (v.length > 1000) {
-                setErrors((prev) => ({
-                  ...prev,
-                  comment: t("pageModal.commentTooLong"),
-                }));
-              } else {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.comment;
-                  return next;
-                });
-              }
-            }}
-            rows={3}
-            error={errors.comment}
           />
         </div>
 

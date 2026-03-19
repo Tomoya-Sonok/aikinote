@@ -41,7 +41,7 @@ interface SocialReplyItemProps {
   currentUserId: string;
   onReport: (
     replyId: string,
-    reason: "spam" | "harassment" | "inappropriate" | "other",
+    reason: "spam" | "harassment" | "inappropriate" | "impersonation" | "other",
     detail?: string,
   ) => void;
   onEdit: (replyId: string, newContent: string) => Promise<void>;
@@ -87,7 +87,12 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
 
     const handleReportSubmit = useCallback(
       (
-        reason: "spam" | "harassment" | "inappropriate" | "other",
+        reason:
+          | "spam"
+          | "harassment"
+          | "inappropriate"
+          | "impersonation"
+          | "other",
         detail?: string,
       ) => {
         onReport(reply.id, reason, detail);

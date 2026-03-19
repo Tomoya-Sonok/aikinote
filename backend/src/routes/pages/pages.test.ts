@@ -19,7 +19,6 @@ describe("ページ作成API", () => {
         id: "test-page-id",
         title: "テスト稽古ページ",
         content: "今日は基本動作の稽古を行いました",
-        comment: "姿勢に注意が必要",
         user_id: "test-user-id",
         is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
@@ -60,7 +59,6 @@ describe("ページ作成API", () => {
     const requestBody = {
       title: "テスト稽古ページ",
       content: "今日は基本動作の稽古を行いました",
-      comment: "姿勢に注意が必要",
       user_id: "test-user-id",
       tori: ["立技"],
       uke: ["正面打ち"],
@@ -93,7 +91,6 @@ describe("ページ作成API", () => {
         id: "test-page-id",
         title: "テスト稽古ページ",
         content: "今日は基本動作の稽古を行いました",
-        comment: "姿勢に注意が必要",
         user_id: "test-user-id",
         is_public: false,
         created_at: "2026-03-13T00:00:00.000Z",
@@ -108,7 +105,6 @@ describe("ページ作成API", () => {
     const requestBody = {
       title: "テスト稽古ページ",
       content: "今日は基本動作の稽古を行いました",
-      comment: "姿勢に注意が必要",
       user_id: "test-user-id",
       tori: [],
       uke: [],
@@ -133,7 +129,6 @@ describe("ページ作成API", () => {
       {
         title: "テスト稽古ページ",
         content: "今日は基本動作の稽古を行いました",
-        comment: "姿勢に注意が必要",
         user_id: "test-user-id",
         is_public: false,
         created_at: "2026-03-13T00:00:00.000Z",
@@ -216,31 +211,6 @@ describe("ページ作成API", () => {
     expect(response.status).toBe(400);
   });
 
-  it("コメントが1000文字を超える場合にバリデーションエラーが返されること", async () => {
-    // Arrange
-    const longComment = "あ".repeat(1001);
-    const requestBody = {
-      title: "テスト稽古ページ",
-      content: "今日は基本動作の稽古を行いました",
-      comment: longComment,
-      user_id: "test-user-id",
-    };
-
-    const request = new Request("http://localhost/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    // Act
-    const response = await app.fetch(request);
-
-    // Assert
-    expect(response.status).toBe(400);
-  });
-
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
     // Arrange
     vi.spyOn(supabaseModule, "createTrainingPage").mockRejectedValue(
@@ -288,7 +258,6 @@ describe("ページ詳細取得API", () => {
         id: "test-page-id",
         title: "テスト稽古ページ",
         content: "今日は基本動作の稽古を行いました",
-        comment: "姿勢に注意が必要",
         user_id: "test-user-id",
         is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
@@ -431,7 +400,6 @@ describe("ページ詳細取得API", () => {
         id: "test-page-id",
         title: "タグなし稽古ページ",
         content: "タグを設定していない稽古の記録",
-        comment: "",
         user_id: "test-user-id",
         is_public: false,
         created_at: "2023-01-01T00:00:00.000Z",
@@ -468,7 +436,6 @@ type PageWithTags = {
     id: string;
     title: string;
     content: string;
-    comment: string;
     user_id: string;
     is_public: boolean;
     created_at: string;
@@ -501,7 +468,6 @@ describe("ページ一覧取得API", () => {
           id: "test-page-id-1",
           title: "稽古ページ1",
           content: "基本動作の稽古",
-          comment: "姿勢改善が必要",
           user_id: "test-user-id",
           is_public: false,
           created_at: "2023-01-01T00:00:00.000Z",
@@ -523,7 +489,6 @@ describe("ページ一覧取得API", () => {
           id: "test-page-id-2",
           title: "稽古ページ2",
           content: "応用技の稽古",
-          comment: "タイミングに注意",
           user_id: "test-user-id",
           is_public: false,
           created_at: "2023-01-02T00:00:00.000Z",
@@ -610,7 +575,6 @@ describe("ページ一覧取得API", () => {
           id: "test-page-id",
           title: "稽古ページ",
           content: "基本動作の稽古",
-          comment: "",
           user_id: "test-user-id",
           is_public: false,
           created_at: "2023-01-01T00:00:00.000Z",

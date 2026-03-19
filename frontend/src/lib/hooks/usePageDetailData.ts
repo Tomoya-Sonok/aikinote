@@ -36,7 +36,6 @@ export function usePageDetailData(pageId: string) {
               id: response.data.page.id,
               title: response.data.page.title,
               content: response.data.page.content,
-              comment: response.data.page.comment,
               is_public: response.data.page.is_public ?? false,
               date: response.data.page.created_at,
               tags: response.data.tags.map((tag) => tag.name),

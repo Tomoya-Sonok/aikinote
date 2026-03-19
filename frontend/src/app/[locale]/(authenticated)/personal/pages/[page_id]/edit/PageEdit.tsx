@@ -39,7 +39,6 @@ export function PageEdit() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [comment, setComment] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
@@ -56,7 +55,6 @@ export function PageEdit() {
     if (pageData && !initialized) {
       setTitle(pageData.title);
       setContent(pageData.content);
-      setComment(pageData.comment || "");
       attachmentMgmt.setAttachments(initialAttachments);
 
       // タグの選択状態を設定
@@ -89,13 +87,11 @@ export function PageEdit() {
     return (
       title.trim() !== pageData.title.trim() ||
       content.trim() !== pageData.content.trim() ||
-      comment.trim() !== (pageData.comment || "").trim() ||
       attachmentMgmt.attachments.length !== initialAttachments.length
     );
   }, [
     title,
     content,
-    comment,
     attachmentMgmt.attachments,
     pageData,
     initialAttachments,
@@ -116,12 +112,9 @@ export function PageEdit() {
     } else if (content.length > 3000) {
       newErrors.content = t("pageModal.contentTooLong");
     }
-    if (comment.length > 1000) {
-      newErrors.comment = t("pageModal.commentTooLong");
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [title, content, comment, t]);
+  }, [title, content, t]);
 
   // 送信
   const handleSubmit = useCallback(async () => {
@@ -137,7 +130,6 @@ export function PageEdit() {
         uke: tagManagement.selectedUke,
         waza: tagManagement.selectedWaza,
         content: content.trim(),
-        comment: comment.trim(),
         user_id: user.id,
         is_public: pageData.is_public,
       });
@@ -166,7 +158,6 @@ export function PageEdit() {
     pageId,
     title,
     content,
-    comment,
     attachmentMgmt,
     tagManagement.selectedTori,
     tagManagement.selectedUke,
@@ -311,31 +302,6 @@ export function PageEdit() {
             }}
             error={errors.content}
             rows={5}
-          />
-        </div>
-
-        <div className={styles.section}>
-          <TextArea
-            label={t("pageModal.comment")}
-            value={comment}
-            onChange={(e) => {
-              const v = e.target.value;
-              setComment(v);
-              if (v.length > 1000) {
-                setErrors((prev) => ({
-                  ...prev,
-                  comment: t("pageModal.commentTooLong"),
-                }));
-              } else {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.comment;
-                  return next;
-                });
-              }
-            }}
-            rows={3}
-            error={errors.comment}
           />
         </div>
 

@@ -104,7 +104,6 @@ export interface CreatePagePayload {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   user_id: string;
   is_public?: boolean;
   created_at?: string;
@@ -323,7 +322,6 @@ export interface UpdatePagePayload {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   user_id: string;
   is_public?: boolean;
 }
@@ -772,7 +770,7 @@ export const toggleReplyFavorite = async (replyId: string) => {
 export interface ReportPostPayload {
   postId: string;
   user_id: string;
-  reason: "spam" | "harassment" | "inappropriate" | "other";
+  reason: "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
   detail?: string;
 }
 
@@ -787,7 +785,7 @@ export const reportPost = async (payload: ReportPostPayload) => {
 export interface ReportReplyPayload {
   replyId: string;
   user_id: string;
-  reason: "spam" | "harassment" | "inappropriate" | "other";
+  reason: "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
   detail?: string;
 }
 

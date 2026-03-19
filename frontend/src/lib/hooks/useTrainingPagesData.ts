@@ -21,7 +21,6 @@ interface PageCreateData {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   attachments: AttachmentData[];
 }
 
@@ -112,7 +111,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             id: item.page.id,
             title: item.page.title,
             content: item.page.content,
-            comment: item.page.comment,
             is_public: item.page.is_public ?? false,
             date: formatToLocalDateString(item.page.created_at),
             tags: item.tags.map((tag) => tag.name),
@@ -174,7 +172,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           id: optimisticId,
           title: pageData.title.trim(),
           content: pageData.content,
-          comment: pageData.comment,
           is_public: false,
           date: formatToLocalDateString(new Date().toISOString()),
           tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
@@ -188,7 +185,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           uke: pageData.uke,
           waza: pageData.waza,
           content: pageData.content,
-          comment: pageData.comment,
           user_id: userId,
         };
 
@@ -239,7 +235,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             id: pageId,
             title: response.data.page.title,
             content: response.data.page.content,
-            comment: response.data.page.comment,
             is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
@@ -294,7 +289,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           id: pageData.id,
           title: pageData.title,
           content: pageData.content,
-          comment: pageData.comment,
           is_public: originalPage.is_public,
           date:
             originalPage.date ||
@@ -314,7 +308,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             id: response.data.page.id,
             title: response.data.page.title,
             content: response.data.page.content,
-            comment: response.data.page.comment,
             is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
