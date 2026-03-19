@@ -30,6 +30,8 @@ describe("fetchUserProfile", () => {
         profile_image_url: "https://example.com/avatar.jpg",
         dojo_style_name: null,
         training_start_date: null,
+        aikido_rank: "初段",
+        full_name: "山田太郎",
       },
     });
 
@@ -43,6 +45,8 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
       dojo_style_name: null,
+      aikido_rank: "初段",
+      full_name: "山田太郎",
     });
   });
 
@@ -71,6 +75,8 @@ describe("fetchUserProfile", () => {
         profile_image_url: null,
         dojo_style_name: null,
         training_start_date: null,
+        aikido_rank: null,
+        full_name: null,
       },
     });
 

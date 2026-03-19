@@ -1,11 +1,11 @@
 "use client";
 
-import { GearSixIcon, UserIcon } from "@phosphor-icons/react";
+import { ListIcon, PencilSimpleIcon, UserIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavigationDrawer } from "@/components/shared/NavigationDrawer";
 import type { UserSession } from "@/lib/auth";
 import { useTooltipVisibility } from "@/lib/hooks/useTooltipVisibility";
@@ -27,6 +27,8 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   showTooltip = false,
 }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isProfileCardOpen, setIsProfileCardOpen] = useState(false);
+  const profileCardRef = useRef<HTMLDivElement>(null);
   const { shouldShowTooltip, hideTooltip } = useTooltipVisibility();
   const tooltipId = "font-size-tooltip";
   const isTooltipVisible = showTooltip && shouldShowTooltip;
@@ -45,11 +47,6 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   const handleTextSizeClick = () => {
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/font-size`;
-  };
-
-  const handleUserInfoEditClick = () => {
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/profile/edit`;
   };
 
   const handleEmailClick = () => {
@@ -98,6 +95,22 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     };
   }, [hideTooltip, isTooltipVisible]);
 
+  useEffect(() => {
+    if (!isProfileCardOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        profileCardRef.current &&
+        !profileCardRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileCardOpen(false);
+      }
+    }
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isProfileCardOpen]);
+
   const homeHref = `/${locale}`;
 
   return (
@@ -119,33 +132,91 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 
       <div className={styles.headerRight}>
         {showUserSection && user && (
-          <Link href={`/${locale}/mypage`} className={styles.userSection}>
-            {user.profile_image_url ? (
-              <Image
-                src={user.profile_image_url}
-                alt={`${user.username}のアイコン`}
-                width={40}
-                height={40}
-                className={styles.avatarImage}
-                unoptimized
-              />
-            ) : (
-              <UserIcon
-                size={40}
-                weight="light"
-                color="var(--black)"
-                className={styles.avatarFallback}
-              />
-            )}
-            <div className={styles.userInfo}>
-              <span className={styles.userName}>{user.username}</span>
-              {user.dojo_style_name && (
-                <span className={styles.userDojoStyleName}>
-                  {user.dojo_style_name}
-                </span>
+          <div ref={profileCardRef} className={styles.profileCardWrapper}>
+            <button
+              type="button"
+              className={styles.avatarButton}
+              onClick={() => setIsProfileCardOpen((prev) => !prev)}
+              aria-label="プロフィールを表示"
+              aria-expanded={isProfileCardOpen}
+            >
+              {user.profile_image_url ? (
+                <Image
+                  src={user.profile_image_url}
+                  alt={`${user.username}のアイコン`}
+                  width={40}
+                  height={40}
+                  className={styles.avatarImage}
+                  unoptimized
+                />
+              ) : (
+                <UserIcon
+                  size={40}
+                  weight="light"
+                  color="var(--black)"
+                  className={styles.avatarFallback}
+                />
               )}
-            </div>
-          </Link>
+            </button>
+            {isProfileCardOpen && (
+              <div
+                className={styles.profileCard}
+                role="dialog"
+                aria-label="プロフィール情報"
+              >
+                <Link
+                  href={`/${locale}/mypage`}
+                  className={styles.profileCardLink}
+                  onClick={() => setIsProfileCardOpen(false)}
+                >
+                  {user.profile_image_url ? (
+                    <Image
+                      src={user.profile_image_url}
+                      alt={`${user.username}のアイコン`}
+                      width={48}
+                      height={48}
+                      className={styles.profileCardAvatar}
+                      unoptimized
+                    />
+                  ) : (
+                    <UserIcon
+                      size={48}
+                      weight="light"
+                      color="var(--black)"
+                      className={styles.profileCardAvatarFallback}
+                    />
+                  )}
+                  <div className={styles.profileCardInfo}>
+                    <span className={styles.profileCardName}>
+                      {user.username}
+                    </span>
+                    {(user.dojo_style_name || user.aikido_rank) && (
+                      <span className={styles.profileCardDojoRank}>
+                        {user.dojo_style_name}
+                        {user.dojo_style_name && user.aikido_rank && " "}
+                        {user.aikido_rank}
+                      </span>
+                    )}
+                    {user.full_name && (
+                      <span className={styles.profileCardFullName}>
+                        {user.full_name}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+                <div className={styles.profileCardFooter}>
+                  <Link
+                    href={`/${locale}/profile/edit`}
+                    className={styles.profileCardEditLink}
+                    onClick={() => setIsProfileCardOpen(false)}
+                  >
+                    <PencilSimpleIcon size={14} weight="bold" />
+                    {t("navigation.editProfile")}
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {showSettings && (
@@ -154,14 +225,10 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
               type="button"
               onClick={handleSettingsClick}
               className={styles.settingsButton}
-              aria-label="設定を開く"
+              aria-label="メニューを開く"
               aria-describedby={isTooltipVisible ? tooltipId : undefined}
             >
-              <GearSixIcon
-                size={20}
-                weight="fill"
-                color="var(--primary-color)"
-              />
+              <ListIcon size={24} weight="light" color="var(--black)" />
             </button>
             {isTooltipVisible && (
               <button
@@ -184,7 +251,6 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
       <NavigationDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
-        onUserInfoEditClick={handleUserInfoEditClick}
         onEmailClick={handleEmailClick}
         onTextSizeClick={handleTextSizeClick}
         onLanguageClick={handleLanguageClick}

@@ -248,15 +248,14 @@
   },
   "navigation": {
     "settings": "設定",
-    "userInfo": "プロフィール編集",
-    "userInfoEdit": "ユーザー情報",
     "email": "メール",
     "fontSize": "文字サイズ",
     "language": "言語 / Language",
     "tagManagement": "タグ管理",
     "publicity": "公開範囲",
     "close": "設定を閉じる",
-    "fontSizeTooltip": "文字サイズは設定から変更可能です"
+    "fontSizeTooltip": "文字サイズは設定から変更可能です",
+    "editProfile": "プロフィールを編集する"
   },
   "auth": {
     "login": "ログイン",
@@ -692,6 +691,7 @@
     "title": "プロフィール編集",
     "description": "プロフィールを編集できます",
     "loading": "読み込み中...",
+    "profile": "プロフィール",
     "username": "ユーザー名",
     "required": "必須",
     "usernamePlaceholder": "未設定",

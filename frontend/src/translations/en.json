@@ -248,15 +248,14 @@
   },
   "navigation": {
     "settings": "Settings",
-    "userInfo": "Edit Profile",
-    "userInfoEdit": "User Info",
     "email": "Email",
     "fontSize": "Font Size",
     "language": "Language / 言語",
     "tagManagement": "Tags",
     "publicity": "Privacy",
     "close": "Close settings",
-    "fontSizeTooltip": "You can change the font size in Settings"
+    "fontSizeTooltip": "You can change the font size in Settings",
+    "editProfile": "Edit your profile"
   },
   "auth": {
     "login": "Login",
@@ -690,6 +689,7 @@
     "title": "Edit Profile",
     "description": "Edit your user information",
     "loading": "Loading user information...",
+    "profile": "Profile",
     "username": "Username",
     "required": "required",
     "usernamePlaceholder": "Not set",

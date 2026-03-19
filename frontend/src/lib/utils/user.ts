@@ -32,6 +32,8 @@ export async function fetchUserProfile(
       username: userData.username,
       profile_image_url: userData.profile_image_url || null,
       dojo_style_name: userData.dojo_style_name || null,
+      aikido_rank: userData.aikido_rank || null,
+      full_name: userData.full_name || null,
     };
   } catch (error) {
     console.error(

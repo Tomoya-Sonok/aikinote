@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const { data: user, error: findError } = await supabase
       .from("User")
       .select(
-        "id, email, username, profile_image_url, dojo_style_name, is_email_verified, verification_token, created_at",
+        "id, email, username, profile_image_url, dojo_style_name, aikido_rank, full_name, is_email_verified, verification_token, created_at",
       )
       .eq("verification_token", token)
       .maybeSingle(); // singleの代わりにmaybeSingleを使用
@@ -70,6 +70,8 @@ export async function POST(request: NextRequest) {
       username: user.username,
       profile_image_url: user.profile_image_url ?? null,
       dojo_style_name: user.dojo_style_name ?? null,
+      aikido_rank: user.aikido_rank ?? null,
+      full_name: user.full_name ?? null,
     };
 
     if (user.is_email_verified) {

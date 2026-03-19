@@ -327,6 +327,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
   return (
     <>
       <div className={styles.content}>
+        <p className={styles.sectionSubtitle}>{t("userInfoEdit.profile")}</p>
         {/* プロフィール画像 */}
         <div className={styles.imageSection}>
           <label className={styles.profileImageContainer}>

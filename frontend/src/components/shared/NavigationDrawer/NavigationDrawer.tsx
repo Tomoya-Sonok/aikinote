@@ -1,5 +1,6 @@
 "use client";
 
+import { XIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect } from "react";
@@ -9,7 +10,6 @@ import styles from "./NavigationDrawer.module.css";
 interface NavigationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onUserInfoEditClick: () => void;
   onEmailClick: () => void;
   onTextSizeClick: () => void;
   onLanguageClick: () => void;
@@ -20,7 +20,6 @@ interface NavigationDrawerProps {
 export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   isOpen,
   onClose,
-  onUserInfoEditClick,
   onEmailClick,
   onTextSizeClick,
   onLanguageClick,
@@ -70,15 +69,12 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
             className={styles.closeButton}
             aria-label={t("navigation.close")}
           >
-            ×
+            <XIcon size={20} weight="light" />
           </button>
         </div>
 
         <div className={styles.content}>
           <div className={styles.menu}>
-            <SettingItem onClick={onUserInfoEditClick}>
-              {t("navigation.userInfo")}
-            </SettingItem>
             <SettingItem onClick={onPublicityClick}>
               {t("navigation.publicity")}
             </SettingItem>
