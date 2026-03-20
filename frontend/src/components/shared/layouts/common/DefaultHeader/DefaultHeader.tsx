@@ -114,7 +114,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   const homeHref = `/${locale}`;
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-testid="default-header">
       <Link
         href={homeHref}
         className={styles.logoLink}

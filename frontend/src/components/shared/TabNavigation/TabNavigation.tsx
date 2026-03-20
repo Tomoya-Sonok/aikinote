@@ -76,7 +76,7 @@ export const TabNavigation: FC = () => {
   };
 
   return (
-    <div className={styles.tabContainer}>
+    <div className={styles.tabContainer} data-testid="tab-navigation">
       {tabs.map((tab) => {
         const IconComponent = tab.icon;
         return (
