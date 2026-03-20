@@ -92,7 +92,7 @@ export function ResetPasswordForm({
         <p className={styles.description}>{t("auth.enterNewPassword")}</p>
       </div>
 
-      {error && <div className={styles.errorMessage}>{error}</div>}
+      {error && <div className={styles.alertMessage}>{error}</div>}
 
       <form
         className={styles.form}

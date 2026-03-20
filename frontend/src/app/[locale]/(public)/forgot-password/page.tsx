@@ -5,7 +5,6 @@ import { ForgotPasswordForm } from "@/components/features/auth/ForgotPasswordFor
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
-import styles from "./page.module.css";
 
 export async function generateMetadata({
   params,
@@ -37,12 +36,7 @@ export default async function ForgotPasswordPage({
 
   return (
     <MinimalLayout headerTitle={t("passwordResetTitle")} backHref={loginHref}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>{t("passwordResetTitle")}</h1>
-        <div className={styles.formCard}>
-          <ForgotPasswordForm />
-        </div>
-      </div>
+      <ForgotPasswordForm />
     </MinimalLayout>
   );
 }
