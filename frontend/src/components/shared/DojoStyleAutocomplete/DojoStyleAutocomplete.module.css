@@ -123,6 +123,16 @@
   box-sizing: border-box;
 }
 
+.selectedTextButton {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
 .selectedText {
   font-family: var(--font-zen-old-mincho);
   font-size: var(--font-size-xs);
@@ -130,6 +140,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: block;
 }
 
 .clearButton {

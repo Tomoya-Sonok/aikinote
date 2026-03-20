@@ -715,6 +715,7 @@
     "registerNewDojo": "「{query}」を新しく登録する",
     "dojoRegistrationSuccess": "道場情報を登録しました。管理者の承認後、他のユーザーの検索結果にも表示されます",
     "approved": "承認済み",
+    "editDojoName": "道場名を変更",
     "dojoStyleNotRegistered": "候補から選択するか、「新しく登録する」を選択してください",
     "usernameTaken": "このユーザー名は既に使用されています",
     "usernameCheckFailed": "ユーザー名の確認に失敗しました",

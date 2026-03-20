@@ -713,6 +713,7 @@
     "registerNewDojo": "Register \"{query}\" as new",
     "dojoRegistrationSuccess": "Dojo info registered. It will appear in other users' search results after admin approval",
     "approved": "Approved",
+    "editDojoName": "Change dojo name",
     "dojoStyleNotRegistered": "Please select from suggestions or choose \"Register as new\"",
     "usernameTaken": "This username is already taken",
     "usernameCheckFailed": "Failed to check username availability",

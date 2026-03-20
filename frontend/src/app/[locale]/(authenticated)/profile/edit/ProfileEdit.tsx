@@ -409,7 +409,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
             <DojoStyleAutocomplete
               value={formData.dojo_name}
               onChange={(val) =>
-                setFormData((prev) => ({ ...prev, dojo_name: val }))
+                setFormData((prev) => ({
+                  ...prev,
+                  dojo_name: val,
+                  dojo_style_id: null,
+                }))
               }
               onSelect={handleDojoStyleSelect}
               onRegisterNew={handleRegisterNewDojo}

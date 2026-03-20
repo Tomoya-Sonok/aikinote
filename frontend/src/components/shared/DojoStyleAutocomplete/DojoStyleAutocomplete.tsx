@@ -48,7 +48,7 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isSearching, setIsSearching] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedValue = useDebounce(value, 300);
 
@@ -81,6 +81,16 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
       fetchSuggestions(debouncedValue);
     }
   }, [debouncedValue, fetchSuggestions, selectedId]);
+
+  // 選択済み状態からタップで編集モードへ遷移
+  const handleEditStart = useCallback(() => {
+    const currentValue = value;
+    if (onClear) {
+      onClear();
+    }
+    onChange(currentValue);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }, [value, onClear, onChange]);
 
   // 外部クリックでドロップダウンを閉じる
   useEffect(() => {
@@ -149,18 +159,27 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
   // 選択済み状態
   if (selectedId && value) {
     return (
-      <div className={styles.selectedContainer}>
-        <span className={styles.selectedText}>{value}</span>
-        {onClear && (
+      <div className={styles.container} ref={containerRef}>
+        <div className={styles.selectedContainer}>
           <button
             type="button"
-            className={styles.clearButton}
-            onClick={onClear}
-            aria-label="クリア"
+            className={styles.selectedTextButton}
+            onClick={handleEditStart}
+            aria-label={t("userInfoEdit.editDojoName")}
           >
-            <X size={16} weight="bold" color="var(--text-light)" />
+            <span className={styles.selectedText}>{value}</span>
           </button>
-        )}
+          {onClear && (
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={onClear}
+              aria-label="クリア"
+            >
+              <X size={16} weight="bold" color="var(--text-light)" />
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -168,6 +187,7 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
   return (
     <div className={styles.container} ref={containerRef}>
       <input
+        ref={inputRef}
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -186,7 +206,7 @@ export const DojoStyleAutocomplete: FC<DojoStyleAutocompleteProps> = ({
       />
 
       {isOpen && (
-        <div className={styles.dropdown} ref={listRef} role="listbox">
+        <div className={styles.dropdown} role="listbox">
           {isSearching && (
             <div className={styles.loadingItem}>
               {t("userInfoEdit.loading")}
