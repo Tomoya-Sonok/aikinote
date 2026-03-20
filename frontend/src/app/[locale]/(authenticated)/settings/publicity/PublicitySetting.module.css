@@ -7,7 +7,7 @@
 
 .description {
   font-size: var(--font-size-sm);
-  color: var(--text-light);
+  color: var(--black);
   line-height: 1.6;
   margin: 0;
 }
