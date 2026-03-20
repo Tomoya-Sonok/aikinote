@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import type { FC, TextareaHTMLAttributes } from "react";
 import { useId } from "react";
 import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
@@ -26,7 +25,6 @@ export const TextArea: FC<TextAreaProps> = ({
   rows,
   ...props
 }) => {
-  const t = useTranslations();
   const inputId = useId();
   const errorId = useId();
 
@@ -37,9 +35,7 @@ export const TextArea: FC<TextAreaProps> = ({
       {label && (
         <label htmlFor={inputId} className={styles.label}>
           {label}
-          {required && (
-            <span className={styles.required}>{t("components.required")}</span>
-          )}
+          {required && <span className={styles.required}>*</span>}
         </label>
       )}
       {enableHashtagHighlight ? (

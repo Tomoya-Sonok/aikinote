@@ -361,7 +361,6 @@
     "emailVerificationFailed": "Email verification failed"
   },
   "components": {
-    "required": "required",
     "profileImage": "profile image",
     "createPage": "Create Page",
     "newCreate": "New Create",
@@ -689,7 +688,6 @@
     "loading": "Loading user information...",
     "profile": "Profile",
     "username": "Username",
-    "required": "required",
     "usernamePlaceholder": "Not set",
     "invalidUsername": "Invalid username",
     "currentDojo": "Current dojo (style)?",

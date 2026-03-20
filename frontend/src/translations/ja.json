@@ -363,7 +363,6 @@
     "emailVerificationFailed": "メール認証に失敗しました"
   },
   "components": {
-    "required": "必須",
     "profileImage": "プロフィール画像",
     "createPage": "ページ作成",
     "newCreate": "新規作成",
@@ -691,7 +690,6 @@
     "loading": "読み込み中...",
     "profile": "プロフィール",
     "username": "ユーザー名",
-    "required": "必須",
     "usernamePlaceholder": "未設定",
     "invalidUsername": "無効なユーザー名です",
     "currentDojo": "現在所属している道場（流派）は？",

@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import type { SelectHTMLAttributes } from "react";
 import { forwardRef, useId } from "react";
 import styles from "./SelectInput.module.css";
@@ -11,7 +10,6 @@ interface SelectInputProps extends SelectHTMLAttributes<HTMLSelectElement> {
 
 export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
   ({ label, required = false, error, className, children, ...props }, ref) => {
-    const t = useTranslations();
     const selectId = useId();
     const errorId = useId();
 
@@ -20,11 +18,7 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
         {label && (
           <label htmlFor={selectId} className={styles.label}>
             {label}
-            {required && (
-              <span className={styles.required}>
-                {t("components.required")}
-              </span>
-            )}
+            {required && <span className={styles.required}>*</span>}
           </label>
         )}
         <select
