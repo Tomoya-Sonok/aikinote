@@ -93,7 +93,6 @@ export function SocialPostEdit() {
       // 新規追加された添付を保存
       await attachmentMgmt.saveNewAttachments(postId);
 
-      showToast(t("editSuccess"), "success");
       window.location.replace(`/${locale}/social/posts/${postId}`);
     } catch {
       showToast(t("editFailed"), "error");

@@ -143,10 +143,7 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
       if (!result.success) {
         throw new Error(result.error || t("publicitySetting.saveFailed"));
       }
-      showToast(t("publicitySetting.saved"), "success");
-      setTimeout(() => {
-        router.push(`/${locale}/mypage`);
-      }, 800);
+      router.push(`/${locale}/mypage`);
     } catch (error) {
       console.error("公開設定更新エラー:", error);
       showToast(

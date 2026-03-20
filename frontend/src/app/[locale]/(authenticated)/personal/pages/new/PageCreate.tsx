@@ -121,7 +121,6 @@ export function PageCreate() {
           console.warn("稽古参加の自動登録に失敗:", err);
         }
 
-        showToast(t("pageCreate.success"), "success");
         window.location.replace(returnUrl);
       } else {
         throw new Error(

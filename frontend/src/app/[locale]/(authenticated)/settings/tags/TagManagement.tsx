@@ -298,7 +298,6 @@ export function TagManagement({ locale }: TagManagementProps) {
           return nextGroups;
         });
         handleResetInput(category);
-        showToast(t("pageModal.tagAdded"), "success");
       } else {
         showToast(
           ("error" in response && response.error) ||
@@ -333,7 +332,6 @@ export function TagManagement({ locale }: TagManagementProps) {
           upsertInitialOrder(nextGroups, category);
           return nextGroups;
         });
-        showToast(t("tagManagement.deleteSuccess"), "success");
       } else {
         showToast(
           ("error" in response && response.error) ||
@@ -630,7 +628,6 @@ export function TagManagement({ locale }: TagManagementProps) {
         setTagGroups(groups);
         setInitialOrder(extractOrders(groups));
         setEditingCategory(null);
-        showToast(t("tagManagement.orderSaveSuccess"), "success");
       } else {
         showToast(
           ("error" in response && response.error) ||

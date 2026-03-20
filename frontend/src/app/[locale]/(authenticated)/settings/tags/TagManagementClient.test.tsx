@@ -183,8 +183,6 @@ describe("TagManagement", () => {
     await waitFor(() => {
       expect(screen.queryByText("立技")).not.toBeInTheDocument();
     });
-
-    expect(mockShowToast).toHaveBeenCalledWith("タグを削除しました", "success");
   });
 
   it("並び順保存ボタンを押すとAPIが呼ばれる", async () => {
@@ -252,11 +250,6 @@ describe("TagManagement", () => {
       uke: ["tag-uke-1"],
       waza: ["tag-waza-1"],
     });
-
-    expect(mockShowToast).toHaveBeenCalledWith(
-      "タグの並び順を保存しました",
-      "success",
-    );
   });
 
   it("SPドラッグ操作でタグの並び順が入れ替わる", async () => {

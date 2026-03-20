@@ -302,12 +302,6 @@ export function PersonalCalendar() {
       });
 
       setIsActionModalOpen(false);
-      showToast(
-        isSelectedDateAttended
-          ? t("personalCalendar.attendanceRemoved")
-          : t("personalCalendar.attendanceAdded"),
-        "success",
-      );
     } catch (error) {
       console.error("Failed to update attendance:", error);
       showToast(t("personalCalendar.attendanceUpdateFailed"), "error");

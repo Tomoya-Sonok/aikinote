@@ -66,7 +66,6 @@ export default function MyPage({ initialUser }: MyPageProps) {
       throw new Error(t("surveyModal.saveFailed"));
     }
     await fetchUserInfo();
-    showToast(t("surveyModal.saveSuccess"), "success");
     dismissSurvey();
   };
 

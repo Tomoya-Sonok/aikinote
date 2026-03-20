@@ -138,7 +138,6 @@ export function PageEdit() {
         // 新規追加された添付を保存
         await attachmentMgmt.saveNewAttachments(pageId);
 
-        showToast(t("pageDetail.updateSuccess") || "更新しました", "success");
         window.location.replace(`/${locale}/personal/pages/${pageId}`);
       } else {
         throw new Error(

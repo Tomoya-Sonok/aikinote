@@ -130,7 +130,6 @@ export function SocialPostCreate() {
         await postAttachmentMgmt.saveNewAttachments(postId);
       }
 
-      showToast(tSocial("createSuccess"), "success");
       window.location.replace(`/${locale}/social/posts`);
     } catch {
       showToast(tSocial("createFailed"), "error");
@@ -179,7 +178,6 @@ export function SocialPostCreate() {
           console.warn("稽古参加の自動登録に失敗:", err);
         }
 
-        showToast(tSocial("trainingCreateSuccess"), "success");
         window.location.replace(`/${locale}/social/posts`);
       } else {
         throw new Error(

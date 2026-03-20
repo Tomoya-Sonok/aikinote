@@ -79,7 +79,6 @@ export function useTagManagement(
             const updated = await getTags(user.id);
             if (updated.success && updated.data) {
               setAllTags(updated.data);
-              showToast(t("pageModal.initialTagsCreated"), "success");
             }
           } catch {
             initialTagsCreatedRef.current = false;
@@ -91,7 +90,7 @@ export function useTagManagement(
     } finally {
       setLoading(false);
     }
-  }, [user?.id, enabled, shouldCreateInitialTags, showToast, t]);
+  }, [user?.id, enabled, shouldCreateInitialTags]);
 
   useEffect(() => {
     fetchTags();
@@ -135,7 +134,6 @@ export function useTagManagement(
           await fetchTags();
           setNewTagInput("");
           setShowNewTagInput(null);
-          showToast(t("pageModal.tagAdded"), "success");
 
           const categoryMap: Record<string, "tori" | "uke" | "waza"> = {
             取り: "tori",

@@ -59,12 +59,6 @@ export function PageDetail() {
       });
       if (response.success) {
         setPageData({ ...pageData, is_public: newValue });
-        showToast(
-          newValue
-            ? t("pageDetail.publicEnabled")
-            : t("pageDetail.publicDisabled"),
-          "success",
-        );
       }
     } catch (error) {
       console.error("公開設定変更エラー:", error);
@@ -100,7 +94,7 @@ export function PageDetail() {
     }
 
     if (!user?.id) {
-      alert(t("personalPages.loginRequired"));
+      showToast(t("personalPages.loginRequired"), "error");
       return;
     }
 
@@ -117,8 +111,9 @@ export function PageDetail() {
       }
     } catch (error) {
       console.error("Failed to delete page:", error);
-      alert(
+      showToast(
         error instanceof Error ? error.message : t("pageDetail.deleteFailed"),
+        "error",
       );
     } finally {
       setDeletingPage(false);

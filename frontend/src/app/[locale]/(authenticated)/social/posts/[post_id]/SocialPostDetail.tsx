@@ -201,7 +201,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     setIsDeleting(true);
     try {
       await deleteSocialPost(postId);
-      showToast(t("deleteSuccess"), "success");
       window.location.replace(`/${locale}/social/posts`);
     } catch {
       showToast(t("deleteFailed"), "error");
@@ -293,7 +292,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);
         }
-        showToast(t("replyEditSuccess"), "success");
       } catch {
         showToast(t("replyEditFailed"), "error");
       }
@@ -309,7 +307,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);
         }
-        showToast(t("replyDeleteSuccess"), "success");
       } catch {
         showToast(t("replyDeleteFailed"), "error");
       }

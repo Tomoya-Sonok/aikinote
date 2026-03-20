@@ -141,8 +141,6 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
 
       await refreshUser();
 
-      showToast(t("userInfoEdit.updateSuccess"), "success");
-
       if (from === "social") {
         router.push(`/${locale}/social/profile/${user.id}`);
       } else {
@@ -274,7 +272,6 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
           dojo_style_id: result.data.id,
         }));
         setDojoStyleError(null);
-        showToast(t("userInfoEdit.dojoRegistrationSuccess"), "success");
       }
     } catch (error) {
       console.error("道場登録エラー:", error);
