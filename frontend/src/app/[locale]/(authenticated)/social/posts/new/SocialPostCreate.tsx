@@ -131,7 +131,7 @@ export function SocialPostCreate() {
       }
 
       showToast(tSocial("createSuccess"), "success");
-      window.location.href = `/${locale}/social/posts`;
+      window.location.replace(`/${locale}/social/posts`);
     } catch {
       showToast(tSocial("createFailed"), "error");
     } finally {
@@ -180,7 +180,7 @@ export function SocialPostCreate() {
         }
 
         showToast(tSocial("trainingCreateSuccess"), "success");
-        window.location.href = `/${locale}/social/posts`;
+        window.location.replace(`/${locale}/social/posts`);
       } else {
         throw new Error(
           ("error" in result && result.error) || tSocial("createFailed"),
@@ -218,13 +218,13 @@ export function SocialPostCreate() {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
-      window.location.href = `/${locale}/social/posts`;
+      window.location.replace(`/${locale}/social/posts`);
     }
   }, [hasUnsavedChanges, locale]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
-    window.location.href = `/${locale}/social/posts`;
+    window.location.replace(`/${locale}/social/posts`);
   }, [locale]);
 
   const isDisabled =

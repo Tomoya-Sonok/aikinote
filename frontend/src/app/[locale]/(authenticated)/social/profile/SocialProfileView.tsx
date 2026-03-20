@@ -99,7 +99,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   );
 
   const handleBack = useCallback(() => {
-    window.location.href = `/${locale}/social/posts`;
+    window.location.replace(`/${locale}/social/posts`);
   }, [locale]);
 
   const handleEdit = useCallback(() => {

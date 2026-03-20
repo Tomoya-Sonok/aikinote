@@ -122,7 +122,7 @@ export function PageCreate() {
         }
 
         showToast(t("pageCreate.success"), "success");
-        window.location.href = returnUrl;
+        window.location.replace(returnUrl);
       } else {
         throw new Error(
           ("error" in result && result.error) || "作成に失敗しました",
@@ -153,13 +153,13 @@ export function PageCreate() {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
-      window.location.href = returnUrl;
+      window.location.replace(returnUrl);
     }
   }, [hasUnsavedChanges, returnUrl]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
-    window.location.href = returnUrl;
+    window.location.replace(returnUrl);
   }, [returnUrl]);
 
   const isDisabled = isSubmitting || !title.trim() || !content.trim();

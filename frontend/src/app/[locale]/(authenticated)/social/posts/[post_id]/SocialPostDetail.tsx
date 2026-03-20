@@ -157,7 +157,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     ) {
       window.history.back();
     } else {
-      window.location.href = `/${locale}/social/posts`;
+      window.location.replace(`/${locale}/social/posts`);
     }
   }, [locale]);
 
@@ -202,7 +202,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     try {
       await deleteSocialPost(postId);
       showToast(t("deleteSuccess"), "success");
-      window.location.href = `/${locale}/social/posts`;
+      window.location.replace(`/${locale}/social/posts`);
     } catch {
       showToast(t("deleteFailed"), "error");
     } finally {
