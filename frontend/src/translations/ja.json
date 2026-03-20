@@ -590,6 +590,7 @@
     "bioLabel": "自己紹介",
     "dojoFilter": "道場名",
     "rankFilter": "段級位",
+    "selectPlaceholder": "選択してください",
     "shareSuccess": "リンクをコピーしました",
     "reportReason": "通報理由",
     "reportReasonSpam": "スパム",

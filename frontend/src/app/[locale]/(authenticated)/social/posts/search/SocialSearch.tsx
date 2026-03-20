@@ -514,7 +514,7 @@ export function SocialSearch() {
                 onChange={(e) => handleRankChange(e.target.value)}
                 aria-label={t("rankFilter")}
               >
-                <option value="">-</option>
+                <option value="">{t("selectPlaceholder")}</option>
                 {AIKIDO_RANK_OPTIONS.map((r) => (
                   <option key={r} value={r}>
                     {r}

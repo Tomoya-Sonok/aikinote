@@ -84,7 +84,7 @@ export const WithoutLabel: Story = {
   args: {
     children: (
       <>
-        <option value="">-</option>
+        <option value="">選択してください</option>
         <option value="初段">初段</option>
         <option value="二段">二段</option>
         <option value="三段">三段</option>

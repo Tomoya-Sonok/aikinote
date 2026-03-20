@@ -588,6 +588,7 @@
     "bioLabel": "Bio",
     "dojoFilter": "Dojo",
     "rankFilter": "Rank/Grade",
+    "selectPlaceholder": "Select",
     "shareSuccess": "Link copied",
     "reportReason": "Report reason",
     "reportReasonSpam": "Spam",
