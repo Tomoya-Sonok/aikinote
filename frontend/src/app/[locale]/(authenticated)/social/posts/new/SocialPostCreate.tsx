@@ -342,7 +342,9 @@ export function SocialPostCreate() {
                 label={t("pageModal.title")}
                 required
                 value={trainingTitle}
-                placeholder={t("pageCreate.contentPlaceholder")}
+                placeholder={t("pageCreate.titlePlaceholder", {
+                  date: formatToLocalDateString(new Date().toISOString()),
+                })}
                 onChange={(e) => {
                   const v = e.target.value;
                   setTrainingTitle(v);
@@ -406,6 +408,7 @@ export function SocialPostCreate() {
                     });
                   }
                 }}
+                placeholder={t("pageCreate.contentPlaceholder")}
                 error={errors.content}
                 rows={5}
               />

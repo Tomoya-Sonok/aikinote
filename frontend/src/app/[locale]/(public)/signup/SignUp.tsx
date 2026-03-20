@@ -136,7 +136,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
                   className={`${styles.inputField} ${
                     emailPasswordForm.formState.errors.email ? styles.error : ""
                   }`}
-                  placeholder="aaaa@example.com"
+                  placeholder="aikinote@example.com"
                 />
               </div>
               {emailPasswordForm.formState.errors.email && (

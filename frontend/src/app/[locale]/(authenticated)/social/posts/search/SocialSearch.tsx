@@ -500,7 +500,7 @@ export function SocialSearch() {
                   value={dojoName}
                   onChange={handleDojoNameChange}
                   onSelect={handleDojoStyleSelect}
-                  placeholder={t("dojoFilter")}
+                  placeholder={t("dojoFilterPlaceholder")}
                   selectedId={dojoStyleId}
                   onClear={handleDojoStyleClear}
                 />
