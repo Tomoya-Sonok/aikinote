@@ -18,7 +18,11 @@ export const SelectInput = forwardRef<HTMLSelectElement, SelectInputProps>(
         {label && (
           <label htmlFor={selectId} className={styles.label}>
             {label}
-            {required && <span className={styles.required}>*</span>}
+            {required && (
+              <span className={styles.required} aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <select

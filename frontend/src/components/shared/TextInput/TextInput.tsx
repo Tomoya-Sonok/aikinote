@@ -18,7 +18,11 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         {label && (
           <label htmlFor={inputId} className={styles.label}>
             {label}
-            {required && <span className={styles.required}>*</span>}
+            {required && (
+              <span className={styles.required} aria-hidden="true">
+                *
+              </span>
+            )}
           </label>
         )}
         <input

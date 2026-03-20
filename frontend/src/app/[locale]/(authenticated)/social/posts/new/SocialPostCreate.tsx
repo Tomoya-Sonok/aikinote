@@ -47,6 +47,9 @@ export function SocialPostCreate() {
   const postAttachmentMgmt = useAttachmentManagement("social-post");
 
   // 稽古記録モード用
+  const trainingTitlePlaceholder = t("pageCreate.titlePlaceholder", {
+    date: formatToLocalDateString(new Date().toISOString()),
+  });
   const [trainingTitle, setTrainingTitle] = useState("");
   const [trainingContent, setTrainingContent] = useState("");
   const trainingAttachmentMgmt = useAttachmentManagement("page");
@@ -342,9 +345,7 @@ export function SocialPostCreate() {
                 label={t("pageModal.title")}
                 required
                 value={trainingTitle}
-                placeholder={t("pageCreate.titlePlaceholder", {
-                  date: formatToLocalDateString(new Date().toISOString()),
-                })}
+                placeholder={trainingTitlePlaceholder}
                 onChange={(e) => {
                   const v = e.target.value;
                   setTrainingTitle(v);

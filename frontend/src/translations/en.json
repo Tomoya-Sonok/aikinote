@@ -207,7 +207,6 @@
     "uke": "Uke",
     "waza": "Technique",
     "content": "Training Content",
-    "required": "required",
     "titleRequired": "Title is required",
     "contentRequired": "Training content is required",
     "addNewTag": "Enter new tag",
