@@ -17,6 +17,7 @@ import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { Hero } from "./_components/Hero";
 import { PainPoints } from "./_components/PainPoints";
+import { Steps } from "./_components/Steps";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -190,54 +191,7 @@ export default async function RootPage({ params }: RootPageProps) {
 
           <PainPoints locale={locale} />
 
-          {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
-          <section id="solution-recording" className={styles.section}>
-            <div className={styles.sectionContent}>
-              <div className={styles.sectionText}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle}>
-                    {t.rich("solutionRecording.title", { bold })}
-                  </h2>
-                </div>
-                <ol className={styles.stepList}>
-                  {SECTION_KEYS.map((key) => (
-                    <li key={key}>
-                      {t.rich(`solutionRecording.steps.${key}`, { bold })}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-              <div className={styles.sectionVisual}>
-                <div className={styles.mockNotebookScene} aria-hidden="true">
-                  <div className={styles.mockNotebook}>
-                    <div className={styles.mockNotebookTabs}>
-                      <span />
-                      <span />
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                    <div className={styles.mockNotebookBody}>
-                      <span />
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                  </div>
-                  <div className={styles.pencilCursor}>
-                    <span className={styles.pencilBody}>
-                      <span className={styles.pencilTip} />
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className={styles.sectionActions}>
-              <Link href={signupHref} className={styles.primaryCta}>
-                {t("cta.primary")}
-              </Link>
-            </div>
-          </section>
+          <Steps locale={locale} signupHref={signupHref} />
 
           {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
           <section

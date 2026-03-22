@@ -66,12 +66,28 @@
       "imageAlt": "Illustration of an aikido practitioner struggling with concerns"
     },
     "solutionRecording": {
-      "title": "Practice logging takes just three steps",
-      "steps": {
-        "first": "<bold>Create a page with one tap</bold>",
-        "second": "<bold>Select related tags</bold>, such as technique names",
-        "third": "<bold>Jot down learnings and reflections freely</bold> and save"
-      }
+      "badge": "How to Use",
+      "titlePrefix": "Practice logging in just",
+      "titleNumber": "3",
+      "titleSuffix": "steps",
+      "subtitle": "After practice,\npull out your phone and record right away.",
+      "steps": [
+        {
+          "title": "Create a page with one tap",
+          "body": "Just tap \"Create Page\" from the home screen.",
+          "imageAlt": "AikiNote home screen"
+        },
+        {
+          "title": "Pick Aikido technique tags",
+          "body": "Select from tags like \"Ikkyo\", \"Iriminage\", \"Katatedori\" — no repetitive typing, easy one-hand operation.",
+          "imageAlt": "AikiNote tag selection screen"
+        },
+        {
+          "title": "Jot down learnings and save",
+          "body": "Write freely about what you felt during practice and save. In just a few minutes before heading home, turn fading memories into solid records.",
+          "imageAlt": "AikiNote recording screen"
+        }
+      ]
     },
     "solutionSearch": {
       "title": "Find past notes in moments",
