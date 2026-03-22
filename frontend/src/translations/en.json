@@ -50,31 +50,11 @@
       }
     },
     "hero": {
-      "lead": "Digital practice log specifically designed for Aikido.",
-      "titleLines": [
-        "Capture training insights",
-        "Record them instantly on the mat.",
-        "Review everything with ease."
-      ],
-      "imageAlt": "AikiNote mobile app mockup screen",
-      "textImageAlt": "Silhouette of an aikido practitioner standing with a smartphone",
-      "carousel": {
-        "items": [
-          {
-            "alt": "AikiNote screen mockup showing one-tap page creation",
-            "caption": "Create a page with one tap"
-          },
-          {
-            "alt": "AikiNote screen mockup highlighting preset tags",
-            "caption": "Use preset tags to stay organized"
-          },
-          {
-            "alt": "AikiNote screen mockup demonstrating search and filters",
-            "caption": "Filter entries with tags or keywords"
-          }
-        ],
-        "dotLabel": "Slide {index}"
-      }
+      "heading": "Never let a training\ninsight slip away.",
+      "subtext": "Open your phone right after practice and record in seconds.\nA digital training journal built specifically for Aikido.",
+      "ctaLabel": "Get Started for Free",
+      "illustrationAlt": "Illustration of aikido practice",
+      "mockAlt": "AikiNote app mockup screen"
     },
     "painPoints": {
       "title": "Do these concerns sound familiar?",

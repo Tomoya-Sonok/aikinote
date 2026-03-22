@@ -24,6 +24,20 @@
   --skeleton-base: #ebe7e2;
   --skeleton-highlight: #f5f3ef;
 
+  /* ── LP 固有カラー ── */
+  --lp-bg-base: #fff;
+  --lp-bg-gray: #838383;
+  --lp-bg-light-gray: #efecec;
+  --lp-bg-dark: #2c2c2c;
+  --lp-text-heading: #2c2c2c;
+  --lp-text-heading-white: #fff;
+  --lp-text-body: #000;
+  --lp-cta-signup-bg: #2c2c2c;
+  --lp-cta-signup-text: #fff;
+  --lp-cta-inquiry-bg: transparent;
+  --lp-cta-inquiry-text: #2c2c2c;
+  --lp-border: #2c2c2c;
+
   /* ── フォント変数 ── */
   --font-zen-old-mincho:
     "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;

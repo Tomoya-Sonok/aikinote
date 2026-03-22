@@ -1,0 +1,141 @@
+/* ── Hero セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.hero {
+  padding: 40px 20px 60px;
+  scroll-margin-top: 68px;
+  overflow: hidden;
+}
+
+.inner {
+  display: grid;
+  grid-template-areas:
+    "heading"
+    "visual"
+    "subtext";
+  gap: 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* ── 見出し ── */
+
+.heading {
+  grid-area: heading;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: normal;
+  letter-spacing: 7.2px;
+  margin: 0;
+}
+
+/* ── サブテキスト + CTA エリア ── */
+
+.subtextArea {
+  grid-area: subtext;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.subtext {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+}
+
+/* ── CTA ボタン ── */
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 250px;
+  height: 50px;
+  background: var(--lp-cta-signup-bg);
+  color: var(--lp-cta-signup-text);
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.ctaIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-cta-signup-bg);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── ビジュアルエリア ── */
+/* TODO: デザイナーから合成画像を受領後に実装
+   Figma 値:
+   - SP pill: 264×825, rotate(54.693deg)
+   - PC pill: 397×1237, rotate(54.693deg)
+   - SP mock: left 45.14%, right 26.91%, top 424.61px, rotate(13.15deg)
+   - PC mock: left 56.81%, right 12.36%, top 152px, rotate(13.15deg)
+   - mock shadow: 5px 10px 20px rgba(0,0,0,0.25) */
+
+.visualArea {
+  grid-area: visual;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .hero {
+    padding: 80px 40px 100px;
+  }
+
+  .inner {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "heading visual"
+      "subtext visual";
+    align-items: start;
+    gap: 24px 48px;
+  }
+
+  .subtextArea {
+    align-items: flex-start;
+    gap: 32px;
+  }
+}
+
+/* ── アクセシビリティ ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+}

@@ -246,73 +246,6 @@
   flex-direction: column;
 }
 
-.heroContent {
-  gap: 8px;
-}
-
-.heroSection {
-  padding-top: 16px;
-}
-
-.heroText {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.leadLabel {
-  color: var(--text-light, #6b7280);
-  font-family: var(--font-inter);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.heroTitle {
-  font-family: var(--font-zen-old-mincho);
-  font-size: clamp(30px, 4.8vw, 52px);
-  font-weight: 700;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.heroDescription {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  font-size: var(--font-size-large, 20px);
-  line-height: 1.6;
-}
-
-.heroDescription p {
-  margin: 0;
-}
-
-.heroActions {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  z-index: 1;
-}
-
-.heroTextImageWrapper {
-  align-self: center;
-  margin-top: 16px;
-  max-width: 220px;
-  position: relative;
-  transform: none;
-}
-
-.heroTextImage {
-  background: var(--white);
-  display: block;
-  height: auto;
-  width: clamp(160px, 60vw, 220px);
-  border-radius: 16px;
-  margin: 0 auto;
-}
-
 .primaryCta {
   background: var(--primary-color);
   border-radius: 6px;
@@ -331,33 +264,6 @@
   transition:
     transform 0.4s ease-out,
     box-shadow 0.4s ease-out;
-}
-
-.heroVisual {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-  padding-top: 8px;
-}
-
-.heroCarousel {
-  width: 100%;
-}
-
-.heroMockDesktop {
-  display: none;
-}
-
-.heroMockImage {
-  background: var(--white);
-  border-radius: 20px;
-  height: auto;
-  max-width: 300px;
-  width: clamp(240px, 75vw, 300px);
 }
 
 .sectionHeader {
@@ -686,52 +592,6 @@
 
   .sectionContentReverse .sectionVisual {
     justify-content: flex-start;
-  }
-
-  .heroContent {
-    align-items: center;
-    flex-direction: row;
-  }
-
-  .heroText {
-    flex: 1 1 55%;
-    gap: 24px;
-    align-items: flex-start;
-    max-width: none;
-    text-align: left;
-  }
-
-  .heroVisual {
-    flex: 1 1 45%;
-    justify-content: flex-end;
-    align-items: flex-end;
-    gap: 0;
-    padding-top: 0;
-  }
-
-  .heroCarousel {
-    display: none;
-  }
-
-  .heroMockDesktop {
-    display: block;
-  }
-
-  .heroMockImage {
-    max-width: 420px;
-    width: 100%;
-  }
-
-  .heroActions {
-    justify-content: flex-start;
-  }
-
-  .heroTextImageWrapper {
-    position: relative;
-    align-self: flex-end;
-    margin-top: 0;
-    max-width: 240px;
-    transform: translateY(-60px);
   }
 
   .searchContent {

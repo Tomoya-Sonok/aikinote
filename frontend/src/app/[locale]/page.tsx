@@ -9,13 +9,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Fragment, type ReactNode } from "react";
-import { HeroCarousel } from "@/components/features/landing/HeroCarousel/HeroCarousel";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
 import { LocaleMenu } from "@/components/features/landing/LocaleMenu/LocaleMenu";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import buttonStyles from "@/components/shared/Button/Button.module.css";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
+import { Hero } from "./_components/Hero";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -75,18 +75,6 @@ export default async function RootPage({ params }: RootPageProps) {
 
   const t = await getTranslations({ locale, namespace: "landing" });
   const tLanguage = await getTranslations({ locale, namespace: "language" });
-  const heroTitleLines = t.raw("hero.titleLines") as string[];
-  const heroCarouselItems = (
-    t.raw("hero.carousel.items") as Array<{
-      alt: string;
-      caption: string;
-    }>
-  ).map((item, index) => ({
-    src: `/images/lp/lp_hero_carousel_${index + 1}.png`,
-    alt: item.alt,
-    caption: item.caption,
-    dotLabel: t("hero.carousel.dotLabel", { index: index + 1 }),
-  }));
   const navigation = t.raw("navigation") as NavigationContent;
   const footer = t.raw("footer") as FooterContent;
   const rootHref = isDefaultLocale ? "/" : `/${locale}`;
@@ -197,60 +185,7 @@ export default async function RootPage({ params }: RootPageProps) {
 
       <main className={styles.mainContent}>
         <div className={styles.sectionsContainer}>
-          {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
-          <section
-            id="hero"
-            className={`${styles.section} ${styles.heroSection}`}
-          >
-            <div className={`${styles.sectionContent} ${styles.heroContent}`}>
-              <div className={`${styles.sectionText} ${styles.heroText}`}>
-                <p className={styles.leadLabel}>{t("hero.lead")}</p>
-                <h1 className={styles.heroTitle}>
-                  {heroTitleLines.map((line, index) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: Display-only split text
-                    <Fragment key={`${line}-${index}`}>
-                      {line}
-                      {index < heroTitleLines.length - 1 && <br />}
-                    </Fragment>
-                  ))}
-                </h1>
-                <div className={styles.heroActions}>
-                  <Link href={signupHref} className={styles.primaryCta}>
-                    {t("cta.primary")}
-                  </Link>
-                </div>
-                <div className={styles.heroTextImageWrapper}>
-                  <Image
-                    src="/images/lp/lp_standing_with_smartphone.png"
-                    alt={t("hero.textImageAlt")}
-                    width={1237}
-                    height={1379}
-                    sizes="(min-width: 768px) 220px, 40vw"
-                    className={styles.heroTextImage}
-                    priority
-                  />
-                </div>
-              </div>
-              <div className={`${styles.sectionVisual} ${styles.heroVisual}`}>
-                <div className={styles.heroCarousel}>
-                  {heroCarouselItems.length > 0 ? (
-                    <HeroCarousel items={heroCarouselItems} />
-                  ) : null}
-                </div>
-                <div className={styles.heroMockDesktop}>
-                  <Image
-                    src="/images/lp/lp_hero_mock1.png"
-                    alt={t("hero.imageAlt")}
-                    width={1857}
-                    height={3096}
-                    sizes="(min-width: 768px) 360px, 80vw"
-                    className={styles.heroMockImage}
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
+          <Hero locale={locale} signupHref={signupHref} />
 
           {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
           <section id="pain-points" className={styles.section}>
