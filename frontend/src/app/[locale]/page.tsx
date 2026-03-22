@@ -82,7 +82,7 @@ export default async function RootPage({ params }: RootPageProps) {
       caption: string;
     }>
   ).map((item, index) => ({
-    src: `/images/lp_hero_carousel_${index + 1}.png`,
+    src: `/images/lp/lp_hero_carousel_${index + 1}.png`,
     alt: item.alt,
     caption: item.caption,
     dotLabel: t("hero.carousel.dotLabel", { index: index + 1 }),
@@ -142,7 +142,7 @@ export default async function RootPage({ params }: RootPageProps) {
             aria-label={navigation.logoLabel}
           >
             <Image
-              src="/images/aikinote_logo.png"
+              src="/images/shared/aikinote_logo.png"
               alt="AikiNote logo"
               width={270}
               height={270}
@@ -151,7 +151,7 @@ export default async function RootPage({ params }: RootPageProps) {
               priority
             />
             <Image
-              src="/images/aikinote_logo_horizontal.png"
+              src="/images/lp/aikinote_logo_horizontal.png"
               alt="AikiNote logo"
               width={814}
               height={270}
@@ -221,7 +221,7 @@ export default async function RootPage({ params }: RootPageProps) {
                 </div>
                 <div className={styles.heroTextImageWrapper}>
                   <Image
-                    src="/images/lp_standing_with_smartphone.png"
+                    src="/images/lp/lp_standing_with_smartphone.png"
                     alt={t("hero.textImageAlt")}
                     width={1237}
                     height={1379}
@@ -239,7 +239,7 @@ export default async function RootPage({ params }: RootPageProps) {
                 </div>
                 <div className={styles.heroMockDesktop}>
                   <Image
-                    src="/images/lp_hero_mock1.png"
+                    src="/images/lp/lp_hero_mock1.png"
                     alt={t("hero.imageAlt")}
                     width={1857}
                     height={3096}
@@ -274,7 +274,7 @@ export default async function RootPage({ params }: RootPageProps) {
               <div className={styles.sectionVisual}>
                 <figure className={styles.illustrationWrapper}>
                   <Image
-                    src="/images/lp_pain_points.png"
+                    src="/images/lp/lp_pain_points.png"
                     alt={t("painPoints.imageAlt")}
                     width={1018}
                     height={935}
@@ -343,7 +343,7 @@ export default async function RootPage({ params }: RootPageProps) {
             <div className={styles.searchRow}>
               <div className={`${styles.sectionVisual} ${styles.searchVisual}`}>
                 <Image
-                  src="/images/lp_hero_carousel_1.png"
+                  src="/images/lp/lp_hero_carousel_1.png"
                   alt={t("solutionSearch.imageAlt")}
                   width={1857}
                   height={3096}
@@ -408,7 +408,7 @@ export default async function RootPage({ params }: RootPageProps) {
               <div className={styles.sectionVisual}>
                 <figure className={styles.illustrationWrapper}>
                   <Image
-                    src="/images/lp_upcoming_sns_features.png"
+                    src="/images/shared/lp_upcoming_sns_features.png"
                     alt={t("futureFeatures.imageAlt")}
                     width={2048}
                     height={1243}

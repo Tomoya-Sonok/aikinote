@@ -103,7 +103,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
         aria-label="ホームに移動"
       >
         <Image
-          src="/images/aikinote_logo.png"
+          src="/images/shared/aikinote_logo.png"
           alt="AikiNote"
           width={56}
           height={56}

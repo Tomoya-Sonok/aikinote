@@ -39,7 +39,7 @@ export default async function SocialPostsPage({
 
             <div className={styles.imageWrapper}>
               <Image
-                src="/images/lp_upcoming_sns_features.png"
+                src="/images/shared/lp_upcoming_sns_features.png"
                 alt="AikiNote Upcoming SNS Features"
                 width={800}
                 height={600}
