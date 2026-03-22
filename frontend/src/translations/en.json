@@ -57,13 +57,13 @@
       "mockAlt": "AikiNote app mockup screen"
     },
     "painPoints": {
-      "title": "Do these concerns sound familiar?",
-      "items": {
-        "first": "What you learn during practice <bold>doesn't come back in full detail later</bold>",
-        "second": "Logging feels tedious, so <bold>your practice records don't last</bold>",
-        "third": "When you want to review, <bold>you can't find the practice record you need</bold>"
-      },
-      "imageAlt": "Illustration contrasting messy notes and organized records"
+      "title": "Do these concerns\nsound familiar?",
+      "items": [
+        "What you learned in practice\ndoesn't come back later",
+        "Logging feels tedious,\nso your records don't last",
+        "When you want to review,\nyou can't find the right note"
+      ],
+      "imageAlt": "Illustration of an aikido practitioner struggling with concerns"
     },
     "solutionRecording": {
       "title": "Practice logging takes just three steps",

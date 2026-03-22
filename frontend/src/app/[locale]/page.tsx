@@ -16,6 +16,7 @@ import buttonStyles from "@/components/shared/Button/Button.module.css";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { Hero } from "./_components/Hero";
+import { PainPoints } from "./_components/PainPoints";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -187,39 +188,7 @@ export default async function RootPage({ params }: RootPageProps) {
         <div className={styles.sectionsContainer}>
           <Hero locale={locale} signupHref={signupHref} />
 
-          {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
-          <section id="pain-points" className={styles.section}>
-            <div
-              className={`${styles.sectionContent} ${styles.sectionContentReverse}`}
-            >
-              <div className={styles.sectionText}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle}>
-                    {t("painPoints.title")}
-                  </h2>
-                </div>
-                <ul className={styles.bulletList}>
-                  {SECTION_KEYS.map((key) => (
-                    <li key={key}>
-                      {t.rich(`painPoints.items.${key}`, { bold })}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className={styles.sectionVisual}>
-                <figure className={styles.illustrationWrapper}>
-                  <Image
-                    src="/images/lp/lp_pain_points.png"
-                    alt={t("painPoints.imageAlt")}
-                    width={1018}
-                    height={935}
-                    sizes="(min-width: 768px) 480px, 90vw"
-                    className={styles.illustrationImage}
-                  />
-                </figure>
-              </div>
-            </div>
-          </section>
+          <PainPoints locale={locale} />
 
           {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
           <section id="solution-recording" className={styles.section}>

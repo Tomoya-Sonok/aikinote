@@ -1,0 +1,201 @@
+/* ── Pain Points セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  background: var(--lp-bg-gray);
+  padding: 80px 20px 0;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+  text-align: center;
+}
+
+/* ── 装飾テキスト「PROBLEMS」── */
+
+.bgLabel {
+  position: absolute;
+  left: -10px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-cta-signup-text);
+  opacity: 0.2;
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── タイトル ── */
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--lp-text-heading-white);
+  line-height: normal;
+  letter-spacing: 6.4px;
+  text-align: center;
+  margin: 0;
+}
+
+/* ── 区切り線 ── */
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading-white);
+  margin: 24px auto;
+}
+
+/* ── 吹き出し群 + イラストのコンテナ ── */
+
+.itemsWrapper {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  /* SP: 吹き出し3つ + イラスト分の高さを確保 */
+  height: 620px;
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  height: 100%;
+}
+
+/* ── 各吹き出しアイテム（絶対配置）── */
+
+.item {
+  position: absolute;
+  text-align: left;
+}
+
+/* SP 配置: Figma SP デザイン準拠 */
+/* 1つ目: 中央やや右 */
+.item:nth-child(1) {
+  top: 0;
+  left: 15%;
+}
+
+/* 2つ目: 右寄り、少し下 */
+.item:nth-child(2) {
+  top: 130px;
+  right: 0;
+  left: auto;
+}
+
+/* 3つ目: 左寄り、さらに下 */
+.item:nth-child(3) {
+  top: 280px;
+  left: 0;
+}
+
+/* ── swirl アイコン ── */
+
+.swirl {
+  position: absolute;
+  top: -12px;
+  left: -8px;
+  width: 29px;
+  height: 37px;
+  z-index: 1;
+}
+
+/* ── 吹き出し ── */
+
+.bubble {
+  background: var(--lp-bg-base);
+  border-radius: 12px;
+  padding: 16px 24px;
+  position: relative;
+  display: inline-block;
+}
+
+/* 吹き出しの尻尾: 左下に鋭角で伸びる */
+.bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 12px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 14px 10px 0 0;
+  border-color: var(--lp-bg-base) transparent transparent transparent;
+}
+
+.bubbleText {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* ── 下部イラスト（吹き出しと重なる）── */
+
+.illustration {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.illustrationImage {
+  width: 300px;
+  height: auto;
+  display: block;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .section {
+    padding: 80px 40px 0;
+  }
+
+  .bgLabel {
+    left: -20px;
+  }
+
+  .itemsWrapper {
+    max-width: 900px;
+    height: 500px;
+  }
+
+  /* PC 配置: Figma PC デザイン準拠 */
+  /* 1つ目: 中央 */
+  .item:nth-child(1) {
+    top: 0;
+    left: 30%;
+  }
+
+  /* 2つ目: 右寄り、少し下 */
+  .item:nth-child(2) {
+    top: 100px;
+    left: auto;
+    right: 5%;
+  }
+
+  /* 3つ目: 左寄り、さらに下 */
+  .item:nth-child(3) {
+    top: 200px;
+    left: 10%;
+  }
+}
+
+/* ── アクセシビリティ ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    scroll-behavior: auto;
+  }
+}
