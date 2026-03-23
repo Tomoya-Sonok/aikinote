@@ -1,8 +1,3 @@
-import {
-  ClockCounterClockwiseIcon,
-  ListIcon,
-  MagnifyingGlassIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,6 +12,7 @@ import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { Hero } from "./_components/Hero";
 import { PainPoints } from "./_components/PainPoints";
+import { SearchFeature } from "./_components/SearchFeature";
 import { Steps } from "./_components/Steps";
 import styles from "./page.module.css";
 
@@ -82,24 +78,6 @@ export default async function RootPage({ params }: RootPageProps) {
   const rootHref = isDefaultLocale ? "/" : `/${locale}`;
   const signupHref = `${localePrefix}/signup`;
   const currentYear = new Date().getFullYear();
-  const searchFeatureIcons: Record<(typeof SECTION_KEYS)[number], ReactNode> = {
-    first: <ListIcon size={28} color="var(--primary-dark)" weight="regular" />,
-    second: (
-      <MagnifyingGlassIcon
-        size={28}
-        color="var(--primary-dark)"
-        weight="regular"
-      />
-    ),
-    third: (
-      <ClockCounterClockwiseIcon
-        size={28}
-        color="var(--primary-dark)"
-        weight="regular"
-      />
-    ),
-  };
-  const searchSubtitleLines = t("solutionSearch.subtitle").split("\n");
   const localeSummary = isDefaultLocale
     ? tLanguage("japanese")
     : tLanguage("english");
@@ -193,64 +171,7 @@ export default async function RootPage({ params }: RootPageProps) {
 
           <Steps locale={locale} signupHref={signupHref} />
 
-          {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
-          <section
-            id="solution-search"
-            className={`${styles.section} ${styles.searchSection}`}
-          >
-            <div className={styles.searchRow}>
-              <div className={`${styles.sectionVisual} ${styles.searchVisual}`}>
-                <Image
-                  src="/images/lp/lp_hero_carousel_1.png"
-                  alt={t("solutionSearch.imageAlt")}
-                  width={1857}
-                  height={3096}
-                  sizes="(min-width: 1024px) 440px, (min-width: 768px) 380px, 90vw"
-                  className={styles.searchImage}
-                />
-              </div>
-              <div className={styles.searchInfo}>
-                <div className={styles.sectionHeader}>
-                  <h2
-                    className={`${styles.sectionTitle} ${styles.searchTitle}`}
-                  >
-                    {t("solutionSearch.title")}
-                  </h2>
-                  <p className={styles.searchSubtitle}>
-                    {searchSubtitleLines.map((line, index) => (
-                      // biome-ignore lint/suspicious/noArrayIndexKey: Display-only split text
-                      <Fragment key={`${line}-${index}`}>
-                        {line}
-                        {index < searchSubtitleLines.length - 1 && <br />}
-                      </Fragment>
-                    ))}
-                  </p>
-                </div>
-                <ul className={styles.searchFeatures}>
-                  {SECTION_KEYS.map((key) => (
-                    <li key={key} className={styles.searchFeatureItem}>
-                      <div className={styles.featureIcon} aria-hidden="true">
-                        {searchFeatureIcons[key]}
-                      </div>
-                      <div className={styles.searchFeatureText}>
-                        <p className={styles.searchFeatureTitle}>
-                          {t(`solutionSearch.features.${key}.title`)}
-                        </p>
-                        <p className={styles.searchFeatureBody}>
-                          {t(`solutionSearch.features.${key}.body`)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className={`${styles.sectionActions} ${styles.searchActions}`}>
-              <Link href={signupHref} className={styles.primaryCta}>
-                {t("cta.primary")}
-              </Link>
-            </div>
-          </section>
+          <SearchFeature locale={locale} signupHref={signupHref} />
 
           {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
           <section id="future-features" className={styles.section}>

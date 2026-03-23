@@ -90,23 +90,10 @@
       ]
     },
     "solutionSearch": {
-      "title": "Find past notes in moments",
-      "subtitle": "Tags, dates, keywords.\nSearch and sorting make reviews smooth.",
-      "features": {
-        "first": {
-          "title": "Filter quickly with tags",
-          "body": "Pick tags for standing/seated forms, technique names, and more."
-        },
-        "second": {
-          "title": "Search freely with keywords",
-          "body": "Even fuzzy memories surface the note you need."
-        },
-        "third": {
-          "title": "Jump back to recent records",
-          "body": "Perfect for a quick review before practice."
-        }
-      },
-      "imageAlt": "Smartphone UI mockup showing search results"
+      "badge": "Search Feature",
+      "title": "Find past records\nin seconds.",
+      "body": "Tags, dates, and free-text search. Combine multiple filters to quickly reach the practice record you need. Even when your memory is hazy, it's easy to look things up on your phone before practice.",
+      "imageAlt": "AikiNote search feature mockup screen"
     },
     "futureFeatures": {
       "title": "Toward forming aikido communities across styles and borders",

@@ -1,0 +1,220 @@
+/* ── Search Feature セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  background: var(--lp-bg-light-gray);
+  padding: 80px 20px 60px;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── 装飾テキスト「SEARCHABLE」── */
+
+.bgLabel {
+  position: absolute;
+  left: -10px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-cta-signup-text);
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── コンテンツ ── */
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── テキストエリア ── */
+
+.textArea {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 6.4px;
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+/* ── ビジュアルエリア ── */
+
+.visualArea {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.mockCircle {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--lp-bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.mockImageWrapper {
+  transform: rotate(19.77deg);
+}
+
+.mockImage {
+  width: 200px;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+}
+
+/* ── 説明文 ── */
+
+.body {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-heading);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── CTA ── */
+
+.ctaWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 250px;
+  height: 50px;
+  background: var(--lp-cta-signup-bg);
+  color: var(--lp-cta-signup-text);
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.ctaIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-cta-signup-bg);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .section {
+    padding: 80px 40px 60px;
+  }
+
+  .bgLabel {
+    left: -20px;
+  }
+
+  .inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "visual text"
+      "visual body";
+    gap: 16px 48px;
+    align-items: start;
+  }
+
+  .textArea {
+    grid-area: text;
+    text-align: left;
+    margin-bottom: 0;
+  }
+
+  .title {
+    text-align: left;
+  }
+
+  .divider {
+    margin: 24px 0;
+  }
+
+  .visualArea {
+    grid-area: visual;
+    margin-bottom: 0;
+  }
+
+  .body {
+    grid-area: body;
+  }
+}
+
+/* ── アクセシビリティ ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+}
