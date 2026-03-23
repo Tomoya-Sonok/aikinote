@@ -1,14 +1,11 @@
 "use client";
 
-import {
-  ArrowRight as ArrowRightIcon,
-  List as ListIcon,
-  X as XIcon,
-} from "@phosphor-icons/react";
+import { List as ListIcon, X as XIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import styles from "./Header.module.css";
 
 const CONTACT_FORM_URL =
@@ -145,7 +142,7 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
           >
             <span>{contactLabel}</span>
             <span className={styles.secondaryCtaIcon}>
-              <ArrowRightIcon size={14} weight="bold" />
+              <AikinoteRightArrow size={14} />
             </span>
           </a>
           <Link
@@ -155,7 +152,7 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
           >
             <span>{ctaLabel}</span>
             <span className={styles.primaryCtaIcon}>
-              <ArrowRightIcon size={14} weight="bold" />
+              <AikinoteRightArrow size={14} />
             </span>
           </Link>
         </div>

@@ -1,7 +1,7 @@
-import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import styles from "./Header.module.css";
 import { HeaderDrawer } from "./HeaderDrawer";
 
@@ -91,13 +91,13 @@ export async function Header({ locale, signupHref }: HeaderProps) {
           >
             <span>{t("cta.contact")}</span>
             <span className={styles.secondaryCtaIcon}>
-              <ArrowRightIcon size={12} weight="bold" />
+              <AikinoteRightArrow size={12} />
             </span>
           </a>
           <Link href={signupHref} className={styles.primaryCta}>
             <span>{t("hero.ctaLabel")}</span>
             <span className={styles.primaryCtaIcon}>
-              <ArrowRightIcon size={12} weight="bold" />
+              <AikinoteRightArrow size={12} />
             </span>
           </Link>
         </div>

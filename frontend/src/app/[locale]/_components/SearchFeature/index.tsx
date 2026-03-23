@@ -1,8 +1,8 @@
-import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./SearchFeature.module.css";
 
@@ -66,7 +66,7 @@ export async function SearchFeature({
         <Link href={signupHref} className={styles.cta}>
           <span>{t("hero.ctaLabel")}</span>
           <span className={styles.ctaIcon}>
-            <ArrowRightIcon size={14} weight="bold" />
+            <AikinoteRightArrow size={14} />
           </span>
         </Link>
       </div>

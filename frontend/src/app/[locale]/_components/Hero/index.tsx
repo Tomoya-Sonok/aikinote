@@ -1,7 +1,7 @@
-import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import styles from "./Hero.module.css";
 
 interface HeroProps {
@@ -46,7 +46,7 @@ export async function Hero({ locale, signupHref }: HeroProps) {
           <Link href={signupHref} className={styles.cta}>
             <span>{t("ctaLabel")}</span>
             <span className={styles.ctaIcon}>
-              <ArrowRightIcon size={14} weight="bold" />
+              <AikinoteRightArrow size={14} />
             </span>
           </Link>
         </div>

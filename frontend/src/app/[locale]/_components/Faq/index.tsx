@@ -1,7 +1,7 @@
-import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./Faq.module.css";
 
@@ -76,13 +76,13 @@ export async function Faq({ locale, signupHref }: FaqProps) {
         >
           <span>{t("cta.contact")}</span>
           <span className={styles.secondaryCtaIcon}>
-            <ArrowRightIcon size={14} weight="bold" />
+            <AikinoteRightArrow size={14} />
           </span>
         </a>
         <Link href={signupHref} className={styles.primaryCta}>
           <span>{t("hero.ctaLabel")}</span>
           <span className={styles.primaryCtaIcon}>
-            <ArrowRightIcon size={14} weight="bold" />
+            <AikinoteRightArrow size={14} />
           </span>
         </Link>
       </div>
