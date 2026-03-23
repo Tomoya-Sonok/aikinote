@@ -21,7 +21,8 @@ export async function SearchFeature({
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="solution-search" className={styles.section}>
-      <div className={styles.decoBottomRight} aria-hidden="true" />
+      <div className={styles.decoTopRight} aria-hidden="true" />
+      <div className={styles.decoBottomLeft} aria-hidden="true" />
       <span className={styles.bgLabel} aria-hidden="true">
         SEARCHABLE
       </span>

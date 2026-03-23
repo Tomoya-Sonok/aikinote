@@ -12,17 +12,27 @@
 .hero {
   position: relative;
   height: 486px;
-  border-radius: 0 0 120px 120px;
+  border-radius: 0 0 214px 214px;
   overflow: hidden;
   background: #b5c8d4;
 }
 
 .heroBgImage {
   position: absolute;
-  bottom: 0;
-  left: -5%;
-  width: 110%;
-  height: auto;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* SP: 縦長画像を表示、PC用は非表示 */
+.heroBgImageSp {
+  display: block;
+}
+
+.heroBgImagePc {
+  display: none;
 }
 
 /* ── 装飾テキスト「WORLD」── */
@@ -94,6 +104,8 @@
   letter-spacing: 2.8px;
   text-align: justify;
   margin: 32px 20px 40px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 /* ── カードグリッド ── */
@@ -103,6 +115,8 @@
   flex-direction: column;
   gap: 24px;
   padding: 0 20px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 /* ── カード ── */
@@ -151,10 +165,9 @@
   height: 280px;
   margin-left: auto;
   margin-right: auto;
-  border-radius: 50%;
+  border-radius: 45%;
   overflow: hidden;
   background: var(--lp-bg-light-gray);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .cardImageCircle .cardImage {
@@ -191,7 +204,9 @@
 .ctaWrapper {
   display: flex;
   justify-content: center;
-  margin: 48px 0 60px;
+  margin: 48px 0 100px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 .cta {
@@ -247,8 +262,8 @@
   height: 350px;
   border: 40px solid var(--lp-bg-light-gray);
   border-radius: 50%;
-  bottom: -175px;
-  left: -175px;
+  bottom: -160px;
+  left: -145px;
   pointer-events: none;
 }
 
@@ -260,9 +275,12 @@
     border-radius: 0 0 201px 201px;
   }
 
-  .heroBgImage {
-    left: 0;
-    width: 100%;
+  .heroBgImageSp {
+    display: none;
+  }
+
+  .heroBgImagePc {
+    display: block;
   }
 
   .headerContent {

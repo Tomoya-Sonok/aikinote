@@ -22,13 +22,21 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
       {/* ヒーローエリア（カプセル型背景 + ヘッダー） */}
       <div className={styles.hero}>
         <Image
+          src="/images/lp/sp-sns-global-connection.png"
+          alt={t("snsCommunity.heroImageAlt")}
+          width={402}
+          height={486}
+          sizes="100vw"
+          className={`${styles.heroBgImage} ${styles.heroBgImageSp}`}
+          priority
+        />
+        <Image
           src="/images/lp/sns-global-connection.png"
           alt={t("snsCommunity.heroImageAlt")}
           width={1440}
           height={632}
           sizes="100vw"
-          className={styles.heroBgImage}
-          priority
+          className={`${styles.heroBgImage} ${styles.heroBgImagePc}`}
         />
         <span className={styles.bgLabel} aria-hidden="true">
           WORLD

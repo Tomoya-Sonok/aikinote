@@ -2,7 +2,7 @@
 /* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
 
 .section {
-  padding: 80px 20px 60px;
+  padding: 100px 20px;
   position: relative;
   overflow: hidden;
   scroll-margin-top: 68px;
@@ -30,6 +30,8 @@
 .header {
   text-align: center;
   margin-bottom: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 .badge {
@@ -94,6 +96,8 @@
   align-items: center;
   gap: 0;
   max-width: 400px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 .stepItem {
@@ -206,6 +210,8 @@
   display: flex;
   justify-content: center;
   margin-top: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 .cta {
@@ -263,6 +269,17 @@
   border-radius: 50%;
   top: -175px;
   left: -175px;
+  pointer-events: none;
+}
+
+.decoBottomRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  bottom: -175px;
+  right: -175px;
   pointer-events: none;
 }
 

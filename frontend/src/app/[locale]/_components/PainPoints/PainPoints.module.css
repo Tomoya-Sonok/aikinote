@@ -3,7 +3,7 @@
 
 .section {
   background: var(--lp-bg-gray);
-  padding: 80px 20px 0;
+  padding: 100px 20px 0;
   position: relative;
   overflow: hidden;
   scroll-margin-top: 68px;
@@ -57,7 +57,7 @@
   max-width: 600px;
   margin: 0 auto;
   /* SP: 吹き出し3つ + イラスト分の高さを確保 */
-  height: 620px;
+  height: 560px;
 }
 
 .items {
@@ -116,7 +116,7 @@
   display: inline-block;
 }
 
-/* 吹き出しの尻尾: 左下に鋭角で伸びる */
+/* 吹き出しの尻尾: 下方向に向けて合気道家を指す */
 .bubble::after {
   content: "";
   position: absolute;
@@ -125,8 +125,13 @@
   width: 0;
   height: 0;
   border-style: solid;
-  border-width: 14px 10px 0 0;
+  border-width: 14px 0 0 10px;
   border-color: var(--lp-bg-base) transparent transparent transparent;
+}
+
+/* 2番目の吹き出しは右寄せなので三角を反転 */
+.item:nth-child(2) .bubble::after {
+  border-width: 14px 10px 0 0;
 }
 
 .bubbleText {

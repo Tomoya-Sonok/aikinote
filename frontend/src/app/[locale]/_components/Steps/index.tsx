@@ -11,9 +11,9 @@ interface StepsProps {
 }
 
 const STEP_IMAGES = [
-  "/images/lp/lp_hero_carousel_1.png",
-  "/images/lp/lp_hero_carousel_2.png",
-  "/images/lp/step-3-smiling-man.png",
+  "/images/lp/step-1-create-button.png",
+  "/images/lp/step-2-select-tags.png",
+  "/images/lp/step-3-save.png",
 ];
 
 export async function Steps({ locale, signupHref }: StepsProps) {
@@ -33,6 +33,7 @@ export async function Steps({ locale, signupHref }: StepsProps) {
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="solution-recording" className={styles.section}>
       <div className={styles.decoTopLeft} aria-hidden="true" />
+      <div className={styles.decoBottomRight} aria-hidden="true" />
       <span className={styles.bgLabel} aria-hidden="true">
         3 STEPS
       </span>

@@ -3,7 +3,7 @@
 
 .section {
   background: var(--lp-bg-light-gray);
-  padding: 80px 20px 60px;
+  padding: 100px 20px;
   position: relative;
   overflow: hidden;
   scroll-margin-top: 68px;
@@ -31,6 +31,8 @@
 .inner {
   max-width: 1100px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 /* ── テキストエリア ── */
@@ -119,6 +121,8 @@
   display: flex;
   justify-content: center;
   margin-top: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
 }
 
 .cta {
@@ -168,14 +172,25 @@
 
 /* ── 装飾サークル ── */
 
-.decoBottomRight {
+.decoTopRight {
   position: absolute;
   width: 350px;
   height: 350px;
   border: 40px solid var(--lp-bg-base);
   border-radius: 50%;
-  bottom: -175px;
-  right: -175px;
+  top: -200px;
+  right: -150px;
+  pointer-events: none;
+}
+
+.decoBottomLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-base);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -150px;
   pointer-events: none;
 }
 
