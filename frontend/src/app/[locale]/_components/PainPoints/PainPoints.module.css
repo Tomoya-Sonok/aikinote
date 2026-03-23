@@ -68,29 +68,31 @@
   height: 100%;
 }
 
-/* ── 各吹き出しアイテム（絶対配置）── */
+/* ── 各吹き出しアイテム ── */
 
 .item {
-  position: absolute;
   text-align: left;
 }
 
-/* SP 配置: Figma SP デザイン準拠 */
+/* SP 配置: ScrollFadeIn ラッパーに絶対配置を適用 */
 /* 1つ目: 中央やや右 */
-.item:nth-child(1) {
+.items > :nth-child(1) {
+  position: absolute;
   top: 0;
   left: 15%;
 }
 
 /* 2つ目: 右寄り、少し下 */
-.item:nth-child(2) {
+.items > :nth-child(2) {
+  position: absolute;
   top: 130px;
   right: 0;
   left: auto;
 }
 
 /* 3つ目: 左寄り、さらに下 */
-.item:nth-child(3) {
+.items > :nth-child(3) {
+  position: absolute;
   top: 280px;
   left: 0;
 }
@@ -130,7 +132,7 @@
 }
 
 /* 2番目の吹き出しは右寄せなので三角を反転 */
-.item:nth-child(2) .bubble::after {
+.items > :nth-child(2) .bubble::after {
   border-width: 14px 10px 0 0;
 }
 
@@ -178,20 +180,18 @@
 
   /* PC 配置: Figma PC デザイン準拠 */
   /* 1つ目: 中央 */
-  .item:nth-child(1) {
-    top: 0;
+  .items > :nth-child(1) {
     left: 30%;
   }
 
   /* 2つ目: 右寄り、少し下 */
-  .item:nth-child(2) {
+  .items > :nth-child(2) {
     top: 100px;
-    left: auto;
     right: 5%;
   }
 
   /* 3つ目: 左寄り、さらに下 */
-  .item:nth-child(3) {
+  .items > :nth-child(3) {
     top: 200px;
     left: 10%;
   }
