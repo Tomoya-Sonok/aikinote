@@ -38,6 +38,10 @@
           "label": "New Feature"
         },
         {
+          "href": "#sns-community",
+          "label": "SNS Feature"
+        },
+        {
           "href": "#faq",
           "label": "FAQ & Contact"
         }
@@ -113,10 +117,29 @@
         "imageAlt": "AikiNote calendar screen"
       }
     },
-    "futureFeatures": {
-      "title": "Toward forming aikido communities across styles and borders",
-      "body": "You will also be able to interact with practitioners around the globe. Our community features are on the way, so stay tuned!",
-      "imageAlt": "Illustration of aikido practitioners worldwide connecting through devices"
+    "snsCommunity": {
+      "badge": "SNS Feature",
+      "title": "Beyond dojo walls and borders,\nconnected through Aikido.",
+      "intro": "Aikido practitioners exist all around the world. Yet places to share training insights across dojos and languages remain scarce.",
+      "heroImageAlt": "Illustration of aikido practitioners worldwide connecting via smartphones",
+      "cards": {
+        "share": {
+          "title": "Share Practice Records",
+          "body": "Publish and share your practice records as-is. Gain fresh perspectives on the same techniques from different viewpoints.",
+          "imageAlt": "Illustration of an aikido practitioner sharing records"
+        },
+        "learn": {
+          "title": "Learning Beyond the Dojo",
+          "body": "Exchange ideas with practitioners from other dojos — insights you can't get from regular practice alone — and refine your techniques even further.",
+          "imageAlt": "Illustration of an aikido practitioner"
+        },
+        "community": {
+          "title": "A Community Without Borders",
+          "body": "Bilingual in Japanese and English. An aikido community where you can share your learning with practitioners training at dojos overseas.",
+          "note": "*You can also choose to share only with members of your own dojo.",
+          "imageAlt": "Illustration of aikido practitioners from different countries"
+        }
+      }
     },
     "faq": {
       "title": "Frequently asked questions",

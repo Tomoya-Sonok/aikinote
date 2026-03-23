@@ -14,6 +14,7 @@ import { Hero } from "./_components/Hero";
 import { NewFeature } from "./_components/NewFeature";
 import { PainPoints } from "./_components/PainPoints";
 import { SearchFeature } from "./_components/SearchFeature";
+import { SnsCommunity } from "./_components/SnsCommunity";
 import { Steps } from "./_components/Steps";
 import styles from "./page.module.css";
 
@@ -176,36 +177,7 @@ export default async function RootPage({ params }: RootPageProps) {
 
           <NewFeature locale={locale} signupHref={signupHref} />
 
-          {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
-          <section id="future-features" className={styles.section}>
-            <div className={styles.sectionContent}>
-              <div className={styles.sectionText}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle}>
-                    {t("futureFeatures.title")}
-                  </h2>
-                </div>
-                <p className={styles.sectionBody}>{t("futureFeatures.body")}</p>
-              </div>
-              <div className={styles.sectionVisual}>
-                <figure className={styles.illustrationWrapper}>
-                  <Image
-                    src="/images/shared/lp_upcoming_sns_features.png"
-                    alt={t("futureFeatures.imageAlt")}
-                    width={2048}
-                    height={1243}
-                    sizes="(min-width: 768px) 520px, 90vw"
-                    className={styles.illustrationImage}
-                  />
-                </figure>
-              </div>
-            </div>
-            <div className={styles.sectionActions}>
-              <Link href={signupHref} className={styles.primaryCta}>
-                {t("cta.primary")}
-              </Link>
-            </div>
-          </section>
+          <SnsCommunity locale={locale} signupHref={signupHref} />
 
           {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
           <section id="faq" className={styles.section}>
