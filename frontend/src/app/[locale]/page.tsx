@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
 import { LocaleMenu } from "@/components/features/landing/LocaleMenu/LocaleMenu";
-import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import buttonStyles from "@/components/shared/Button/Button.module.css";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { Faq } from "./_components/Faq";
+import { Footer } from "./_components/Footer";
 import { Hero } from "./_components/Hero";
 import { NewFeature } from "./_components/NewFeature";
 import { PainPoints } from "./_components/PainPoints";
@@ -44,13 +44,6 @@ interface NavigationContent {
   links: Array<{ href: string; label: string }>;
 }
 
-interface FooterContent {
-  brand: string;
-  contact: string;
-  instagram: string;
-  facebook: string;
-}
-
 export default async function RootPage({ params }: RootPageProps) {
   const { locale } = await params;
   const user = await getCurrentUser();
@@ -64,10 +57,8 @@ export default async function RootPage({ params }: RootPageProps) {
   const t = await getTranslations({ locale, namespace: "landing" });
   const tLanguage = await getTranslations({ locale, namespace: "language" });
   const navigation = t.raw("navigation") as NavigationContent;
-  const footer = t.raw("footer") as FooterContent;
   const rootHref = isDefaultLocale ? "/" : `/${locale}`;
   const signupHref = `${localePrefix}/signup`;
-  const currentYear = new Date().getFullYear();
   const localeSummary = isDefaultLocale
     ? tLanguage("japanese")
     : tLanguage("english");
@@ -171,48 +162,7 @@ export default async function RootPage({ params }: RootPageProps) {
         </div>
       </main>
 
-      <footer className={styles.footer} data-scroll-footer>
-        <div className={styles.footerInner}>
-          <div className={styles.footerBrand}>
-            <span className={styles.footerText}>
-              © {currentYear} {footer.brand}
-            </span>
-          </div>
-          <ul className={styles.footerLinks}>
-            <li>
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
-                target="_blank"
-                rel="noreferrer"
-                className={styles.footerLink}
-              >
-                {footer.contact}
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.instagram.com/aikinote_official/"
-                className={styles.footerLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {footer.instagram}
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.facebook.com/profile.php?id=61585911578938"
-                className={styles.footerLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {footer.facebook}
-              </a>
-            </li>
-          </ul>
-          <BackToTopButton label={t("footer.backToTop")} />
-        </div>
-      </footer>
+      <Footer locale={locale} />
     </div>
   );
 }
