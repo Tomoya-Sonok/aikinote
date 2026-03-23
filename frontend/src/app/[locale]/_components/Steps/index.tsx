@@ -66,21 +66,21 @@ export async function Steps({ locale, signupHref }: StepsProps) {
       <ol className={styles.stepList}>
         {steps.map((step, index) => (
           <li key={step.title} className={styles.stepItem}>
-            <div className={styles.stepNumber}>
-              <span className={styles.stepLabel}>STEP</span>
-              <span className={styles.stepNum}>
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <div className={styles.stepLine} />
-            </div>
             <div className={styles.stepImageWrapper}>
+              <div className={styles.stepNumber}>
+                <span className={styles.stepLabel}>STEP</span>
+                <span className={styles.stepNum}>
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <div className={styles.stepLine} />
+              </div>
               <div className={styles.stepCircle}>
                 <Image
                   src={STEP_IMAGES[index]}
                   alt={step.imageAlt}
-                  width={280}
-                  height={280}
-                  sizes="(min-width: 768px) 280px, 240px"
+                  width={301}
+                  height={301}
+                  sizes="301px"
                   className={styles.stepImage}
                 />
               </div>

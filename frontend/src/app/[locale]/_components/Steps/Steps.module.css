@@ -101,16 +101,27 @@
 }
 
 .stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   position: relative;
 }
 
-/* ── ステップ番号 ── */
+/* ── ステップ画像＋ラベル ── */
+
+.stepImageWrapper {
+  position: relative;
+  width: 301px;
+  margin: 0 auto 16px;
+}
 
 .stepNumber {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  z-index: 2;
   text-align: left;
-  display: inline-block;
-  margin-bottom: 8px;
 }
 
 .stepLabel {
@@ -136,21 +147,12 @@
   margin-top: 8px;
 }
 
-/* ── ステップ画像 ── */
-
-.stepImageWrapper {
-  display: flex;
-  justify-content: center;
-  margin: 16px 0;
-}
-
 .stepCircle {
-  width: 240px;
-  height: 240px;
+  width: 301px;
+  height: 301px;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid var(--lp-bg-light-gray);
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  background: var(--lp-bg-light-gray);
 }
 
 .stepImage {
@@ -278,8 +280,8 @@
   height: 350px;
   border: 40px solid var(--lp-bg-light-gray);
   border-radius: 50%;
-  bottom: -175px;
-  right: -175px;
+  bottom: -150px;
+  right: -150px;
   pointer-events: none;
 }
 
