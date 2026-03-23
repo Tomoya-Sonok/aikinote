@@ -142,27 +142,23 @@
       }
     },
     "faq": {
-      "title": "Frequently asked questions",
+      "title": "Frequently Asked\nQuestions",
       "items": {
-        "easeOfUse": {
-          "question": "Q. I am not confident with smartphones. Is it still easy?",
-          "answer": "A. Yes. The interface is designed for <bold>effortless operation</bold>, even if you rarely use smartphones. You can enlarge the text size whenever you need."
-        },
         "security": {
-          "question": "Q. Will my notes disappear or be seen by others?",
-          "answer": "A. Your records stay safe in the cloud. We use secure protocols so your data remains protected from unauthorized access."
+          "question": "Will my records disappear? Can others see them?",
+          "answer": "Your records are safely stored in the cloud. We use highly secure protocols, so there is no risk of your data being stolen."
+        },
+        "easeOfUse": {
+          "question": "Can I use it even if I'm not good with smartphones?",
+          "answer": "The app is designed so that anyone can use it easily, even those who don't use smartphones often. You can also change the text size if it feels too small."
         },
         "languages": {
-          "question": "Q. Is the service limited to Japanese users?",
-          "answer": "A. Not at all. The app is fully available in <bold>Japanese and English</bold> for aikido practitioners worldwide."
+          "question": "Is it only for Japanese users?",
+          "answer": "We support international users as well. The app is available in both Japanese and English."
         },
         "mobileApp": {
-          "question": "Q. Is there a native mobile app?",
-          "answer": "A. A mobile app is coming soon. We will contact you via the email you registered as soon as it launches."
-        },
-        "others": {
-          "question": "Q. How can I ask other questions?",
-          "answer": "A. Please reach out through the <underlined><link>Help &amp; Contact</link></underlined> form and we will get back to you."
+          "question": "Is there a mobile app?",
+          "answer": "You can start using it right away from your web browser. Add it to your home screen and it works just like an app. We are also preparing iOS / Android apps. We will notify you at your registered email address when they launch."
         }
       }
     },

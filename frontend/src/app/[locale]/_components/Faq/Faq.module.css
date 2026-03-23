@@ -1,0 +1,249 @@
+/* ── FAQ セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  background: var(--lp-bg-light-gray);
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── 装飾テキスト「FAQ」── */
+
+.bgLabel {
+  position: absolute;
+  right: -10px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-bg-light-gray);
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: multiply;
+}
+
+/* ── コンテンツ ── */
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ── ヘッダー ── */
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 6.4px;
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+/* ── FAQ リスト ── */
+
+.faqList {
+  margin: 0;
+  padding: 0;
+}
+
+.faqItem {
+  padding: 0;
+}
+
+/* ── Q&A 共通 ── */
+
+.question,
+.answer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  color: var(--lp-text-heading);
+  margin: 0;
+}
+
+.question {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.answer {
+  font-weight: 500;
+  text-align: justify;
+}
+
+/* ── Q/A バッジ ── */
+
+.qBadge,
+.aBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 30px;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.qBadge {
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+}
+
+.aBadge {
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-text-heading);
+  border: 1px solid var(--lp-text-heading);
+}
+
+/* ── 区切り線 ── */
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background: var(--lp-text-heading);
+  opacity: 0.2;
+  margin: 24px 0;
+}
+
+/* ── CTA グループ ── */
+
+.ctaGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+}
+
+/* セカンダリ CTA（お問い合わせ） */
+.secondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 250px;
+  height: 50px;
+  background: transparent;
+  color: var(--lp-cta-inquiry-text);
+  border: 2px solid var(--lp-border);
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.secondaryCtaIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--lp-text-heading);
+  color: var(--lp-cta-signup-text);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* プライマリ CTA（無料で始める） */
+.primaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 250px;
+  height: 50px;
+  background: var(--lp-cta-signup-bg);
+  color: var(--lp-cta-signup-text);
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.primaryCtaIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-cta-signup-bg);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@media (hover: hover) {
+  .secondaryCta:hover,
+  .primaryCta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.secondaryCta:focus-visible,
+.primaryCta:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .inner {
+    padding: 0 40px;
+  }
+
+  .bgLabel {
+    right: -20px;
+  }
+}
+
+/* ── アクセシビリティ ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .secondaryCta,
+  .primaryCta {
+    transition: none;
+  }
+}

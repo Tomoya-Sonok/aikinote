@@ -3,13 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Fragment, type ReactNode } from "react";
 import { LandingMenuDrawer } from "@/components/features/landing/LandingMenuDrawer/LandingMenuDrawer";
 import { LocaleMenu } from "@/components/features/landing/LocaleMenu/LocaleMenu";
 import { BackToTopButton } from "@/components/shared/BackToTopButton/BackToTopButton";
 import buttonStyles from "@/components/shared/Button/Button.module.css";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
+import { Faq } from "./_components/Faq";
 import { Hero } from "./_components/Hero";
 import { NewFeature } from "./_components/NewFeature";
 import { PainPoints } from "./_components/PainPoints";
@@ -50,18 +50,6 @@ interface FooterContent {
   instagram: string;
   facebook: string;
 }
-
-const SECTION_KEYS = ["first", "second", "third"] as const;
-const FAQ_KEYS = [
-  "easeOfUse",
-  "security",
-  "languages",
-  "mobileApp",
-  "others",
-] as const;
-
-const bold = (chunks: ReactNode) => <strong>{chunks}</strong>;
-const underlined = (chunks: ReactNode) => <u>{chunks}</u>;
 
 export default async function RootPage({ params }: RootPageProps) {
   const { locale } = await params;
@@ -179,53 +167,7 @@ export default async function RootPage({ params }: RootPageProps) {
 
           <SnsCommunity locale={locale} signupHref={signupHref} />
 
-          {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
-          <section id="faq" className={styles.section}>
-            <div className={styles.faqContent}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>{t("faq.title")}</h2>
-              </div>
-              <div className={styles.accordionList}>
-                {FAQ_KEYS.map((key) => (
-                  <details key={key} className={styles.accordionItem}>
-                    <summary>
-                      <span>{t(`faq.items.${key}.question`)}</span>
-                    </summary>
-                    <div className={styles.accordionPanel}>
-                      {t.rich(`faq.items.${key}.answer`, {
-                        bold,
-                        underlined,
-                        link: (chunks) => (
-                          <a
-                            href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {chunks}
-                          </a>
-                        ),
-                      })}
-                    </div>
-                  </details>
-                ))}
-              </div>
-            </div>
-            <div className={styles.sectionActions}>
-              <a
-                className={styles.secondaryCta}
-                target="_blank"
-                rel="noreferrer"
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog"
-              >
-                {t("cta.contact")}
-              </a>
-            </div>
-          </section>
-        </div>
-        <div className={styles.sectionActions}>
-          <Link href={signupHref} className={styles.primaryCta}>
-            {t("cta.primary")}
-          </Link>
+          <Faq locale={locale} signupHref={signupHref} />
         </div>
       </main>
 
