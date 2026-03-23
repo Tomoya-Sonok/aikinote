@@ -1,0 +1,390 @@
+/* ── Header ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.header {
+  position: sticky;
+  top: 0;
+  background: var(--lp-bg-base);
+  z-index: var(--z-header);
+  height: 60px;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 16px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* ── ハンバーガーボタン（SP のみ）── */
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--lp-text-heading);
+  flex-shrink: 0;
+}
+
+/* ── ロゴ ── */
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoImage {
+  width: 140px;
+  height: auto;
+  display: block;
+}
+
+/* ── PC ナビゲーション（SP では非表示）── */
+
+.desktopNav {
+  display: none;
+}
+
+.navList {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLink {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  letter-spacing: 3px;
+  line-height: 30px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  opacity: 0.7;
+}
+
+/* ── 右側アクション ── */
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+/* ── 言語切替バッジ ── */
+
+.localeBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 47px;
+  height: 40px;
+  border: 2px solid var(--lp-border);
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  letter-spacing: 2.8px;
+  text-decoration: none;
+  padding: 0 12px;
+}
+
+.localeBadge:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── PC CTA ボタン（SP では非表示）── */
+
+.secondaryCta,
+.primaryCta {
+  display: none;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .header {
+    height: 80px;
+  }
+
+  .headerInner {
+    padding: 0 20px;
+    gap: 16px;
+  }
+
+  .menuButton {
+    display: none;
+  }
+
+  .logoImage {
+    width: 160px;
+  }
+
+  .desktopNav {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .secondaryCta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    background: transparent;
+    color: var(--lp-cta-inquiry-text);
+    border: 2px solid var(--lp-border);
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2.8px;
+    line-height: 30px;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease;
+  }
+
+  .primaryCta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    background: var(--lp-cta-signup-bg);
+    color: var(--lp-cta-signup-text);
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2.8px;
+    line-height: 30px;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease;
+  }
+
+  .secondaryCtaIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--lp-text-heading);
+    color: var(--lp-cta-signup-text);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .primaryCtaIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: var(--lp-cta-signup-text);
+    color: var(--lp-cta-signup-bg);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 768px) and (hover: hover) {
+  .secondaryCta:hover,
+  .primaryCta:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.secondaryCta:focus-visible,
+.primaryCta:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ══════════════════════════════════════════ */
+/* ── ドロワー（SP メニュー）              ── */
+/* ══════════════════════════════════════════ */
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  background: var(--lp-bg-base);
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.drawerOpen {
+  transform: translateX(0);
+}
+
+/* ── ドロワーヘッダー ── */
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 16px;
+  flex-shrink: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--lp-text-heading);
+  flex-shrink: 0;
+}
+
+.drawerLogo {
+  width: 140px;
+  height: auto;
+  display: block;
+}
+
+/* ── ドロワーナビゲーション ── */
+
+.drawerNav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.drawerNavList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.drawerNavLink {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+}
+
+.drawerNavLink:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── ドロワー CTA ── */
+
+.drawerCta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.drawerSecondaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 250px;
+  height: 50px;
+  background: transparent;
+  color: var(--lp-cta-inquiry-text);
+  border: 2px solid var(--lp-border);
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.drawerPrimaryCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 250px;
+  height: 50px;
+  background: var(--lp-cta-signup-bg);
+  color: var(--lp-cta-signup-text);
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  line-height: 30px;
+  text-decoration: none;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* ── ドロワーソーシャル ── */
+
+.drawerSocial {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 32px 0 40px;
+  flex-shrink: 0;
+}
+
+.drawerSocialLink {
+  display: inline-flex;
+}
+
+.drawerSocialLink:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.drawerSocialIcon {
+  width: 50px;
+  height: 50px;
+  display: block;
+}
+
+/* ── アクセシビリティ ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
+
+  .secondaryCta,
+  .primaryCta {
+    transition: none;
+  }
+}
