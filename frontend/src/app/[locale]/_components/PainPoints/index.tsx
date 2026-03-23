@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { Swirl } from "@/components/shared/Icons/Swirl";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./PainPoints.module.css";
 
@@ -37,14 +38,7 @@ export async function PainPoints({ locale }: PainPointsProps) {
           {items.map((item, index) => (
             <ScrollFadeIn key={item} delay={index * 150}>
               <li className={styles.item}>
-                <Image
-                  src="/images/lp/swirl.svg"
-                  alt=""
-                  width={29}
-                  height={37}
-                  className={styles.swirl}
-                  aria-hidden="true"
-                />
+                <Swirl size={29} className={styles.swirl} />
                 <div className={styles.bubble}>
                   <p className={styles.bubbleText}>
                     {item.split("\n").map((line, i) => (
