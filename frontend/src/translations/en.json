@@ -34,6 +34,10 @@
           "label": "Helpful Search Features"
         },
         {
+          "href": "#new-feature",
+          "label": "New Feature"
+        },
+        {
           "href": "#faq",
           "label": "FAQ & Contact"
         }
@@ -94,6 +98,20 @@
       "title": "Find past records\nin seconds.",
       "body": "Tags, dates, and free-text search. Combine multiple filters to quickly reach the practice record you need. Even when your memory is hazy, it's easy to look things up on your phone before practice.",
       "imageAlt": "AikiNote search feature mockup screen"
+    },
+    "newFeature": {
+      "badge": "New Feature",
+      "title": "Feel your progress\nin numbers.",
+      "stats": {
+        "title": "Statistics",
+        "body": "Automatically tallies practice days, streaks, and pages created. Monthly trend graphs plus pie charts by standing/seated techniques and technique names give you an instant overview. Perfect for tracking days toward your next grading.",
+        "imageAlt": "AikiNote statistics screen"
+      },
+      "calendar": {
+        "title": "Calendar",
+        "body": "Quickly see practice attendance and record dates on the calendar. Tap a date to log attendance or create a page right on the spot.",
+        "imageAlt": "AikiNote calendar screen"
+      }
     },
     "futureFeatures": {
       "title": "Toward forming aikido communities across styles and borders",

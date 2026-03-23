@@ -11,6 +11,7 @@ import buttonStyles from "@/components/shared/Button/Button.module.css";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser } from "@/lib/server/auth";
 import { Hero } from "./_components/Hero";
+import { NewFeature } from "./_components/NewFeature";
 import { PainPoints } from "./_components/PainPoints";
 import { SearchFeature } from "./_components/SearchFeature";
 import { Steps } from "./_components/Steps";
@@ -172,6 +173,8 @@ export default async function RootPage({ params }: RootPageProps) {
           <Steps locale={locale} signupHref={signupHref} />
 
           <SearchFeature locale={locale} signupHref={signupHref} />
+
+          <NewFeature locale={locale} signupHref={signupHref} />
 
           {/* biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID */}
           <section id="future-features" className={styles.section}>
