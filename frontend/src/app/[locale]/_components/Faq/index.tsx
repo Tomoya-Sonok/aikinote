@@ -2,6 +2,7 @@ import { ArrowRight as ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./Faq.module.css";
 
 const FAQ_KEYS = ["security", "easeOfUse", "languages", "mobileApp"] as const;
@@ -43,23 +44,25 @@ export async function Faq({ locale, signupHref }: FaqProps) {
 
         <dl className={styles.faqList}>
           {FAQ_KEYS.map((key, index) => (
-            <div key={key} className={styles.faqItem}>
-              <dt className={styles.question}>
-                <span className={styles.qBadge} aria-hidden="true">
-                  Q
-                </span>
-                <span>{t(`faq.items.${key}.question`)}</span>
-              </dt>
-              <dd className={styles.answer}>
-                <span className={styles.aBadge} aria-hidden="true">
-                  A
-                </span>
-                <span>{t(`faq.items.${key}.answer`)}</span>
-              </dd>
-              {index < FAQ_KEYS.length - 1 && (
-                <div className={styles.separator} />
-              )}
-            </div>
+            <ScrollFadeIn key={key} delay={index * 100}>
+              <div className={styles.faqItem}>
+                <dt className={styles.question}>
+                  <span className={styles.qBadge} aria-hidden="true">
+                    Q
+                  </span>
+                  <span>{t(`faq.items.${key}.question`)}</span>
+                </dt>
+                <dd className={styles.answer}>
+                  <span className={styles.aBadge} aria-hidden="true">
+                    A
+                  </span>
+                  <span>{t(`faq.items.${key}.answer`)}</span>
+                </dd>
+                {index < FAQ_KEYS.length - 1 && (
+                  <div className={styles.separator} />
+                )}
+              </div>
+            </ScrollFadeIn>
           ))}
         </dl>
       </div>

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./Steps.module.css";
 
 interface StepsProps {
@@ -65,36 +66,38 @@ export async function Steps({ locale, signupHref }: StepsProps) {
 
       <ol className={styles.stepList}>
         {steps.map((step, index) => (
-          <li key={step.title} className={styles.stepItem}>
-            <div className={styles.stepImageWrapper}>
-              <div className={styles.stepNumber}>
-                <span className={styles.stepLabel}>STEP</span>
-                <span className={styles.stepNum}>
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <div className={styles.stepLine} />
+          <ScrollFadeIn key={step.title}>
+            <li className={styles.stepItem}>
+              <div className={styles.stepImageWrapper}>
+                <div className={styles.stepNumber}>
+                  <span className={styles.stepLabel}>STEP</span>
+                  <span className={styles.stepNum}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div className={styles.stepLine} />
+                </div>
+                <div className={styles.stepCircle}>
+                  <Image
+                    src={STEP_IMAGES[index]}
+                    alt={step.imageAlt}
+                    width={301}
+                    height={301}
+                    sizes="301px"
+                    className={styles.stepImage}
+                  />
+                </div>
               </div>
-              <div className={styles.stepCircle}>
-                <Image
-                  src={STEP_IMAGES[index]}
-                  alt={step.imageAlt}
-                  width={301}
-                  height={301}
-                  sizes="301px"
-                  className={styles.stepImage}
-                />
-              </div>
-            </div>
-            <h3 className={styles.stepTitle}>{step.title}</h3>
-            <p className={styles.stepBody}>{step.body}</p>
+              <h3 className={styles.stepTitle}>{step.title}</h3>
+              <p className={styles.stepBody}>{step.body}</p>
 
-            {index < steps.length - 1 && (
-              <div className={styles.stepSeparator} aria-hidden="true">
-                <div className={styles.separatorLine} />
-                <div className={styles.separatorDot} />
-              </div>
-            )}
-          </li>
+              {index < steps.length - 1 && (
+                <div className={styles.stepSeparator} aria-hidden="true">
+                  <div className={styles.separatorLine} />
+                  <div className={styles.separatorDot} />
+                </div>
+              )}
+            </li>
+          </ScrollFadeIn>
         ))}
       </ol>
 

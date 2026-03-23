@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./NewFeature.module.css";
 
 interface NewFeatureProps {
@@ -39,70 +40,76 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
 
       <div className={styles.cardPanel}>
         {/* 統計データ */}
-        <div className={styles.featureBlock}>
-          <div className={styles.featureVisual}>
-            <div className={styles.pillBg}>
-              <Image
-                src="/images/lp/stats-data-bg.png"
-                alt=""
-                width={586}
-                height={234}
-                sizes="350px"
-                className={styles.pillBgImage}
-              />
+        <ScrollFadeIn direction="left">
+          <div className={styles.featureBlock}>
+            <div className={styles.featureVisual}>
+              <div className={styles.pillBg}>
+                <Image
+                  src="/images/lp/stats-data-bg.png"
+                  alt=""
+                  width={586}
+                  height={234}
+                  sizes="350px"
+                  className={styles.pillBgImage}
+                />
+              </div>
+              <div className={styles.mockImageWrapper}>
+                <Image
+                  src="/images/lp/new-feature-mock1.png"
+                  alt={t("newFeature.stats.imageAlt")}
+                  width={300}
+                  height={500}
+                  sizes="(min-width: 768px) 250px, 200px"
+                  className={styles.mockImage}
+                />
+              </div>
             </div>
-            <div className={styles.mockImageWrapper}>
-              <Image
-                src="/images/lp/new-feature-mock1.png"
-                alt={t("newFeature.stats.imageAlt")}
-                width={300}
-                height={500}
-                sizes="(min-width: 768px) 250px, 200px"
-                className={styles.mockImage}
-              />
+            <div className={styles.featureText}>
+              <h3 className={styles.featureTitle}>
+                {t("newFeature.stats.title")}
+              </h3>
+              <p className={styles.featureBody}>{t("newFeature.stats.body")}</p>
             </div>
           </div>
-          <div className={styles.featureText}>
-            <h3 className={styles.featureTitle}>
-              {t("newFeature.stats.title")}
-            </h3>
-            <p className={styles.featureBody}>{t("newFeature.stats.body")}</p>
-          </div>
-        </div>
+        </ScrollFadeIn>
 
         {/* カレンダー */}
-        <div className={`${styles.featureBlock} ${styles.featureBlockReverse}`}>
-          <div className={styles.featureVisual}>
-            <div className={`${styles.pillBg} ${styles.pillBgRight}`}>
-              <Image
-                src="/images/lp/calendar-grid-bg.png"
-                alt=""
-                width={586}
-                height={234}
-                sizes="350px"
-                className={styles.pillBgImage}
-              />
+        <ScrollFadeIn direction="right">
+          <div
+            className={`${styles.featureBlock} ${styles.featureBlockReverse}`}
+          >
+            <div className={styles.featureVisual}>
+              <div className={`${styles.pillBg} ${styles.pillBgRight}`}>
+                <Image
+                  src="/images/lp/calendar-grid-bg.png"
+                  alt=""
+                  width={586}
+                  height={234}
+                  sizes="350px"
+                  className={styles.pillBgImage}
+                />
+              </div>
+              <div className={styles.mockImageWrapper}>
+                <Image
+                  src="/images/lp/new-feature-mock2.png"
+                  alt={t("newFeature.calendar.imageAlt")}
+                  width={300}
+                  height={500}
+                  sizes="(min-width: 768px) 250px, 200px"
+                  className={styles.mockImage}
+                />
+              </div>
             </div>
-            <div className={styles.mockImageWrapper}>
-              <Image
-                src="/images/lp/new-feature-mock2.png"
-                alt={t("newFeature.calendar.imageAlt")}
-                width={300}
-                height={500}
-                sizes="(min-width: 768px) 250px, 200px"
-                className={styles.mockImage}
-              />
+            <div className={styles.featureText}>
+              <h3 className={styles.featureTitle}>
+                {t("newFeature.calendar.title")}
+              </h3>
+              <p className={styles.featureBody}>
+                {t("newFeature.calendar.body")}
+              </p>
             </div>
           </div>
-          <div className={styles.featureText}>
-            <h3 className={styles.featureTitle}>
-              {t("newFeature.calendar.title")}
-            </h3>
-            <p className={styles.featureBody}>
-              {t("newFeature.calendar.body")}
-            </p>
-          </div>
-        </div>
+        </ScrollFadeIn>
       </div>
 
       <div className={styles.ctaWrapper}>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./PainPoints.module.css";
 
 interface PainPointsProps {
@@ -33,27 +34,29 @@ export async function PainPoints({ locale }: PainPointsProps) {
 
       <div className={styles.itemsWrapper}>
         <ul className={styles.items}>
-          {items.map((item) => (
-            <li key={item} className={styles.item}>
-              <Image
-                src="/images/lp/swirl.svg"
-                alt=""
-                width={29}
-                height={37}
-                className={styles.swirl}
-                aria-hidden="true"
-              />
-              <div className={styles.bubble}>
-                <p className={styles.bubbleText}>
-                  {item.split("\n").map((line, i) => (
-                    <Fragment key={line}>
-                      {line}
-                      {i < item.split("\n").length - 1 && <br />}
-                    </Fragment>
-                  ))}
-                </p>
-              </div>
-            </li>
+          {items.map((item, index) => (
+            <ScrollFadeIn key={item} delay={index * 150}>
+              <li className={styles.item}>
+                <Image
+                  src="/images/lp/swirl.svg"
+                  alt=""
+                  width={29}
+                  height={37}
+                  className={styles.swirl}
+                  aria-hidden="true"
+                />
+                <div className={styles.bubble}>
+                  <p className={styles.bubbleText}>
+                    {item.split("\n").map((line, i) => (
+                      <Fragment key={line}>
+                        {line}
+                        {i < item.split("\n").length - 1 && <br />}
+                      </Fragment>
+                    ))}
+                  </p>
+                </div>
+              </li>
+            </ScrollFadeIn>
           ))}
         </ul>
 

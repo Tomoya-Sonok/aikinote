@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
+import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./SearchFeature.module.css";
 
 interface SearchFeatureProps {
@@ -27,37 +28,39 @@ export async function SearchFeature({
         SEARCHABLE
       </span>
 
-      <div className={styles.inner}>
-        <div className={styles.textArea}>
-          <span className={styles.badge}>{t("solutionSearch.badge")}</span>
-          <h2 className={styles.title}>
-            {titleLines.map((line, index) => (
-              <Fragment key={line}>
-                {line}
-                {index < titleLines.length - 1 && <br />}
-              </Fragment>
-            ))}
-          </h2>
-          <div className={styles.divider} />
-        </div>
+      <ScrollFadeIn>
+        <div className={styles.inner}>
+          <div className={styles.textArea}>
+            <span className={styles.badge}>{t("solutionSearch.badge")}</span>
+            <h2 className={styles.title}>
+              {titleLines.map((line, index) => (
+                <Fragment key={line}>
+                  {line}
+                  {index < titleLines.length - 1 && <br />}
+                </Fragment>
+              ))}
+            </h2>
+            <div className={styles.divider} />
+          </div>
 
-        <div className={styles.visualArea}>
-          <div className={styles.mockCircle}>
-            <div className={styles.mockImageWrapper}>
-              <Image
-                src="/images/lp/search-feature-mock1.png"
-                alt={t("solutionSearch.imageAlt")}
-                width={300}
-                height={500}
-                sizes="(min-width: 768px) 300px, 260px"
-                className={styles.mockImage}
-              />
+          <div className={styles.visualArea}>
+            <div className={styles.mockCircle}>
+              <div className={styles.mockImageWrapper}>
+                <Image
+                  src="/images/lp/search-feature-mock1.png"
+                  alt={t("solutionSearch.imageAlt")}
+                  width={300}
+                  height={500}
+                  sizes="(min-width: 768px) 300px, 260px"
+                  className={styles.mockImage}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <p className={styles.body}>{t("solutionSearch.body")}</p>
-      </div>
+          <p className={styles.body}>{t("solutionSearch.body")}</p>
+        </div>
+      </ScrollFadeIn>
 
       <div className={styles.ctaWrapper}>
         <Link href={signupHref} className={styles.cta}>
