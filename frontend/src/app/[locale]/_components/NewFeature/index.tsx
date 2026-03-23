@@ -18,6 +18,8 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="new-feature" className={styles.section}>
+      <div className={styles.decoTopLeft} aria-hidden="true" />
+      <div className={styles.decoBottomRight} aria-hidden="true" />
       <span className={styles.bgLabel} aria-hidden="true">
         TRACKABLE
       </span>

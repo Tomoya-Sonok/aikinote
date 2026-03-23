@@ -13,7 +13,7 @@
 
 .bgLabel {
   position: absolute;
-  left: -10px;
+  left: 12px;
   top: 0;
   writing-mode: vertical-rl;
   font-size: 64px;
@@ -164,6 +164,19 @@
 .cta:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 4px;
+}
+
+/* ── 装飾サークル ── */
+
+.decoBottomRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-base);
+  border-radius: 50%;
+  bottom: -175px;
+  right: -175px;
+  pointer-events: none;
 }
 
 /* ── PC (min-width: 768px) ── */

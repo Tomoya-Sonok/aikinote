@@ -12,8 +12,8 @@
 
 .bgLabel {
   position: absolute;
-  right: -10px;
-  top: 0;
+  right: 6px;
+  top: 16px;
   writing-mode: vertical-rl;
   font-size: 64px;
   font-weight: 505;
@@ -213,6 +213,30 @@
 .cta:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 4px;
+}
+
+/* ── 装飾サークル ── */
+
+.decoTopLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  top: -175px;
+  left: -175px;
+  pointer-events: none;
+}
+
+.decoBottomRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  bottom: -175px;
+  right: -175px;
+  pointer-events: none;
 }
 
 /* ── PC (min-width: 768px) ── */

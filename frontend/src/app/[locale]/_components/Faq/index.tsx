@@ -22,6 +22,8 @@ export async function Faq({ locale, signupHref }: FaqProps) {
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="faq" className={styles.section}>
+      <div className={styles.decoTopLeft} aria-hidden="true" />
+      <div className={styles.decoBottomRight} aria-hidden="true" />
       <span className={styles.bgLabel} aria-hidden="true">
         FAQ
       </span>

@@ -32,6 +32,7 @@ export async function Steps({ locale, signupHref }: StepsProps) {
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="solution-recording" className={styles.section}>
+      <div className={styles.decoTopLeft} aria-hidden="true" />
       <span className={styles.bgLabel} aria-hidden="true">
         3 STEPS
       </span>

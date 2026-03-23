@@ -14,15 +14,15 @@
   height: 486px;
   border-radius: 0 0 120px 120px;
   overflow: hidden;
+  background: #b5c8d4;
 }
 
 .heroBgImage {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center bottom;
+  bottom: 0;
+  left: -5%;
+  width: 110%;
+  height: auto;
 }
 
 /* ── 装飾テキスト「WORLD」── */
@@ -239,12 +239,30 @@
   outline-offset: 4px;
 }
 
+/* ── 装飾サークル ── */
+
+.decoBottomLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  bottom: -175px;
+  left: -175px;
+  pointer-events: none;
+}
+
 /* ── PC (min-width: 768px) ── */
 
 @media (min-width: 768px) {
   .hero {
     height: 632px;
     border-radius: 0 0 201px 201px;
+  }
+
+  .heroBgImage {
+    left: 0;
+    width: 100%;
   }
 
   .headerContent {

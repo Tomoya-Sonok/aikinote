@@ -18,6 +18,7 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="sns-community" className={styles.section}>
+      <div className={styles.decoBottomLeft} aria-hidden="true" />
       {/* ヒーローエリア（カプセル型背景 + ヘッダー） */}
       <div className={styles.hero}>
         <Image
