@@ -41,10 +41,18 @@
   flex-shrink: 0;
 }
 
-.logoImage {
+/* アイコンロゴ: デフォルト表示、1366px以上で非表示 */
+.logoImageCompact {
+  width: 36px;
+  height: 36px;
+  display: block;
+}
+
+/* 横長ロゴ: デフォルト非表示、1366px以上で表示 */
+.logoImageWide {
   width: 140px;
   height: auto;
-  display: block;
+  display: none;
 }
 
 /* ── PC ナビゲーション（SP では非表示）── */
@@ -131,18 +139,16 @@
     display: none;
   }
 
-  .logoImage {
+  .logoImageWide {
     width: 160px;
   }
 
   .desktopNav {
-    display: flex;
     flex: 1;
     justify-content: center;
   }
 
   .secondaryCta {
-    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
@@ -204,6 +210,31 @@
     color: var(--lp-cta-signup-bg);
     border-radius: 50%;
     flex-shrink: 0;
+  }
+}
+
+/* 1060px 以上: ナビゲーションリンクを表示 */
+@media (min-width: 1060px) {
+  .desktopNav {
+    display: flex;
+  }
+}
+
+/* 1245px 以上: お問い合わせ CTA を表示 */
+@media (min-width: 1245px) {
+  .secondaryCta {
+    display: inline-flex;
+  }
+}
+
+/* 1366px 以上: 横長ロゴを表示、アイコンを非表示 */
+@media (min-width: 1366px) {
+  .logoImageWide {
+    display: block;
+  }
+
+  .logoImageCompact {
+    display: none;
   }
 }
 

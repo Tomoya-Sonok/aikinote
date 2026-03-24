@@ -57,8 +57,17 @@ export async function Header({ locale, signupHref }: HeaderProps) {
             alt="AikiNote logo"
             width={814}
             height={270}
-            sizes="(min-width: 768px) 160px, 140px"
-            className={styles.logoImage}
+            sizes="(min-width: 1366px) 160px, 0px"
+            className={styles.logoImageWide}
+            priority
+          />
+          <Image
+            src="/images/shared/aikinote_logo.png"
+            alt="AikiNote logo"
+            width={270}
+            height={270}
+            sizes="36px"
+            className={styles.logoImageCompact}
             priority
           />
         </Link>

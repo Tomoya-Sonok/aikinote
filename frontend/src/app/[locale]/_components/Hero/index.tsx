@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
 import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
+import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import styles from "./Hero.module.css";
 
 interface HeroProps {
@@ -19,37 +21,60 @@ export async function Hero({ locale, signupHref }: HeroProps) {
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
     <section id="hero" className={styles.hero}>
       <div className={styles.inner}>
-        <h1 className={styles.heading}>
-          {headingLines.map((line, index) => (
-            <Fragment key={line}>
-              {line}
-              {index < headingLines.length - 1 && <br />}
-            </Fragment>
-          ))}
-        </h1>
-
-        {/* TODO: デザイナーからイラスト+モックの合成画像を受領後に実装
-             - hero-illustration.png（ピル型コンテナ、rotate 54.693deg）
-             - hero-mock1.png（スマホモック、rotate 13.15deg、ピル上に重ね表示）
-             - Figma の正確な配置値は計画ファイルを参照 */}
-        <div className={styles.visualArea} />
-
-        <div className={styles.subtextArea}>
-          <p className={styles.subtext}>
-            {subtextLines.map((line, index) => (
+        <div className={styles.textArea}>
+          <h1 className={styles.heading}>
+            {headingLines.map((line, index) => (
               <Fragment key={line}>
                 {line}
-                {index < subtextLines.length - 1 && <br />}
+                {index < headingLines.length - 1 && <br />}
               </Fragment>
             ))}
-          </p>
-          <Link href={signupHref} className={styles.cta}>
-            <span>{t("ctaLabel")}</span>
-            <span className={styles.ctaIcon}>
-              <AikinoteRightArrow size={14} />
-            </span>
-          </Link>
+          </h1>
+
+          <div className={styles.subtextArea}>
+            <p className={styles.subtext}>
+              {subtextLines.map((line, index) => (
+                <Fragment key={line}>
+                  {line}
+                  {index < subtextLines.length - 1 && <br />}
+                </Fragment>
+              ))}
+            </p>
+            <Link href={signupHref} className={styles.cta}>
+              <span>{t("ctaLabel")}</span>
+              <span className={styles.ctaIcon}>
+                <AikinoteRightArrow size={14} />
+              </span>
+            </Link>
+          </div>
         </div>
+
+        <ScrollFadeIn
+          direction="right"
+          delay={200}
+          className={styles.visualWrapper}
+        >
+          <div className={styles.visualArea}>
+            <Image
+              src="/images/lp/hero-illustration.png"
+              alt={t("illustrationAlt")}
+              width={800}
+              height={670}
+              sizes="(min-width: 768px) 500px, 340px"
+              className={styles.illustration}
+              priority
+            />
+            <Image
+              src="/images/lp/hero-mock1.png"
+              alt={t("mockAlt")}
+              width={400}
+              height={500}
+              sizes="(min-width: 768px) 330px, 220px"
+              className={styles.mockImage}
+              priority
+            />
+          </div>
+        </ScrollFadeIn>
       </div>
     </section>
   );

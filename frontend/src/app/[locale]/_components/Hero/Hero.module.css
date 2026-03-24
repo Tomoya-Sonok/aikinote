@@ -18,6 +18,14 @@
   margin: 0 auto;
 }
 
+/* ── テキストエリア（heading + subtextArea のラッパー）── */
+/* SP: display: contents で透過し、子要素が直接グリッドに参加 */
+/* PC: flex コンテナとして左カラムを構成 */
+
+.textArea {
+  display: contents;
+}
+
 /* ── 見出し ── */
 
 .heading {
@@ -29,6 +37,7 @@
   line-height: normal;
   letter-spacing: 7.2px;
   margin: 0;
+  z-index: 1;
 }
 
 /* ── サブテキスト + CTA エリア ── */
@@ -98,37 +107,90 @@
 }
 
 /* ── ビジュアルエリア ── */
-/* TODO: デザイナーから合成画像を受領後に実装
-   Figma 値:
-   - SP pill: 264×825, rotate(54.693deg)
-   - PC pill: 397×1237, rotate(54.693deg)
-   - SP mock: left 45.14%, right 26.91%, top 424.61px, rotate(13.15deg)
-   - PC mock: left 56.81%, right 12.36%, top 152px, rotate(13.15deg)
-   - mock shadow: 5px 10px 20px rgba(0,0,0,0.25) */
+
+.visualWrapper {
+  grid-area: visual;
+  min-width: 0;
+}
 
 .visualArea {
-  grid-area: visual;
+  position: relative;
+  min-width: 650px;
+  min-height: 550px;
+  transform: translate(-10%, -16%);
+  /* transform による上方移動分の空白を打ち消す */
+  margin-bottom: -100px;
+  z-index: -1;
+}
+
+.illustration {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mockImage {
+  position: absolute;
+  right: 24%;
+  top: 64%;
+  transform: translateY(-50%);
+  width: 55%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(5px 10px 20px rgba(0, 0, 0, 0.25));
 }
 
 /* ── PC (min-width: 768px) ── */
 
 @media (min-width: 768px) {
   .hero {
-    padding: 80px 40px 100px;
+    padding: 0;
   }
 
   .inner {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "heading visual"
-      "subtext visual";
-    align-items: start;
-    gap: 24px 48px;
+    grid-template-columns: 2fr 3fr;
+    grid-template-areas: "text visual";
+    align-items: center;
+    gap: 0;
+  }
+
+  .textArea {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    grid-area: text;
+    gap: 32px;
+    transform: translateX(40%);
+    z-index: 1;
+  }
+
+  .visualWrapper {
+    min-width: auto;
+  }
+
+  .visualArea {
+    min-width: auto;
+    min-height: 600px;
+    transform: none;
+    margin: 0;
+  }
+
+  .illustration {
+    width: 100%;
+  }
+
+  .mockImage {
+    width: 55%;
+    max-width: none;
+    top: 60%;
+    left: 30%;
+    right: auto;
   }
 
   .subtextArea {
     align-items: flex-start;
-    gap: 32px;
+    gap: 90px;
   }
 }
 
