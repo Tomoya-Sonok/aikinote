@@ -31,21 +31,6 @@ export async function Header({ locale, signupHref }: HeaderProps) {
   return (
     <header className={styles.header}>
       <div className={styles.headerInner}>
-        {/* SP: ハンバーガーメニュー */}
-        <HeaderDrawer
-          links={navigation.links}
-          signupHref={signupHref}
-          contactLabel={t("cta.contact")}
-          ctaLabel={t("hero.ctaLabel")}
-          menuLabel={t("drawer.title")}
-          closeLabel={t("drawer.close")}
-          ariaLabel={navigation.ariaLabel}
-          localeSwitchHref={localeSwitchHref}
-          localeSwitchLabel={localeSwitchLabel}
-          facebookLabel={t("footer.facebook")}
-          instagramLabel={t("footer.instagram")}
-        />
-
         {/* ロゴ */}
         <Link
           href={rootHref}
@@ -57,7 +42,7 @@ export async function Header({ locale, signupHref }: HeaderProps) {
             alt="AikiNote logo"
             width={814}
             height={270}
-            sizes="(min-width: 1366px) 160px, 0px"
+            sizes="(min-width: 1366px) 160px, (min-width: 1060px) 0px, 140px"
             className={styles.logoImageWide}
             priority
           />
@@ -90,6 +75,24 @@ export async function Header({ locale, signupHref }: HeaderProps) {
           <Link href={localeSwitchHref} className={styles.localeBadge}>
             {localeSwitchLabel}
           </Link>
+
+          {/* SP: ハンバーガーメニュー */}
+          <HeaderDrawer
+            links={navigation.links}
+            signupHref={signupHref}
+            contactLabel={t("cta.contact")}
+            ctaLabel={t("hero.ctaLabel")}
+            menuLabel={t("drawer.title")}
+            closeLabel={t("drawer.close")}
+            ariaLabel={navigation.ariaLabel}
+            localeSwitchHref={localeSwitchHref}
+            localeSwitchLabel={localeSwitchLabel}
+            facebookLabel={t("footer.facebook")}
+            instagramLabel={t("footer.instagram")}
+            termsLabel={t("drawer.terms")}
+            privacyLabel={t("drawer.privacy")}
+            locale={locale}
+          />
 
           {/* PC: CTA ボタン */}
           <a

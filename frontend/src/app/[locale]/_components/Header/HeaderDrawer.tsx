@@ -26,6 +26,9 @@ interface HeaderDrawerProps {
   localeSwitchLabel: string;
   facebookLabel: string;
   instagramLabel: string;
+  termsLabel: string;
+  privacyLabel: string;
+  locale: string;
 }
 
 export const HeaderDrawer: FC<HeaderDrawerProps> = ({
@@ -40,6 +43,9 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
   localeSwitchLabel,
   facebookLabel,
   instagramLabel,
+  termsLabel,
+  privacyLabel,
+  locale,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const drawerId = "landing-menu-drawer";
@@ -90,14 +96,6 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
       >
         {/* ドロワーヘッダー */}
         <div className={styles.drawerHeader}>
-          <button
-            type="button"
-            onClick={handleClose}
-            className={styles.closeButton}
-            aria-label={closeLabel}
-          >
-            <XIcon size={24} weight="bold" />
-          </button>
           <Image
             src="/images/lp/aikinote_logo_horizontal.png"
             alt="AikiNote logo"
@@ -106,91 +104,122 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
             sizes="140px"
             className={styles.drawerLogo}
           />
-          <Link
-            href={localeSwitchHref}
-            className={styles.localeBadge}
-            onClick={handleClose}
-          >
-            {localeSwitchLabel}
-          </Link>
+          <div className={styles.drawerHeaderActions}>
+            <Link
+              href={localeSwitchHref}
+              className={styles.localeBadge}
+              onClick={handleClose}
+            >
+              {localeSwitchLabel}
+            </Link>
+            <button
+              type="button"
+              onClick={handleClose}
+              className={styles.closeButton}
+              aria-label={closeLabel}
+            >
+              <XIcon size={24} weight="bold" />
+            </button>
+          </div>
         </div>
 
-        {/* ナビゲーション */}
-        <nav className={styles.drawerNav} aria-label={ariaLabel}>
-          <ul className={styles.drawerNavList}>
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  className={styles.drawerNavLink}
-                  href={link.href}
-                  onClick={handleClose}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {/* スクロール可能なコンテンツ領域 */}
+        <div className={styles.drawerContent}>
+          {/* ナビゲーション */}
+          <nav className={styles.drawerNav} aria-label={ariaLabel}>
+            <ul className={styles.drawerNavList}>
+              {links.map((link) => (
+                <li key={link.href}>
+                  <a
+                    className={styles.drawerNavLink}
+                    href={link.href}
+                    onClick={handleClose}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        {/* CTA ボタン */}
-        <div className={styles.drawerCta}>
-          <a
-            href={CONTACT_FORM_URL}
-            target="_blank"
-            rel="noreferrer"
-            className={styles.drawerSecondaryCta}
-          >
-            <span>{contactLabel}</span>
-            <span className={styles.secondaryCtaIcon}>
-              <AikinoteRightArrow size={14} />
-            </span>
-          </a>
-          <Link
-            href={signupHref}
-            className={styles.drawerPrimaryCta}
-            onClick={handleClose}
-          >
-            <span>{ctaLabel}</span>
-            <span className={styles.primaryCtaIcon}>
-              <AikinoteRightArrow size={14} />
-            </span>
-          </Link>
-        </div>
+          {/* CTA ボタン */}
+          <div className={styles.drawerCta}>
+            <a
+              href={CONTACT_FORM_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.drawerSecondaryCta}
+            >
+              <span>{contactLabel}</span>
+              <span className={styles.secondaryCtaIcon}>
+                <AikinoteRightArrow size={14} />
+              </span>
+            </a>
+            <Link
+              href={signupHref}
+              className={styles.drawerPrimaryCta}
+              onClick={handleClose}
+            >
+              <span>{ctaLabel}</span>
+              <span className={styles.primaryCtaIcon}>
+                <AikinoteRightArrow size={14} />
+              </span>
+            </Link>
+          </div>
 
-        {/* ソーシャルアイコン */}
-        <div className={styles.drawerSocial}>
-          <a
-            href={FACEBOOK_URL}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={facebookLabel}
-            className={styles.drawerSocialLink}
-          >
-            <Image
-              src="/images/lp/facebook-logo.png"
-              alt=""
-              width={100}
-              height={100}
-              sizes="50px"
-              className={styles.drawerSocialIcon}
-            />
-          </a>
-          <a
-            href={INSTAGRAM_URL}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={instagramLabel}
-            className={styles.drawerSocialLink}
-          >
-            <Image
-              src="/images/lp/instagram-logo.png"
-              alt=""
-              width={100}
-              height={100}
-              sizes="50px"
-              className={styles.drawerSocialIcon}
-            />
-          </a>
+          {/* ソーシャルアイコン */}
+          <div className={styles.drawerSocial}>
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={facebookLabel}
+              className={styles.drawerSocialLink}
+            >
+              <Image
+                src="/images/lp/facebook-logo.png"
+                alt=""
+                width={100}
+                height={100}
+                sizes="50px"
+                className={styles.drawerSocialIcon}
+              />
+            </a>
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={instagramLabel}
+              className={styles.drawerSocialLink}
+            >
+              <Image
+                src="/images/lp/instagram-logo.png"
+                alt=""
+                width={100}
+                height={100}
+                sizes="50px"
+                className={styles.drawerSocialIcon}
+              />
+            </a>
+          </div>
+
+          {/* 利用規約・プライバシーポリシー */}
+          <div className={styles.drawerLegal}>
+            <Link
+              href={`/${locale}/terms`}
+              className={styles.drawerLegalLink}
+              onClick={handleClose}
+            >
+              {termsLabel}
+            </Link>
+            <Link
+              href={`/${locale}/privacy`}
+              className={styles.drawerLegalLink}
+              onClick={handleClose}
+            >
+              {privacyLabel}
+            </Link>
+          </div>
         </div>
       </aside>
     </>

@@ -12,7 +12,7 @@
 .hero {
   position: relative;
   height: 486px;
-  border-radius: 0 0 214px 214px;
+  border-radius: 0 0 50% 50%;
   overflow: hidden;
   background: #b5c8d4;
 }

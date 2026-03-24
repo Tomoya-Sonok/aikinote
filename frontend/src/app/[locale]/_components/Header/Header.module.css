@@ -41,18 +41,18 @@
   flex-shrink: 0;
 }
 
-/* アイコンロゴ: デフォルト表示、1366px以上で非表示 */
+/* アイコンロゴ: デフォルト非表示、1060〜1365pxのみ表示 */
 .logoImageCompact {
   width: 36px;
   height: 36px;
-  display: block;
+  display: none;
 }
 
-/* 横長ロゴ: デフォルト非表示、1366px以上で表示 */
+/* 横長ロゴ: デフォルト表示 */
 .logoImageWide {
   width: 140px;
   height: auto;
-  display: none;
+  display: block;
 }
 
 /* ── PC ナビゲーション（SP では非表示）── */
@@ -213,10 +213,18 @@
   }
 }
 
-/* 1060px 以上: ナビゲーションリンクを表示 */
+/* 1060px 以上: ナビゲーションリンクを表示、アイコンロゴに切り替え */
 @media (min-width: 1060px) {
   .desktopNav {
     display: flex;
+  }
+
+  .logoImageCompact {
+    display: block;
+  }
+
+  .logoImageWide {
+    display: none;
   }
 }
 
@@ -262,9 +270,16 @@
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
-  transform: translateX(-100%);
+  transform: translateX(100%);
   transition: transform 0.3s ease;
+}
+
+.drawerContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
+  max-height: calc(100dvh - 60px);
 }
 
 .drawerOpen {
@@ -279,6 +294,13 @@
   height: 60px;
   padding: 0 16px;
   flex-shrink: 0;
+}
+
+.drawerHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .closeButton {
@@ -313,7 +335,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 30px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -405,6 +427,31 @@
   width: 50px;
   height: 50px;
   display: block;
+}
+
+/* ── ドロワーリーガルリンク ── */
+
+.drawerLegal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px 32px;
+  border-top: 1px solid var(--lp-bg-light-gray);
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.drawerLegalLink {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--lp-bg-gray);
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.drawerLegalLink:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
 }
 
 /* ── アクセシビリティ ── */
