@@ -97,6 +97,10 @@
   text-align: justify;
 }
 
+.answerEn {
+  text-align: left;
+}
+
 /* ── Q/A バッジ ── */
 
 .qBadge,

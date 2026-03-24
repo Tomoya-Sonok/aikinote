@@ -10,17 +10,17 @@ interface StepsProps {
   signupHref: string;
 }
 
-const STEP_IMAGES = [
-  "/images/lp/step-1-create-button.png",
-  "/images/lp/step-2-select-tags.png",
-  "/images/lp/step-3-save.png",
-];
-
 export async function Steps({ locale, signupHref }: StepsProps) {
   const t = await getTranslations({
     locale,
     namespace: "landing",
   });
+  const imgPrefix = locale === "en" ? "en-" : "";
+  const stepImages = [
+    `/images/lp/${imgPrefix}step-1-create-button.png`,
+    `/images/lp/${imgPrefix}step-2-select-tags.png`,
+    `/images/lp/${imgPrefix}step-3-save.png`,
+  ];
 
   const subtitleLines = t("solutionRecording.subtitle").split("\n");
   const steps = t.raw("solutionRecording.steps") as Array<{
@@ -67,27 +67,24 @@ export async function Steps({ locale, signupHref }: StepsProps) {
         {steps.map((step, index) => (
           <ScrollFadeIn key={step.title}>
             <li className={styles.stepItem}>
-              <div className={styles.stepImageWrapper}>
-                <div className={styles.stepNumber}>
-                  <span className={styles.stepLabel}>STEP</span>
-                  <span className={styles.stepNum}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div className={styles.stepLine} />
-                </div>
-                <div className={styles.stepCircle}>
-                  <Image
-                    src={STEP_IMAGES[index]}
-                    alt={step.imageAlt}
-                    width={301}
-                    height={301}
-                    sizes="301px"
-                    className={styles.stepImage}
-                  />
-                </div>
+              <div
+                className={`${styles.stepImageWrapper}${index === 1 ? ` ${styles.stepImageWrapperWide}` : ""}`}
+              >
+                <Image
+                  src={stepImages[index]}
+                  alt={step.imageAlt}
+                  width={650}
+                  height={640}
+                  sizes="301px"
+                  className={styles.stepImage}
+                />
               </div>
               <h3 className={styles.stepTitle}>{step.title}</h3>
-              <p className={styles.stepBody}>{step.body}</p>
+              <p
+                className={`${styles.stepBody}${locale === "en" ? ` ${styles.stepBodyEn}` : ""}`}
+              >
+                {step.body}
+              </p>
 
               {index < steps.length - 1 && (
                 <div className={styles.stepSeparator} aria-hidden="true">

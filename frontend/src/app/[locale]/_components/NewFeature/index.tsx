@@ -12,6 +12,7 @@ interface NewFeatureProps {
 
 export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
   const t = await getTranslations({ locale, namespace: "landing" });
+  const imgPrefix = locale === "en" ? "en-" : "";
 
   const titleLines = t("newFeature.title").split("\n");
 
@@ -54,7 +55,7 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
               </div>
               <div className={styles.mockImageWrapper}>
                 <Image
-                  src="/images/lp/new-feature-mock1.png"
+                  src={`/images/lp/${imgPrefix}new-feature-mock1.png`}
                   alt={t("newFeature.stats.imageAlt")}
                   width={300}
                   height={500}
@@ -67,7 +68,11 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
               <h3 className={styles.featureTitle}>
                 {t("newFeature.stats.title")}
               </h3>
-              <p className={styles.featureBody}>{t("newFeature.stats.body")}</p>
+              <p
+                className={`${styles.featureBody}${locale === "en" ? ` ${styles.featureBodyEn}` : ""}`}
+              >
+                {t("newFeature.stats.body")}
+              </p>
             </div>
           </div>
         </ScrollFadeIn>
@@ -90,7 +95,7 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
               </div>
               <div className={styles.mockImageWrapper}>
                 <Image
-                  src="/images/lp/new-feature-mock2.png"
+                  src={`/images/lp/${imgPrefix}new-feature-mock2.png`}
                   alt={t("newFeature.calendar.imageAlt")}
                   width={300}
                   height={500}
@@ -103,7 +108,9 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
               <h3 className={styles.featureTitle}>
                 {t("newFeature.calendar.title")}
               </h3>
-              <p className={styles.featureBody}>
+              <p
+                className={`${styles.featureBody}${locale === "en" ? ` ${styles.featureBodyEn}` : ""}`}
+              >
                 {t("newFeature.calendar.body")}
               </p>
             </div>

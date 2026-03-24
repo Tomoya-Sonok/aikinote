@@ -11,6 +11,7 @@ interface PainPointsProps {
 
 export async function PainPoints({ locale }: PainPointsProps) {
   const t = await getTranslations({ locale, namespace: "landing.painPoints" });
+  const imgPrefix = locale === "en" ? "en-" : "";
 
   const titleLines = t("title").split("\n");
   const items = t.raw("items") as string[];
@@ -56,7 +57,7 @@ export async function PainPoints({ locale }: PainPointsProps) {
 
         <div className={styles.illustration}>
           <Image
-            src="/images/lp/pain-points.png"
+            src={`/images/lp/${imgPrefix}pain-points.png`}
             alt={t("imageAlt")}
             width={300}
             height={241}

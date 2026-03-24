@@ -12,6 +12,7 @@ interface HeroProps {
 
 export async function Hero({ locale, signupHref }: HeroProps) {
   const t = await getTranslations({ locale, namespace: "landing.hero" });
+  const imgPrefix = locale === "en" ? "en-" : "";
 
   const headingLines = t("heading").split("\n");
   const subtextLines = t("subtext").split("\n");
@@ -52,7 +53,7 @@ export async function Hero({ locale, signupHref }: HeroProps) {
         >
           <div className={styles.visualArea}>
             <Image
-              src="/images/lp/hero-illustration.png"
+              src={`/images/lp/${imgPrefix}hero-illustration.png`}
               alt={t("illustrationAlt")}
               width={800}
               height={670}
@@ -61,7 +62,7 @@ export async function Hero({ locale, signupHref }: HeroProps) {
               priority
             />
             <Image
-              src="/images/lp/hero-mock1.png"
+              src={`/images/lp/${imgPrefix}hero-mock1.png`}
               alt={t("mockAlt")}
               width={400}
               height={500}

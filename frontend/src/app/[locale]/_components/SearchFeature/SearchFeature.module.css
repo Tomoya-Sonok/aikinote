@@ -98,6 +98,11 @@
   text-align: justify;
 }
 
+.bodyEn {
+  text-align: left;
+  letter-spacing: normal;
+}
+
 /* ── CTA ── */
 
 .ctaWrapper {

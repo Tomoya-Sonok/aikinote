@@ -51,7 +51,9 @@ export async function Faq({ locale, signupHref }: FaqProps) {
                   </span>
                   <span>{t(`faq.items.${key}.question`)}</span>
                 </dt>
-                <dd className={styles.answer}>
+                <dd
+                  className={`${styles.answer}${locale === "en" ? ` ${styles.answerEn}` : ""}`}
+                >
                   <span className={styles.aBadge} aria-hidden="true">
                     A
                   </span>

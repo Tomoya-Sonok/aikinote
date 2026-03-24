@@ -12,6 +12,7 @@ interface SnsCommunityProps {
 
 export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
   const t = await getTranslations({ locale, namespace: "landing" });
+  const imgPrefix = locale === "en" ? "en-" : "";
 
   const titleLines = t("snsCommunity.title").split("\n");
 
@@ -56,7 +57,11 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
       </div>
 
       {/* 導入テキスト */}
-      <p className={styles.intro}>{t("snsCommunity.intro")}</p>
+      <p
+        className={`${styles.intro}${locale === "en" ? ` ${styles.introEn}` : ""}`}
+      >
+        {t("snsCommunity.intro")}
+      </p>
 
       {/* フィーチャーカード */}
       <div className={styles.cardsGrid}>
@@ -69,7 +74,7 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
             <div className={styles.cardDivider} />
             <div className={styles.cardImageWrapper}>
               <Image
-                src="/images/lp/sns-searching-man.png"
+                src={`/images/lp/${imgPrefix}sns-searching-man.png`}
                 alt={t("snsCommunity.cards.share.imageAlt")}
                 width={400}
                 height={400}
@@ -77,7 +82,9 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
                 className={styles.cardImage}
               />
             </div>
-            <p className={styles.cardBody}>
+            <p
+              className={`${styles.cardBody}${locale === "en" ? ` ${styles.cardBodyEn}` : ""}`}
+            >
               {t("snsCommunity.cards.share.body")}
             </p>
           </div>
@@ -94,7 +101,7 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
               className={`${styles.cardImageWrapper} ${styles.cardImageCircle}`}
             >
               <Image
-                src="/images/lp/sns-doing-aikido-man.png"
+                src={`/images/lp/${imgPrefix}sns-doing-aikido-man.png`}
                 alt={t("snsCommunity.cards.learn.imageAlt")}
                 width={400}
                 height={400}
@@ -102,7 +109,9 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
                 className={styles.cardImage}
               />
             </div>
-            <p className={styles.cardBody}>
+            <p
+              className={`${styles.cardBody}${locale === "en" ? ` ${styles.cardBodyEn}` : ""}`}
+            >
               {t("snsCommunity.cards.learn.body")}
             </p>
           </div>
@@ -117,7 +126,7 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
             <div className={styles.cardDivider} />
             <div className={styles.cardImageWrapper}>
               <Image
-                src="/images/lp/sns-chat-online.png"
+                src={`/images/lp/${imgPrefix}sns-chat-online.png`}
                 alt={t("snsCommunity.cards.community.imageAlt")}
                 width={400}
                 height={400}
@@ -125,10 +134,14 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
                 className={styles.cardImage}
               />
             </div>
-            <p className={styles.cardBody}>
+            <p
+              className={`${styles.cardBody}${locale === "en" ? ` ${styles.cardBodyEn}` : ""}`}
+            >
               {t("snsCommunity.cards.community.body")}
             </p>
-            <p className={styles.cardNote}>
+            <p
+              className={`${styles.cardNote}${locale === "en" ? ` ${styles.cardNoteEn}` : ""}`}
+            >
               {t("snsCommunity.cards.community.note")}
             </p>
           </div>

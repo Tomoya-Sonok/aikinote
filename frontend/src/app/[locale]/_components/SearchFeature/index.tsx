@@ -15,6 +15,7 @@ export async function SearchFeature({
   signupHref,
 }: SearchFeatureProps) {
   const t = await getTranslations({ locale, namespace: "landing" });
+  const imgPrefix = locale === "en" ? "en-" : "";
 
   const titleLines = t("solutionSearch.title").split("\n");
 
@@ -46,7 +47,7 @@ export async function SearchFeature({
             <div className={styles.mockCircle}>
               <div className={styles.mockImageWrapper}>
                 <Image
-                  src="/images/lp/search-feature-mock1.png"
+                  src={`/images/lp/${imgPrefix}search-feature-mock1.png`}
                   alt={t("solutionSearch.imageAlt")}
                   width={300}
                   height={500}
@@ -57,7 +58,11 @@ export async function SearchFeature({
             </div>
           </div>
 
-          <p className={styles.body}>{t("solutionSearch.body")}</p>
+          <p
+            className={`${styles.body}${locale === "en" ? ` ${styles.bodyEn}` : ""}`}
+          >
+            {t("solutionSearch.body")}
+          </p>
         </div>
       </ScrollFadeIn>
 

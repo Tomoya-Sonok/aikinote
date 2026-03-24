@@ -122,7 +122,7 @@
     },
     "snsCommunity": {
       "badge": "SNS Feature",
-      "title": "Connect through Aikido —\nbeyond dojo walls and\nnational borders.",
+      "title": "Connect through Aikido\nbeyond dojo walls and\nnational borders.",
       "ctaLabel": "Connect with Aikidoists",
       "intro": "Aikido practitioners exist all over the world. Yet there are few places where the learnings from training can be shared across dojo and language barriers.",
       "heroImageAlt": "Illustration of aikido practitioners worldwide connecting via smartphones",
@@ -140,7 +140,7 @@
         "community": {
           "title": "A Community That\nCrosses Borders",
           "body": "Available in both Japanese and English. A place to share your learnings with Aikidoka training at dojos overseas.",
-          "note": "※ You can also set your records to be shared and visible only to members of your own dojo.",
+          "note": "※ You can also set your records to be shared and visible only to members of a specific dojo.",
           "imageAlt": "Illustration of aikido practitioners from different countries"
         }
       }
