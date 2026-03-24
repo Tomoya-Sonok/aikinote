@@ -1,0 +1,148 @@
+/* ── Hero セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.hero {
+  padding: 40px 20px 60px;
+  scroll-margin-top: 68px;
+  overflow: hidden;
+}
+
+.inner {
+  display: grid;
+  grid-template-areas:
+    "heading"
+    "visual"
+    "subtext";
+  gap: 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* ── テキストエリア（heading + subtextArea のラッパー）── */
+/* SP: display: contents で透過し、子要素が直接グリッドに参加 */
+/* PC: flex コンテナとして左カラムを構成 */
+
+.textArea {
+  display: contents;
+}
+
+/* ── 見出し ── */
+
+.heading {
+  grid-area: heading;
+  font-family: var(--font-zen-old-mincho);
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: normal;
+  letter-spacing: 7.2px;
+  margin: 0;
+  z-index: 1;
+}
+
+/* ── サブテキスト + CTA エリア ── */
+
+.subtextArea {
+  grid-area: subtext;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.subtext {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+}
+
+/* ── ビジュアルエリア ── */
+
+.visualWrapper {
+  grid-area: visual;
+  min-width: 0;
+}
+
+.visualArea {
+  position: relative;
+  min-width: 650px;
+  min-height: 550px;
+  transform: translate(-10%, -16%);
+  /* transform による上方移動分の空白を打ち消す */
+  margin-bottom: -100px;
+  z-index: -1;
+}
+
+.illustration {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mockImage {
+  position: absolute;
+  right: 24%;
+  top: 64%;
+  transform: translateY(-50%);
+  width: 55%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(5px 10px 20px rgba(0, 0, 0, 0.25));
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .hero {
+    padding: 0;
+  }
+
+  .inner {
+    grid-template-columns: 2fr 3fr;
+    grid-template-areas: "text visual";
+    align-items: center;
+    gap: 0;
+  }
+
+  .textArea {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    grid-area: text;
+    gap: 32px;
+    transform: translateX(40%);
+    z-index: 1;
+  }
+
+  .visualWrapper {
+    min-width: auto;
+  }
+
+  .visualArea {
+    min-width: auto;
+    min-height: 600px;
+    transform: none;
+    margin: 0;
+  }
+
+  .illustration {
+    width: 100%;
+  }
+
+  .mockImage {
+    width: 55%;
+    max-width: none;
+    top: 60%;
+    left: 30%;
+    right: auto;
+  }
+
+  .subtextArea {
+    align-items: flex-start;
+    gap: 90px;
+  }
+}

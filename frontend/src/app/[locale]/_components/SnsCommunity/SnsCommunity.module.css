@@ -1,0 +1,302 @@
+/* ── SNS / Community セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── ヒーローエリア（カプセル型背景）── */
+
+.hero {
+  position: relative;
+  height: 486px;
+  border-radius: 0 0 50% 50%;
+  overflow: hidden;
+  background: #b5c8d4;
+}
+
+.heroBgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+}
+
+/* SP: 縦長画像を表示、PC用は非表示 */
+.heroBgImageSp {
+  display: block;
+}
+
+.heroBgImagePc {
+  display: none;
+}
+
+/* ── 装飾テキスト「WORLD」── */
+
+.bgLabel {
+  position: absolute;
+  left: 10px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-cta-signup-text);
+  opacity: 0.2;
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  /* ヒーロー画像の上に表示 */
+  z-index: 1;
+}
+
+/* ── ヘッダーコンテンツ（バッジ + タイトル + 区切り線）── */
+
+.headerContent {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding-top: 40px;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 5.6px;
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+/* ── 導入テキスト ── */
+
+.intro {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-heading);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  text-align: justify;
+  margin: 32px 20px 40px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+.introEn {
+  text-align: left;
+  letter-spacing: normal;
+}
+
+/* ── カードグリッド ── */
+
+.cardsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── カード ── */
+
+.card {
+  background: var(--lp-bg-light-gray);
+  border-radius: 20px;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.cardTitle {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--lp-text-body);
+  letter-spacing: 4.6px;
+  line-height: 1;
+  margin: 0;
+}
+
+.cardDivider {
+  width: 50px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 16px auto;
+}
+
+/* ── カード画像 ── */
+
+.cardImageWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.cardImage {
+  width: 280px;
+  height: auto;
+  display: block;
+}
+
+/* カード2: 円形クリップ */
+.cardImageCircle {
+  width: 280px;
+  height: 280px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 45%;
+  overflow: hidden;
+  background: var(--lp-bg-light-gray);
+}
+
+.cardImageCircle .cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* ── カードテキスト ── */
+
+.cardBody {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: justify;
+}
+
+.cardBodyEn {
+  text-align: left;
+  letter-spacing: normal;
+}
+
+.cardNote {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--lp-text-body);
+  line-height: 26px;
+  letter-spacing: 2.4px;
+  margin: 8px 0 0;
+  text-align: justify;
+}
+
+.cardNoteEn {
+  text-align: left;
+  letter-spacing: normal;
+}
+
+/* ── CTA ── */
+
+.ctaWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 48px 0 100px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── 装飾サークル ── */
+
+.decoBottomLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  bottom: -160px;
+  left: -145px;
+  pointer-events: none;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .hero {
+    height: 632px;
+    border-radius: 0 0 201px 201px;
+  }
+
+  .heroBgImageSp {
+    display: none;
+  }
+
+  .heroBgImagePc {
+    display: block;
+  }
+
+  .headerContent {
+    padding-top: 80px;
+  }
+
+  .intro {
+    max-width: 980px;
+    margin: 48px auto 48px;
+    text-align: center;
+  }
+
+  .cardsGrid {
+    flex-direction: row;
+    align-items: stretch;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 40px;
+    gap: 24px;
+  }
+
+  .cardsGrid > * {
+    flex: 1;
+    display: flex;
+  }
+
+  .card {
+    flex: 1;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cardTitle {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cardImage {
+    width: 260px;
+  }
+
+  .cardImageCircle {
+    width: 260px;
+    height: 260px;
+  }
+}

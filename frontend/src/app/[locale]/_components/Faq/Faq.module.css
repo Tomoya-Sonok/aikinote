@@ -1,0 +1,191 @@
+/* ── FAQ セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  background: var(--lp-bg-light-gray);
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── 装飾テキスト「FAQ」── */
+
+.bgLabel {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-bg-light-gray);
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: multiply;
+}
+
+/* ── コンテンツ ── */
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── ヘッダー ── */
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 6.4px;
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+/* ── FAQ リスト ── */
+
+.faqList {
+  margin: 0;
+  padding: 0;
+}
+
+.faqItem {
+  padding: 0;
+}
+
+/* ── Q&A 共通 ── */
+
+.question,
+.answer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  color: var(--lp-text-heading);
+  margin: 0;
+}
+
+.question {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.answer {
+  font-weight: 500;
+  text-align: justify;
+}
+
+.answerEn {
+  text-align: left;
+}
+
+/* ── Q/A バッジ ── */
+
+.qBadge,
+.aBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 3px;
+  padding-bottom: 2px;
+}
+
+.qBadge {
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+}
+
+.aBadge {
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-text-heading);
+  border: 1px solid var(--lp-text-heading);
+}
+
+/* ── 区切り線 ── */
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background: var(--lp-text-heading);
+  opacity: 0.2;
+  margin: 24px 0;
+}
+
+/* ── CTA グループ ── */
+
+.ctaGroup {
+  --cta-secondary-bg: var(--lp-bg-light-gray);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── 装飾サークル ── */
+
+.decoTopLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-base);
+  border-radius: 50%;
+  top: -205px;
+  left: -143px;
+  pointer-events: none;
+}
+
+.decoBottomRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-base);
+  border-radius: 50%;
+  bottom: -175px;
+  right: -160px;
+  pointer-events: none;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .inner {
+    padding: 0 40px;
+  }
+
+  .bgLabel {
+    right: 5px;
+  }
+}

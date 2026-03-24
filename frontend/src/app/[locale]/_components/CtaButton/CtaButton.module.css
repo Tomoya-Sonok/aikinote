@@ -1,0 +1,129 @@
+/* ── CTA ボタン共通コンポーネント ── */
+
+/* ── ベーススタイル ── */
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  font-weight: 700;
+  line-height: 30px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* ── サイズ: large（ボディセクション・ドロワー）── */
+
+.large {
+  min-width: 250px;
+  height: 50px;
+  padding: 0 16px;
+  gap: 16px;
+  font-size: 18px;
+  letter-spacing: 3.6px;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* ── サイズ: compact（ヘッダー PC）── */
+
+.compact {
+  height: 40px;
+  padding: 0 16px;
+  gap: 8px;
+  font-size: 14px;
+  letter-spacing: 2.8px;
+  transition: transform 0.3s ease;
+}
+
+/* ── バリアント: primary ── */
+
+.primary {
+  background: var(--lp-cta-signup-bg);
+  color: var(--lp-cta-signup-text);
+}
+
+/* ── バリアント: secondary ── */
+/* 背景色は親コンテナから --cta-secondary-bg で指定（デフォルト: transparent） */
+
+.secondary {
+  background: var(--cta-secondary-bg, transparent);
+  color: var(--lp-cta-inquiry-text);
+  border: 2px solid var(--lp-border);
+}
+
+/* ── アイコン共通 ── */
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Primary アイコン（large）: 28px 白丸 ── */
+
+.primaryIconLarge {
+  width: 28px;
+  height: 28px;
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-cta-signup-bg);
+  border-radius: 50%;
+}
+
+/* ── Primary アイコン（compact）: 22px 白丸 ── */
+
+.primaryIconCompact {
+  width: 22px;
+  height: 22px;
+  background: var(--lp-cta-signup-text);
+  color: var(--lp-cta-signup-bg);
+  border-radius: 50%;
+}
+
+/* ── Secondary アイコン（large）: 丸なし、テキスト色のみ ── */
+
+.secondaryIconLarge {
+  color: var(--lp-text-heading);
+}
+
+/* ── Secondary アイコン（compact）: 22px 黒丸 ── */
+
+.secondaryIconCompact {
+  width: 22px;
+  height: 22px;
+  background: var(--lp-text-heading);
+  color: var(--lp-cta-signup-text);
+  border-radius: 50%;
+}
+
+/* ── ホバー ── */
+
+@media (hover: hover) {
+  .large:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .compact:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* ── フォーカス ── */
+
+.base:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── アクセシビリティ ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .base {
+    transition: none;
+  }
+}

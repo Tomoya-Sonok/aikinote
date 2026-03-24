@@ -1,0 +1,31 @@
+.fadeIn {
+  opacity: 0;
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+
+.up {
+  transform: translateY(30px);
+}
+
+.left {
+  transform: translateX(-30px);
+}
+
+.right {
+  transform: translateX(30px);
+}
+
+.visible {
+  opacity: 1;
+  transform: translate(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fadeIn {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
