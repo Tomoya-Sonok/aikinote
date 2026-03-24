@@ -1,9 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
-import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
+import { CtaButton } from "../CtaButton";
 import styles from "./NewFeature.module.css";
 
 interface NewFeatureProps {
@@ -113,12 +112,9 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
       </div>
 
       <div className={styles.ctaWrapper}>
-        <Link href={signupHref} className={styles.cta}>
-          <span>{t("hero.ctaLabel")}</span>
-          <span className={styles.ctaIcon}>
-            <AikinoteRightArrow size={14} />
-          </span>
-        </Link>
+        <CtaButton variant="primary" href={signupHref}>
+          {t("newFeature.ctaLabel")}
+        </CtaButton>
       </div>
     </section>
   );

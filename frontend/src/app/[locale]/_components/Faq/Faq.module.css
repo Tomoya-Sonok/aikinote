@@ -140,6 +140,7 @@
 /* ── CTA グループ ── */
 
 .ctaGroup {
+  --cta-secondary-bg: var(--lp-bg-light-gray);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -147,85 +148,6 @@
   margin-top: 48px;
   position: relative;
   z-index: 1; /* コンテンツを装飾要素より前面に */
-}
-
-/* セカンダリ CTA（お問い合わせ） */
-.secondaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 250px;
-  height: 50px;
-  background: var(--lp-bg-light-gray);
-  color: var(--lp-cta-inquiry-text);
-  border: 2px solid var(--lp-border);
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3.6px;
-  line-height: 30px;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.secondaryCtaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--lp-text-heading);
-  flex-shrink: 0;
-}
-
-/* プライマリ CTA（無料で始める） */
-.primaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 250px;
-  height: 50px;
-  background: var(--lp-cta-signup-bg);
-  color: var(--lp-cta-signup-text);
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3.6px;
-  line-height: 30px;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.primaryCtaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--lp-cta-signup-text);
-  color: var(--lp-cta-signup-bg);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-@media (hover: hover) {
-  .secondaryCta:hover,
-  .primaryCta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
-  }
-}
-
-.secondaryCta:focus-visible,
-.primaryCta:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 4px;
 }
 
 /* ── 装飾サークル ── */
@@ -261,14 +183,5 @@
 
   .bgLabel {
     right: 5px;
-  }
-}
-
-/* ── アクセシビリティ ── */
-
-@media (prefers-reduced-motion: reduce) {
-  .secondaryCta,
-  .primaryCta {
-    transition: none;
   }
 }

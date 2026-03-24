@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
-import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
+import { CtaButton } from "../CtaButton";
 import styles from "./Faq.module.css";
 
 const FAQ_KEYS = ["security", "easeOfUse", "languages", "mobileApp"] as const;
@@ -68,23 +67,12 @@ export async function Faq({ locale, signupHref }: FaqProps) {
       </div>
 
       <div className={styles.ctaGroup}>
-        <a
-          href={CONTACT_FORM_URL}
-          target="_blank"
-          rel="noreferrer"
-          className={styles.secondaryCta}
-        >
-          <span>{t("cta.contact")}</span>
-          <span className={styles.secondaryCtaIcon}>
-            <AikinoteRightArrow size={14} />
-          </span>
-        </a>
-        <Link href={signupHref} className={styles.primaryCta}>
-          <span>{t("hero.ctaLabel")}</span>
-          <span className={styles.primaryCtaIcon}>
-            <AikinoteRightArrow size={14} />
-          </span>
-        </Link>
+        <CtaButton variant="secondary" external href={CONTACT_FORM_URL}>
+          {t("cta.contact")}
+        </CtaButton>
+        <CtaButton variant="primary" href={signupHref}>
+          {t("faq.ctaLabel")}
+        </CtaButton>
       </div>
     </section>
   );

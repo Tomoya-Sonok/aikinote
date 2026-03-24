@@ -59,53 +59,6 @@
   margin: 0;
 }
 
-/* ── CTA ボタン ── */
-
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 250px;
-  height: 50px;
-  background: var(--lp-cta-signup-bg);
-  color: var(--lp-cta-signup-text);
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3.6px;
-  line-height: 30px;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.ctaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--lp-cta-signup-text);
-  color: var(--lp-cta-signup-bg);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-@media (hover: hover) {
-  .cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
-  }
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 4px;
-}
-
 /* ── ビジュアルエリア ── */
 
 .visualWrapper {
@@ -191,13 +144,5 @@
   .subtextArea {
     align-items: flex-start;
     gap: 90px;
-  }
-}
-
-/* ── アクセシビリティ ── */
-
-@media (prefers-reduced-motion: reduce) {
-  .cta {
-    transition: none;
   }
 }

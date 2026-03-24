@@ -116,10 +116,10 @@
   outline-offset: 4px;
 }
 
-/* ── PC CTA ボタン（SP では非表示）── */
+/* ── PC CTA スロット（SP では非表示）── */
 
-.secondaryCta,
-.primaryCta {
+.secondaryCtaSlot,
+.primaryCtaSlot {
   display: none;
 }
 
@@ -148,68 +148,8 @@
     justify-content: center;
   }
 
-  .secondaryCta {
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 40px;
-    padding: 0 16px;
-    background: transparent;
-    color: var(--lp-cta-inquiry-text);
-    border: 2px solid var(--lp-border);
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2.8px;
-    line-height: 30px;
-    text-decoration: none;
-    white-space: nowrap;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    transition: transform 0.3s ease;
-  }
-
-  .primaryCta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    height: 40px;
-    padding: 0 16px;
-    background: var(--lp-cta-signup-bg);
-    color: var(--lp-cta-signup-text);
-    border-radius: 50px;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2.8px;
-    line-height: 30px;
-    text-decoration: none;
-    white-space: nowrap;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-    transition: transform 0.3s ease;
-  }
-
-  .secondaryCtaIcon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    background: var(--lp-text-heading);
-    color: var(--lp-cta-signup-text);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .primaryCtaIcon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    background: var(--lp-cta-signup-text);
-    color: var(--lp-cta-signup-bg);
-    border-radius: 50%;
-    flex-shrink: 0;
+  .primaryCtaSlot {
+    display: contents;
   }
 }
 
@@ -230,8 +170,8 @@
 
 /* 1245px 以上: お問い合わせ CTA を表示 */
 @media (min-width: 1245px) {
-  .secondaryCta {
-    display: inline-flex;
+  .secondaryCtaSlot {
+    display: contents;
   }
 }
 
@@ -244,19 +184,6 @@
   .logoImageCompact {
     display: none;
   }
-}
-
-@media (min-width: 768px) and (hover: hover) {
-  .secondaryCta:hover,
-  .primaryCta:hover {
-    transform: translateY(-1px);
-  }
-}
-
-.secondaryCta:focus-visible,
-.primaryCta:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 4px;
 }
 
 /* ══════════════════════════════════════════ */
@@ -358,68 +285,12 @@
 /* ── ドロワー CTA ── */
 
 .drawerCta {
+  --cta-secondary-bg: var(--lp-bg-base);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   padding: 0 20px;
-  flex-shrink: 0;
-}
-
-.drawerSecondaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 250px;
-  height: 50px;
-  background: var(--lp-bg-base);
-  color: var(--lp-cta-inquiry-text);
-  border: 2px solid var(--lp-border);
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3.6px;
-  line-height: 30px;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-}
-
-.drawerPrimaryCta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 250px;
-  height: 50px;
-  background: var(--lp-cta-signup-bg);
-  color: var(--lp-cta-signup-text);
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3.6px;
-  line-height: 30px;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-}
-
-.drawerPrimaryCtaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--lp-cta-signup-text);
-  color: var(--lp-cta-signup-bg);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.drawerSecondaryCtaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--lp-text-heading);
   flex-shrink: 0;
 }
 
@@ -478,11 +349,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .drawer {
-    transition: none;
-  }
-
-  .secondaryCta,
-  .primaryCta {
     transition: none;
   }
 }

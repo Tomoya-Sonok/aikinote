@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
+import { CtaButton } from "../CtaButton";
 import styles from "./Header.module.css";
 
 const CONTACT_FORM_URL =
@@ -144,27 +144,16 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
 
           {/* CTA ボタン */}
           <div className={styles.drawerCta}>
-            <a
-              href={CONTACT_FORM_URL}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.drawerSecondaryCta}
-            >
-              <span>{contactLabel}</span>
-              <span className={styles.drawerSecondaryCtaIcon}>
-                <AikinoteRightArrow size={14} />
-              </span>
-            </a>
-            <Link
+            <CtaButton variant="secondary" external href={CONTACT_FORM_URL}>
+              {contactLabel}
+            </CtaButton>
+            <CtaButton
+              variant="primary"
               href={signupHref}
-              className={styles.drawerPrimaryCta}
               onClick={handleClose}
             >
-              <span>{ctaLabel}</span>
-              <span className={styles.drawerPrimaryCtaIcon}>
-                <AikinoteRightArrow size={14} />
-              </span>
-            </Link>
+              {ctaLabel}
+            </CtaButton>
           </div>
 
           {/* ソーシャルアイコン */}

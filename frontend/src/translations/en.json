@@ -78,6 +78,7 @@
       "titlePrefix": "Practice logging in just",
       "titleNumber": "3",
       "titleSuffix": "steps",
+      "ctaLabel": "Try Recording Practice",
       "subtitle": "After practice,\npull out your phone and record right away.",
       "steps": [
         {
@@ -101,11 +102,13 @@
       "badge": "Search Feature",
       "title": "Find past records\nin seconds.",
       "body": "Tags, dates, and free-text search. Combine multiple filters to quickly reach the practice record you need. Even when your memory is hazy, it's easy to look things up on your phone before practice.",
+      "ctaLabel": "Build a Review Habit",
       "imageAlt": "AikiNote search feature mockup screen"
     },
     "newFeature": {
       "badge": "New Feature",
       "title": "Feel your progress\nin numbers.",
+      "ctaLabel": "Start Your Training Log",
       "stats": {
         "title": "Statistics",
         "body": "Automatically tallies practice days, streaks, and pages created. Monthly trend graphs plus pie charts by standing/seated techniques and technique names give you an instant overview. Perfect for tracking days toward your next grading.",
@@ -120,6 +123,7 @@
     "snsCommunity": {
       "badge": "SNS Feature",
       "title": "Beyond dojo walls and borders,\nconnected through Aikido.",
+      "ctaLabel": "Connect with Aikidoka",
       "intro": "Aikido practitioners exist all around the world. Yet places to share training insights across dojos and languages remain scarce.",
       "heroImageAlt": "Illustration of aikido practitioners worldwide connecting via smartphones",
       "cards": {
@@ -143,6 +147,7 @@
     },
     "faq": {
       "title": "Frequently Asked\nQuestions",
+      "ctaLabel": "Give It a Try",
       "items": {
         "security": {
           "question": "Will my records disappear? Can others see them?",

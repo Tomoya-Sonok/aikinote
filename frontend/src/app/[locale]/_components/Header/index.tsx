@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
+import { CtaButton } from "../CtaButton";
 import styles from "./Header.module.css";
 import { HeaderDrawer } from "./HeaderDrawer";
 
@@ -95,23 +95,21 @@ export async function Header({ locale, signupHref }: HeaderProps) {
           />
 
           {/* PC: CTA ボタン */}
-          <a
-            href={CONTACT_FORM_URL}
-            target="_blank"
-            rel="noreferrer"
-            className={styles.secondaryCta}
-          >
-            <span>{t("cta.contact")}</span>
-            <span className={styles.secondaryCtaIcon}>
-              <AikinoteRightArrow size={12} />
-            </span>
-          </a>
-          <Link href={signupHref} className={styles.primaryCta}>
-            <span>{t("hero.ctaLabel")}</span>
-            <span className={styles.primaryCtaIcon}>
-              <AikinoteRightArrow size={12} />
-            </span>
-          </Link>
+          <span className={styles.secondaryCtaSlot}>
+            <CtaButton
+              variant="secondary"
+              size="compact"
+              external
+              href={CONTACT_FORM_URL}
+            >
+              {t("cta.contact")}
+            </CtaButton>
+          </span>
+          <span className={styles.primaryCtaSlot}>
+            <CtaButton variant="primary" size="compact" href={signupHref}>
+              {t("hero.ctaLabel")}
+            </CtaButton>
+          </span>
         </div>
       </div>
     </header>

@@ -80,24 +80,7 @@
   margin-bottom: 32px;
 }
 
-.mockCircle {
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: var(--lp-bg-dark);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-}
-
-.mockImageWrapper {
-  transform: rotate(19.77deg);
-}
-
 .mockImage {
-  width: 200px;
   height: auto;
   display: block;
   border-radius: 16px;
@@ -123,51 +106,6 @@
   margin-top: 48px;
   position: relative;
   z-index: 1; /* コンテンツを装飾要素より前面に */
-}
-
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 250px;
-  height: 50px;
-  background: var(--lp-cta-signup-bg);
-  color: var(--lp-cta-signup-text);
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 3.6px;
-  line-height: 30px;
-  text-decoration: none;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.ctaIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--lp-cta-signup-text);
-  color: var(--lp-cta-signup-bg);
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-@media (hover: hover) {
-  .cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.3);
-  }
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--accent-color);
-  outline-offset: 4px;
 }
 
 /* ── 装飾サークル ── */
@@ -236,13 +174,5 @@
 
   .body {
     grid-area: body;
-  }
-}
-
-/* ── アクセシビリティ ── */
-
-@media (prefers-reduced-motion: reduce) {
-  .cta {
-    transition: none;
   }
 }

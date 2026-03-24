@@ -1,9 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
-import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
+import { CtaButton } from "../CtaButton";
 import styles from "./Hero.module.css";
 
 interface HeroProps {
@@ -40,12 +39,9 @@ export async function Hero({ locale, signupHref }: HeroProps) {
                 </Fragment>
               ))}
             </p>
-            <Link href={signupHref} className={styles.cta}>
-              <span>{t("ctaLabel")}</span>
-              <span className={styles.ctaIcon}>
-                <AikinoteRightArrow size={14} />
-              </span>
-            </Link>
+            <CtaButton variant="primary" href={signupHref}>
+              {t("ctaLabel")}
+            </CtaButton>
           </div>
         </div>
 

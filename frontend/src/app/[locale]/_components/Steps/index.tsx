@@ -1,9 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
-import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
+import { CtaButton } from "../CtaButton";
 import styles from "./Steps.module.css";
 
 interface StepsProps {
@@ -102,12 +101,9 @@ export async function Steps({ locale, signupHref }: StepsProps) {
       </ol>
 
       <div className={styles.ctaWrapper}>
-        <Link href={signupHref} className={styles.cta}>
-          <span>{t("hero.ctaLabel")}</span>
-          <span className={styles.ctaIcon}>
-            <AikinoteRightArrow size={14} />
-          </span>
-        </Link>
+        <CtaButton variant="primary" href={signupHref}>
+          {t("solutionRecording.ctaLabel")}
+        </CtaButton>
       </div>
     </section>
   );
