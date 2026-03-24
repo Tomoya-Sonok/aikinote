@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type PageCreateData } from "@/components/features/personal/PageCreateModal/PageCreateModal";
+import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import {
   type CreatePagePayload,
   createAttachment,
@@ -14,6 +14,15 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { type TrainingPageData } from "@/types/training";
+
+interface PageCreateData {
+  title: string;
+  tori: string[];
+  uke: string[];
+  waza: string[];
+  content: string;
+  attachments: AttachmentData[];
+}
 
 // 楽観的更新用の一時的なプレフィックス
 const OPTIMISTIC_ID_PREFIX = "optimistic-";
@@ -102,9 +111,10 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             id: item.page.id,
             title: item.page.title,
             content: item.page.content,
-            comment: item.page.comment,
+            is_public: item.page.is_public ?? false,
             date: formatToLocalDateString(item.page.created_at),
             tags: item.tags.map((tag) => tag.name),
+            attachments: item.attachments ?? [],
           }),
         );
 
@@ -162,9 +172,10 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           id: optimisticId,
           title: pageData.title.trim(),
           content: pageData.content,
-          comment: pageData.comment,
+          is_public: false,
           date: formatToLocalDateString(new Date().toISOString()),
           tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+          attachments: [],
         };
         setAllTrainingPageData((prev) => [optimisticPage, ...prev]);
 
@@ -174,7 +185,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           uke: pageData.uke,
           waza: pageData.waza,
           content: pageData.content,
-          comment: pageData.comment,
           user_id: userId,
         };
 
@@ -225,9 +235,10 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             id: pageId,
             title: response.data.page.title,
             content: response.data.page.content,
-            comment: response.data.page.comment,
+            is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
+            attachments: response.data.attachments ?? [],
           };
 
           setAllTrainingPageData((prev) =>
@@ -278,11 +289,12 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           id: pageData.id,
           title: pageData.title,
           content: pageData.content,
-          comment: pageData.comment,
+          is_public: originalPage.is_public,
           date:
             originalPage.date ||
             formatToLocalDateString(new Date().toISOString()),
           tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+          attachments: originalPage.attachments ?? [],
         };
         return next;
       });
@@ -296,9 +308,10 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
             id: response.data.page.id,
             title: response.data.page.title,
             content: response.data.page.content,
-            comment: response.data.page.comment,
+            is_public: response.data.page.is_public ?? false,
             date: formatToLocalDateString(response.data.page.created_at),
             tags: response.data.tags.map((tag) => tag.name),
+            attachments: response.data.attachments ?? [],
           };
 
           setAllTrainingPageData((prev) =>

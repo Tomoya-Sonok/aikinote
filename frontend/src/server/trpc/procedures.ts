@@ -23,8 +23,8 @@ type Page = {
   id: string;
   title: string;
   content: string;
-  comment: string;
   user_id: string;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -35,9 +35,18 @@ type PageTag = {
   category: string;
 };
 
+type PageAttachment = {
+  id: string;
+  type: string;
+  url: string;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+};
+
 type PageWithTags = {
   page: Page;
   tags: PageTag[];
+  attachments?: PageAttachment[];
 };
 
 type PagesList = {
@@ -68,8 +77,15 @@ type UserProfile = {
   email: string;
   username: string;
   profile_image_url: string | null;
+  full_name: string | null;
   dojo_style_name: string | null;
+  dojo_style_id: string | null;
   training_start_date: string | null;
+  bio: string | null;
+  publicity_setting: string | null;
+  aikido_rank: string | null;
+  age_range: string | null;
+  gender: string | null;
 };
 
 type TagStatItem = {
@@ -102,7 +118,6 @@ type CreatePageInput = {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   user_id: string;
 };
 
@@ -113,10 +128,11 @@ type UpdatePageInput = CreatePageInput & {
 const createBackendAuthToken = async () => {
   const serverSupabase = await getServerSupabase();
   const {
-    data: { session },
-  } = await serverSupabase.auth.getSession();
+    data: { user },
+    error,
+  } = await serverSupabase.auth.getUser();
 
-  if (!session?.user) {
+  if (error || !user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "認証が必要です",
@@ -125,8 +141,8 @@ const createBackendAuthToken = async () => {
 
   return jwt.sign(
     {
-      userId: session.user.id,
-      email: session.user.email ?? "",
+      userId: user.id,
+      email: user.email ?? "",
     },
     JWT_SECRET,
     {
@@ -223,8 +239,8 @@ export const createPageProcedure = publicProcedure
       uke: z.array(z.string()),
       waza: z.array(z.string()),
       content: z.string(),
-      comment: z.string(),
       user_id: z.string(),
+      is_public: z.boolean().optional(),
       created_at: z
         .string()
         .regex(
@@ -250,8 +266,8 @@ export const updatePageProcedure = publicProcedure
       uke: z.array(z.string()),
       waza: z.array(z.string()),
       content: z.string(),
-      comment: z.string(),
       user_id: z.string(),
+      is_public: z.boolean().optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -259,6 +275,38 @@ export const updatePageProcedure = publicProcedure
       method: "PUT",
       body: JSON.stringify(input as UpdatePageInput),
     });
+  });
+
+export type PublicTrainingPage = {
+  id: string;
+  title: string;
+  content: string;
+  user_id: string;
+  is_public: boolean;
+  created_at: string;
+  User: {
+    username: string;
+    profile_image_url: string | null;
+    dojo_style_name: string | null;
+    aikido_rank: string | null;
+  };
+};
+
+export const getPublicPagesFeedProcedure = publicProcedure
+  .input(
+    z.object({
+      limit: z.number().int().positive().optional(),
+      offset: z.number().int().min(0).optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const params = new URLSearchParams();
+    if (input.limit) params.set("limit", String(input.limit));
+    if (input.offset) params.set("offset", String(input.offset));
+
+    return callHonoApi<
+      ApiResponse<{ pages: PublicTrainingPage[]; total_count: number }>
+    >(`/api/pages/public/feed?${params.toString()}`);
   });
 
 export const deletePageProcedure = publicProcedure
@@ -408,7 +456,57 @@ export const updateTagOrderProcedure = publicProcedure
     });
   });
 
-export const getUserProfileProcedure = publicProcedure
+type DojoStyleSearchResult = {
+  id: string;
+  dojo_name: string;
+  dojo_name_kana: string | null;
+  is_approved: boolean;
+};
+
+type DojoStyleCreateResult = {
+  id: string;
+  dojo_name: string;
+  is_approved: boolean;
+};
+
+export const searchDojoStylesProcedure = publicProcedure
+  .input(
+    z.object({
+      query: z.string().min(1),
+      limit: z.number().int().min(1).max(50).optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const params = new URLSearchParams({ query: input.query });
+    if (input.limit != null) {
+      params.set("limit", String(input.limit));
+    }
+    const query = params;
+
+    return callHonoApi<ApiResponse<DojoStyleSearchResult[]>>(
+      `/api/dojo-styles/search?${query.toString()}`,
+    );
+  });
+
+export const createDojoStyleProcedure = publicProcedure
+  .input(
+    z.object({
+      dojo_name: z.string().min(1).max(100),
+      dojo_name_kana: z.string().optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<DojoStyleCreateResult>>("/api/dojo-styles", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(input),
+    });
+  });
+
+export const getUserInfoProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -424,14 +522,27 @@ export const getUserProfileProcedure = publicProcedure
     });
   });
 
-export const updateUserProfileProcedure = publicProcedure
+export const updateUserInfoProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),
       username: z.string().optional(),
+      full_name: z.string().max(50).nullable().optional(),
       dojo_style_name: z.string().nullable().optional(),
+      dojo_style_id: z.string().uuid().nullable().optional(),
       training_start_date: z.string().nullable().optional(),
       profile_image_url: z.string().nullable().optional(),
+      bio: z.string().max(500).nullable().optional(),
+      publicity_setting: z.enum(["public", "closed", "private"]).optional(),
+      aikido_rank: z.string().nullable().optional(),
+      age_range: z
+        .enum(["lt20", "20s", "30s", "40s", "50s", "gt60"])
+        .nullable()
+        .optional(),
+      gender: z
+        .enum(["male", "female", "other", "not_specified"])
+        .nullable()
+        .optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -445,6 +556,54 @@ export const updateUserProfileProcedure = publicProcedure
       },
       body: JSON.stringify(updateData),
     });
+  });
+
+export const checkUsernameProcedure = publicProcedure
+  .input(
+    z.object({
+      username: z.string().min(1),
+      excludeUserId: z.string().optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const params = new URLSearchParams({ username: input.username });
+    if (input.excludeUserId) {
+      params.set("excludeUserId", input.excludeUserId);
+    }
+
+    return callHonoApi<ApiResponse<{ available: boolean }>>(
+      `/api/users/check-username?${params.toString()}`,
+    );
+  });
+
+export const getPublicityDojosProcedure = publicProcedure
+  .input(z.object({ userId: z.string().min(1) }))
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<
+      ApiResponse<{ dojo_style_id: string; dojo_name: string }[]>
+    >(`/api/users/${input.userId}/publicity-dojos`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+export const updatePublicityDojosProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      dojoStyleIds: z.array(z.string()),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<null>>(
+      `/api/users/${input.userId}/publicity-dojos`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ dojo_style_ids: input.dojoStyleIds }),
+      },
+    );
   });
 
 export const createUserProcedure = publicProcedure
@@ -500,3 +659,529 @@ export const initializeUserTagsProcedure = publicProcedure
       message: result.message || "初期タグを作成しました",
     };
   });
+
+// ============================================
+// ソーシャル投稿関連プロシージャ
+// ============================================
+
+type SocialPostAuthor = {
+  id: string;
+  username: string;
+  profile_image_url: string | null;
+  aikido_rank: string | null;
+};
+
+type SocialPostTag = {
+  id: string;
+  name: string;
+  category: string;
+};
+
+type SocialPostAttachment = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  type: string;
+  url: string;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+  file_size_bytes: number | null;
+  sort_order: number;
+  created_at: string;
+};
+
+type SocialFeedPost = {
+  id: string;
+  user_id: string;
+  content: string;
+  post_type: string;
+  author_dojo_style_id: string | null;
+  author_dojo_name: string | null;
+  favorite_count?: number;
+  reply_count: number;
+  source_page_id: string | null;
+  created_at: string;
+  updated_at: string;
+  author: SocialPostAuthor;
+  attachments: SocialPostAttachment[];
+  tags: SocialPostTag[];
+  is_favorited: boolean;
+};
+
+type SocialReplyItem = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  is_deleted: boolean;
+  favorite_count: number;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+  };
+  is_favorited: boolean;
+};
+
+type SocialPostDetail = {
+  post: {
+    id: string;
+    user_id: string;
+    content: string;
+    post_type: string;
+    author_dojo_style_id: string | null;
+    author_dojo_name: string | null;
+    favorite_count?: number;
+    reply_count: number;
+    source_page_id: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  attachments: SocialPostAttachment[];
+  tags: SocialPostTag[];
+  author: SocialPostAuthor;
+  replies: SocialReplyItem[];
+  is_favorited: boolean;
+};
+
+type SocialPostBasic = {
+  id: string;
+  user_id: string;
+  content: string;
+  post_type: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type SocialReplyBasic = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type NotificationItem = {
+  id: string;
+  type: string;
+  recipient_user_id: string;
+  actor_user_id: string;
+  post_id: string | null;
+  reply_id: string | null;
+  is_read: boolean;
+  created_at: string;
+  actor: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+  } | null;
+  post_preview: string | null;
+};
+
+type SocialProfileData = {
+  is_restricted: boolean;
+  user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    full_name: string | null;
+    bio: string | null;
+    aikido_rank: string | null;
+    dojo_style_name: string | null;
+  } | null;
+  posts: SocialFeedPost[];
+  total_favorites?: number;
+  total_pages: number;
+  public_pages: { id: string; title: string; created_at: string }[];
+};
+
+export const getSocialFeedProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      tab: z.enum(["all", "training", "favorites"]).optional(),
+      limit: z.number().int().positive().optional(),
+      offset: z.number().int().min(0).optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const query = new URLSearchParams({
+      user_id: input.userId,
+    });
+    if (input.tab) query.set("tab", input.tab);
+    if (input.limit) query.set("limit", String(input.limit));
+    if (input.offset) query.set("offset", String(input.offset));
+
+    return callHonoApi<ApiResponse<SocialFeedPost[]>>(
+      `/api/social/posts?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  });
+
+export const getSocialPostByIdProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+    }),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<SocialPostDetail>>(
+      `/api/social/posts/${input.postId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  });
+
+export const createSocialPostProcedure = publicProcedure
+  .input(
+    z.object({
+      user_id: z.string().min(1),
+      content: z.string().min(1).max(2000),
+      post_type: z.enum(["post", "training_record"]),
+      source_page_id: z.string().uuid().optional(),
+      tag_ids: z.array(z.string().uuid()).optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<SocialPostBasic>>("/api/social/posts", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(input),
+    });
+  });
+
+export const updateSocialPostProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      content: z.string().min(1).max(2000).optional(),
+      tag_ids: z.array(z.string().uuid()).optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const { postId, ...updateData } = input;
+    return callHonoApi<ApiResponse<SocialPostBasic>>(
+      `/api/social/posts/${postId}`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(updateData),
+      },
+    );
+  });
+
+export const removeSocialPostProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<never>>(
+      `/api/social/posts/${input.postId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  });
+
+export const createSocialReplyProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      user_id: z.string().min(1),
+      content: z.string().min(1).max(1000),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const { postId, ...body } = input;
+    return callHonoApi<ApiResponse<SocialReplyBasic>>(
+      `/api/social/posts/${postId}/replies`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      },
+    );
+  });
+
+export const updateSocialReplyProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      replyId: z.string().min(1),
+      content: z.string().min(1).max(1000),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const { postId, replyId, ...body } = input;
+    return callHonoApi<ApiResponse<SocialReplyBasic>>(
+      `/api/social/posts/${postId}/replies/${replyId}`,
+      {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      },
+    );
+  });
+
+export const removeSocialReplyProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      replyId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<never>>(
+      `/api/social/posts/${input.postId}/replies/${input.replyId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  });
+
+export const toggleFavoriteProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<
+      ApiResponse<{ is_favorited: boolean; favorite_count?: number }>
+    >(`/api/social/favorites/${input.postId}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+export const reportPostProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+      user_id: z.string().min(1),
+      reason: z.enum([
+        "spam",
+        "harassment",
+        "inappropriate",
+        "impersonation",
+        "other",
+      ]),
+      detail: z.string().max(500).optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const { postId, ...body } = input;
+    return callHonoApi<ApiResponse<unknown>>(
+      `/api/social/reports/posts/${postId}`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      },
+    );
+  });
+
+export const reportReplyProcedure = publicProcedure
+  .input(
+    z.object({
+      replyId: z.string().min(1),
+      user_id: z.string().min(1),
+      reason: z.enum([
+        "spam",
+        "harassment",
+        "inappropriate",
+        "impersonation",
+        "other",
+      ]),
+      detail: z.string().max(500).optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const { replyId, ...body } = input;
+    return callHonoApi<ApiResponse<unknown>>(
+      `/api/social/reports/replies/${replyId}`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(body),
+      },
+    );
+  });
+
+export const toggleReplyFavoriteProcedure = publicProcedure
+  .input(
+    z.object({
+      replyId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<
+      ApiResponse<{ is_favorited: boolean; favorite_count: number }>
+    >(`/api/social/favorites/reply/${input.replyId}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+export const searchSocialPostsProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+      query: z.string().optional(),
+      dojoName: z.string().optional(),
+      rank: z.string().optional(),
+      hashtag: z.string().optional(),
+      postType: z.enum(["post", "training_record"]).optional(),
+      limit: z.number().int().positive().optional(),
+      offset: z.number().int().min(0).optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const params = new URLSearchParams({
+      user_id: input.userId,
+    });
+    if (input.query) params.set("query", input.query);
+    if (input.dojoName) params.set("dojo_name", input.dojoName);
+    if (input.rank) params.set("rank", input.rank);
+    if (input.hashtag) params.set("hashtag", input.hashtag);
+    if (input.postType) params.set("post_type", input.postType);
+    if (input.limit) params.set("limit", String(input.limit));
+    if (input.offset) params.set("offset", String(input.offset));
+
+    return callHonoApi<ApiResponse<SocialFeedPost[]>>(
+      `/api/social/search?${params.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  });
+
+export const getTrendingHashtagsProcedure = publicProcedure
+  .input(
+    z
+      .object({
+        limit: z.number().int().min(1).max(20).optional(),
+      })
+      .optional(),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const params = new URLSearchParams();
+    if (input?.limit) params.set("limit", String(input.limit));
+
+    const queryString = params.toString();
+    const url = queryString
+      ? `/api/social/search/trending?${queryString}`
+      : "/api/social/search/trending";
+
+    return callHonoApi<ApiResponse<{ name: string; count: number }[]>>(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+export const getSocialProfileProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+    }),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<SocialProfileData>>(
+      `/api/social/profile/${input.userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  });
+
+export const getNotificationsProcedure = publicProcedure
+  .input(
+    z.object({
+      limit: z.number().int().positive().optional(),
+      offset: z.number().int().min(0).optional(),
+    }),
+  )
+  .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    const params = new URLSearchParams();
+    if (input.limit) params.set("limit", String(input.limit));
+    if (input.offset) params.set("offset", String(input.offset));
+
+    const queryString = params.toString();
+    const path = queryString
+      ? `/api/social/notifications?${queryString}`
+      : "/api/social/notifications";
+
+    return callHonoApi<ApiResponse<NotificationItem[]>>(path, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  });
+
+export const markNotificationsReadProcedure = publicProcedure
+  .input(
+    z.object({
+      notificationIds: z.array(z.string().uuid()).optional(),
+      markAll: z.boolean().optional(),
+      postId: z.string().uuid().optional(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<never>>("/api/social/notifications/read", {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        notification_ids: input.notificationIds,
+        mark_all: input.markAll,
+        post_id: input.postId,
+      }),
+    });
+  });
+
+export const getUnreadNotificationCountProcedure = publicProcedure.query(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ count: number }>>(
+      "/api/social/notifications/unread-count",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);
+
+export const getUnreadNotificationPostIdsProcedure = publicProcedure.query(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ post_ids: string[] }>>(
+      "/api/social/notifications/unread-post-ids",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);

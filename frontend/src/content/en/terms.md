@@ -1,6 +1,6 @@
 # AikiNote Terms of Service
 
-Last updated: March 4, 2026
+Last updated: March 20, 2026
 
 These Terms of Service ("Terms") set forth the conditions for using AikiNote ("the Service"). By using the Service, you agree to these Terms.
 
@@ -52,6 +52,11 @@ Users shall not engage in the following activities when using the Service:
 1. Users may post or upload only content (including text, images, and videos) for which they hold the necessary intellectual property rights, including copyright, or for which they have obtained permission from the rights holders.
 2. Copyright for content posted or uploaded by users through the Service (including training records, images, and videos) shall be retained by the user or other existing rights holders. However, users grant the Operator a non-exclusive, royalty-free license to use such content (including reproduction, display, conversion, and distribution) to the extent necessary for providing, maintaining, and improving the Service.
 3. The Operator may delete any content posted by users without prior notice if it determines that such content violates these Terms.
+4. Files uploaded to the Service are subject to the following restrictions:
+   - Image files (JPG, PNG, WebP): up to 5 MB per file
+   - Video files (MP4, MOV, WebM): up to 300 MB per file
+
+   These restrictions (supported formats, size limits, etc.) may be changed without prior notice due to operational or technical circumstances. The latest restrictions shall be as displayed within the Service.
 
 ## Article 7 (Usage Restrictions and Deregistration)
 

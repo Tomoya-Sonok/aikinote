@@ -3,9 +3,7 @@
 import {
   ImagesSquareIcon,
   TrashIcon as PhosphorTrashIcon,
-  UserIcon,
 } from "@phosphor-icons/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -20,19 +18,40 @@ import {
 import { ZodError } from "zod";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { Button } from "@/components/shared/Button/Button";
+import {
+  DojoStyleAutocomplete,
+  type DojoStyleOption,
+} from "@/components/shared/DojoStyleAutocomplete/DojoStyleAutocomplete";
 import { Loader } from "@/components/shared/Loader/Loader";
+import { PillSelect } from "@/components/shared/PillSelect/PillSelect";
+import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
+import { TextArea } from "@/components/shared/TextArea/TextArea";
+import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { useToast } from "@/contexts/ToastContext";
-import { getUserProfile, updateUserProfile } from "@/lib/api/client";
+import {
+  checkUsernameAvailability,
+  createDojoStyle,
+  getUserInfo,
+  type UpdateUserInfoPayload,
+  updateUserInfo,
+} from "@/lib/api/client";
+import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
+import { AGE_RANGE_OPTIONS, GENDER_OPTIONS } from "@/lib/constants/userProfile";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { compressImage } from "@/lib/utils/compressImage";
+import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
 
 interface ProfileEditProps {
   user: UserProfile;
+  from?: "social";
 }
 
-export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
+export const ProfileEdit: FC<ProfileEditProps> = ({
+  user: initialUser,
+  from,
+}) => {
   const t = useTranslations();
   const router = useRouter();
   const locale = useLocale();
@@ -40,184 +59,153 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
   const { refreshUser } = useAuth();
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
-  const usernameInputId = useId();
-  const dojoInputId = useId();
-  const trainingStartInputId = useId();
+  const ageRangeGroupId = useId();
+  const genderGroupId = useId();
+
+  const [formData, setFormData] = useState({
+    full_name: user.full_name || "",
+    username: user.username,
+    dojo_name: user.dojo_style_name || "",
+    dojo_style_id: user.dojo_style_id || (null as string | null),
+    aikido_rank: user.aikido_rank || "",
+    profile_image_url: user.profile_image_url || "",
+    bio: user.bio || "",
+    age_range: user.age_range || "",
+    gender: user.gender || "",
+  });
+
+  const {
+    profileImageFile,
+    previewUrl,
+    handleImageChange,
+    handleDeleteImage: handleDeleteImageHook,
+    uploadImageToS3,
+    cleanup: cleanupImagePreview,
+  } = useProfileImageUpload();
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [dojoStyleError, setDojoStyleError] = useState<string | null>(null);
 
   const handleSave = async () => {
-    // バリデーションチェック
     try {
       usernameSchema.parse({ username: formData.username });
     } catch (error) {
       if (error instanceof ZodError) {
         setUsernameError(
-          error.issues[0]?.message || t("profileEdit.invalidUsername"),
+          error.issues[0]?.message || t("userInfoEdit.invalidUsername"),
         );
         return;
       }
     }
 
+    if (checkingUsername || usernameError) {
+      return;
+    }
+
+    if (formData.dojo_name && !formData.dojo_style_id) {
+      setDojoStyleError(t("userInfoEdit.dojoStyleNotRegistered"));
+      return;
+    }
+    setDojoStyleError(null);
+
     try {
       let updatedProfileImageUrl = formData.profile_image_url;
 
-      // 画像アップロード処理
       if (profileImageFile) {
         updatedProfileImageUrl = await uploadImageToS3(profileImageFile);
       }
 
       const updatedData = {
         userId: user.id,
+        full_name: formData.full_name.trim() || null,
         username: formData.username,
-        dojo_style_name: formData.dojo_style_name || null,
-        training_start_date: formData.training_start_date || null,
+        dojo_style_name: formData.dojo_name || null,
+        dojo_style_id: formData.dojo_style_id,
+        aikido_rank: formData.aikido_rank || null,
         profile_image_url: updatedProfileImageUrl || null,
+        bio: formData.bio.trim() || null,
+        age_range: (formData.age_range ||
+          null) as UpdateUserInfoPayload["age_range"],
+        gender: (formData.gender || null) as UpdateUserInfoPayload["gender"],
       };
 
-      const result = await updateUserProfile(updatedData);
+      const result = await updateUserInfo(updatedData);
       if (!result.success) {
-        throw new Error(result.error || t("profileEdit.communicationFailed"));
+        const errorMsg = result.error || "";
+        if (errorMsg.includes("既に使用されています")) {
+          setUsernameError(t("userInfoEdit.usernameTaken"));
+          return;
+        }
+        throw new Error(errorMsg || t("userInfoEdit.communicationFailed"));
       }
 
-      // ユーザー情報を再取得してセッションを更新
       await refreshUser();
 
-      showToast(t("profileEdit.updateSuccess"), "success");
-
-      router.push(`/${locale}/mypage`);
+      if (from === "social") {
+        router.push(`/${locale}/social/profile/${user.id}`);
+      } else {
+        router.push(`/${locale}/mypage`);
+      }
     } catch (error) {
       console.error("プロフィール更新エラー:", error);
       showToast(
         error instanceof Error
           ? error.message
-          : t("profileEdit.communicationFailed"),
+          : t("userInfoEdit.communicationFailed"),
         "error",
       );
     }
   };
 
   const handleCancel = () => {
-    // プレビューURLをクリーンアップ
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+    cleanupImagePreview();
+    if (from === "social") {
+      router.push(`/${locale}/social/profile/${user.id}`);
+    } else {
+      router.push(`/${locale}/mypage`);
     }
-    router.push(`/${locale}/mypage`);
   };
 
-  const [formData, setFormData] = useState({
-    username: user.username,
-    dojo_style_name: user.dojo_style_name || "",
-    training_start_date: user.training_start_date || "",
-    profile_image_url: user.profile_image_url || "",
-  });
-
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [usernameError, setUsernameError] = useState<string | null>(null);
-
-  // 画像アップロード用のヘルパー関数
-  const uploadImageToS3 = async (file: File): Promise<string> => {
-    // ステップ1: 署名付きURLを取得
-    const uploadUrlResponse = await fetch("/api/upload-url", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        filename: file.name,
-        contentType: file.type,
-        fileSize: file.size,
-      }),
-    });
-
-    if (!uploadUrlResponse.ok) {
-      const errorData = await uploadUrlResponse.json();
-      throw new Error(errorData.error || t("profileEdit.uploadUrlFailed"));
-    }
-
-    const { uploadUrl, fileKey } = await uploadUrlResponse.json();
-
-    // ステップ2: S3にファイルをアップロード
-    const uploadResponse = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": file.type,
-      },
-      body: file,
-    });
-
-    if (!uploadResponse.ok) {
-      throw new Error(t("profileEdit.s3UploadFailed"));
-    }
-
-    // ステップ3: プロフィール画像URLを更新
-    const updateResponse = await fetch("/api/profile-image", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fileKey,
-      }),
-    });
-
-    if (!updateResponse.ok) {
-      const errorData = await updateResponse.json();
-      throw new Error(
-        errorData.error || t("profileEdit.profileImageUpdateFailed"),
-      );
-    }
-
-    const { imageUrl } = await updateResponse.json();
-    return imageUrl;
-  };
-
-  // 最新のプロフィール情報を取得
-  const fetchUserProfile = useCallback(async () => {
+  const fetchUserInfo = useCallback(async () => {
     try {
-      const result = await getUserProfile(user.id);
+      const result = await getUserInfo(user.id);
       if (!result.success || !result.data) {
         const errorMessage =
           "error" in result
             ? result.error
-            : t("profileEdit.profileFetchFailed");
+            : t("userInfoEdit.profileFetchFailed");
         throw new Error(errorMessage);
       }
 
       const latestUser = result.data;
 
-      // ユーザー情報とフォームデータを更新
       setUser(latestUser);
-      setFormData({
+      setFormData((prev) => ({
+        ...prev,
+        full_name: latestUser.full_name || "",
         username: latestUser.username,
-        dojo_style_name: latestUser.dojo_style_name || "",
-        training_start_date: latestUser.training_start_date || "",
+        dojo_name: latestUser.dojo_style_name || "",
+        dojo_style_id: latestUser.dojo_style_id || null,
+        aikido_rank: latestUser.aikido_rank || "",
         profile_image_url: latestUser.profile_image_url || "",
-      });
+        bio: latestUser.bio || "",
+        age_range: latestUser.age_range || "",
+        gender: latestUser.gender || "",
+      }));
     } catch (error) {
-      console.error("プロフィール取得エラー:", error);
-      showToast(t("profileEdit.profileFetchFailed"), "error");
+      console.error("ユーザー情報取得エラー:", error);
+      showToast(t("userInfoEdit.profileFetchFailed"), "error");
     } finally {
       setLoading(false);
     }
   }, [showToast, t, user.id]);
 
-  // コンポーネントマウント時に最新プロフィールを取得
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
-
-  // フォームデータの初期化（userが更新された時）
-  useEffect(() => {
-    setFormData({
-      username: user.username,
-      dojo_style_name: user.dojo_style_name || "",
-      training_start_date: user.training_start_date || "",
-      profile_image_url: user.profile_image_url || "",
-    });
-  }, [user]);
+    fetchUserInfo();
+  }, [fetchUserInfo]);
 
   const handleInputChange =
-    (field: keyof typeof formData) =>
+    (field: "full_name" | "username" | "profile_image_url") =>
     (event: ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setFormData((prev) => ({
@@ -225,7 +213,6 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
         [field]: value,
       }));
 
-      // ユーザー名のバリデーション
       if (field === "username") {
         try {
           usernameSchema.parse({ username: value });
@@ -233,46 +220,87 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
         } catch (error) {
           if (error instanceof ZodError) {
             setUsernameError(
-              error.issues[0]?.message || t("profileEdit.invalidUsername"),
+              error.issues[0]?.message || t("userInfoEdit.invalidUsername"),
             );
           }
         }
       }
     };
 
-  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        // 画像をリサイズ・圧縮してからセット
-        const compressedFile = await compressImage(file, {
-          maxWidth: 512,
-          maxHeight: 512,
-          quality: 0.85,
-          outputType: "image/jpeg",
-          maxFileSize: 1024 * 1024, // 1MB
-        });
-        setProfileImageFile(compressedFile);
-        const url = URL.createObjectURL(compressedFile);
-        setPreviewUrl(url);
-      } catch {
-        showToast(t("profileEdit.communicationFailed"), "error");
+  const handleUsernameBlur = useCallback(async () => {
+    const username = formData.username;
+
+    if (usernameError) return;
+    if (username === user.username) return;
+
+    try {
+      usernameSchema.parse({ username });
+    } catch {
+      return;
+    }
+
+    setCheckingUsername(true);
+    try {
+      const available = await checkUsernameAvailability(username, user.id);
+      if (!available) {
+        setUsernameError(t("userInfoEdit.usernameTaken"));
       }
+    } finally {
+      setCheckingUsername(false);
+    }
+  }, [formData.username, user.username, user.id, usernameError, t]);
+
+  const handleDojoStyleSelect = (dojoStyle: DojoStyleOption) => {
+    setFormData((prev) => ({
+      ...prev,
+      dojo_name: dojoStyle.dojo_name,
+      dojo_style_id: dojoStyle.id,
+    }));
+    setDojoStyleError(null);
+  };
+
+  const handleRegisterNewDojo = async (query: string) => {
+    try {
+      const result = await createDojoStyle({
+        dojo_name: query,
+      });
+
+      if (result.success && result.data) {
+        setFormData((prev) => ({
+          ...prev,
+          dojo_name: result.data.dojo_name,
+          dojo_style_id: result.data.id,
+        }));
+        setDojoStyleError(null);
+      }
+    } catch (error) {
+      console.error("道場登録エラー:", error);
+      showToast(t("userInfoEdit.communicationFailed"), "error");
     }
   };
 
+  const handleClearDojoStyle = () => {
+    setFormData((prev) => ({
+      ...prev,
+      dojo_name: "",
+      dojo_style_id: null,
+    }));
+  };
+
+  const onImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    await handleImageChange(event, () => {
+      showToast(t("userInfoEdit.communicationFailed"), "error");
+    });
+  };
+
   const handleDeleteImage = () => {
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setProfileImageFile(null);
-    setPreviewUrl(null);
+    handleDeleteImageHook();
     setFormData((prev) => ({ ...prev, profile_image_url: "" }));
   };
 
   const currentImageUrl = previewUrl || formData.profile_image_url;
   const canDeleteImage = !!profileImageFile || !!formData.profile_image_url;
-  const uploadInstructionLines = t("profileEdit.uploadInstructions").split(
+  const uploadInstructionLines = t("userInfoEdit.uploadInstructions").split(
     "\n",
   );
   const lineOccurrences = new Map<string, number>();
@@ -285,11 +313,10 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
     };
   });
 
-  // ローディング中の表示
   if (loading) {
     return (
       <div className={styles.content}>
-        <Loader size="medium" centered text={t("profileEdit.loading")} />
+        <Loader size="medium" centered text={t("userInfoEdit.loading")} />
       </div>
     );
   }
@@ -297,27 +324,16 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
   return (
     <>
       <div className={styles.content}>
+        <p className={styles.sectionSubtitle}>{t("userInfoEdit.profile")}</p>
+        {/* プロフィール画像 */}
         <div className={styles.imageSection}>
           <label className={styles.profileImageContainer}>
-            <div className={styles.profileImage}>
-              {currentImageUrl ? (
-                <Image
-                  src={currentImageUrl}
-                  alt={t("profileEdit.profileImageAlt")}
-                  fill
-                  sizes="96px"
-                  style={{ objectFit: "cover" }}
-                  unoptimized
-                />
-              ) : (
-                <UserIcon size={48} weight="light" color="var(--black)" />
-              )}
-            </div>
+            <ProfileImage src={currentImageUrl} size="medium" />
             <div className={styles.editIcon}>
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageChange}
+                onChange={onImageChange}
                 className={styles.fileInput}
               />
               <ImagesSquareIcon size={16} weight="light" color="var(--black)" />
@@ -343,89 +359,155 @@ export const ProfileEdit: FC<ProfileEditProps> = ({ user: initialUser }) => {
               >
                 {profileImageFile
                   ? profileImageFile.name
-                  : t("profileEdit.noFileUploaded")}
+                  : t("userInfoEdit.noFileUploaded")}
               </p>
-              <button
-                className={styles.deleteButton}
-                type="button"
-                onClick={handleDeleteImage}
-                disabled={!canDeleteImage}
-                style={{
-                  opacity: canDeleteImage ? 1 : 0.5,
-                  cursor: canDeleteImage ? "pointer" : "not-allowed",
-                }}
-              >
-                <PhosphorTrashIcon
-                  size={24}
-                  weight="light"
-                  color="var(--black)"
-                />
-              </button>
+              {canDeleteImage && (
+                <button
+                  className={styles.deleteButton}
+                  type="button"
+                  onClick={handleDeleteImage}
+                >
+                  <PhosphorTrashIcon
+                    size={16}
+                    weight="light"
+                    color="var(--black)"
+                  />
+                </button>
+              )}
             </div>
           </div>
         </div>
 
         <div className={styles.formSection}>
+          {/* ユーザー名 */}
+          <TextInput
+            label={t("userInfoEdit.username")}
+            required
+            value={formData.username}
+            onChange={handleInputChange("username")}
+            onBlur={handleUsernameBlur}
+            placeholder={t("userInfoEdit.usernamePlaceholder")}
+            maxLength={20}
+            error={usernameError ?? undefined}
+          />
+
+          {/* 名前 */}
+          <TextInput
+            label={t("userInfoEdit.fullName")}
+            value={formData.full_name}
+            onChange={handleInputChange("full_name")}
+            placeholder={t("userInfoEdit.fullNamePlaceholder")}
+            maxLength={50}
+          />
+
+          {/* 所属道場名 */}
           <div className={styles.formGroup}>
-            <label htmlFor={usernameInputId} className={styles.label}>
-              {t("profileEdit.username")}
-              <span className={styles.required}>
-                {t("profileEdit.required")}
-              </span>
-            </label>
-            <input
-              type="text"
-              id={usernameInputId}
-              value={formData.username}
-              onChange={handleInputChange("username")}
-              className={`${styles.inputField} ${usernameError ? styles.error : ""}`}
-              placeholder={t("profileEdit.usernamePlaceholder")}
-              maxLength={20}
+            <span className={styles.label}>{t("userInfoEdit.dojoName")}</span>
+            <DojoStyleAutocomplete
+              value={formData.dojo_name}
+              onChange={(val) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  dojo_name: val,
+                  dojo_style_id: null,
+                }))
+              }
+              onSelect={handleDojoStyleSelect}
+              onRegisterNew={handleRegisterNewDojo}
+              placeholder={t("userInfoEdit.dojoNamePlaceholder")}
+              selectedId={formData.dojo_style_id}
+              onClear={handleClearDojoStyle}
             />
-            {usernameError && (
-              <div
-                style={{ color: "#ef4444", fontSize: "12px", marginTop: "4px" }}
-              >
-                {usernameError}
-              </div>
+            {dojoStyleError && (
+              <div className={styles.errorText}>{dojoStyleError}</div>
             )}
           </div>
 
+          {/* 段級位 */}
+          <SelectInput
+            label={t("userInfoEdit.aikidoRank")}
+            value={formData.aikido_rank}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                aikido_rank: e.target.value,
+              }))
+            }
+          >
+            <option value="">{t("userInfoEdit.aikidoRankPlaceholder")}</option>
+            {AIKIDO_RANK_OPTIONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </SelectInput>
+
+          {/* 自己紹介 */}
+          <TextArea
+            label={t("userInfoEdit.bio")}
+            value={formData.bio}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, bio: e.target.value }))
+            }
+            placeholder={t("userInfoEdit.bioPlaceholder")}
+            rows={4}
+            maxLength={500}
+            showCharCount
+          />
+
+          {/* その他の情報 */}
+          <div className={styles.divider} />
+          <p className={styles.sectionSubtitle}>
+            {t("userInfoEdit.otherInfo")}
+          </p>
+
+          {/* 年代 */}
           <div className={styles.formGroup}>
-            <label htmlFor={dojoInputId} className={styles.label}>
-              {t("profileEdit.currentDojo")}
-            </label>
-            <input
-              type="text"
-              id={dojoInputId}
-              value={formData.dojo_style_name}
-              onChange={handleInputChange("dojo_style_name")}
-              placeholder={t("profileEdit.dojoPlaceholder")}
-              className={styles.inputField}
+            <span className={styles.label} id={ageRangeGroupId}>
+              {t("userInfoEdit.ageRange")}
+            </span>
+            <PillSelect
+              options={AGE_RANGE_OPTIONS.map((value) => ({
+                value,
+                label: t(`userInfoEdit.ageRangeOptions.${value}`),
+              }))}
+              value={formData.age_range ?? null}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, age_range: value }))
+              }
+              groupLabelId={ageRangeGroupId}
             />
           </div>
 
+          {/* 性別 */}
           <div className={styles.formGroup}>
-            <label htmlFor={trainingStartInputId} className={styles.label}>
-              {t("profileEdit.trainingStartDate")}
-            </label>
-            <input
-              type="text"
-              id={trainingStartInputId}
-              value={formData.training_start_date}
-              onChange={handleInputChange("training_start_date")}
-              placeholder={t("profileEdit.trainingStartPlaceholder")}
-              className={styles.inputField}
+            <span className={styles.label} id={genderGroupId}>
+              {t("userInfoEdit.gender")}
+            </span>
+            <PillSelect
+              options={GENDER_OPTIONS.map((value) => ({
+                value,
+                label: t(`userInfoEdit.genderOptions.${value}`),
+              }))}
+              value={formData.gender ?? null}
+              onChange={(value) =>
+                setFormData((prev) => ({ ...prev, gender: value }))
+              }
+              groupLabelId={genderGroupId}
             />
           </div>
         </div>
       </div>
       <div className={styles.actions}>
         <Button variant="cancel" onClick={handleCancel}>
-          {t("profileEdit.cancel")}
+          {t("userInfoEdit.cancel")}
         </Button>
-        <Button variant="primary" onClick={handleSave}>
-          {t("profileEdit.save")}
+        <Button
+          variant="primary"
+          onClick={handleSave}
+          disabled={!!usernameError || checkingUsername}
+        >
+          {t("userInfoEdit.save")}
         </Button>
       </div>
     </>

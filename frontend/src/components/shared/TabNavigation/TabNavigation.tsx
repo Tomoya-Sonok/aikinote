@@ -1,10 +1,16 @@
 "use client";
 
 import type { Icon } from "@phosphor-icons/react";
-import { ChatsIcon, PencilSimpleIcon, UserIcon } from "@phosphor-icons/react";
+import {
+  ChatsIcon,
+  IdentificationCardIcon,
+  PencilSimpleIcon,
+} from "@phosphor-icons/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useUnreadNotificationCount } from "@/lib/hooks/useUnreadNotificationCount";
 import styles from "./TabNavigation.module.css";
 
 interface TabItem {
@@ -12,6 +18,7 @@ interface TabItem {
   label: string;
   icon: Icon;
   href: string;
+  badge?: number;
 }
 
 // tabsは動的に生成されるようにする
@@ -21,6 +28,8 @@ export const TabNavigation: FC = () => {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth();
+  const unreadCount = useUnreadNotificationCount(user?.id);
 
   const tabs: TabItem[] = [
     {
@@ -34,11 +43,12 @@ export const TabNavigation: FC = () => {
       label: t("components.group"),
       icon: ChatsIcon,
       href: `/${locale}/social/posts`,
+      badge: unreadCount,
     },
     {
       id: "mypage",
       label: t("components.mypage"),
-      icon: UserIcon,
+      icon: IdentificationCardIcon,
       href: `/${locale}/mypage`,
     },
   ];
@@ -66,7 +76,7 @@ export const TabNavigation: FC = () => {
   };
 
   return (
-    <div className={styles.tabContainer}>
+    <div className={styles.tabContainer} data-testid="tab-navigation">
       {tabs.map((tab) => {
         const IconComponent = tab.icon;
         return (
@@ -77,12 +87,16 @@ export const TabNavigation: FC = () => {
             type="button"
           >
             <div className={styles.tabContent}>
-              <IconComponent
-                size={24}
-                weight="light"
-                color="var(--black)"
-                className={styles.icon}
-              />
+              <div className={styles.iconWrapper}>
+                <IconComponent
+                  size={24}
+                  weight="light"
+                  className={styles.icon}
+                />
+                {tab.badge !== undefined && tab.badge > 0 && (
+                  <span className={styles.badge} />
+                )}
+              </div>
               <span className={styles.label}>{tab.label}</span>
             </div>
           </button>

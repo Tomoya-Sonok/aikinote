@@ -1,7 +1,7 @@
-import type { Session } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
-import { getCachedUserProfile } from "@/lib/server/cache";
+import { getCachedUserInfo } from "@/lib/server/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types/api";
 
@@ -13,13 +13,16 @@ const HONO_API_BASE_URL =
 const JWT_SECRET =
   process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-type HonoUserProfile = {
+type HonoUserInfo = {
   id: string;
   email: string;
   username: string;
   profile_image_url: string | null;
   dojo_style_name: string | null;
+  dojo_style_id?: string | null;
   training_start_date?: string | null;
+  aikido_rank?: string | null;
+  full_name?: string | null;
 };
 
 const buildApiUrl = (path: string) => {
@@ -27,15 +30,15 @@ const buildApiUrl = (path: string) => {
   return `${HONO_API_BASE_URL}${normalizedPath}`;
 };
 
-const createBackendAuthTokenFromSession = (session: Session | null) => {
-  if (!session?.user) {
+const createBackendAuthTokenFromUser = (user: User | null) => {
+  if (!user) {
     return null;
   }
 
   return jwt.sign(
     {
-      userId: session.user.id,
-      email: session.user.email ?? "",
+      userId: user.id,
+      email: user.email ?? "",
     },
     JWT_SECRET,
     {
@@ -47,17 +50,17 @@ const createBackendAuthTokenFromSession = (session: Session | null) => {
 const createBackendAuthToken = async () => {
   const supabase = await getServerSupabase();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return createBackendAuthTokenFromSession(session);
+    data: { user },
+  } = await supabase.auth.getUser();
+  return createBackendAuthTokenFromUser(user);
 };
 
-export const fetchUserProfileFromHono = async (
+export const fetchUserInfoFromHono = async (
   userId: string,
-  sessionOverride?: Session | null,
+  userOverride?: User | null,
 ): Promise<UserSession | null> => {
   const token =
-    createBackendAuthTokenFromSession(sessionOverride ?? null) ||
+    createBackendAuthTokenFromUser(userOverride ?? null) ||
     (await createBackendAuthToken());
   if (!token) {
     return null;
@@ -75,7 +78,7 @@ export const fetchUserProfileFromHono = async (
     return null;
   }
 
-  const result: ApiResponse<HonoUserProfile> = await response
+  const result: ApiResponse<HonoUserInfo> = await response
     .json()
     .catch(() => ({ success: false, error: "Invalid JSON response" }));
 
@@ -94,6 +97,9 @@ export const fetchUserProfileFromHono = async (
     username: data.username,
     profile_image_url: data.profile_image_url || null,
     dojo_style_name: data.dojo_style_name || null,
+    dojo_style_id: data.dojo_style_id || null,
+    aikido_rank: data.aikido_rank || null,
+    full_name: data.full_name || null,
   };
 };
 
@@ -102,33 +108,33 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 
   try {
     const {
-      data: { session },
+      data: { user },
       error,
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getUser();
 
-    if (error || !session?.user) {
+    if (error || !user) {
       return null;
     }
 
-    // キャッシュを利用してプロフィール取得
-    return await getCachedUserProfile(session.user.id, session);
+    // キャッシュを利用してユーザー情報取得
+    return await getCachedUserInfo(user.id, user);
   } catch (error) {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;
   }
 }
 
-export async function getUserProfile(userId: string) {
+export async function getUserInfo(userId: string) {
   try {
-    const userProfile = await fetchUserProfileFromHono(userId);
+    const userInfo = await fetchUserInfoFromHono(userId);
 
-    if (userProfile) {
-      return { data: userProfile, error: null };
+    if (userInfo) {
+      return { data: userInfo, error: null };
     }
 
     return { data: null, error: { message: "User not found" } };
   } catch (error) {
-    console.error("getUserProfile API call failed:", error);
+    console.error("getUserInfo API call failed:", error);
     return { data: null, error: { message: "API call failed" } };
   }
 }

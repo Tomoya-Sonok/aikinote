@@ -4,22 +4,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
-import {
-  type PageEditData,
-  PageEditModal,
-} from "@/components/features/personal/PageEditModal/PageEditModal";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag } from "@/components/shared/Tag/Tag";
-import {
-  deletePage,
-  type UpdatePagePayload,
-  updatePage,
-} from "@/lib/api/client";
+import { useToast } from "@/contexts/ToastContext";
+import { deletePage, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
-import type { TrainingPageData } from "@/types/training";
 import styles from "./page.module.css";
 
 export function PageDetail() {
@@ -30,56 +22,55 @@ export function PageDetail() {
   const { user } = useAuth();
   const pageId = params.page_id as string;
 
-  const { loading, pageData, setPageData, attachments, fetchAttachments } =
+  const { loading, pageData, setPageData, attachments } =
     usePageDetailData(pageId);
 
   const { availableTags } = useTrainingTags();
 
-  const [isPageEditModalOpen, setPageEditModalOpen] = useState(false);
+  const { showToast } = useToast();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeletingPage, setDeletingPage] = useState(false);
+  const [isTogglingPublic, setTogglingPublic] = useState(false);
 
   const handleBackToList = () => {
     router.push(`/${locale}/personal/pages`);
   };
 
-  const handleEdit = () => {
-    if (!pageData) return;
-    setPageEditModalOpen(true);
-  };
-
-  const handleUpdatePage = async (pageUpdateData: UpdatePagePayload) => {
+  const handleTogglePublic = async () => {
+    if (!pageData || !user?.id || isTogglingPublic) return;
+    setTogglingPublic(true);
     try {
-      const response = await updatePage(pageUpdateData);
-
-      if (response.success && response.data) {
-        const convertedData: TrainingPageData = {
-          id: response.data.page.id,
-          title: response.data.page.title,
-          content: response.data.page.content,
-          comment: response.data.page.comment,
-          date: response.data.page.created_at,
-          tags: response.data.tags.map((tag) => tag.name),
-        };
-        setPageData(convertedData);
-
-        // 添付一覧を再取得（PageEditModalでの追加/削除を反映）
-        await fetchAttachments();
-
-        setPageEditModalOpen(false);
-      } else {
-        console.error(
-          "Failed to update page:",
-          "error" in response ? response.error : undefined,
-        );
-        alert(t("pageDetail.updateFailed"));
+      const newValue = !pageData.is_public;
+      const response = await updatePage({
+        id: pageData.id,
+        title: pageData.title,
+        tori: pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "取り"),
+        ),
+        uke: pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "受け"),
+        ),
+        waza: pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === "技"),
+        ),
+        content: pageData.content,
+        user_id: user.id,
+        is_public: newValue,
+      });
+      if (response.success) {
+        setPageData({ ...pageData, is_public: newValue });
       }
     } catch (error) {
-      console.error("Failed to update page:", error);
-      alert(
-        error instanceof Error ? error.message : t("pageDetail.updateFailed"),
-      );
+      console.error("公開設定変更エラー:", error);
+      showToast(t("pageDetail.publicToggleFailed"), "error");
+    } finally {
+      setTogglingPublic(false);
     }
+  };
+
+  const handleEdit = () => {
+    if (!pageData) return;
+    window.location.href = `/${locale}/personal/pages/${pageId}/edit`;
   };
 
   const handleDelete = () => {
@@ -103,7 +94,7 @@ export function PageDetail() {
     }
 
     if (!user?.id) {
-      alert(t("personalPages.loginRequired"));
+      showToast(t("personalPages.loginRequired"), "error");
       return;
     }
 
@@ -120,8 +111,9 @@ export function PageDetail() {
       }
     } catch (error) {
       console.error("Failed to delete page:", error);
-      alert(
+      showToast(
         error instanceof Error ? error.message : t("pageDetail.deleteFailed"),
+        "error",
       );
     } finally {
       setDeletingPage(false);
@@ -218,26 +210,6 @@ export function PageDetail() {
   }
 
   const trainingContent = pageData.content;
-  const comments = pageData.comment || "";
-
-  const editData: PageEditData | null = pageData
-    ? {
-        id: pageData.id,
-        title: pageData.title,
-        content: pageData.content,
-        comment: pageData.comment || "",
-        tori: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "取り"),
-        ),
-        uke: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "受け"),
-        ),
-        waza: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "技"),
-        ),
-        attachments,
-      }
-    : null;
 
   return (
     <div className={styles.container}>
@@ -261,15 +233,6 @@ export function PageDetail() {
           <div className={styles.content}>{trainingContent}</div>
         </div>
 
-        {/* その他・コメントセクション */}
-        {comments && (
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("pageDetail.comment")}</h2>
-            <div className={styles.divider} />
-            <div className={styles.content}>{comments}</div>
-          </div>
-        )}
-
         {/* 添付ファイルセクション */}
         {attachments.length > 0 && (
           <div className={styles.section}>
@@ -289,40 +252,48 @@ export function PageDetail() {
           </div>
         )}
 
-        {/* アクションボタン */}
-        <div className={styles.buttonsContainer}>
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={handleBackToList}
-          >
-            {t("pageDetail.backToList")}
-          </button>
-          <button
-            type="button"
-            className={styles.editButton}
-            onClick={handleEdit}
-          >
-            {t("pageDetail.edit")}
-          </button>
-          <button
-            type="button"
-            className={styles.deleteButton}
-            onClick={handleDelete}
-          >
-            {t("pageDetail.delete")}
-          </button>
+        {/* 公開設定 */}
+        <div className={styles.publicToggle}>
+          <label className={styles.toggleLabel}>
+            <span>{t("pageDetail.publicToggle")}</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={pageData.is_public}
+              className={`${styles.toggle} ${pageData.is_public ? styles.toggleOn : ""}`}
+              onClick={handleTogglePublic}
+              disabled={isTogglingPublic}
+            >
+              <span className={styles.toggleKnob} />
+            </button>
+          </label>
         </div>
       </div>
 
-      {editData && (
-        <PageEditModal
-          isOpen={isPageEditModalOpen}
-          onClose={() => setPageEditModalOpen(false)}
-          onUpdate={handleUpdatePage}
-          initialData={editData}
-        />
-      )}
+      {/* アクションボタン */}
+      <div className={styles.buttonsContainer}>
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={handleBackToList}
+        >
+          {t("pageDetail.backToList")}
+        </button>
+        <button
+          type="button"
+          className={styles.editButton}
+          onClick={handleEdit}
+        >
+          {t("pageDetail.edit")}
+        </button>
+        <button
+          type="button"
+          className={styles.deleteButton}
+          onClick={handleDelete}
+        >
+          {t("pageDetail.delete")}
+        </button>
+      </div>
 
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}

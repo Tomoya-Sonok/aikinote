@@ -149,7 +149,7 @@ describe("useDebounce", () => {
     expect(result.current).toBe("更新値");
   });
 
-  it("数値型の値でも正しく動作する", () => {
+  it("数値型の値を渡した場合に遅延後に新しい数値が反映される", () => {
     // Arrange: 数値型でフックを初期化する
     const initialValue = 0;
     const updatedValue = 42;
@@ -176,7 +176,7 @@ describe("useDebounce", () => {
     expect(result.current).toBe(42);
   });
 
-  it("オブジェクト型の値でも正しく動作する", () => {
+  it("オブジェクト型の値を渡した場合に遅延後に新しいオブジェクトが反映される", () => {
     // Arrange: オブジェクト型でフックを初期化する
     const initialValue = { name: "初期オブジェクト" };
     const updatedValue = { name: "更新オブジェクト" };

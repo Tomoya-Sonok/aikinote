@@ -3,10 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
-import { ProfileCard } from "@/components/features/profile/ProfileCard/ProfileCard";
-import { ProfileCardSkeleton } from "@/components/features/profile/ProfileCard/ProfileCardSkeleton";
 import { OtherMenu } from "@/components/features/setting/OtherMenu/OtherMenu";
 import { SettingsMenu } from "@/components/features/setting/SettingsMenu/SettingsMenu";
+import { UserInfoCard } from "@/components/features/user-info/UserInfoCard/UserInfoCard";
+import { UserInfoCardSkeleton } from "@/components/features/user-info/UserInfoCard/UserInfoCardSkeleton";
 import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./MyPageContent.module.css";
@@ -16,9 +16,15 @@ export interface UserProfile {
   username: string;
   email: string;
   profile_image_url?: string | null;
+  full_name?: string | null;
   dojo_style_name?: string | null;
+  dojo_style_id?: string | null;
   training_start_date?: string | null;
-  publicity_setting?: string;
+  publicity_setting?: string | null;
+  aikido_rank?: string | null;
+  bio?: string | null;
+  age_range?: string | null;
+  gender?: string | null;
   language?: string;
   is_email_verified?: boolean;
   password_hash?: string;
@@ -40,15 +46,13 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   const router = useRouter();
   const { signOutUser } = useAuth();
 
-  const handleEditProfile = () => {
+  const handleEditUserInfo = () => {
     router.push(`/${locale}/profile/edit`);
   };
 
   const handleLogout = async () => {
     await signOutUser();
   };
-
-  const handlePublicityClick = () => {};
 
   const handleHelpClick = () => {
     window.open(
@@ -62,24 +66,22 @@ export const MyPageContent: FC<MyPageContentProps> = ({
     <div className={`${styles.content} ${className}`}>
       <MenuSection title={t("mypageContent.profileSection")}>
         {loading ? (
-          <ProfileCardSkeleton />
+          <UserInfoCardSkeleton />
         ) : (
-          <ProfileCard
+          <UserInfoCard
             username={user.username}
-            dojoStyleName={
-              user.dojo_style_name || t("mypageContent.notEntered")
-            }
-            trainingStartDate={
-              user.training_start_date || t("mypageContent.notEntered")
-            }
+            fullName={user.full_name}
+            dojoStyleName={user.dojo_style_name}
+            aikidoRank={user.aikido_rank}
+            bio={user.bio}
             profileImageUrl={user.profile_image_url}
-            onEditClick={handleEditProfile}
+            onEditClick={handleEditUserInfo}
           />
         )}
       </MenuSection>
 
       <MenuSection title={t("mypageContent.settingsSection")}>
-        <SettingsMenu onPublicityClick={handlePublicityClick} />
+        <SettingsMenu />
       </MenuSection>
 
       <MenuSection title={t("mypageContent.otherSection")}>

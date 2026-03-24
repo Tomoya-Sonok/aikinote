@@ -42,9 +42,14 @@ const CACHE_TTL_MS = {
   pagesList: 30_000,
   pageById: 30_000,
   tagsList: 60_000,
-  userProfile: 60_000,
+  userInfo: 60_000,
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
+  socialFeed: 15_000,
+  socialPost: 15_000,
+  socialSearch: 15_000,
+  socialProfile: 30_000,
+  notifications: 10_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -99,8 +104,8 @@ export interface CreatePagePayload {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   user_id: string;
+  is_public?: boolean;
   created_at?: string;
 }
 
@@ -178,6 +183,18 @@ export const getPage = async (pageId: string, userId: string) => {
     );
   } catch (error) {
     throw new Error(getErrorMessage(error, "ページ詳細の取得に失敗しました"));
+  }
+};
+
+// 公開稽古記録フィード取得API
+export const getPublicPagesFeed = async (params: {
+  limit?: number;
+  offset?: number;
+}) => {
+  try {
+    return await trpcClient.pages.getPublicFeed.query(params);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開稽古記録の取得に失敗しました"));
   }
 };
 
@@ -305,8 +322,8 @@ export interface UpdatePagePayload {
   uke: string[];
   waza: string[];
   content: string;
-  comment: string;
   user_id: string;
+  is_public?: boolean;
 }
 
 // ページ更新API関数
@@ -317,6 +334,7 @@ export const updatePage = async (pageData: UpdatePagePayload) => {
       "pages:getList",
       "pages:getById",
       "trainingDates:getMonth",
+      "socialProfile:get",
     ]);
     return response;
   } catch (error) {
@@ -457,59 +475,452 @@ export const getTrainingStats = async ({
   }
 };
 
-export interface UpdateUserProfilePayload {
+export interface UpdateUserInfoPayload {
   userId: string;
   username?: string;
+  full_name?: string | null;
   dojo_style_name?: string | null;
+  dojo_style_id?: string | null;
   training_start_date?: string | null;
   profile_image_url?: string | null;
+  bio?: string | null;
+  publicity_setting?: "public" | "closed" | "private";
+  aikido_rank?: string | null;
+  age_range?: "lt20" | "20s" | "30s" | "40s" | "50s" | "gt60" | null;
+  gender?: "male" | "female" | "other" | "not_specified" | null;
 }
 
-export const getUserProfile = async (userId: string) => {
+// 道場検索
+export interface SearchDojoStylesParams {
+  query: string;
+  limit?: number;
+}
+
+export const searchDojoStyles = async ({
+  query,
+  limit,
+}: SearchDojoStylesParams) => {
   try {
-    const input = { userId };
-    return await cachedQuery(
-      "users:getProfile",
-      input,
-      CACHE_TTL_MS.userProfile,
-      async () => trpcClient.users.getProfile.query(input),
-    );
+    return await trpcClient.dojoStyles.search.query({ query, limit });
   } catch (error) {
-    throw new Error(
-      getErrorMessage(error, "ユーザープロフィールの取得に失敗しました"),
-    );
+    throw new Error(getErrorMessage(error, "道場の検索に失敗しました"));
   }
 };
 
-export const updateUserProfile = async (payload: UpdateUserProfilePayload) => {
+// 道場新規登録
+export interface CreateDojoStylePayload {
+  dojo_name: string;
+  dojo_name_kana?: string;
+}
+
+export const createDojoStyle = async (payload: CreateDojoStylePayload) => {
   try {
-    const response = await trpcClient.users.updateProfile.mutate(payload);
+    return await trpcClient.dojoStyles.create.mutate(payload);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "道場の登録に失敗しました"));
+  }
+};
+
+export const checkUsernameAvailability = async (
+  username: string,
+  excludeUserId?: string,
+): Promise<boolean> => {
+  try {
+    const result = await trpcClient.users.checkUsername.query({
+      username,
+      excludeUserId,
+    });
+    return result?.success && result.data?.available === true;
+  } catch {
+    return true;
+  }
+};
+
+export const getUserInfo = async (userId: string) => {
+  try {
+    const input = { userId };
+    return await cachedQuery(
+      "users:getUserInfo",
+      input,
+      CACHE_TTL_MS.userInfo,
+      async () => trpcClient.users.getUserInfo.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "ユーザー情報の取得に失敗しました"));
+  }
+};
+
+export const updateUserInfo = async (payload: UpdateUserInfoPayload) => {
+  try {
+    const response = await trpcClient.users.updateUserInfo.mutate(payload);
 
     if (response.success) {
-      // Manual cache update is error-prone. Invalidate instead to force fresh fetch.
-      invalidateQueryCacheByPrefixes(["users:getProfile"]);
+      invalidateQueryCacheByPrefixes([
+        "users:getUserInfo",
+        "socialProfile:get",
+      ]);
     }
 
     return response;
   } catch (error) {
-    throw new Error(
-      getErrorMessage(error, "ユーザープロフィールの更新に失敗しました"),
-    );
+    throw new Error(getErrorMessage(error, "ユーザー情報の更新に失敗しました"));
   }
 };
 
-export interface CreateUserProfilePayload {
+export const getPublicityDojos = async (userId: string) => {
+  try {
+    return await trpcClient.users.getPublicityDojos.query({ userId });
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開対象道場の取得に失敗しました"));
+  }
+};
+
+export const updatePublicityDojos = async (
+  userId: string,
+  dojoStyleIds: string[],
+) => {
+  try {
+    return await trpcClient.users.updatePublicityDojos.mutate({
+      userId,
+      dojoStyleIds,
+    });
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開対象道場の更新に失敗しました"));
+  }
+};
+
+export interface CreateUserPayload {
   email: string;
   password: string;
   username: string;
 }
 
-export const createUserProfileViaTrpc = async (
-  payload: CreateUserProfilePayload,
-) => {
+export const createUserViaTrpc = async (payload: CreateUserPayload) => {
   try {
     return await trpcClient.users.create.mutate(payload);
   } catch (error) {
     throw new Error(getErrorMessage(error, "ユーザー作成に失敗しました"));
+  }
+};
+
+// ============================================
+// ソーシャル投稿関連API
+// ============================================
+
+export interface GetSocialFeedParams {
+  userId: string;
+  tab?: "all" | "training" | "favorites";
+  limit?: number;
+  offset?: number;
+}
+
+export const getSocialFeed = async ({
+  userId,
+  tab,
+  limit,
+  offset,
+}: GetSocialFeedParams) => {
+  try {
+    const input = { userId, tab, limit, offset };
+    return await cachedQuery(
+      "socialPosts:getFeed",
+      input,
+      CACHE_TTL_MS.socialFeed,
+      async () => trpcClient.socialPosts.getFeed.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "フィードの取得に失敗しました"));
+  }
+};
+
+export const getSocialPost = async (postId: string) => {
+  try {
+    const input = { postId };
+    return await cachedQuery(
+      "socialPosts:getById",
+      input,
+      CACHE_TTL_MS.socialPost,
+      async () => trpcClient.socialPosts.getById.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の取得に失敗しました"));
+  }
+};
+
+export interface CreateSocialPostPayload {
+  user_id: string;
+  content: string;
+  post_type: "post" | "training_record";
+  source_page_id?: string;
+  tag_ids?: string[];
+}
+
+export const createSocialPost = async (payload: CreateSocialPostPayload) => {
+  try {
+    const response = await trpcClient.socialPosts.create.mutate(payload);
+    invalidateQueryCacheByPrefixes(["socialPosts:getFeed"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の作成に失敗しました"));
+  }
+};
+
+export interface UpdateSocialPostPayload {
+  postId: string;
+  content?: string;
+  tag_ids?: string[];
+}
+
+export const updateSocialPost = async (payload: UpdateSocialPostPayload) => {
+  try {
+    const response = await trpcClient.socialPosts.update.mutate(payload);
+    invalidateQueryCacheByPrefixes([
+      "socialPosts:getFeed",
+      "socialPosts:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の更新に失敗しました"));
+  }
+};
+
+export const deleteSocialPost = async (postId: string) => {
+  try {
+    const response = await trpcClient.socialPosts.remove.mutate({ postId });
+    invalidateQueryCacheByPrefixes([
+      "socialPosts:getFeed",
+      "socialPosts:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の削除に失敗しました"));
+  }
+};
+
+export interface CreateSocialReplyPayload {
+  postId: string;
+  user_id: string;
+  content: string;
+}
+
+export const createSocialReply = async (payload: CreateSocialReplyPayload) => {
+  try {
+    const response = await trpcClient.socialReplies.create.mutate(payload);
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "返信の作成に失敗しました"));
+  }
+};
+
+export const updateSocialReply = async (payload: {
+  postId: string;
+  replyId: string;
+  content: string;
+}) => {
+  try {
+    const response = await trpcClient.socialReplies.update.mutate(payload);
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "返信の更新に失敗しました"));
+  }
+};
+
+export const deleteSocialReply = async (postId: string, replyId: string) => {
+  try {
+    const response = await trpcClient.socialReplies.remove.mutate({
+      postId,
+      replyId,
+    });
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "返信の削除に失敗しました"));
+  }
+};
+
+export const toggleFavorite = async (postId: string) => {
+  try {
+    const response = await trpcClient.socialPosts.toggleFavorite.mutate({
+      postId,
+    });
+    invalidateQueryCacheByPrefixes([
+      "socialPosts:getFeed",
+      "socialPosts:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+  }
+};
+
+export const toggleReplyFavorite = async (replyId: string) => {
+  try {
+    const response = await trpcClient.socialReplies.toggleFavorite.mutate({
+      replyId,
+    });
+    invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+  }
+};
+
+export interface ReportPostPayload {
+  postId: string;
+  user_id: string;
+  reason: "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
+  detail?: string;
+}
+
+export const reportPost = async (payload: ReportPostPayload) => {
+  try {
+    return await trpcClient.socialPosts.report.mutate(payload);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通報の送信に失敗しました"));
+  }
+};
+
+export interface ReportReplyPayload {
+  replyId: string;
+  user_id: string;
+  reason: "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
+  detail?: string;
+}
+
+export const reportReply = async (payload: ReportReplyPayload) => {
+  try {
+    return await trpcClient.socialReplies.report.mutate(payload);
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通報の送信に失敗しました"));
+  }
+};
+
+export interface SearchSocialPostsParams {
+  userId: string;
+  query?: string;
+  dojoName?: string;
+  rank?: string;
+  hashtag?: string;
+  postType?: "post" | "training_record";
+  limit?: number;
+  offset?: number;
+}
+
+export const searchSocialPosts = async (params: SearchSocialPostsParams) => {
+  try {
+    return await cachedQuery(
+      "socialSearch:search",
+      params,
+      CACHE_TTL_MS.socialSearch,
+      async () => trpcClient.socialSearch.search.query(params),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の検索に失敗しました"));
+  }
+};
+
+export const getTrendingHashtags = async (limit?: number) => {
+  try {
+    const input = limit ? { limit } : undefined;
+    return await cachedQuery(
+      "socialSearch:trending",
+      input ?? {},
+      CACHE_TTL_MS.socialSearch,
+      async () => trpcClient.socialSearch.trending.query(input),
+    );
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "トレンドハッシュタグの取得に失敗しました"),
+    );
+  }
+};
+
+export const getSocialProfile = async (userId: string) => {
+  try {
+    const input = { userId };
+    return await cachedQuery(
+      "socialProfile:get",
+      input,
+      CACHE_TTL_MS.socialProfile,
+      async () => trpcClient.socialProfile.get.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "プロフィールの取得に失敗しました"));
+  }
+};
+
+export interface GetNotificationsParams {
+  limit?: number;
+  offset?: number;
+}
+
+export const getNotifications = async (params: GetNotificationsParams = {}) => {
+  try {
+    return await cachedQuery(
+      "notifications:getList",
+      params,
+      CACHE_TTL_MS.notifications,
+      async () => trpcClient.notifications.getList.query(params),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通知の取得に失敗しました"));
+  }
+};
+
+export interface MarkNotificationsReadPayload {
+  notificationIds?: string[];
+  markAll?: boolean;
+  postId?: string;
+}
+
+export const markNotificationsRead = async (
+  payload: MarkNotificationsReadPayload,
+) => {
+  try {
+    const response = await trpcClient.notifications.markAsRead.mutate(payload);
+    invalidateQueryCacheByPrefixes([
+      "notifications:getList",
+      "notifications:unreadCount",
+      "notifications:unreadPostIds",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "通知の既読化に失敗しました"));
+  }
+};
+
+export const getUnreadNotificationPostIds = async (): Promise<string[]> => {
+  try {
+    const result = await cachedQuery(
+      "notifications:unreadPostIds",
+      {},
+      CACHE_TTL_MS.notifications,
+      async () => trpcClient.notifications.getUnreadPostIds.query(),
+    );
+    if (result?.success && "data" in result) {
+      return result.data?.post_ids ?? [];
+    }
+    return [];
+  } catch {
+    return [];
+  }
+};
+
+export const getUnreadNotificationCount = async (): Promise<number> => {
+  try {
+    const result = await cachedQuery(
+      "notifications:unreadCount",
+      {},
+      CACHE_TTL_MS.notifications,
+      async () => trpcClient.notifications.getUnreadCount.query(),
+    );
+    if (result?.success && "data" in result) {
+      return result.data?.count ?? 0;
+    }
+    return 0;
+  } catch {
+    return 0;
   }
 };

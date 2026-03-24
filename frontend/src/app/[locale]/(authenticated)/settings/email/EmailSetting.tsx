@@ -73,7 +73,6 @@ export function EmailSetting({ locale }: EmailSettingProps) {
       setCurrentPassword("");
       setPendingEmail(result?.data?.pendingEmail ?? newEmail);
       setSuccessMessage(t("emailChange.requestSuccess"));
-      showToast(t("emailChange.requestSuccess"), "success");
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : t("emailChange.requestFailed");
@@ -90,9 +89,9 @@ export function EmailSetting({ locale }: EmailSettingProps) {
       backHref={`/${locale}/personal/pages`}
     >
       <div className={styles.container}>
-        <div className={styles.card}>
-          <p className={styles.description}>{t("emailChange.description")}</p>
+        <p className={styles.description}>{t("emailChange.description")}</p>
 
+        <div className={styles.card}>
           <div className={styles.currentEmail}>
             <span className={styles.label}>
               {t("emailChange.currentEmail")}

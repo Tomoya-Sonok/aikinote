@@ -1,0 +1,274 @@
+.headerRight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 140px;
+  background: var(--white, #fdfcfa);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-header-dropdown);
+  overflow: hidden;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.menuItem:hover {
+  background: var(--background-light);
+}
+
+.menuItemDanger {
+  color: var(--error-color);
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  border-radius: 50%;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  min-width: unset;
+  padding: 0;
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
+.iconButton:hover {
+  background: var(--background-light);
+  color: var(--black);
+}
+
+.postContent {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.authorHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.authorLink {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.3;
+}
+
+.authorNameLink {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.authorNameLink:hover {
+  text-decoration: underline;
+}
+
+.authorMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.3;
+}
+
+.text {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.8;
+  margin: 0 0 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 稽古記録用ノート罫線スタイル */
+.notebookArea {
+  position: relative;
+  background: var(--white);
+  border-radius: 3px;
+  padding: 16px 16px 16px 28px;
+}
+
+.notebookArea::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--border-color);
+}
+
+.notebookTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  color: var(--black);
+  margin: 0 0 12px;
+  font-family: var(--font-zen-old-mincho);
+}
+
+.notebookContent {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-zen-old-mincho);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 27px,
+    var(--border-color) 28px
+  );
+  background-size: 100% 28px;
+  padding-top: 4px;
+}
+
+.notebookComment {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.notebookCommentLabel {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.editSection {
+  margin-bottom: 8px;
+}
+
+.editTextarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  font-family: var(--font-inter);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  border: 1px solid var(--primary-color);
+  border-radius: 8px;
+  resize: vertical;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.editTextarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.editActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+  transition: color 0.2s;
+  min-width: unset;
+  height: auto;
+  border-radius: 0;
+  font-family: inherit;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+
+.actionButton:hover {
+  color: var(--black);
+  background: none;
+  opacity: 1;
+}
+
+.actionButton.favorited {
+  color: var(--error-color);
+}
+
+.replies {
+  padding-bottom: 16px;
+}
+
+.notFound {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}

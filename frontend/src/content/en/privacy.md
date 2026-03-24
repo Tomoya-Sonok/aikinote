@@ -1,6 +1,6 @@
 # AikiNote Privacy Policy
 
-Last updated: March 4, 2026
+Last updated: March 20, 2026
 
 AikiNote ("the Service") values the protection of users' personal information. This Privacy Policy sets forth how we handle personal information in the Service.
 
@@ -62,6 +62,7 @@ The Service uses the following external services for its provision and operation
 | **Umami** | Umami Software, Inc. | Analytics (privacy-focused usage analysis without cookies) |
 | **YouTube API** | Google LLC | Retrieving and displaying preview information (OGP) for YouTube video URLs entered by users |
 | **Google Authentication** | Google LLC | Social login functionality |
+| **Resend** | Resend, Inc. | Sending transactional emails (verification emails, password resets, etc.) |
 | **Cloudflare** | Cloudflare, Inc. | CDN (content delivery) and security services |
 
 Only the minimum information necessary for the operation of the Service is provided to these external services, and they are managed under appropriate contracts and configurations.

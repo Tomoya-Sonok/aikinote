@@ -1,0 +1,39 @@
+.tabBar {
+  display: flex;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+  font-family: var(--font-inter);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tab:hover {
+  color: var(--black);
+}
+
+.tab.active {
+  color: var(--black);
+  font-weight: 600;
+}
+
+.tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: 1px;
+}

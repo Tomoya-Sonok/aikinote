@@ -1,0 +1,188 @@
+.card {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  border: 0.5px solid var(--border-color);
+  background: var(--white);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition:
+    border-color 0.4s ease-out,
+    box-shadow 0.4s ease-out;
+  border-radius: 8px;
+}
+
+.card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(44, 44, 44, 0.06);
+}
+
+.authorHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.authorLink {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.authorName {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.3;
+}
+
+.authorNameLink {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.authorNameLink:hover {
+  text-decoration: underline;
+}
+
+.authorMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.3;
+}
+
+.dojoName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
+}
+
+.timestamp {
+  white-space: nowrap;
+}
+
+.content {
+  margin-bottom: 8px;
+}
+
+.trainingTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--black);
+  margin: 0 0 8px;
+  font-family: var(--font-zen-old-mincho);
+}
+
+.text {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  line-clamp: 5;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.textExpanded {
+  display: block;
+  line-clamp: unset;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  overflow: visible;
+}
+
+.showMoreButton {
+  background: none;
+  border: none;
+  padding: 4px 0 0;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: var(--font-size-xs);
+  font-family: inherit;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 12px;
+  padding-top: 8px;
+}
+
+/* 詳細度を (0,2,0) に上げて Button の .button/.primary/.medium (0,1,0) に
+   CSS チャンク読み込み順序に関係なく勝つようにする */
+.actions .actionButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-light);
+  font-size: var(--font-size-xs);
+  transition: color 0.2s;
+  min-width: unset;
+  height: auto;
+  border-radius: 0;
+  font-family: inherit;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+
+.actions .actionButton:hover {
+  color: var(--black);
+  background: none;
+  opacity: 1;
+}
+
+.actions .actionButton.favorited {
+  color: var(--error-color);
+}
+
+.count {
+  font-size: var(--font-size-xs);
+  line-height: 1;
+}
+
+.iconWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--error-color);
+}

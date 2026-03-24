@@ -3,8 +3,11 @@ import { Hono } from "hono";
 import {
   createTrainingPage,
   deleteTrainingPage,
+  getPublicTrainingPages,
   getTrainingPageById,
   getTrainingPages,
+  supabase,
+  syncSocialPostForTrainingPage,
   updateTrainingPage,
 } from "../../lib/supabase.js";
 import {
@@ -29,8 +32,8 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
       {
         title: input.title,
         content: input.content,
-        comment: input.comment,
         user_id: input.user_id,
+        is_public: input.is_public ?? false,
         created_at: input.created_at,
       },
       {
@@ -39,6 +42,21 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
         waza: input.waza,
       },
     );
+
+    // is_public=true の場合、SocialPost を連動作成
+    if (input.is_public && supabase) {
+      try {
+        await syncSocialPostForTrainingPage(
+          supabase,
+          result.page.id,
+          input.user_id,
+          input.content,
+          true,
+        );
+      } catch (socialError) {
+        console.error("SocialPost 連動作成エラー:", socialError);
+      }
+    }
 
     const response: ApiResponse<PageWithTagsResponse> = {
       success: true,
@@ -88,14 +106,37 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
       sortOrder: sort_order,
     });
 
+    // 添付ファイルをバッチ取得
+    const pageIds = pagesWithTags.map(({ page }) => page.id);
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+    let attachmentsData: any[] = [];
+    if (pageIds.length > 0) {
+      const { data } = await supabase
+        .from("PageAttachment")
+        .select(
+          "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+        )
+        .in("page_id", pageIds)
+        .order("sort_order", { ascending: true });
+      attachmentsData = data ?? [];
+    }
+
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+    const attachmentMap = new Map<string, any[]>();
+    for (const att of attachmentsData) {
+      const list = attachmentMap.get(att.page_id) ?? [];
+      list.push(att);
+      attachmentMap.set(att.page_id, list);
+    }
+
     // レスポンス形式に変換
     const trainingPages = pagesWithTags.map(({ page, tags }) => ({
       page: {
         id: page.id,
         title: page.title,
         content: page.content,
-        comment: page.comment,
         user_id: page.user_id,
+        is_public: page.is_public,
         created_at: page.created_at,
         updated_at: page.updated_at,
       },
@@ -104,6 +145,21 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
         name: tag.name,
         category: tag.category,
       })),
+      attachments: (attachmentMap.get(page.id) ?? []).map(
+        (att: {
+          id: string;
+          type: string;
+          url: string;
+          thumbnail_url: string | null;
+          original_filename: string | null;
+        }) => ({
+          id: att.id,
+          type: att.type,
+          url: att.url,
+          thumbnail_url: att.thumbnail_url,
+          original_filename: att.original_filename,
+        }),
+      ),
     }));
 
     const response: ApiResponse<PagesListResponse> = {
@@ -142,8 +198,8 @@ app.get("/:id", zValidator("query", getPageSchema), async (c) => {
         id: result.page.id,
         title: result.page.title,
         content: result.page.content,
-        comment: result.page.comment,
         user_id: result.page.user_id,
+        is_public: result.page.is_public,
         created_at: result.page.created_at,
         updated_at: result.page.updated_at,
       },
@@ -190,13 +246,14 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
     }
 
     // Supabaseでページを更新
+    const newIsPublic = input.is_public ?? false;
     const result = await updateTrainingPage(
       {
         id: input.id,
         title: input.title,
         content: input.content,
-        comment: input.comment,
         user_id: input.user_id,
+        is_public: newIsPublic,
       },
       {
         tori: input.tori,
@@ -204,6 +261,21 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
         waza: input.waza,
       },
     );
+
+    // is_public が明示指定されている場合のみ SocialPost を同期
+    if (supabase && input.is_public !== undefined) {
+      try {
+        await syncSocialPostForTrainingPage(
+          supabase,
+          input.id,
+          input.user_id,
+          input.content,
+          newIsPublic,
+        );
+      } catch (socialError) {
+        console.error("SocialPost 連動更新エラー:", socialError);
+      }
+    }
 
     const response: ApiResponse<PageWithTagsResponse> = {
       success: true,
@@ -249,6 +321,35 @@ app.delete("/:id", zValidator("query", getPageSchema), async (c) => {
     };
 
     return c.json(errorResponse, 500);
+  }
+});
+
+// 公開稽古記録一覧取得API
+app.get("/public/feed", async (c) => {
+  try {
+    const limit = Number(c.req.query("limit") || "20");
+    const offset = Number(c.req.query("offset") || "0");
+
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const result = await getPublicTrainingPages(supabase, limit, offset);
+
+    return c.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error("公開稽古記録取得エラー:", error);
+    return c.json(
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "不明なエラーが発生しました",
+      },
+      500,
+    );
   }
 });
 

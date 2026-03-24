@@ -20,18 +20,18 @@
 .title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--aikinote-text-primary, #1f2937);
+  color: var(--black);
 }
 
 .note {
   font-size: 13px;
-  color: var(--aikinote-text-secondary, #6b7280);
+  color: var(--text-light);
   line-height: 1.6;
 }
 
 .linkButton {
   font-size: 14px;
-  color: var(--aikinote-text-primary, #1f2937);
+  color: var(--black);
   text-decoration: underline;
   text-underline-offset: 4px;
   align-self: center;

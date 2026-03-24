@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser, getUserProfile } from "@/lib/server/auth";
+import { getCurrentUser, getUserInfo } from "@/lib/server/auth";
 import { ProfileEdit } from "./ProfileEdit";
 
 export async function generateMetadata({
@@ -12,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "profileEdit" });
+  const t = await getTranslations({ locale, namespace: "userInfoEdit" });
 
   return buildMetadata({
     title: t("title"),
@@ -22,13 +22,15 @@ export async function generateMetadata({
 
 export default async function ProfileEditPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ from?: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "profileEdit" });
+  const { from } = await searchParams;
+  const t = await getTranslations({ locale, namespace: "userInfoEdit" });
   const loginPath = `/${locale}/login`;
-  const myPagePath = `/${locale}/mypage`;
 
   const user = await getCurrentUser();
 
@@ -36,13 +38,13 @@ export default async function ProfileEditPage({
     redirect(loginPath);
   }
 
-  const { data: userProfile, error } = await getUserProfile(user.id);
+  const { data: userInfo, error } = await getUserInfo(user.id);
 
-  if (error || !userProfile) {
+  if (error || !userInfo) {
     redirect(loginPath);
   }
 
-  const profile = userProfile || {
+  const profile = userInfo || {
     id: user.id,
     email: user.email || "",
     username: user.username || t("usernamePlaceholder"),
@@ -55,9 +57,18 @@ export default async function ProfileEditPage({
     password_hash: "",
   };
 
+  // 遷移元に応じた戻り先を決定
+  const backHref =
+    from === "social"
+      ? `/${locale}/social/profile/${user.id}`
+      : `/${locale}/mypage`;
+
   return (
-    <MinimalLayout backHref={myPagePath} headerTitle={t("title")}>
-      <ProfileEdit user={profile} />
+    <MinimalLayout backHref={backHref} headerTitle={t("title")}>
+      <ProfileEdit
+        user={profile}
+        from={from === "social" ? "social" : undefined}
+      />
     </MinimalLayout>
   );
 }

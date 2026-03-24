@@ -40,6 +40,8 @@
     "hono": "^4.9.7",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
+    "linkify-react": "^4.3.2",
+    "linkifyjs": "^4.3.2",
     "next": "^16.0.10",
     "next-intl": "^4.3.9",
     "react": "^19.2.3",
@@ -54,7 +56,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
-    "@storybook/nextjs": "^9.0.18",
+    "@storybook/addon-a11y": "^9.1.20",
+    "@storybook/nextjs-vite": "^9.1.14",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -68,7 +71,8 @@
     "dotenv": "^17.2.0",
     "happy-dom": "^18.0.1",
     "jsdom": "^27.0.0",
-    "storybook": "^9.0.18",
+    "storybook": "^9.1.14",
+    "vite": "^7.0.0",
     "typescript": "^5",
     "vitest": "^3.2.4"
   },

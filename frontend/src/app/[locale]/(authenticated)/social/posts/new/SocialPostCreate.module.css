@@ -1,0 +1,114 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--white);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.main {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* モード切り替え */
+.modeSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.modeButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.modeButton.modeActive {
+  border-color: var(--primary-color);
+  background: var(--bg-base);
+}
+
+.modeRadio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.modeText {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 500;
+  font-family: var(--font-zen-old-mincho);
+}
+
+/* テキストエリア */
+.textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  font-family: var(--font-inter);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.textarea::placeholder {
+  color: var(--light-gray);
+}
+
+/* 文字数カウント */
+.charCount {
+  display: block;
+  text-align: right;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
+/* エラーテキスト */
+.errorText {
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+  margin-top: 4px;
+}

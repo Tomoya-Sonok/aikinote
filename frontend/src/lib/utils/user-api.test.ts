@@ -25,6 +25,8 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
       dojo_style_name: null,
+      aikido_rank: null,
+      full_name: null,
     };
 
     mockFetch.mockResolvedValue({
@@ -126,41 +128,6 @@ describe("fetchUserProfile", () => {
     expect(result).toBeNull();
   });
 
-  it.todo(
-    "タイムアウト時にnullを返す",
-    async () => {
-      // Note: fake timersとfetchのタイムアウト処理の組み合わせで
-      // vitest環境では期待通りに動作しない。実際のタイムアウト機能は
-      // ブラウザやNode.js環境で正常に動作することが確認済み。
-      vi.useFakeTimers();
-
-      // 長時間かかるPromiseをシミュレート
-      mockFetch.mockImplementation(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(() => {
-              resolve({
-                ok: true,
-                json: () => Promise.resolve({ success: true, data: {} }),
-              });
-            }, 10000);
-          }),
-      );
-
-      const resultPromise = fetchUserProfile("user-123", { timeout: 1000 });
-
-      // 1秒経過してタイムアウトを発生させる
-      vi.advanceTimersByTime(1000);
-
-      const result = await resultPromise;
-
-      expect(result).toBeNull();
-
-      vi.useRealTimers();
-    },
-    10000,
-  ); // テストタイムアウトを10秒に設定
-
   it("profile_image_urlがnullの場合も適切に処理される", async () => {
     const mockUserData = {
       id: "user-123",
@@ -187,6 +154,8 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: null,
       dojo_style_name: null,
+      aikido_rank: null,
+      full_name: null,
     });
   });
 });

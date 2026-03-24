@@ -18,7 +18,7 @@ describe("dateUtils", () => {
       expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
-    it("JST時間帯で正しく日付が変換される", () => {
+    it("UTC 16:00のISO文字列がJST翌日(+9h)のYYYY-MM-DD形式に変換される", () => {
       // Arrange: UTC時刻で日本時間の前日になるISO文字列を準備する
       const utcIsoString = "2024-01-14T16:00:00.000Z"; // JST: 2024-01-15 01:00
 
@@ -42,7 +42,7 @@ describe("dateUtils", () => {
       expect(result).toMatch(/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}$/);
     });
 
-    it("異なるUTC時刻で正しく変換される", () => {
+    it("年末UTC 23:59のISO文字列がJST翌年のYYYY/MM/DD HH:MM形式に変換される", () => {
       // Arrange: 異なるUTC時刻のISO文字列を準備する
       const utcIsoString = "2024-12-31T23:59:59.000Z";
 

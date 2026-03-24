@@ -1,12 +1,13 @@
 .container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px;
 }
 
 .card {
   width: 100%;
-  max-width: 580px;
-  background: var(--white, #ffffff);
+  background: var(--white);
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -16,22 +17,23 @@
 }
 
 .description {
-  font-size: 14px;
-  color: var(--aikinote-text-secondary, #4b5563);
+  font-size: var(--font-size-sm);
+  color: var(--black);
   line-height: 1.6;
+  margin: 0;
 }
 
 .currentEmail {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 14px;
-  color: var(--aikinote-text-primary, #1f2937);
+  font-size: var(--font-size-sm);
+  color: var(--black);
 }
 
 .label {
-  font-size: 12px;
-  color: var(--aikinote-text-secondary, #6b7280);
+  font-size: var(--font-size-xs);
+  color: var(--black);
 }
 
 .value {
@@ -55,19 +57,19 @@
 }
 
 .pendingLabel {
-  font-size: 12px;
-  color: #2563eb;
+  font-size: var(--font-size-xs);
+  color: var(--info-color);
 }
 
 .pendingStatus {
-  font-size: 13px;
+  font-size: var(--font-size-xs);
   font-weight: 600;
-  color: #1e40af;
+  color: var(--info-color);
 }
 
 .pendingValue {
-  font-size: 14px;
-  color: #1e3a8a;
+  font-size: var(--font-size-sm);
+  color: var(--black);
   font-weight: 600;
 }
 
@@ -78,8 +80,8 @@
 }
 
 .errorMessage {
-  font-size: 12px;
-  color: #e11d48;
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
 }
 
 .submitButton {
@@ -87,8 +89,8 @@
 }
 
 .note {
-  font-size: 12px;
-  color: var(--aikinote-text-secondary, #6b7280);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
   line-height: 1.6;
 }
 

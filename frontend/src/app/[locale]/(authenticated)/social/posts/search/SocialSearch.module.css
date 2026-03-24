@@ -1,0 +1,283 @@
+/* ヘッダー + フィルターをまとめて sticky 固定 */
+.stickyTop {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: var(--white);
+}
+
+/* ラッパーが sticky を担うため、内部の SocialHeader の sticky を解除 */
+.stickyTop > header {
+  position: static;
+}
+
+.searchWrapper {
+  flex: 1;
+}
+
+.filterButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 48px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  min-width: unset;
+  padding: 4px 0;
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
+.filterButton:hover {
+  background: var(--background-light);
+}
+
+.filterActive {
+  color: var(--primary-color);
+}
+
+.filterButtonLabel {
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.filterSection {
+  padding: 12px 16px;
+  background: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.postTypeSelector {
+  display: flex;
+  gap: 8px;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.postTypeButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: var(--font-zen-old-mincho);
+  color: var(--black);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.postTypeButton.postTypeActive {
+  border-color: var(--primary-color);
+  background: var(--bg-base);
+}
+
+.filterRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  white-space: nowrap;
+  min-width: 50px;
+}
+
+.filterFieldWrapper {
+  flex: 1;
+  position: relative;
+}
+
+.filterSelectWrapper {
+  flex: 1;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 90px;
+  min-height: calc(100vh - 120px);
+  background: var(--bg-base);
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
+
+/* 検索履歴セクション */
+.historySection {
+  padding: 16px;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+}
+
+.clearAllButton {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: inherit;
+  min-width: unset;
+  letter-spacing: normal;
+}
+
+.clearAllButton:hover {
+  background: var(--background-light);
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  min-height: 44px;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.historyItem:last-child {
+  border-bottom: none;
+}
+
+.historyItem:hover {
+  background: var(--background-light);
+}
+
+.historyIcon {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.historyText {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyDeleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--light-gray);
+  border-radius: 50%;
+  flex-shrink: 0;
+  min-width: unset;
+  padding: 0;
+  font-family: inherit;
+  letter-spacing: normal;
+  transition: color 0.15s;
+}
+
+.historyDeleteButton:hover {
+  color: var(--text-light);
+}
+
+/* トレンドセクション */
+.trendingSection {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.trendingList {
+  display: flex;
+  flex-direction: column;
+}
+
+.trendingItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  min-height: 44px;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.trendingItem:last-child {
+  border-bottom: none;
+}
+
+.trendingItem:hover {
+  background: var(--background-light);
+}
+
+.trendingIcon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.trendingName {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 500;
+}
+
+.trendingCount {
+  font-size: var(--font-size-xs, 12px);
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+/* 履歴なしでトレンドのみの場合、上ボーダー不要 */
+.trendingSectionNoBorder {
+  padding: 16px;
+}

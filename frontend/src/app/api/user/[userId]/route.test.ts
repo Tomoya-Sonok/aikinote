@@ -10,7 +10,7 @@ import { GET } from "./route";
 // Supabaseクライアントのモック
 const mockServerSupabase = {
   auth: {
-    getSession: vi.fn(),
+    getUser: vi.fn(),
   },
 };
 
@@ -40,11 +40,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     };
 
     // セッションありをシミュレート（本人）
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });
@@ -86,11 +84,9 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     };
 
     // セッションありをシミュレート（他人）
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: requestingUserId },
-        },
+        user: { id: requestingUserId },
       },
       error: null,
     });
@@ -127,8 +123,8 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     };
 
     // セッションなしをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
-      data: { session: null },
+    mockServerSupabase.auth.getUser.mockResolvedValue({
+      data: { user: null },
       error: null,
     });
 
@@ -164,21 +160,17 @@ describe("/api/user/[userId] GET エンドポイント", () => {
     });
   });
 
-  it.todo("ユーザーが存在しない場合に404を返す", async () => {
-    // Note: 現在の実装では error フィールドにエラーコード文字列が設定される
+  it("ユーザーが存在しない場合に404を返す", async () => {
+    // Arrange
     const userId = "nonexistent-user";
 
-    // セッションありをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });
 
-    // ユーザーが見つからないことをシミュレート
     const mockSelect = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         maybeSingle: vi.fn().mockResolvedValue({
@@ -192,33 +184,30 @@ describe("/api/user/[userId] GET エンドポイント", () => {
       select: mockSelect,
     });
 
+    // Act
     const request = new NextRequest(
       "http://localhost:3000/api/user/nonexistent-user",
     );
     const response = await GET(request, { params: { userId } });
 
+    // Assert
     expect(response.status).toBe(404);
-
     const responseData = await response.json();
     expect(responseData.success).toBe(false);
-    expect(responseData.error).toBe("User profile not found in database");
+    expect(responseData.error).toBe("NOT_FOUND");
   });
 
-  it.todo("データベースエラー時に500を返す", async () => {
-    // Note: 現在の実装では error フィールドにエラーコード文字列が設定される
+  it("データベースエラー時に500を返す", async () => {
+    // Arrange
     const userId = "user-123";
 
-    // セッションありをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });
 
-    // データベースエラーをシミュレート
     const mockSelect = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         maybeSingle: vi.fn().mockResolvedValue({
@@ -232,74 +221,43 @@ describe("/api/user/[userId] GET エンドポイント", () => {
       select: mockSelect,
     });
 
+    // Act
     const request = new NextRequest("http://localhost:3000/api/user/user-123");
     const response = await GET(request, { params: { userId } });
 
+    // Assert
     expect(response.status).toBe(500);
-
     const responseData = await response.json();
     expect(responseData.success).toBe(false);
-    expect(responseData.error).toBe("データベースエラーが発生しました");
+    expect(responseData.error).toBe("INTERNAL_SERVER_ERROR");
   });
 
-  it.todo("外部からのアクセスでセッションなしの場合に403を返す", async () => {
-    // Note: データベースエラーが先に発生するため、403ではなく500が返される
+  it("予期しないエラー時に500を返す", async () => {
+    // Arrange
     const userId = "user-123";
 
-    // セッションなしをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
-      data: { session: null },
-      error: null,
-    });
-
-    // 外部からのアクセスをシミュレート
-    const request = new NextRequest("http://localhost:3000/api/user/user-123", {
-      headers: {
-        origin: "https://malicious-site.com",
-        host: "localhost:3000",
-      },
-    });
-
-    const response = await GET(request, { params: { userId } });
-
-    expect(response.status).toBe(403);
-
-    const responseData = await response.json();
-    expect(responseData.success).toBe(false);
-    expect(responseData.error).toBe("アクセス権限がありません");
-
-    // Service Roleでの検索は実行されない
-    expect(mockServiceSupabase.from).not.toHaveBeenCalled();
-  });
-
-  it.todo("予期しないエラー時に500を返す", async () => {
-    // Note: 現在の実装では error フィールドにエラーコード文字列が設定される
-    const userId = "user-123";
-
-    // セッション取得でエラーをシミュレート
-    mockServerSupabase.auth.getSession.mockRejectedValue(
+    mockServerSupabase.auth.getUser.mockRejectedValue(
       new Error("Unexpected error"),
     );
 
+    // Act
     const request = new NextRequest("http://localhost:3000/api/user/user-123");
     const response = await GET(request, { params: { userId } });
 
+    // Assert
     expect(response.status).toBe(500);
-
     const responseData = await response.json();
     expect(responseData.success).toBe(false);
-    expect(responseData.error).toBe("Internal server error");
+    expect(responseData.error).toBe("INTERNAL_SERVER_ERROR");
   });
 
   it("必要なフィールドのみを選択して取得する", async () => {
     const userId = "user-123";
 
     // セッションありをシミュレート
-    mockServerSupabase.auth.getSession.mockResolvedValue({
+    mockServerSupabase.auth.getUser.mockResolvedValue({
       data: {
-        session: {
-          user: { id: userId },
-        },
+        user: { id: userId },
       },
       error: null,
     });

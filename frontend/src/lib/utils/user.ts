@@ -1,4 +1,4 @@
-import { createUserProfileViaTrpc, getUserProfile } from "@/lib/api/client";
+import { createUserViaTrpc, getUserInfo } from "@/lib/api/client";
 import type { UserSession } from "@/lib/auth";
 
 /**
@@ -16,7 +16,7 @@ export async function fetchUserProfile(
   void options;
 
   try {
-    const result = await getUserProfile(userId);
+    const result = await getUserInfo(userId);
     if (!result.success || !result.data) {
       return null;
     }
@@ -32,6 +32,8 @@ export async function fetchUserProfile(
       username: userData.username,
       profile_image_url: userData.profile_image_url || null,
       dojo_style_name: userData.dojo_style_name || null,
+      aikido_rank: userData.aikido_rank || null,
+      full_name: userData.full_name || null,
     };
   } catch (error) {
     console.error(
@@ -60,7 +62,7 @@ export async function createUserProfile(userData: {
   error?: string;
 }> {
   try {
-    const result = await createUserProfileViaTrpc({
+    const result = await createUserViaTrpc({
       email: userData.email,
       password: userData.password,
       username: userData.username,

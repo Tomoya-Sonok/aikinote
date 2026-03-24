@@ -18,6 +18,9 @@ export type UserSession = {
   username: string;
   profile_image_url: string | null;
   dojo_style_name: string | null;
+  dojo_style_id?: string | null;
+  aikido_rank: string | null;
+  full_name: string | null;
 };
 
 export async function signUp(credentials: SignUpCredentials) {
@@ -46,7 +49,7 @@ export async function signUp(credentials: SignUpCredentials) {
       username: credentials.username,
       profile_image_url: null,
       training_start_date: null,
-      publicity_setting: "private",
+      publicity_setting: "public",
       language: "ja",
       is_email_verified: false,
       password_hash: "",

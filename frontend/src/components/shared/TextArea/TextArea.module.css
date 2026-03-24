@@ -51,6 +51,14 @@
   box-shadow: 0 0 0 1px rgba(193, 91, 91, 0.15);
 }
 
+.charCount {
+  display: block;
+  text-align: right;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
 .errorMessage {
   font-size: var(--font-size-xs);
   color: var(--error-color);

@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { FontSizeSetting as FontSizeSettingFeature } from "@/components/features/setting/FontSizeSetting/FontSizeSetting";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
-import { useToast } from "@/contexts/ToastContext";
 
 interface FontSizeSettingProps {
   locale: string;
@@ -12,14 +11,10 @@ interface FontSizeSettingProps {
 
 export function FontSizeSetting({ locale }: FontSizeSettingProps) {
   const router = useRouter();
-  const { showToast } = useToast();
   const t = useTranslations();
 
   const handleSave = () => {
-    showToast(t("fontSize.saved"), "success");
-    setTimeout(() => {
-      router.push(`/${locale}/personal/pages`);
-    }, 800);
+    router.push(`/${locale}/personal/pages`);
   };
 
   return (

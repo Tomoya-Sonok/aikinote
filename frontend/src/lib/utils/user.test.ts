@@ -3,16 +3,16 @@
  * tRPCラッパー経由のユーザー取得・作成ロジックを検証
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createUserProfileViaTrpc, getUserProfile } from "@/lib/api/client";
+import { createUserViaTrpc, getUserInfo } from "@/lib/api/client";
 import { createUserProfile, fetchUserProfile } from "./user";
 
 vi.mock("@/lib/api/client", () => ({
-  createUserProfileViaTrpc: vi.fn(),
-  getUserProfile: vi.fn(),
+  createUserViaTrpc: vi.fn(),
+  getUserInfo: vi.fn(),
 }));
 
-const mockGetUserProfile = vi.mocked(getUserProfile);
-const mockCreateUserProfileViaTrpc = vi.mocked(createUserProfileViaTrpc);
+const mockGetUserProfile = vi.mocked(getUserInfo);
+const mockCreateUserProfileViaTrpc = vi.mocked(createUserViaTrpc);
 
 describe("fetchUserProfile", () => {
   beforeEach(() => {
@@ -30,6 +30,8 @@ describe("fetchUserProfile", () => {
         profile_image_url: "https://example.com/avatar.jpg",
         dojo_style_name: null,
         training_start_date: null,
+        aikido_rank: "初段",
+        full_name: "山田太郎",
       },
     });
 
@@ -43,6 +45,8 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
       dojo_style_name: null,
+      aikido_rank: "初段",
+      full_name: "山田太郎",
     });
   });
 
@@ -71,6 +75,8 @@ describe("fetchUserProfile", () => {
         profile_image_url: null,
         dojo_style_name: null,
         training_start_date: null,
+        aikido_rank: null,
+        full_name: null,
       },
     });
 

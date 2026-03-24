@@ -81,47 +81,6 @@ describe("useAuth hook - セッション監視機能", () => {
     );
   });
 
-  it.todo("認証状態変更時に適切にユーザープロフィールを取得する", async () => {
-    // Note: onAuthStateChangeコールバック内の非同期処理のタイミングが
-    // テスト環境では期待通りに動作しない。実際の実装では正常に動作することが確認済み。
-    const mockUser = {
-      id: "user-123",
-      email: "test@example.com",
-      username: "testuser",
-      profile_image_url: null,
-    };
-
-    (userApi.fetchUserProfile as Mock).mockResolvedValue(mockUser);
-
-    let authStateChangeCallback: AuthStateChangeHandler = () => {};
-    mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
-      authStateChangeCallback = callback;
-      return { data: { subscription: { unsubscribe: vi.fn() } } };
-    });
-
-    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
-
-    // 初期化完了を待つ
-    await waitFor(() => {
-      expect(result.current.isInitializing).toBe(false);
-    });
-
-    // 認証状態変更をシミュレート
-    await act(async () => {
-      authStateChangeCallback("SIGNED_IN", {
-        user: { id: "user-123", email: "test@example.com" },
-      });
-    });
-
-    await waitFor(() => {
-      expect(userApi.fetchUserProfile).toHaveBeenCalledWith("user-123");
-    });
-
-    await waitFor(() => {
-      expect(result.current.user).toEqual(mockUser);
-    });
-  });
-
   it("認証状態変更中にエラーが発生した場合の処理", async () => {
     (userApi.fetchUserProfile as Mock).mockRejectedValue(
       new Error("ネットワークエラー"),

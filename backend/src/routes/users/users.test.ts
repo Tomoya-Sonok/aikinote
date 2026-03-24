@@ -6,6 +6,7 @@ import usersRoute from "./index.js";
 // Supabaseクライアントのモック関数
 const mockSingle = vi.fn();
 const mockUpdateSingle = vi.fn();
+const mockMaybeSingle = vi.fn();
 
 // モジュールのモック
 vi.mock("@supabase/supabase-js", () => ({
@@ -14,6 +15,9 @@ vi.mock("@supabase/supabase-js", () => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
           single: mockSingle,
+          neq: vi.fn(() => ({
+            maybeSingle: mockMaybeSingle,
+          })),
         })),
       })),
       update: vi.fn(() => ({
@@ -55,10 +59,14 @@ describe("ユーザープロフィールAPI", () => {
     vi.clearAllMocks();
     mockSingle.mockClear();
     mockUpdateSingle.mockClear();
+    mockMaybeSingle.mockClear();
+
+    // username重複チェック: デフォルトは「重複なし」
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
   });
 
   describe("プロフィール取得API", () => {
-    test("認証済みユーザーが自分のプロフィールを正常に取得できる", async () => {
+    test("認証済みユーザーが自分のプロフィールを取得すると200とユーザー情報を返す", async () => {
       // Arrange
       const expectedUserData = {
         id: testUserId,
@@ -187,7 +195,7 @@ describe("ユーザープロフィールAPI", () => {
   });
 
   describe("プロフィール更新API", () => {
-    test("認証済みユーザーが自分のプロフィールを正常に更新できる", async () => {
+    test("認証済みユーザーが全フィールド更新すると200と更新後データを返す", async () => {
       // Arrange
       const updateData = {
         username: "更新されたユーザー名",
@@ -439,7 +447,7 @@ describe("ユーザープロフィールAPI", () => {
       expect(responseData.error).toBe("プロフィールの更新に失敗しました");
     });
 
-    test("空のリクエストボディでも正常に処理される", async () => {
+    test("空のリクエストボディの場合に200と変更なしメッセージを返す", async () => {
       // Arrange
       const updateData = {};
 

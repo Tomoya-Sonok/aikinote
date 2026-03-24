@@ -1,10 +1,10 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchUserProfileFromHono } from "./auth";
+import { fetchUserInfoFromHono } from "./auth";
 import {
-  getCachedUserProfile,
-  getUserProfileCacheTag,
-  revalidateUserProfile,
+  getCachedUserInfo,
+  getUserInfoCacheTag,
+  revalidateUserInfo,
 } from "./cache";
 
 // モジュール全体のモック
@@ -14,45 +14,40 @@ vi.mock("next/cache", () => ({
 }));
 
 vi.mock("./auth", () => ({
-  fetchUserProfileFromHono: vi.fn(),
+  fetchUserInfoFromHono: vi.fn(),
 }));
 
 describe("cache.ts", () => {
   const userId = "test-user-id";
   // biome-ignore lint/suspicious/noExplicitAny: mock data
-  const mockSession: any = { user: { id: userId } };
+  const mockUser: any = { id: userId, email: "test@example.com" };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("getCachedUserProfile", () => {
-    it("fetches user profile via unstable_cache", async () => {
+  describe("getCachedUserInfo", () => {
+    it("fetches user info via unstable_cache", async () => {
       const mockProfile = { id: userId, username: "testuser" };
       // biome-ignore lint/suspicious/noExplicitAny: mock function
-      (fetchUserProfileFromHono as any).mockResolvedValue(mockProfile);
+      (fetchUserInfoFromHono as any).mockResolvedValue(mockProfile);
 
       // biome-ignore lint/suspicious/noExplicitAny: mock function
       (unstable_cache as any).mockImplementation((fn: any) => fn);
 
-      const result = await getCachedUserProfile(userId, mockSession);
+      const result = await getCachedUserInfo(userId, mockUser);
 
       expect(unstable_cache).toHaveBeenCalled();
-      expect(fetchUserProfileFromHono).toHaveBeenCalledWith(
-        userId,
-        mockSession,
-      );
+      expect(fetchUserInfoFromHono).toHaveBeenCalledWith(userId, mockUser);
       expect(result).toEqual(mockProfile);
     });
   });
 
-  describe("revalidateUserProfile", () => {
+  describe("revalidateUserInfo", () => {
     it("calls revalidateTag with correct tag", () => {
-      revalidateUserProfile(userId);
+      revalidateUserInfo(userId);
 
-      expect(revalidateTag).toHaveBeenCalledWith(
-        getUserProfileCacheTag(userId),
-      );
+      expect(revalidateTag).toHaveBeenCalledWith(getUserInfoCacheTag(userId));
     });
   });
 });

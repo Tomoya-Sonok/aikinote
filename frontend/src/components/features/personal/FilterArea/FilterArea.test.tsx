@@ -43,13 +43,15 @@ describe("FilterArea", () => {
     userId: "user-1",
   };
 
-  it("renders filters and shows default date text", () => {
+  it("初期状態で検索欄とタグ・日付フィルタに「指定なし」が表示される", () => {
+    // Arrange & Act
     render(
       <I18nTestProvider>
         <FilterArea {...baseProps} />
       </I18nTestProvider>,
     );
 
+    // Assert
     expect(
       screen.getByPlaceholderText("フリーワードで絞り込む"),
     ).toBeInTheDocument();
@@ -58,24 +60,32 @@ describe("FilterArea", () => {
     expect(screen.getAllByText("指定なし")).toHaveLength(2);
   });
 
-  it("displays date range text when provided", () => {
+  it("日付範囲が指定されている場合に「開始日 ～ 終了日」形式で表示される", () => {
+    // Arrange
+    const props = {
+      ...baseProps,
+      currentSelectedDateRange: {
+        startDate: "2024-01-01",
+        endDate: "2024-01-05",
+      },
+    };
+
+    // Act
     render(
       <I18nTestProvider>
-        <FilterArea
-          {...baseProps}
-          currentSelectedDateRange={{
-            startDate: "2024-01-01",
-            endDate: "2024-01-05",
-          }}
-        />
+        <FilterArea {...props} />
       </I18nTestProvider>,
     );
 
+    // Assert
     expect(screen.getByText("2024-01-01 ～ 2024-01-05")).toBeInTheDocument();
   });
 
-  it("invokes onDateFilterChange when range selection fired from modal", async () => {
+  it("日付モーダルで範囲を選択するとonDateFilterChangeがYYYY-MM-DD形式の範囲で呼ばれる", async () => {
+    // Arrange
     const onDateFilterChange = vi.fn();
+
+    // Act
     render(
       <I18nTestProvider>
         <FilterArea {...baseProps} onDateFilterChange={onDateFilterChange} />
@@ -85,17 +95,20 @@ describe("FilterArea", () => {
     await userEvent.click(screen.getByText("日付"));
     await userEvent.click(screen.getByText("Mock Date Picker"));
 
+    // Assert
     expect(onDateFilterChange).toHaveBeenCalledWith({
       startDate: "2024-01-02",
       endDate: "2024-01-06",
     });
   });
 
-  it("clears filters when clear button is clicked", () => {
+  it("クリアボタンをタップすると検索クエリ・日付範囲・タグが全てリセットされる", () => {
+    // Arrange
     const onSearchChange = vi.fn();
     const onDateFilterChange = vi.fn();
     const onTagFilterChange = vi.fn();
 
+    // Act
     render(
       <I18nTestProvider>
         <FilterArea
@@ -117,6 +130,7 @@ describe("FilterArea", () => {
     fireEvent.pointerDown(clearButton);
     fireEvent.pointerUp(clearButton);
 
+    // Assert
     expect(onSearchChange).toHaveBeenCalledWith("");
     expect(onDateFilterChange).toHaveBeenCalledWith({
       startDate: null,

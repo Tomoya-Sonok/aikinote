@@ -149,7 +149,9 @@ export function CalendarGrid({
       widthRef.current = containerRef.current?.offsetWidth ?? 1;
       dragOffsetRef.current = 0;
       isHorizontalRef.current = null;
-      event.currentTarget.setPointerCapture?.(event.pointerId);
+      if (event.pointerType !== "mouse") {
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+      }
     },
     [onMonthChange],
   );

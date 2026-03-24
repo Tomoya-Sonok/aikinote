@@ -1,0 +1,30 @@
+.grid {
+  display: grid;
+  gap: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.gridSingle {
+  grid-template-columns: 1fr;
+}
+
+.gridDouble {
+  grid-template-columns: 1fr 1fr;
+}
+
+.gridMultiple {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.mediaItem {
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+
+.gridDouble .mediaItem,
+.gridMultiple .mediaItem {
+  aspect-ratio: 1;
+}

@@ -1,0 +1,157 @@
+.container {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+  padding: 10px 14px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color 0.4s ease-out;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--light-gray);
+}
+
+.input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 1px rgba(91, 122, 94, 0.15);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: var(--z-modal);
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  max-height: 240px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  cursor: pointer;
+  min-height: 44px; /* タップ領域確保 */
+}
+
+.suggestionItem:hover,
+.suggestionItem.active {
+  background-color: var(--background-light);
+}
+
+.suggestionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionName {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.approvedBadge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.approvedText {
+  font-size: 10px;
+  color: var(--success-color);
+}
+
+.registerItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  min-height: 44px;
+  font-size: var(--font-size-sm);
+  color: var(--primary-color);
+  border-top: 1px solid var(--border-color);
+}
+
+.registerItem:hover,
+.registerItem.active {
+  background-color: var(--background-light);
+}
+
+.loadingItem,
+.emptyItem {
+  padding: 10px 12px;
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  text-align: center;
+}
+
+.selectedContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--white);
+  box-sizing: border-box;
+}
+
+.selectedTextButton {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.selectedText {
+  font-family: var(--font-zen-old-mincho);
+  font-size: var(--font-size-xs);
+  color: var(--black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.clearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}

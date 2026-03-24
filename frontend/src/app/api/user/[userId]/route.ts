@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { revalidateUserProfile } from "@/lib/server/cache";
+import { revalidateUserInfo } from "@/lib/server/cache";
 import {
   getServerSupabase,
   getServiceRoleSupabase,
@@ -22,22 +22,21 @@ export async function GET(
   try {
     const { userId } = await params;
 
-    // まず通常のSupabaseクライアントでセッション確認
+    // getUser() でSupabase Authサーバーに問い合わせて認証を検証
     const serverSupabase = await getServerSupabase();
     const {
-      data: { session },
-    } = await serverSupabase.auth.getSession();
+      data: { user: authenticatedUser },
+    } = await serverSupabase.auth.getUser();
 
-    // セッションがある場合は、リクエストしているユーザーが本人または管理者かチェック
+    // 認証済みユーザーの場合は本人かチェック
     let canAccess = false;
-    if (session?.user) {
+    if (authenticatedUser) {
       // 本人のプロフィール取得は許可
-      if (session.user.id === userId) {
+      if (authenticatedUser.id === userId) {
         canAccess = true;
       }
-      // 他のユーザーのプロフィール取得時は、その他のロジックを追加可能
     } else {
-      // セッションがない場合（OAuth認証コールバック等）もService Roleで許可
+      // 未認証の場合（OAuth認証コールバック等）もService Roleで許可
       // ただし、内部APIコールのみに限定する
       const origin = request.headers.get("origin");
       const host = request.headers.get("host");
@@ -84,7 +83,7 @@ export async function GET(
       username: userDataById.username,
       profile_image_url: userDataById.profile_image_url,
       // 本人以外には詳細情報を隠す
-      ...(session?.user?.id === userId && {
+      ...(authenticatedUser?.id === userId && {
         dojo_style_name: userDataById.dojo_style_name,
         is_email_verified: userDataById.is_email_verified,
       }),
@@ -105,18 +104,19 @@ export async function PUT(
   try {
     const { userId } = await params;
 
-    // セッション確認
+    // getUser() でSupabase Authサーバーに問い合わせて認証を検証
     const serverSupabase = await getServerSupabase();
     const {
-      data: { session },
-    } = await serverSupabase.auth.getSession();
+      data: { user: authenticatedUser },
+      error: authError,
+    } = await serverSupabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !authenticatedUser) {
       return createForbiddenResponse("認証が必要です");
     }
 
     // 本人のプロフィールのみ更新可能
-    if (session.user.id !== userId) {
+    if (authenticatedUser.id !== userId) {
       return createForbiddenResponse(
         "他のユーザーのプロフィールは更新できません",
       );
@@ -160,7 +160,7 @@ export async function PUT(
       );
     }
 
-    revalidateUserProfile(userId);
+    revalidateUserInfo(userId);
 
     return createSuccessResponse(updatedUser, {
       message: "プロフィールを更新しました",

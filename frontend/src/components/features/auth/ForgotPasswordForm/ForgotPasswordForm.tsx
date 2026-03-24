@@ -111,7 +111,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
             className={`${styles.inputField} ${
               errors.email ? styles.error : ""
             }`}
-            placeholder="aaaa@example.com"
+            placeholder="aikinote@example.com"
             onFocus={clearError}
           />
           {errors.email && (

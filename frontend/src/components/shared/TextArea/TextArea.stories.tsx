@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { TextArea } from "./TextArea";
 
 const meta: Meta<typeof TextArea> = {
-  title: "Atoms/TextArea",
+  title: "Shared/TextArea",
   component: TextArea,
   parameters: {
     layout: "centered",

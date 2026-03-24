@@ -33,7 +33,7 @@ export interface TrainingPageRow {
   user_id: string; // uuid FK
   title: string; // text
   content: string; // text
-  comment: string; // text
+  is_public: boolean; // boolean (デフォルト: false)
   created_at: string; // timestamp
   updated_at: string; // timestamp
 }
@@ -111,15 +111,15 @@ export const createTrainingPage = async (
       ? {
           title: pageData.title,
           content: pageData.content,
-          comment: pageData.comment,
           user_id: pageData.user_id,
+          is_public: pageData.is_public ?? false,
           created_at: pageData.created_at,
         }
       : {
           title: pageData.title,
           content: pageData.content,
-          comment: pageData.comment,
           user_id: pageData.user_id,
+          is_public: pageData.is_public ?? false,
         };
 
     const { data: newPage, error: pageError } = await supabase
@@ -857,14 +857,17 @@ export const updateTrainingPage = async (
     }
 
     // 2. TrainingPageを更新
+    const updateFields: Record<string, unknown> = {
+      title: pageData.title,
+      content: pageData.content,
+      updated_at: new Date().toISOString(),
+    };
+    if (pageData.is_public !== undefined) {
+      updateFields.is_public = pageData.is_public;
+    }
     const { data: updatedPage, error: pageError } = await supabase
       .from("TrainingPage")
-      .update({
-        title: pageData.title,
-        content: pageData.content,
-        comment: pageData.comment,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateFields)
       .eq("id", pageData.id)
       .eq("user_id", pageData.user_id)
       .select("*")
@@ -1357,4 +1360,1523 @@ export const deletePageAttachment = async (
     console.error("ページ添付削除エラー:", error);
     throw error;
   }
+};
+
+// ============================================
+// ソーシャル機能 型定義
+// ============================================
+
+export interface SocialPostRow {
+  id: string;
+  user_id: string;
+  content: string;
+  post_type: string;
+  author_dojo_style_id: string | null;
+  author_dojo_name: string | null;
+  favorite_count: number;
+  reply_count: number;
+  is_deleted: boolean;
+  source_page_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SocialPostAttachmentRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  type: string;
+  url: string;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+  file_size_bytes: number | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface SocialReplyRow {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  is_deleted: boolean;
+  favorite_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SocialFavoriteRow {
+  id: string;
+  post_id: string | null;
+  reply_id: string | null;
+  user_id: string;
+  created_at: string;
+}
+
+export interface NotificationRow {
+  id: string;
+  type: string;
+  recipient_user_id: string;
+  actor_user_id: string;
+  post_id: string | null;
+  reply_id: string | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface PostReportRow {
+  id: string;
+  reporter_user_id: string;
+  post_id: string | null;
+  reply_id: string | null;
+  reason: string;
+  detail: string | null;
+  status: string;
+  created_at: string;
+}
+
+// ============================================
+// ソーシャル機能 ヘルパー関数
+// ============================================
+
+export const createSocialPost = async (
+  supabaseClient: SupabaseClient,
+  data: {
+    user_id: string;
+    content: string;
+    post_type: string;
+    author_dojo_style_id: string | null;
+    author_dojo_name: string | null;
+    source_page_id?: string;
+  },
+): Promise<SocialPostRow> => {
+  const { data: post, error } = await supabaseClient
+    .from("SocialPost")
+    .insert({
+      user_id: data.user_id,
+      content: data.content,
+      post_type: data.post_type,
+      author_dojo_style_id: data.author_dojo_style_id,
+      author_dojo_name: data.author_dojo_name,
+      source_page_id: data.source_page_id ?? null,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`投稿の作成に失敗しました: ${error.message}`);
+  }
+
+  return post;
+};
+
+export const getSocialFeed = async (
+  supabaseClient: SupabaseClient,
+  viewerUserId: string,
+  viewerDojoStyleId: string | null,
+  tab: string,
+  limit: number,
+  offset: number,
+): Promise<SocialPostRow[]> => {
+  const { data, error } = await supabaseClient.rpc("get_social_feed", {
+    viewer_user_id: viewerUserId,
+    viewer_dojo_style_id: viewerDojoStyleId,
+    tab_filter: tab,
+    feed_limit: limit,
+    feed_offset: offset,
+  });
+
+  if (error) {
+    throw new Error(`フィード取得に失敗しました: ${error.message}`);
+  }
+
+  return data ?? [];
+};
+
+export const getSocialPostById = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+): Promise<SocialPostRow | null> => {
+  const { data, error } = await supabaseClient
+    .from("SocialPost")
+    .select("*")
+    .eq("id", postId)
+    .eq("is_deleted", false)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") {
+      return null;
+    }
+    throw new Error(`投稿の取得に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+/**
+ * TrainingPage の is_public 変更に連動して SocialPost を作成/更新/soft-delete する
+ */
+export const syncSocialPostForTrainingPage = async (
+  supabaseClient: SupabaseClient,
+  pageId: string,
+  userId: string,
+  content: string,
+  isPublic: boolean,
+): Promise<void> => {
+  // 既存の SocialPost を検索
+  const { data: existingPost } = await supabaseClient
+    .from("SocialPost")
+    .select("id, is_deleted")
+    .eq("source_page_id", pageId)
+    .maybeSingle();
+
+  if (isPublic) {
+    if (existingPost) {
+      // 既存の SocialPost を更新（再公開含む）
+      await supabaseClient
+        .from("SocialPost")
+        .update({
+          content,
+          is_deleted: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", existingPost.id);
+    } else {
+      // 新規作成: User の道場情報を取得
+      const { data: userData } = await supabaseClient
+        .from("User")
+        .select("dojo_style_id, dojo_style_name")
+        .eq("id", userId)
+        .single();
+
+      await createSocialPost(supabaseClient, {
+        user_id: userId,
+        content,
+        post_type: "training_record",
+        author_dojo_style_id: userData?.dojo_style_id ?? null,
+        author_dojo_name: userData?.dojo_style_name ?? null,
+        source_page_id: pageId,
+      });
+    }
+  } else if (existingPost && !existingPost.is_deleted) {
+    // 非公開化: soft-delete
+    await supabaseClient
+      .from("SocialPost")
+      .update({
+        is_deleted: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingPost.id);
+  }
+};
+
+/**
+ * source_page_id から TrainingPage の詳細データ（タイトル、タグ含む）を取得する
+ */
+export const getSourcePageData = async (
+  supabaseClient: SupabaseClient,
+  sourcePageId: string,
+): Promise<{
+  id: string;
+  title: string;
+  content: string;
+  tags: { name: string; category: string }[];
+} | null> => {
+  const { data: pageData } = await supabaseClient
+    .from("TrainingPage")
+    .select("id, title, content")
+    .eq("id", sourcePageId)
+    .single();
+
+  if (!pageData) return null;
+
+  const { data: pageTagsData } = await supabaseClient
+    .from("TrainingPageTag")
+    .select("UserTag(name, category)")
+    .eq("training_page_id", sourcePageId);
+
+  return {
+    ...pageData,
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    tags: (pageTagsData ?? []).map((row: any) => ({
+      name: row.UserTag?.name ?? "",
+      category: row.UserTag?.category ?? "",
+    })),
+  };
+};
+
+/**
+ * 公開稽古記録フィードを取得する（is_public=true の TrainingPage）
+ */
+export const getPublicTrainingPages = async (
+  supabaseClient: SupabaseClient,
+  limit: number,
+  offset: number,
+): Promise<{
+  pages: {
+    id: string;
+    title: string;
+    content: string;
+    user_id: string;
+    is_public: boolean;
+    created_at: string;
+    User: {
+      username: string;
+      profile_image_url: string | null;
+      dojo_style_name: string | null;
+      aikido_rank: string | null;
+    };
+  }[];
+  total_count: number;
+}> => {
+  const { data, count, error } = await supabaseClient
+    .from("TrainingPage")
+    .select(
+      "id, title, content, user_id, is_public, created_at, User!inner(username, profile_image_url, dojo_style_name, aikido_rank)",
+      { count: "exact" },
+    )
+    .eq("is_public", true)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    throw new Error(`公開稽古記録の取得に失敗しました: ${error.message}`);
+  }
+
+  return {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    pages: (data ?? []) as any[],
+    total_count: count ?? 0,
+  };
+};
+
+export const updateSocialPost = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+  data: { content?: string },
+): Promise<SocialPostRow> => {
+  const { data: post, error } = await supabaseClient
+    .from("SocialPost")
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", postId)
+    .eq("user_id", userId)
+    .eq("is_deleted", false)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`投稿の更新に失敗しました: ${error.message}`);
+  }
+
+  return post;
+};
+
+export const softDeleteSocialPost = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("SocialPost")
+    .update({
+      is_deleted: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", postId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`投稿の削除に失敗しました: ${error.message}`);
+  }
+};
+
+export const createSocialPostTags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  tagIds: string[],
+): Promise<void> => {
+  if (tagIds.length === 0) return;
+
+  const rows = tagIds.map((tagId) => ({
+    post_id: postId,
+    user_tag_id: tagId,
+  }));
+
+  const { error } = await supabaseClient.from("SocialPostTag").insert(rows);
+
+  if (error) {
+    throw new Error(`投稿タグの作成に失敗しました: ${error.message}`);
+  }
+};
+
+export const updateSocialPostTags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  tagIds: string[],
+): Promise<void> => {
+  const { error: deleteError } = await supabaseClient
+    .from("SocialPostTag")
+    .delete()
+    .eq("post_id", postId);
+
+  if (deleteError) {
+    throw new Error(`投稿タグの削除に失敗しました: ${deleteError.message}`);
+  }
+
+  if (tagIds.length > 0) {
+    await createSocialPostTags(supabaseClient, postId, tagIds);
+  }
+};
+
+export const getSocialPostWithDetails = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  viewerId: string,
+): Promise<{
+  post: SocialPostRow;
+  attachments: SocialPostAttachmentRow[];
+  tags: { id: string; name: string; category: string }[];
+  author: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    aikido_rank: string | null;
+  };
+  replies: (SocialReplyRow & {
+    user: { id: string; username: string; profile_image_url: string | null };
+    is_favorited: boolean;
+  })[];
+  is_favorited: boolean;
+} | null> => {
+  const post = await getSocialPostById(supabaseClient, postId);
+  if (!post) return null;
+
+  const [
+    attachmentsResult,
+    tagsResult,
+    authorResult,
+    repliesResult,
+    favoriteResult,
+  ] = await Promise.all([
+    supabaseClient
+      .from("SocialPostAttachment")
+      .select("*")
+      .eq("post_id", postId)
+      .order("sort_order", { ascending: true }),
+    supabaseClient
+      .from("SocialPostTag")
+      .select("user_tag_id, UserTag(id, name, category)")
+      .eq("post_id", postId),
+    supabaseClient
+      .from("User")
+      .select("id, username, profile_image_url, aikido_rank")
+      .eq("id", post.user_id)
+      .single(),
+    supabaseClient
+      .from("SocialReply")
+      .select("*, User(id, username, profile_image_url)")
+      .eq("post_id", postId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: true }),
+    supabaseClient
+      .from("SocialFavorite")
+      .select("id")
+      .eq("post_id", postId)
+      .eq("user_id", viewerId)
+      .maybeSingle(),
+  ]);
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const tags = (tagsResult.data ?? []).map((row: any) => ({
+    id: row.UserTag?.id ?? row.user_tag_id,
+    name: row.UserTag?.name ?? "",
+    category: row.UserTag?.category ?? "",
+  }));
+
+  // 返信の is_favorited 判定用: viewerがお気に入りしている返信IDを一括取得
+  const replyIds = (repliesResult.data ?? []).map(
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    (row: any) => row.id as string,
+  );
+  const favoritedReplyIds = new Set<string>();
+  if (replyIds.length > 0) {
+    const { data: replyFavs } = await supabaseClient
+      .from("SocialFavorite")
+      .select("reply_id")
+      .in("reply_id", replyIds)
+      .eq("user_id", viewerId);
+    for (const fav of replyFavs ?? []) {
+      if (fav.reply_id) favoritedReplyIds.add(fav.reply_id);
+    }
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const replies = (repliesResult.data ?? []).map((row: any) => ({
+    id: row.id,
+    post_id: row.post_id,
+    user_id: row.user_id,
+    content: row.content,
+    is_deleted: row.is_deleted,
+    favorite_count: row.favorite_count ?? 0,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    user: {
+      id: row.User?.id ?? row.user_id,
+      username: row.User?.username ?? "",
+      profile_image_url: row.User?.profile_image_url ?? null,
+    },
+    is_favorited: favoritedReplyIds.has(row.id),
+  }));
+
+  // training_record の場合、PageAttachment をフォールバックとして取得
+  let finalAttachments = attachmentsResult.data ?? [];
+  if (
+    finalAttachments.length === 0 &&
+    post.post_type === "training_record" &&
+    post.source_page_id
+  ) {
+    const { data: pageAtts } = await supabaseClient
+      .from("PageAttachment")
+      .select(
+        "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+      )
+      .eq("page_id", post.source_page_id)
+      .order("sort_order", { ascending: true });
+    finalAttachments = (pageAtts ?? []).map(
+      (pa: {
+        id: string;
+        page_id: string;
+        type: string;
+        url: string;
+        thumbnail_url: string | null;
+        original_filename: string | null;
+        sort_order: number;
+      }) => ({
+        id: pa.id,
+        post_id: postId,
+        user_id: post.user_id,
+        type: pa.type,
+        url: pa.url,
+        thumbnail_url: pa.thumbnail_url,
+        original_filename: pa.original_filename,
+        file_size_bytes: null,
+        sort_order: pa.sort_order,
+        created_at: "",
+      }),
+    );
+  }
+
+  return {
+    post,
+    attachments: finalAttachments,
+    tags,
+    author: authorResult.data ?? {
+      id: post.user_id,
+      username: "",
+      profile_image_url: null,
+      aikido_rank: null,
+    },
+    replies,
+    is_favorited: !!favoriteResult.data,
+  };
+};
+
+export const createSocialReply = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+  content: string,
+): Promise<SocialReplyRow> => {
+  const { data, error } = await supabaseClient
+    .from("SocialReply")
+    .insert({
+      post_id: postId,
+      user_id: userId,
+      content,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`返信の作成に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const getSocialReplyById = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+): Promise<SocialReplyRow | null> => {
+  const { data, error } = await supabaseClient
+    .from("SocialReply")
+    .select("*")
+    .eq("id", replyId)
+    .eq("is_deleted", false)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`返信の取得に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+export const updateSocialReply = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+  data: { content: string },
+): Promise<SocialReplyRow> => {
+  const { data: reply, error } = await supabaseClient
+    .from("SocialReply")
+    .update({
+      ...data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", replyId)
+    .eq("user_id", userId)
+    .eq("is_deleted", false)
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`返信の更新に失敗しました: ${error.message}`);
+  }
+
+  return reply;
+};
+
+export const softDeleteSocialReply = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("SocialReply")
+    .update({
+      is_deleted: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", replyId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`返信の削除に失敗しました: ${error.message}`);
+  }
+};
+
+export const toggleSocialFavorite = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+): Promise<{ is_favorited: boolean }> => {
+  const { data: existing } = await supabaseClient
+    .from("SocialFavorite")
+    .select("id")
+    .eq("post_id", postId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabaseClient
+      .from("SocialFavorite")
+      .delete()
+      .eq("id", existing.id);
+
+    if (error) {
+      throw new Error(`お気に入り解除に失敗しました: ${error.message}`);
+    }
+
+    return { is_favorited: false };
+  }
+
+  const { error } = await supabaseClient
+    .from("SocialFavorite")
+    .insert({ post_id: postId, user_id: userId });
+
+  if (error) {
+    throw new Error(`お気に入り登録に失敗しました: ${error.message}`);
+  }
+
+  return { is_favorited: true };
+};
+
+export const createNotification = async (
+  supabaseClient: SupabaseClient,
+  params: {
+    type: string;
+    recipient_user_id: string;
+    actor_user_id: string;
+    post_id?: string;
+    reply_id?: string;
+  },
+): Promise<void> => {
+  // 自分自身への通知はスキップ
+  if (params.recipient_user_id === params.actor_user_id) return;
+
+  const { error } = await supabaseClient.from("Notification").insert({
+    type: params.type,
+    recipient_user_id: params.recipient_user_id,
+    actor_user_id: params.actor_user_id,
+    post_id: params.post_id ?? null,
+    reply_id: params.reply_id ?? null,
+  });
+
+  if (error) {
+    console.error("通知の作成に失敗しました:", error);
+  }
+};
+
+export const deleteNotificationByFavorite = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("Notification")
+    .delete()
+    .eq("type", "favorite")
+    .eq("actor_user_id", userId)
+    .eq("post_id", postId);
+
+  if (error) {
+    console.error("通知の削除に失敗しました:", error);
+  }
+};
+
+export const toggleReplyFavorite = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+): Promise<{ is_favorited: boolean }> => {
+  const { data: existing } = await supabaseClient
+    .from("SocialFavorite")
+    .select("id")
+    .eq("reply_id", replyId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabaseClient
+      .from("SocialFavorite")
+      .delete()
+      .eq("id", existing.id);
+
+    if (error) {
+      throw new Error(`お気に入り解除に失敗しました: ${error.message}`);
+    }
+
+    return { is_favorited: false };
+  }
+
+  const { error } = await supabaseClient
+    .from("SocialFavorite")
+    .insert({ reply_id: replyId, user_id: userId });
+
+  if (error) {
+    throw new Error(`お気に入り登録に失敗しました: ${error.message}`);
+  }
+
+  return { is_favorited: true };
+};
+
+export const deleteNotificationByReplyFavorite = async (
+  supabaseClient: SupabaseClient,
+  replyId: string,
+  userId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("Notification")
+    .delete()
+    .eq("type", "favorite_reply")
+    .eq("actor_user_id", userId)
+    .eq("reply_id", replyId);
+
+  if (error) {
+    console.error("通知の削除に失敗しました:", error);
+  }
+};
+
+export const getNotifications = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  limit: number,
+  offset: number,
+): Promise<NotificationRow[]> => {
+  const { data, error } = await supabaseClient
+    .from("Notification")
+    .select(
+      "*, User!Notification_actor_user_id_fkey(id, username, profile_image_url)",
+    )
+    .eq("recipient_user_id", userId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  if (error) {
+    throw new Error(`通知の取得に失敗しました: ${error.message}`);
+  }
+
+  return data ?? [];
+};
+
+export const checkRateLimit = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  table: "SocialPost" | "SocialReply",
+  windowMinutes: number,
+  maxCount: number,
+): Promise<boolean> => {
+  const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
+  const { count, error } = await supabaseClient
+    .from(table)
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", since);
+  if (error) {
+    console.error("Rate limit check error:", error);
+    return false; // fail open
+  }
+  return (count ?? 0) >= maxCount;
+};
+
+export const markNotificationsRead = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  ids?: string[],
+  markAll?: boolean,
+  postId?: string,
+): Promise<void> => {
+  let query = supabaseClient
+    .from("Notification")
+    .update({ is_read: true })
+    .eq("recipient_user_id", userId)
+    .eq("is_read", false);
+
+  if (postId) {
+    query = query.eq("post_id", postId);
+  } else if (!markAll && ids && ids.length > 0) {
+    query = query.in("id", ids);
+  }
+
+  const { error } = await query;
+
+  if (error) {
+    throw new Error(`通知の既読化に失敗しました: ${error.message}`);
+  }
+};
+
+export const getUnreadNotificationCount = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<number> => {
+  const { count, error } = await supabaseClient
+    .from("Notification")
+    .select("id", { count: "exact", head: true })
+    .eq("recipient_user_id", userId)
+    .eq("is_read", false)
+    .in("type", ["reply", "reply_to_thread"]);
+  if (error) throw new Error(`未読通知数の取得に失敗: ${error.message}`);
+  return count ?? 0;
+};
+
+export const getUnreadNotificationPostIds = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<string[]> => {
+  const { data, error } = await supabaseClient
+    .from("Notification")
+    .select("post_id")
+    .eq("recipient_user_id", userId)
+    .eq("is_read", false)
+    .in("type", ["reply", "reply_to_thread"])
+    .not("post_id", "is", null);
+  if (error) throw new Error(`未読通知投稿IDの取得に失敗: ${error.message}`);
+  return [...new Set((data ?? []).map((n) => n.post_id as string))];
+};
+
+export const createPostReport = async (
+  supabaseClient: SupabaseClient,
+  data: {
+    reporter_user_id: string;
+    post_id?: string;
+    reply_id?: string;
+    reason: string;
+    detail?: string;
+  },
+): Promise<PostReportRow> => {
+  // 重複チェック
+  let duplicateQuery = supabaseClient
+    .from("PostReport")
+    .select("id")
+    .eq("reporter_user_id", data.reporter_user_id);
+
+  if (data.post_id) {
+    duplicateQuery = duplicateQuery.eq("post_id", data.post_id);
+  }
+  if (data.reply_id) {
+    duplicateQuery = duplicateQuery.eq("reply_id", data.reply_id);
+  }
+
+  const { data: existing } = await duplicateQuery.maybeSingle();
+
+  if (existing) {
+    throw new Error("DUPLICATE_REPORT");
+  }
+
+  const { data: report, error } = await supabaseClient
+    .from("PostReport")
+    .insert({
+      reporter_user_id: data.reporter_user_id,
+      post_id: data.post_id ?? null,
+      reply_id: data.reply_id ?? null,
+      reason: data.reason,
+      detail: data.detail ?? null,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`通報の作成に失敗しました: ${error.message}`);
+  }
+
+  return report;
+};
+
+export const searchSocialPosts = async (
+  supabaseClient: SupabaseClient,
+  viewerId: string,
+  viewerDojoStyleId: string | null,
+  params: {
+    query?: string;
+    dojo_name?: string;
+    rank?: string;
+    hashtag?: string;
+    post_type?: "post" | "training_record";
+    limit: number;
+    offset: number;
+  },
+): Promise<SocialPostRow[]> => {
+  // ハッシュタグ検索の場合:
+  //   1. Hashtag テーブル経由（通常のハッシュタグ投稿）
+  //   2. SocialPostTag → UserTag 経由（同名の稽古記録タグを持つ投稿）
+  // 両方の結果をマージして投稿IDセットを構築する
+  let hashtagPostIds: string[] | null = null;
+  if (params.hashtag) {
+    const [hashtagResult, tagResult] = await Promise.all([
+      // 1. ハッシュタグテーブル経由
+      (async () => {
+        const { data: hashtagData } = await supabaseClient
+          .from("Hashtag")
+          .select("id")
+          .eq("name", params.hashtag)
+          .single();
+        if (!hashtagData) return [];
+        const { data: postHashtags } = await supabaseClient
+          .from("SocialPostHashtag")
+          .select("post_id")
+          .eq("hashtag_id", hashtagData.id);
+        return (postHashtags ?? []).map((ph) => ph.post_id);
+      })(),
+      // 2. 稽古記録タグ（UserTag）経由: 同名のタグを持つ投稿もヒットさせる
+      (async () => {
+        const { data: userTags } = await supabaseClient
+          .from("UserTag")
+          .select("id")
+          .eq("name", params.hashtag);
+        if (!userTags || userTags.length === 0) return [];
+        const tagIds = userTags.map((t) => t.id);
+        const { data: postTags } = await supabaseClient
+          .from("SocialPostTag")
+          .select("post_id")
+          .in("user_tag_id", tagIds);
+        return (postTags ?? []).map((pt) => pt.post_id);
+      })(),
+    ]);
+
+    // 両方のIDをマージして重複排除
+    const mergedIds = [...new Set([...hashtagResult, ...tagResult])];
+    if (mergedIds.length === 0) return [];
+    hashtagPostIds = mergedIds;
+  }
+
+  // キーワード検索の場合: content に加えて稽古記録の title もヒット対象にする
+  // TrainingPage.title にマッチする source_page_id を先に取得
+  let titleMatchPostIds: string[] | null = null;
+  if (params.query) {
+    const { data: matchingPages } = await supabaseClient
+      .from("TrainingPage")
+      .select("id")
+      .ilike("title", `%${params.query}%`);
+
+    if (matchingPages && matchingPages.length > 0) {
+      const pageIds = matchingPages.map((p) => p.id);
+      const { data: titlePosts } = await supabaseClient
+        .from("SocialPost")
+        .select("id")
+        .eq("is_deleted", false)
+        .eq("post_type", "training_record")
+        .in("source_page_id", pageIds);
+      titleMatchPostIds = (titlePosts ?? []).map((p) => p.id);
+    }
+  }
+
+  // content 検索クエリ
+  let dbQuery = supabaseClient
+    .from("SocialPost")
+    .select("*, User!inner(id, aikido_rank, dojo_style_id, publicity_setting)")
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false });
+
+  if (hashtagPostIds) {
+    dbQuery = dbQuery.in("id", hashtagPostIds);
+  }
+
+  if (params.post_type) {
+    dbQuery = dbQuery.eq("post_type", params.post_type);
+  }
+
+  if (params.dojo_name) {
+    dbQuery = dbQuery.ilike("author_dojo_name", `%${params.dojo_name}%`);
+  }
+
+  if (params.rank) {
+    dbQuery = dbQuery.eq("User.aikido_rank", params.rank);
+  }
+
+  // query 検索: content OR title のどちらかにマッチ
+  if (params.query && titleMatchPostIds && titleMatchPostIds.length > 0) {
+    // content にマッチする投稿と title にマッチする投稿を OR で取得
+    dbQuery = dbQuery.or(
+      `content.ilike.%${params.query}%,id.in.(${titleMatchPostIds.join(",")})`,
+    );
+  } else if (params.query) {
+    dbQuery = dbQuery.ilike("content", `%${params.query}%`);
+  }
+
+  dbQuery = dbQuery.range(params.offset, params.offset + params.limit - 1);
+
+  const { data, error } = await dbQuery;
+
+  if (error) {
+    throw new Error(`投稿検索に失敗しました: ${error.message}`);
+  }
+
+  // 公開範囲フィルタ（User.publicity_setting + UserPublicityDojo ベース）
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const closedOwnerIds = (data ?? [])
+    .filter((post: any) => post.User?.publicity_setting === "closed")
+    .map((post: any) => post.user_id as string);
+  const publicityMap = await getUsersPublicityDojosBatch(supabaseClient, [
+    ...new Set(closedOwnerIds),
+  ]);
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const filtered = (data ?? []).filter((post: any) => {
+    const publicity = post.User?.publicity_setting;
+    if (publicity === "public") return true;
+    if (publicity === "closed" && viewerDojoStyleId) {
+      const allowedDojos = publicityMap.get(post.user_id);
+      return allowedDojos?.has(viewerDojoStyleId) ?? false;
+    }
+    if (post.user_id === viewerId) return true;
+    return false;
+  });
+
+  return filtered;
+};
+
+// 単一ユーザーの公開対象道場ID配列を取得
+export const getUserPublicityDojos = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<string[]> => {
+  const { data } = await supabaseClient
+    .from("UserPublicityDojo")
+    .select("dojo_style_id")
+    .eq("user_id", userId);
+  return (data ?? []).map((d) => d.dojo_style_id);
+};
+
+// 複数ユーザーの公開対象道場をバッチ取得（N+1回避）
+export const getUsersPublicityDojosBatch = async (
+  supabaseClient: SupabaseClient,
+  userIds: string[],
+): Promise<Map<string, Set<string>>> => {
+  const map = new Map<string, Set<string>>();
+  if (userIds.length === 0) return map;
+
+  const { data } = await supabaseClient
+    .from("UserPublicityDojo")
+    .select("user_id, dojo_style_id")
+    .in("user_id", userIds);
+
+  for (const row of data ?? []) {
+    if (!map.has(row.user_id)) {
+      map.set(row.user_id, new Set());
+    }
+    map.get(row.user_id)!.add(row.dojo_style_id);
+  }
+  return map;
+};
+
+export const getSocialProfile = async (
+  supabaseClient: SupabaseClient,
+  targetUserId: string,
+  viewerId: string,
+  viewerDojoStyleId: string | null,
+): Promise<{
+  is_restricted: boolean;
+  user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    bio: string | null;
+    aikido_rank: string | null;
+    dojo_style_name: string | null;
+    publicity_setting: string | null;
+    full_name: string | null;
+  } | null;
+  // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
+  posts: any[];
+  total_favorites?: number;
+  total_pages: number;
+  public_pages: { id: string; title: string; created_at: string }[];
+} | null> => {
+  const { data: user, error: userError } = await supabaseClient
+    .from("User")
+    .select(
+      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, dojo_style_id, publicity_setting, full_name",
+    )
+    .eq("id", targetUserId)
+    .single();
+
+  if (userError || !user) {
+    return null;
+  }
+
+  // 他ユーザーの非公開プロフィールは制限付きレスポンスを返す
+  const publicity = user.publicity_setting;
+  if (targetUserId !== viewerId) {
+    if (publicity === "private") {
+      return {
+        is_restricted: true,
+        user: null,
+        posts: [],
+        total_pages: 0,
+        public_pages: [],
+      };
+    }
+    if (publicity === "closed") {
+      const allowedDojos = await getUserPublicityDojos(
+        supabaseClient,
+        targetUserId,
+      );
+      if (!viewerDojoStyleId || !allowedDojos.includes(viewerDojoStyleId)) {
+        return {
+          is_restricted: true,
+          user: null,
+          posts: [],
+          total_pages: 0,
+          public_pages: [],
+        };
+      }
+    }
+  }
+
+  // 公開投稿・稽古記録数・公開稽古記録を並列取得
+  const [postsResult, totalPagesResult, publicPagesResult] = await Promise.all([
+    supabaseClient
+      .from("SocialPost")
+      .select("*")
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    supabaseClient
+      .from("TrainingPage")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", targetUserId),
+    supabaseClient
+      .from("TrainingPage")
+      .select("id, title, created_at")
+      .eq("user_id", targetUserId)
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
+
+  const posts = postsResult.data;
+  const totalPagesCount = totalPagesResult.count;
+  const publicPages = publicPagesResult.data;
+
+  // 投稿データをエンリッチ（author, attachments, tags, hashtags, is_favorited 等を付与）
+  const enrichedPosts = await enrichSocialPosts(
+    supabaseClient,
+    posts ?? [],
+    viewerId,
+  );
+
+  const result: {
+    is_restricted: boolean;
+    user: typeof user;
+    // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
+    posts: any[];
+    total_favorites?: number;
+    total_pages: number;
+    public_pages: { id: string; title: string; created_at: string }[];
+  } = {
+    is_restricted: false,
+    user,
+    posts: enrichedPosts,
+    total_pages: totalPagesCount ?? 0,
+    public_pages: publicPages ?? [],
+  };
+
+  // 本人のみ累計お気に入り数を返却
+  if (targetUserId === viewerId) {
+    const { data: favData } = await supabaseClient
+      .from("SocialPost")
+      .select("favorite_count")
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false);
+
+    result.total_favorites = (favData ?? []).reduce(
+      (sum, p) => sum + (p.favorite_count ?? 0),
+      0,
+    );
+  }
+
+  return result;
+};
+
+/**
+ * 投稿一覧をバッチクエリでエンリッチする（N+1 解消版）
+ * author, attachments, tags, is_favorited を一括取得して結合
+ */
+export const enrichSocialPosts = async (
+  supabaseClient: SupabaseClient,
+  posts: SocialPostRow[],
+  viewerUserId: string,
+) => {
+  if (posts.length === 0) return [];
+
+  const postIds = posts.map((p) => p.id);
+  const authorIds = [...new Set(posts.map((p) => p.user_id))];
+  const sourcePageIds = posts
+    .filter((p) => p.post_type === "training_record" && p.source_page_id)
+    .map((p) => p.source_page_id)
+    .filter((id): id is string => !!id);
+
+  // バッチクエリを並列実行（N+1 → 固定クエリ数）
+  const [
+    authorsResult,
+    attachmentsResult,
+    tagsResult,
+    favoritesResult,
+    hashtagsResult,
+  ] = await Promise.all([
+    supabaseClient
+      .from("User")
+      .select("id, username, profile_image_url, aikido_rank")
+      .in("id", authorIds),
+    supabaseClient
+      .from("SocialPostAttachment")
+      .select("*")
+      .in("post_id", postIds)
+      .order("sort_order", { ascending: true }),
+    supabaseClient
+      .from("SocialPostTag")
+      .select("post_id, user_tag_id, UserTag(id, name, category)")
+      .in("post_id", postIds),
+    supabaseClient
+      .from("SocialFavorite")
+      .select("post_id")
+      .in("post_id", postIds)
+      .eq("user_id", viewerUserId),
+    supabaseClient
+      .from("SocialPostHashtag")
+      .select("post_id, hashtag_id, Hashtag(id, name)")
+      .in("post_id", postIds),
+  ]);
+
+  // source_page のクエリも並列実行
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  let sourcePagesData: any[] = [];
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  let sourcePageTagsData: any[] = [];
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  let pageAttachmentsData: any[] = [];
+  if (sourcePageIds.length > 0) {
+    const [pagesRes, pageTagsRes, pageAttRes] = await Promise.all([
+      supabaseClient
+        .from("TrainingPage")
+        .select("id, title")
+        .in("id", sourcePageIds),
+      supabaseClient
+        .from("TrainingPageTag")
+        .select("training_page_id, UserTag(name, category)")
+        .in("training_page_id", sourcePageIds),
+      supabaseClient
+        .from("PageAttachment")
+        .select(
+          "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+        )
+        .in("page_id", sourcePageIds)
+        .order("sort_order", { ascending: true }),
+    ]);
+    sourcePagesData = pagesRes.data ?? [];
+    sourcePageTagsData = pageTagsRes.data ?? [];
+    pageAttachmentsData = pageAttRes.data ?? [];
+  }
+
+  // ルックアップマップを構築
+  const authorMap = new Map((authorsResult.data ?? []).map((a) => [a.id, a]));
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase query results
+  const pageAttachmentMap = new Map<string, any[]>();
+  for (const att of pageAttachmentsData) {
+    const list = pageAttachmentMap.get(att.page_id) ?? [];
+    list.push(att);
+    pageAttachmentMap.set(att.page_id, list);
+  }
+
+  const attachmentMap = new Map<string, typeof attachmentsResult.data>();
+  for (const att of attachmentsResult.data ?? []) {
+    const list = attachmentMap.get(att.post_id) ?? [];
+    list.push(att);
+    attachmentMap.set(att.post_id, list);
+  }
+
+  const tagMap = new Map<
+    string,
+    { id: string; name: string; category: string }[]
+  >();
+  for (const row of tagsResult.data ?? []) {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const r = row as any;
+    const list = tagMap.get(r.post_id) ?? [];
+    list.push({
+      id: r.UserTag?.id ?? r.user_tag_id,
+      name: r.UserTag?.name ?? "",
+      category: r.UserTag?.category ?? "",
+    });
+    tagMap.set(r.post_id, list);
+  }
+
+  const favoritedPostIds = new Set(
+    (favoritesResult.data ?? []).map((f) => f.post_id),
+  );
+
+  const hashtagMap = new Map<string, { id: string; name: string }[]>();
+  for (const row of hashtagsResult.data ?? []) {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const r = row as any;
+    const hashtag = r.Hashtag;
+    if (!hashtag?.id || !hashtag?.name) continue;
+    const list = hashtagMap.get(r.post_id) ?? [];
+    list.push({ id: hashtag.id, name: hashtag.name });
+    hashtagMap.set(r.post_id, list);
+  }
+
+  // training_record 用: source_page データを構築（既にバッチ取得済み）
+  const sourcePageMap = new Map<
+    string,
+    { title: string; tags: { name: string; category: string }[] }
+  >();
+
+  if (sourcePageIds.length > 0) {
+    const pagesData = sourcePagesData;
+    const pageTagsData = sourcePageTagsData;
+
+    for (const page of pagesData) {
+      sourcePageMap.set(page.id, { title: page.title, tags: [] });
+    }
+
+    for (const row of pageTagsData) {
+      const entry = sourcePageMap.get(row.training_page_id);
+      if (entry && row.UserTag) {
+        entry.tags.push({
+          name: row.UserTag.name,
+          category: row.UserTag.category,
+        });
+      }
+    }
+  }
+
+  // 結合
+  return posts.map((post) => {
+    const sourcePage = post.source_page_id
+      ? sourcePageMap.get(post.source_page_id)
+      : undefined;
+    return {
+      ...post,
+      favorite_count:
+        post.user_id === viewerUserId ? post.favorite_count : undefined,
+      author: authorMap.get(post.user_id) ?? {
+        id: post.user_id,
+        username: "",
+        profile_image_url: null,
+        aikido_rank: null,
+      },
+      attachments: (() => {
+        const postAtts = attachmentMap.get(post.id) ?? [];
+        if (postAtts.length > 0) return postAtts;
+        if (!post.source_page_id) return [];
+        return (pageAttachmentMap.get(post.source_page_id) ?? []).map(
+          (pa: {
+            id: string;
+            type: string;
+            url: string;
+            thumbnail_url: string | null;
+            original_filename: string | null;
+            sort_order: number;
+          }) => ({
+            id: pa.id,
+            post_id: post.id,
+            user_id: post.user_id,
+            type: pa.type,
+            url: pa.url,
+            thumbnail_url: pa.thumbnail_url,
+            original_filename: pa.original_filename,
+            file_size_bytes: null,
+            sort_order: pa.sort_order,
+            created_at: "",
+          }),
+        );
+      })(),
+      tags: tagMap.get(post.id) ?? [],
+      hashtags: hashtagMap.get(post.id) ?? [],
+      is_favorited: favoritedPostIds.has(post.id),
+      source_page_title: sourcePage?.title ?? null,
+      source_page_tags: sourcePage?.tags ?? [],
+    };
+  });
+};
+
+// ============================================
+// ハッシュタグ関連
+// ============================================
+
+/**
+ * ハッシュタグ名の配列を受け取り、存在すれば取得・なければ作成して返す
+ */
+export const upsertHashtags = async (
+  supabaseClient: SupabaseClient,
+  names: string[],
+): Promise<{ id: string; name: string }[]> => {
+  if (names.length === 0) return [];
+
+  // 既存のハッシュタグを取得
+  const { data: existing } = await supabaseClient
+    .from("Hashtag")
+    .select("id, name")
+    .in("name", names);
+
+  const existingMap = new Map((existing ?? []).map((h) => [h.name, h]));
+
+  // 未登録のハッシュタグを一括作成
+  const newNames = names.filter((n) => !existingMap.has(n));
+  if (newNames.length > 0) {
+    const { data: inserted, error } = await supabaseClient
+      .from("Hashtag")
+      .insert(newNames.map((name) => ({ name })))
+      .select("id, name");
+
+    if (error) {
+      throw new Error(`ハッシュタグの作成に失敗しました: ${error.message}`);
+    }
+
+    for (const h of inserted ?? []) {
+      existingMap.set(h.name, h);
+    }
+  }
+
+  return names
+    .map((n) => existingMap.get(n))
+    .filter((h): h is { id: string; name: string } => !!h);
+};
+
+/**
+ * 投稿にハッシュタグを紐付ける（一括INSERT）
+ */
+export const createSocialPostHashtags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  hashtagIds: string[],
+): Promise<void> => {
+  if (hashtagIds.length === 0) return;
+
+  const { error } = await supabaseClient
+    .from("SocialPostHashtag")
+    .insert(hashtagIds.map((hashtag_id) => ({ post_id: postId, hashtag_id })));
+
+  if (error) {
+    throw new Error(`ハッシュタグの紐付けに失敗しました: ${error.message}`);
+  }
+};
+
+/**
+ * 投稿のハッシュタグを更新する（既存を削除して再作成）
+ */
+export const updateSocialPostHashtags = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+  hashtagIds: string[],
+): Promise<void> => {
+  // 既存の紐付けを削除
+  await supabaseClient.from("SocialPostHashtag").delete().eq("post_id", postId);
+
+  // 新しい紐付けを作成
+  if (hashtagIds.length > 0) {
+    await createSocialPostHashtags(supabaseClient, postId, hashtagIds);
+  }
+};
+
+/**
+ * 直近7日間のトレンドハッシュタグを取得する
+ */
+export const getTrendingHashtags = async (
+  supabaseClient: SupabaseClient,
+  limit: number,
+): Promise<{ name: string; count: number }[]> => {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const { data, error } = await supabaseClient
+    .from("SocialPostHashtag")
+    .select("hashtag_id, Hashtag(name)")
+    .gte("created_at", sevenDaysAgo.toISOString());
+
+  if (error) {
+    throw new Error(
+      `トレンドハッシュタグの取得に失敗しました: ${error.message}`,
+    );
+  }
+
+  // 集計: hashtag_id ごとにカウント
+  const countMap = new Map<string, { name: string; count: number }>();
+  for (const row of data ?? []) {
+    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+    const r = row as any;
+    const name = r.Hashtag?.name;
+    if (!name) continue;
+
+    const entry = countMap.get(name);
+    if (entry) {
+      entry.count++;
+    } else {
+      countMap.set(name, { name, count: 1 });
+    }
+  }
+
+  // カウント降順でソートし、上位N件を返す
+  return [...countMap.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
 };

@@ -18,7 +18,7 @@
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
 }
 
 .settingsWrapper {
@@ -28,10 +28,29 @@
   justify-content: center;
 }
 
-.userSection {
+.profileCardWrapper {
+  position: relative;
   display: flex;
+}
+
+.avatarButton {
+  display: inline-flex;
   align-items: center;
-  gap: 14px;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 9999px;
+  transition: opacity 0.2s ease;
+}
+
+.avatarButton:hover {
+  opacity: 0.8;
+}
+
+.avatarButton:active {
+  transform: scale(0.97);
 }
 
 .avatarImage {
@@ -46,7 +65,7 @@
   width: 40px;
   height: 40px;
   border-radius: 9999px;
-  background: #f5f5f9;
+  background: var(--background-light);
   color: var(--white);
   font-size: var(--font-size-lg);
   font-weight: 700;
@@ -55,27 +74,124 @@
   justify-content: center;
 }
 
-.userInfo {
+.profileCard {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -80%;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(44, 44, 44, 0.12);
+  z-index: var(--z-header-dropdown);
+  min-width: 220px;
+  max-width: 330px;
+  padding: 16px;
+  animation: profileCardFadeIn 0.15s ease-out;
+}
+
+@keyframes profileCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profileCardLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 6px;
+  padding: 4px;
+  transition: background 0.15s ease;
+}
+
+.profileCardLink:hover {
+  background: var(--hover-gray);
+}
+
+.profileCardAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 0.5px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.profileCardAvatarFallback {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: var(--background-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profileCardInfo {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  max-width: 185px;
+  min-width: 0;
 }
 
-.userName {
+.profileCardName {
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--black);
-  line-height: 1.2;
-}
-
-.userDojoStyleName {
-  font-size: var(--font-size-xs);
-  color: var(--text-light);
-  line-height: 1.2;
+  line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.profileCardDojoRank {
+  display: flex;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileCardFullName {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.3;
+}
+
+.profileCardFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 0.5px solid var(--border-color);
+}
+
+.profileCardEditLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.profileCardEditLink:hover {
+  background: var(--hover-gray);
 }
 
 .settingsButton {
@@ -84,27 +200,19 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 9999px;
-  border: 0.5px solid var(--border-color);
-  background: var(--white);
-  transition: all 0.4s ease-out;
+  background: none;
+  border: none;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(44, 44, 44, 0.04);
+  padding: 0;
+  transition: opacity 0.2s ease;
 }
 
 .settingsButton:hover {
-  background: var(--hover-gray);
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 8px rgba(44, 44, 44, 0.06);
+  opacity: 0.7;
 }
 
 .settingsButton:active {
   transform: scale(0.97);
-}
-
-.settingsIcon {
-  width: 20px;
-  height: 20px;
 }
 
 .fontSizeTooltip {

@@ -16,18 +16,19 @@ export async function POST(_request: NextRequest) {
     // セッション確認
     const serverSupabase = await getServerSupabase();
     const {
-      data: { session },
-    } = await serverSupabase.auth.getSession();
+      data: { user },
+      error: authError,
+    } = await serverSupabase.auth.getUser();
 
-    if (!session?.user) {
+    if (authError || !user) {
       return createUnauthorizedResponse("認証が必要です");
     }
 
     // JWTトークンを生成
     const token = jwt.sign(
       {
-        userId: session.user.id,
-        email: session.user.email,
+        userId: user.id,
+        email: user.email ?? "",
       },
       JWT_SECRET,
       {

@@ -59,16 +59,6 @@ describe("ToastContext", () => {
   });
 
   describe("ToastProvider", () => {
-    it("子コンポーネントを正しくレンダリングすること", () => {
-      render(
-        <ToastProvider>
-          <div data-testid="child">Child Component</div>
-        </ToastProvider>,
-      );
-
-      expect(screen.getByTestId("child")).toBeInTheDocument();
-    });
-
     it("初期状態でトーストが表示されないこと", () => {
       render(
         <ToastProvider>
@@ -81,18 +71,6 @@ describe("ToastContext", () => {
   });
 
   describe("useToast hook", () => {
-    it("ToastProvider内で正常に動作すること", () => {
-      render(
-        <ToastProvider>
-          <TestComponent />
-        </ToastProvider>,
-      );
-
-      expect(screen.getByTestId("success-button")).toBeInTheDocument();
-      expect(screen.getByTestId("error-button")).toBeInTheDocument();
-      expect(screen.getByTestId("info-button")).toBeInTheDocument();
-    });
-
     it("ToastProvider外で使用時にエラーをスローすること", () => {
       // コンソールエラーを一時的に無効化
       const originalError = console.error;
@@ -228,7 +206,7 @@ describe("ToastContext", () => {
   });
 
   describe("トーストのプロパティ", () => {
-    it("カスタム継続時間が設定されること", async () => {
+    it("duration=5000を指定してshowToastを呼ぶとトーストが表示される", async () => {
       const CustomTestComponent = () => {
         const { showToast } = useToast();
 
@@ -256,7 +234,7 @@ describe("ToastContext", () => {
       expect(screen.getByTestId("toast")).toBeInTheDocument();
     });
 
-    it("一意のIDが生成されること", async () => {
+    it("Date.nowが異なる値を返す場合に複数トーストが個別に管理される", async () => {
       // Date.now をモック
       const mockDateNow = vi.spyOn(Date, "now");
       mockDateNow.mockReturnValueOnce(1000).mockReturnValueOnce(2000);

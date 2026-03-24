@@ -42,7 +42,6 @@ vi.mock(
       onSave: (pageData: {
         title: string;
         content: string;
-        comment: string;
         tori: string[];
         uke: string[];
         waza: string[];
@@ -57,7 +56,6 @@ vi.mock(
               onSave({
                 title: "新規ページ",
                 content: "本文",
-                comment: "コメント",
                 tori: [],
                 uke: [],
                 waza: [],
@@ -147,7 +145,6 @@ describe("カレンダー画面", () => {
           id: "page-1",
           title: "新規ページ",
           content: "本文",
-          comment: "コメント",
           user_id: "test-user-id",
           created_at: `${currentMonthDate20()}T00:00:00.000Z`,
           updated_at: `${currentMonthDate20()}T00:00:00.000Z`,
@@ -249,7 +246,7 @@ describe("カレンダー画面", () => {
     });
   });
 
-  it("選択日付からページ作成した場合はcreated_atに選択日が入ること", async () => {
+  it("選択日付からページ作成ボタンを押すと作成ページに遷移すること", async () => {
     // Arrange
     const user = userEvent.setup();
     const expectedDate = currentMonthDate20();
@@ -267,26 +264,13 @@ describe("カレンダー画面", () => {
     // Act
     await user.click(screen.getByRole("button", { name: "20" }));
     await user.click(screen.getByRole("button", { name: "ページ作成" }));
-    await user.click(screen.getByRole("button", { name: "SavePage" }));
 
     // Assert
     await waitFor(() => {
-      expect(mockCreatePage).toHaveBeenCalledWith({
-        title: "新規ページ",
-        tori: [],
-        uke: [],
-        waza: [],
-        content: "本文",
-        comment: "コメント",
-        user_id: "test-user-id",
-        created_at: `${expectedDate}T00:00:00.000Z`,
-      });
-    });
-    await waitFor(() => {
-      expect(mockUpsertAttendance).toHaveBeenCalledWith({
-        userId: "test-user-id",
-        trainingDate: expectedDate,
-      });
+      expect(window.location.href).toContain(
+        `/personal/pages/new?date=${expectedDate}`,
+      );
+      expect(window.location.href).toContain("returnUrl=");
     });
   });
 });

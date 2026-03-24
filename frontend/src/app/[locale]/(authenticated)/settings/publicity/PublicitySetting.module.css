@@ -1,0 +1,133 @@
+.container {
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.radioOption {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background-color: var(--white);
+  transition: border-color 0.15s;
+}
+
+.radioLabel:has(input:checked) {
+  border-color: var(--primary-color);
+}
+
+.radioInput {
+  accent-color: var(--primary-color);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.radioContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radioTitle {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--black);
+}
+
+.radioDescription {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+.closedDojoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dojoAddRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.dojoAddField {
+  flex: 1;
+  position: relative;
+}
+
+.noDojoWarning {
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+  margin: 0;
+}
+
+.selectedDojoList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dojoChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background-color: var(--white);
+  font-family: var(--font-zen-old-mincho);
+}
+
+.dojoChipName {
+  font-size: var(--font-size-xs);
+  color: var(--black);
+}
+
+.dojoChipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.defaultBadge {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+}

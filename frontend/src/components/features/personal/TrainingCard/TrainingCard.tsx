@@ -1,7 +1,9 @@
 import { PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { type FC, type KeyboardEvent, memo } from "react";
+import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { Tag } from "@/components/shared/Tag/Tag";
+import type { TrainingPageAttachment } from "@/types/training";
 import styles from "./TrainingCard.module.css";
 
 interface TrainingCardProps {
@@ -10,13 +12,14 @@ interface TrainingCardProps {
   content: string;
   date: string;
   tags: string[];
+  attachments?: TrainingPageAttachment[];
   onEdit?: () => void;
   onDelete?: () => void;
   onClick?: () => void;
 }
 
 export const TrainingCard: FC<TrainingCardProps> = memo(
-  ({ title, content, date, tags, onEdit, onDelete, onClick }) => {
+  ({ title, content, date, tags, attachments, onEdit, onDelete, onClick }) => {
     const t = useTranslations();
     const handleEdit = () => {
       onEdit?.();
@@ -54,7 +57,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
                 <PencilSimpleIcon
                   size={16}
                   weight="light"
-                  color="var(--black)"
+                  color="var(--text-light)"
                 />
               </button>
             )}
@@ -64,7 +67,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
                 className={styles.iconButton}
                 onClick={handleDelete}
               >
-                <TrashIcon size={16} weight="light" color="var(--black)" />
+                <TrashIcon size={16} weight="light" color="var(--text-light)" />
               </button>
             )}
           </div>
@@ -77,6 +80,11 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
         </div>
 
         <p className={styles.content}>{content}</p>
+
+        {attachments && attachments.length > 0 && (
+          <SocialMediaGrid attachments={attachments} />
+        )}
+
         <div className={styles.date}>
           {t("trainingCard.createdDate")} {date}
         </div>

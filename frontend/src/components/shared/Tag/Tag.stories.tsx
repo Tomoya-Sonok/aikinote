@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/nextjs";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Tag } from "./Tag";
 
 const meta: Meta<typeof Tag> = {
-  title: "Atoms/Tag",
+  title: "Shared/Tag",
   component: Tag,
   parameters: {
     layout: "centered",

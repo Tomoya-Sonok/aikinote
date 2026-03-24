@@ -7,7 +7,7 @@ const MOCK_USER = {
   email: "test@example.com",
   profile_image_url: null,
   training_start_date: "2023-01-01",
-  publicity_setting: "private",
+  publicity_setting: "public",
   language: "ja",
   created_at: "2023-01-01T00:00:00Z",
   updated_at: "2023-01-01T00:00:00Z",

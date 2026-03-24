@@ -12,7 +12,8 @@ describe("タグ一覧取得API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常なリクエストでタグ一覧が取得されること", async () => {
+  it("user_id指定時にタグ一覧と200を返す", async () => {
+    // Arrange
     const mockTags = [
       {
         id: "test-tag-id-1",
@@ -42,6 +43,7 @@ describe("タグ一覧取得API", () => {
 
     vi.spyOn(supabaseModule, "getUserTags").mockResolvedValue(mockTags);
 
+    // Act
     const request = new Request("http://localhost/?user_id=test-user-id", {
       method: "GET",
     });
@@ -49,6 +51,7 @@ describe("タグ一覧取得API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(responseBody.success).toBe(true);
     expect(responseBody.message).toBe("タグ一覧を取得しました");
@@ -62,6 +65,7 @@ describe("タグ一覧取得API", () => {
   });
 
   it("user_idが未指定の場合にバリデーションエラーが返されること", async () => {
+    // Arrange & Act
     const request = new Request("http://localhost/", {
       method: "GET",
     });
@@ -69,16 +73,19 @@ describe("タグ一覧取得API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(400);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("user_idパラメータは必須です");
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "getUserTags").mockRejectedValue(
       new Error("データベース接続エラー"),
     );
 
+    // Act
     const request = new Request("http://localhost/?user_id=test-user-id", {
       method: "GET",
     });
@@ -86,14 +93,17 @@ describe("タグ一覧取得API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toContain("データベース接続エラー");
   });
 
-  it("タグが存在しない場合に空の配列が返されること", async () => {
+  it("タグが0件の場合に空配列と200を返す", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "getUserTags").mockResolvedValue([]);
 
+    // Act
     const request = new Request("http://localhost/?user_id=test-user-id", {
       method: "GET",
     });
@@ -101,6 +111,7 @@ describe("タグ一覧取得API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(responseBody.success).toBe(true);
     expect(responseBody.data).toHaveLength(0);
@@ -116,7 +127,8 @@ describe("タグ作成API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常なリクエストでタグが作成されること", async () => {
+  it("有効なリクエストボディでタグが作成され201を返す", async () => {
+    // Arrange
     const mockCreatedTag = {
       id: "test-tag-id",
       name: "四方投げ",
@@ -135,6 +147,7 @@ describe("タグ作成API", () => {
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -146,6 +159,7 @@ describe("タグ作成API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(201);
     expect(responseBody.success).toBe(true);
     expect(responseBody.message).toBe("タグが正常に作成されました");
@@ -155,11 +169,13 @@ describe("タグ作成API", () => {
   });
 
   it("必須フィールドが不足している場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const requestBody = {
       category: "技",
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -170,10 +186,12 @@ describe("タグ作成API", () => {
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("タグ名が20文字を超える場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const longName = "あ".repeat(21);
     const requestBody = {
       name: longName,
@@ -181,6 +199,7 @@ describe("タグ作成API", () => {
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -191,16 +210,19 @@ describe("タグ作成API", () => {
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("無効なカテゴリが指定された場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const requestBody = {
       name: "四方投げ",
       category: "無効なカテゴリ",
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -211,16 +233,19 @@ describe("タグ作成API", () => {
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("無効な文字が含まれる場合にバリデーションエラーが返されること", async () => {
+    // Arrange
     const requestBody = {
       name: "四方投げ@#$",
       category: "技",
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -231,10 +256,12 @@ describe("タグ作成API", () => {
 
     const response = await app.fetch(request);
 
+    // Assert
     expect(response.status).toBe(400);
   });
 
   it("同じ名前とカテゴリのタグが既に存在する場合にエラーが返されること", async () => {
+    // Arrange
     const existingTag = {
       id: "existing-tag-id",
       name: "四方投げ",
@@ -254,6 +281,7 @@ describe("タグ作成API", () => {
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -265,12 +293,14 @@ describe("タグ作成API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(400);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("同じ名前とカテゴリのタグが既に存在します");
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "checkDuplicateTag").mockResolvedValue(null);
     vi.spyOn(supabaseModule, "createUserTag").mockRejectedValue(
       new Error("タグ作成に失敗しました: データベース接続エラー"),
@@ -282,6 +312,7 @@ describe("タグ作成API", () => {
       user_id: "test-user-id",
     };
 
+    // Act
     const request = new Request("http://localhost/", {
       method: "POST",
       headers: {
@@ -293,6 +324,7 @@ describe("タグ作成API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toContain("タグ作成に失敗しました");
@@ -308,7 +340,8 @@ describe("タグ削除API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常なリクエストでタグが削除されること", async () => {
+  it("有効なタグIDとuser_idでタグを削除し200を返す", async () => {
+    // Arrange
     const mockTag = {
       id: "tag-id",
       name: "正面打ち",
@@ -320,6 +353,7 @@ describe("タグ削除API", () => {
 
     vi.spyOn(supabaseModule, "deleteUserTag").mockResolvedValue(mockTag);
 
+    // Act
     const request = new Request("http://localhost/tag-id?user_id=user-id", {
       method: "DELETE",
     });
@@ -327,6 +361,7 @@ describe("タグ削除API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(responseBody.success).toBe(true);
     expect(responseBody.data.id).toBe("tag-id");
@@ -334,6 +369,7 @@ describe("タグ削除API", () => {
   });
 
   it("user_idが未指定の場合にバリデーションエラーが返されること", async () => {
+    // Arrange & Act
     const request = new Request("http://localhost/tag-id", {
       method: "DELETE",
     });
@@ -341,14 +377,17 @@ describe("タグ削除API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(400);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("user_idパラメータは必須です");
   });
 
   it("存在しないタグIDの場合に404が返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "deleteUserTag").mockResolvedValue(null);
 
+    // Act
     const request = new Request("http://localhost/unknown?user_id=user-id", {
       method: "DELETE",
     });
@@ -356,16 +395,19 @@ describe("タグ削除API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(404);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("指定されたタグが見つかりません");
   });
 
   it("Supabaseでエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "deleteUserTag").mockRejectedValue(
       new Error("タグ削除に失敗しました: データベース接続エラー"),
     );
 
+    // Act
     const request = new Request("http://localhost/tag-id?user_id=user-id", {
       method: "DELETE",
     });
@@ -373,6 +415,7 @@ describe("タグ削除API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toContain("タグ削除に失敗しました");
@@ -388,7 +431,8 @@ describe("タグ並び順更新API", () => {
     vi.clearAllMocks();
   });
 
-  it("正常に並び順を更新できること", async () => {
+  it("有効な並び順データでタグ順序が更新され200を返す", async () => {
+    // Arrange
     const reorderedTags = [
       {
         id: "tag-tori-1",
@@ -418,6 +462,7 @@ describe("タグ並び順更新API", () => {
       waza: [],
     };
 
+    // Act
     const request = new Request("http://localhost/order", {
       method: "PATCH",
       headers: {
@@ -429,6 +474,7 @@ describe("タグ並び順更新API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(200);
     expect(supabaseModule.updateUserTagOrder).toHaveBeenCalledWith("user-id", [
       {
@@ -447,6 +493,7 @@ describe("タグ並び順更新API", () => {
   });
 
   it("重複IDが送信された場合にエラーが返されること", async () => {
+    // Arrange
     const requestBody = {
       user_id: "user-id",
       tori: ["tag-1"],
@@ -454,6 +501,7 @@ describe("タグ並び順更新API", () => {
       waza: [],
     };
 
+    // Act
     const request = new Request("http://localhost/order", {
       method: "PATCH",
       headers: {
@@ -465,12 +513,14 @@ describe("タグ並び順更新API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(400);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("同じタグIDが複数箇所に含まれています");
   });
 
   it("更新処理でエラーが発生した場合にサーバーエラーが返されること", async () => {
+    // Arrange
     vi.spyOn(supabaseModule, "updateUserTagOrder").mockRejectedValue(
       new Error("タグ並び順の更新に失敗しました: DBエラー"),
     );
@@ -482,6 +532,7 @@ describe("タグ並び順更新API", () => {
       waza: [],
     };
 
+    // Act
     const request = new Request("http://localhost/order", {
       method: "PATCH",
       headers: {
@@ -493,6 +544,7 @@ describe("タグ並び順更新API", () => {
     const response = await app.fetch(request);
     const responseBody = await response.json();
 
+    // Assert
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toContain("タグ並び順の更新に失敗しました");
