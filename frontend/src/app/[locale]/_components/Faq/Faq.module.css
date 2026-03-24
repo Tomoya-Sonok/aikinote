@@ -176,11 +176,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--lp-text-heading);
-  color: var(--lp-cta-signup-text);
-  border-radius: 50%;
+  color: var(--lp-text-heading);
   flex-shrink: 0;
 }
 

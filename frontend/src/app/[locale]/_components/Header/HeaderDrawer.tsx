@@ -151,7 +151,7 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
               className={styles.drawerSecondaryCta}
             >
               <span>{contactLabel}</span>
-              <span className={styles.secondaryCtaIcon}>
+              <span className={styles.drawerSecondaryCtaIcon}>
                 <AikinoteRightArrow size={14} />
               </span>
             </a>
@@ -161,7 +161,7 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
               onClick={handleClose}
             >
               <span>{ctaLabel}</span>
-              <span className={styles.primaryCtaIcon}>
+              <span className={styles.drawerPrimaryCtaIcon}>
                 <AikinoteRightArrow size={14} />
               </span>
             </Link>
