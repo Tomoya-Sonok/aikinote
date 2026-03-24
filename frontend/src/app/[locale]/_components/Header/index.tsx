@@ -29,7 +29,7 @@ export async function Header({ locale, signupHref }: HeaderProps) {
   const localeSwitchLabel = isDefaultLocale ? "EN" : "日本語";
 
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-locale={locale}>
       <div className={styles.headerInner}>
         {/* ロゴ */}
         <Link

@@ -10,7 +10,7 @@
       "primary": "Start for free",
       "signup": "Sign up",
       "login": "Log in",
-      "contact": "Contact us",
+      "contact": "Contact Us",
       "goDown": "Go down"
     },
     "navigation": {
@@ -65,21 +65,21 @@
       "mockAlt": "AikiNote app mockup screen"
     },
     "painPoints": {
-      "title": "Do these concerns\nsound familiar?",
+      "title": "Sound familiar?",
       "items": [
-        "What you learned in practice\ndoesn't come back later",
-        "Logging feels tedious,\nso your records don't last",
-        "When you want to review,\nyou can't find the right note"
+        "Can't remember what you\nlearned during practice",
+        "Input is too tedious,\nso you never keep up\nwith training records",
+        "When you want to look back,\nyou can't find the record you're\nlooking for"
       ],
       "imageAlt": "Illustration of an aikido practitioner struggling with concerns"
     },
     "solutionRecording": {
-      "badge": "How to Use",
-      "titlePrefix": "Practice logging in just",
+      "badge": "How to Use / Flow",
+      "titlePrefix": "Recording your training takes just",
       "titleNumber": "3",
       "titleSuffix": "steps",
       "ctaLabel": "Try Recording Practice",
-      "subtitle": "After practice,\npull out your phone and record right away.",
+      "subtitle": "When practice is over, take out your phone and start recording right away.",
       "steps": [
         {
           "title": "Create a page with one tap",
@@ -87,83 +87,83 @@
           "imageAlt": "AikiNote home screen"
         },
         {
-          "title": "Pick Aikido technique tags",
-          "body": "Select from tags like \"Ikkyo\", \"Iriminage\", \"Katatedori\" — no repetitive typing, easy one-hand operation.",
+          "title": "Select Aikido technique tags",
+          "body": "Choose from Aikido tags for tori, uke, and technique names such as \"Ikkyo,\" \"Iriminage,\" and \"Katatedori.\" No need to type the same name repeatedly — easy one-handed operation.",
           "imageAlt": "AikiNote tag selection screen"
         },
         {
-          "title": "Jot down learnings and save",
-          "body": "Write freely about what you felt during practice and save. In just a few minutes before heading home, turn fading memories into solid records.",
+          "title": "Jot down your insights and save",
+          "body": "Write down what you felt during training and save. Transform a fading memory into a solid record in the few minutes it takes to get from the dojo to home.",
           "imageAlt": "AikiNote recording screen"
         }
       ]
     },
     "solutionSearch": {
-      "badge": "Search Feature",
-      "title": "Find past records\nin seconds.",
-      "body": "Tags, dates, and free-text search. Combine multiple filters to quickly reach the practice record you need. Even when your memory is hazy, it's easy to look things up on your phone before practice.",
-      "ctaLabel": "Build a Review Habit",
+      "badge": "Convenient Search Feature",
+      "title": "Find past records\ninstantly.",
+      "body": "Tags, dates, and free-word search. Combine multiple filters to smoothly reach the training record you're looking for. Even if your memory is hazy, no problem. It's also perfect for quickly reviewing on your phone before training.",
+      "ctaLabel": "Make Review a Habit",
       "imageAlt": "AikiNote search feature mockup screen"
     },
     "newFeature": {
       "badge": "New Feature",
-      "title": "Feel your progress\nin numbers.",
+      "title": "Feel the progress of\nyour training in numbers.",
       "ctaLabel": "Start Your Training Log",
       "stats": {
         "title": "Statistics",
-        "body": "Automatically tallies practice days, streaks, and pages created. Monthly trend graphs plus pie charts by standing/seated techniques and technique names give you an instant overview. Perfect for tracking days toward your next grading.",
+        "body": "Automatically tallies training days attended, consecutive practice period, and number of pages created. Understand monthly trends through bar graphs, and view practice tendencies by standing technique, seated technique, and technique name through pie charts — all at a glance. Great for tracking your training days ahead of your next examination.",
         "imageAlt": "AikiNote statistics screen"
       },
       "calendar": {
         "title": "Calendar",
-        "body": "Quickly see practice attendance and record dates on the calendar. Tap a date to log attendance or create a page right on the spot.",
+        "body": "Quickly check training attendance and record creation dates on a calendar. Tap a date to log your training attendance or create a page for that day on the spot.",
         "imageAlt": "AikiNote calendar screen"
       }
     },
     "snsCommunity": {
       "badge": "SNS Feature",
-      "title": "Beyond dojo walls and borders,\nconnected through Aikido.",
-      "ctaLabel": "Connect with Aikidoka",
-      "intro": "Aikido practitioners exist all around the world. Yet places to share training insights across dojos and languages remain scarce.",
+      "title": "Connect through Aikido —\nbeyond dojo walls and\nnational borders.",
+      "ctaLabel": "Connect with Aikidoists",
+      "intro": "Aikido practitioners exist all over the world. Yet there are few places where the learnings from training can be shared across dojo and language barriers.",
       "heroImageAlt": "Illustration of aikido practitioners worldwide connecting via smartphones",
       "cards": {
         "share": {
-          "title": "Share Practice Records",
-          "body": "Publish and share your practice records as-is. Gain fresh perspectives on the same techniques from different viewpoints.",
+          "title": "Share Your Training Records",
+          "body": "Publish and share your training records as they are. Gain insights from different perspectives on the same technique.",
           "imageAlt": "Illustration of an aikido practitioner sharing records"
         },
         "learn": {
           "title": "Learning Beyond the Dojo",
-          "body": "Exchange ideas with practitioners from other dojos — insights you can't get from regular practice alone — and refine your techniques even further.",
+          "body": "Through exchanges with Aikidoka training at other dojos — insights you can't gain from your usual practice alone — sharpen your techniques even further.",
           "imageAlt": "Illustration of an aikido practitioner"
         },
         "community": {
-          "title": "A Community Without Borders",
-          "body": "Bilingual in Japanese and English. An aikido community where you can share your learning with practitioners training at dojos overseas.",
-          "note": "*You can also choose to share only with members of your own dojo.",
+          "title": "A Community That\nCrosses Borders",
+          "body": "Available in both Japanese and English. A place to share your learnings with Aikidoka training at dojos overseas.",
+          "note": "※ You can also set your records to be shared and visible only to members of your own dojo.",
           "imageAlt": "Illustration of aikido practitioners from different countries"
         }
       }
     },
     "faq": {
-      "title": "Frequently Asked\nQuestions",
+      "title": "Frequently Asked Questions\nBefore Getting Started",
       "ctaLabel": "Give It a Try",
       "items": {
         "security": {
-          "question": "Will my records disappear? Can others see them?",
-          "answer": "Your records are safely stored in the cloud. We use highly secure protocols, so there is no risk of your data being stolen."
+          "question": "Will my saved records be deleted? Can other people see them?",
+          "answer": "Your data is safely stored in the cloud, so please rest assured. We use a highly secure communication protocol, so there is no risk of your data being stolen."
         },
         "easeOfUse": {
-          "question": "Can I use it even if I'm not good with smartphones?",
-          "answer": "The app is designed so that anyone can use it easily, even those who don't use smartphones often. You can also change the text size if it feels too small."
+          "question": "Can people who are not comfortable with smartphones use it?",
+          "answer": "It is designed to be easy to use even for those who don't use smartphones frequently. If you find the text too small, you can also change the font size."
         },
         "languages": {
           "question": "Is it only for Japanese users?",
-          "answer": "We support international users as well. The app is available in both Japanese and English."
+          "answer": "International users are also welcome. The app is available in both Japanese and English."
         },
         "mobileApp": {
-          "question": "Is there a mobile app?",
-          "answer": "You can start using it right away from your web browser. Add it to your home screen and it works just like an app. We are also preparing iOS / Android apps. We will notify you at your registered email address when they launch."
+          "question": "Is there no smartphone app?",
+          "answer": "Currently, you can access it directly from a web browser. Adding it to your smartphone's home screen lets you use it like an app. iOS and Android apps are also currently in development. We will notify you at your registered email address once they are released."
         }
       }
     },

@@ -109,6 +109,8 @@
   letter-spacing: 2.8px;
   text-decoration: none;
   padding: 0 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .localeBadge:focus-visible {
@@ -151,6 +153,11 @@
   .primaryCtaSlot {
     display: contents;
   }
+
+  /* 英語: ナビなしのためお問い合わせ CTA も 768px から表示 */
+  .header[data-locale="en"] .secondaryCtaSlot {
+    display: contents;
+  }
 }
 
 /* 1060px 以上: ナビゲーションリンクを表示、アイコンロゴに切り替え */
@@ -164,6 +171,11 @@
   }
 
   .logoImageWide {
+    display: none;
+  }
+
+  /* 英語: PC版ナビゲーションリンクを非表示 */
+  .header[data-locale="en"] .desktopNav {
     display: none;
   }
 }
