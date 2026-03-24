@@ -10,7 +10,7 @@
       "primary": "Start for free",
       "signup": "Sign up",
       "login": "Log in",
-      "contact": "Contact us",
+      "contact": "Contact Us",
       "goDown": "Go down"
     },
     "navigation": {
@@ -34,8 +34,16 @@
           "label": "Helpful Search Features"
         },
         {
+          "href": "#new-feature",
+          "label": "New Feature"
+        },
+        {
+          "href": "#sns-community",
+          "label": "SNS Feature"
+        },
+        {
           "href": "#faq",
-          "label": "FAQ & Contact"
+          "label": "FAQ"
         }
       ]
     },
@@ -50,95 +58,112 @@
       }
     },
     "hero": {
-      "lead": "Digital practice log specifically designed for Aikido.",
-      "titleLines": [
-        "Capture training insights",
-        "Record them instantly on the mat.",
-        "Review everything with ease."
-      ],
-      "imageAlt": "AikiNote mobile app mockup screen",
-      "textImageAlt": "Silhouette of an aikido practitioner standing with a smartphone",
-      "carousel": {
-        "items": [
-          {
-            "alt": "AikiNote screen mockup showing one-tap page creation",
-            "caption": "Create a page with one tap"
-          },
-          {
-            "alt": "AikiNote screen mockup highlighting preset tags",
-            "caption": "Use preset tags to stay organized"
-          },
-          {
-            "alt": "AikiNote screen mockup demonstrating search and filters",
-            "caption": "Filter entries with tags or keywords"
-          }
-        ],
-        "dotLabel": "Slide {index}"
-      }
+      "heading": "Never let a training\ninsight slip away.",
+      "subtext": "Open your phone right after practice and record in seconds.\nA digital training journal built specifically for Aikido.",
+      "ctaLabel": "Get Started for Free",
+      "illustrationAlt": "Illustration of aikido practice",
+      "mockAlt": "AikiNote app mockup screen"
     },
     "painPoints": {
-      "title": "Do these concerns sound familiar?",
-      "items": {
-        "first": "What you learn during practice <bold>doesn't come back in full detail later</bold>",
-        "second": "Logging feels tedious, so <bold>your practice records don't last</bold>",
-        "third": "When you want to review, <bold>you can't find the practice record you need</bold>"
-      },
-      "imageAlt": "Illustration contrasting messy notes and organized records"
+      "title": "Sound familiar?",
+      "items": [
+        "Can't remember what you\nlearned during practice",
+        "Input is too tedious,\nso you never keep up\nwith training records",
+        "When you want to look back,\nyou can't find the record you're\nlooking for"
+      ],
+      "imageAlt": "Illustration of an aikido practitioner struggling with concerns"
     },
     "solutionRecording": {
-      "title": "Practice logging takes just three steps",
-      "steps": {
-        "first": "<bold>Create a page with one tap</bold>",
-        "second": "<bold>Select related tags</bold>, such as technique names",
-        "third": "<bold>Jot down learnings and reflections freely</bold> and save"
-      }
+      "badge": "How to Use / Flow",
+      "titlePrefix": "Recording your training takes just",
+      "titleNumber": "3",
+      "titleSuffix": "steps",
+      "ctaLabel": "Try Recording Practice",
+      "subtitle": "When practice is over, take out your phone and start recording right away.",
+      "steps": [
+        {
+          "title": "Create a page with one tap",
+          "body": "Just tap \"Create Page\" from the home screen.",
+          "imageAlt": "AikiNote home screen"
+        },
+        {
+          "title": "Select Aikido technique tags",
+          "body": "Choose from Aikido tags for tori, uke, and technique names such as \"Ikkyo,\" \"Iriminage,\" and \"Katatedori.\" No need to type the same name repeatedly — easy one-handed operation.",
+          "imageAlt": "AikiNote tag selection screen"
+        },
+        {
+          "title": "Jot down your insights and save",
+          "body": "Write down what you felt during training and save. Transform a fading memory into a solid record in the few minutes it takes to get from the dojo to home.",
+          "imageAlt": "AikiNote recording screen"
+        }
+      ]
     },
     "solutionSearch": {
-      "title": "Find past notes in moments",
-      "subtitle": "Tags, dates, keywords.\nSearch and sorting make reviews smooth.",
-      "features": {
-        "first": {
-          "title": "Filter quickly with tags",
-          "body": "Pick tags for standing/seated forms, technique names, and more."
-        },
-        "second": {
-          "title": "Search freely with keywords",
-          "body": "Even fuzzy memories surface the note you need."
-        },
-        "third": {
-          "title": "Jump back to recent records",
-          "body": "Perfect for a quick review before practice."
-        }
-      },
-      "imageAlt": "Smartphone UI mockup showing search results"
+      "badge": "Convenient Search Feature",
+      "title": "Find past records\ninstantly.",
+      "body": "Tags, dates, and free-word search. Combine multiple filters to smoothly reach the training record you're looking for. Even if your memory is hazy, no problem. It's also perfect for quickly reviewing on your phone before training.",
+      "ctaLabel": "Make Review a Habit",
+      "imageAlt": "AikiNote search feature mockup screen"
     },
-    "futureFeatures": {
-      "title": "Toward forming aikido communities across styles and borders",
-      "body": "You will also be able to interact with practitioners around the globe. Our community features are on the way, so stay tuned!",
-      "imageAlt": "Illustration of aikido practitioners worldwide connecting through devices"
+    "newFeature": {
+      "badge": "New Feature",
+      "title": "Feel the progress of\nyour training in numbers.",
+      "ctaLabel": "Start Your Training Log",
+      "stats": {
+        "title": "Statistics",
+        "body": "Automatically tallies training days attended, consecutive practice period, and number of pages created. Understand monthly trends through bar graphs, and view practice tendencies by standing technique, seated technique, and technique name through pie charts — all at a glance. Great for tracking your training days ahead of your next examination.",
+        "imageAlt": "AikiNote statistics screen"
+      },
+      "calendar": {
+        "title": "Calendar",
+        "body": "Quickly check training attendance and record creation dates on a calendar. Tap a date to log your training attendance or create a page for that day on the spot.",
+        "imageAlt": "AikiNote calendar screen"
+      }
+    },
+    "snsCommunity": {
+      "badge": "SNS Feature",
+      "title": "Connect through Aikido —\nbeyond dojo walls and\nnational borders.",
+      "ctaLabel": "Connect with Aikidoists",
+      "intro": "Aikido practitioners exist all over the world. Yet there are few places where the learnings from training can be shared across dojo and language barriers.",
+      "heroImageAlt": "Illustration of aikido practitioners worldwide connecting via smartphones",
+      "cards": {
+        "share": {
+          "title": "Share Your Training Records",
+          "body": "Publish and share your training records as they are. Gain insights from different perspectives on the same technique.",
+          "imageAlt": "Illustration of an aikido practitioner sharing records"
+        },
+        "learn": {
+          "title": "Learning Beyond the Dojo",
+          "body": "Through exchanges with Aikidoka training at other dojos — insights you can't gain from your usual practice alone — sharpen your techniques even further.",
+          "imageAlt": "Illustration of an aikido practitioner"
+        },
+        "community": {
+          "title": "A Community That\nCrosses Borders",
+          "body": "Available in both Japanese and English. A place to share your learnings with Aikidoka training at dojos overseas.",
+          "note": "※ You can also set your records to be shared and visible only to members of your own dojo.",
+          "imageAlt": "Illustration of aikido practitioners from different countries"
+        }
+      }
     },
     "faq": {
-      "title": "Frequently asked questions",
+      "title": "Frequently Asked Questions\nBefore Getting Started",
+      "ctaLabel": "Give It a Try",
       "items": {
-        "easeOfUse": {
-          "question": "Q. I am not confident with smartphones. Is it still easy?",
-          "answer": "A. Yes. The interface is designed for <bold>effortless operation</bold>, even if you rarely use smartphones. You can enlarge the text size whenever you need."
-        },
         "security": {
-          "question": "Q. Will my notes disappear or be seen by others?",
-          "answer": "A. Your records stay safe in the cloud. We use secure protocols so your data remains protected from unauthorized access."
+          "question": "Will my saved records be deleted? Can other people see them?",
+          "answer": "Your data is safely stored in the cloud, so please rest assured. We use a highly secure communication protocol, so there is no risk of your data being stolen."
+        },
+        "easeOfUse": {
+          "question": "Can people who are not comfortable with smartphones use it?",
+          "answer": "It is designed to be easy to use even for those who don't use smartphones frequently. If you find the text too small, you can also change the font size."
         },
         "languages": {
-          "question": "Q. Is the service limited to Japanese users?",
-          "answer": "A. Not at all. The app is fully available in <bold>Japanese and English</bold> for aikido practitioners worldwide."
+          "question": "Is it only for Japanese users?",
+          "answer": "International users are also welcome. The app is available in both Japanese and English."
         },
         "mobileApp": {
-          "question": "Q. Is there a native mobile app?",
-          "answer": "A. A mobile app is coming soon. We will contact you via the email you registered as soon as it launches."
-        },
-        "others": {
-          "question": "Q. How can I ask other questions?",
-          "answer": "A. Please reach out through the <underlined><link>Help &amp; Contact</link></underlined> form and we will get back to you."
+          "question": "Is there no smartphone app?",
+          "answer": "Currently, you can access it directly from a web browser. Adding it to your smartphone's home screen lets you use it like an app. iOS and Android apps are also currently in development. We will notify you at your registered email address once they are released."
         }
       }
     },

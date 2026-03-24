@@ -1,0 +1,261 @@
+/* ── Steps セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  padding: 100px 20px;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── 装飾テキスト「3 STEPS」── */
+
+.bgLabel {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-bg-light-gray);
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── ヘッダー ── */
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+.badge {
+  display: inline-block;
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 6.4px;
+  margin: 0;
+  text-align: center;
+}
+
+.titlePrefix {
+  font-size: 32px;
+}
+
+.titleNumber {
+  font-size: 50px;
+}
+
+.titleSuffix {
+  font-size: 32px;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: center;
+}
+
+/* ── ステップリスト ── */
+
+.stepList {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  max-width: 400px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+/* ── ステップ画像＋ラベル ── */
+
+.stepImageWrapper {
+  position: relative;
+  width: 301px;
+  margin: 0 auto 16px;
+}
+
+.stepNumber {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  z-index: 2;
+  text-align: left;
+}
+
+.stepLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 505;
+  color: var(--lp-text-body);
+  line-height: 30px;
+}
+
+.stepNum {
+  display: block;
+  font-size: 36px;
+  font-weight: 505;
+  color: var(--lp-text-body);
+  line-height: 30px;
+}
+
+.stepLine {
+  width: 20px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin-top: 8px;
+}
+
+.stepImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── ステップテキスト ── */
+
+.stepTitle {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  letter-spacing: 4.6px;
+  line-height: normal;
+  margin: 16px 0 12px;
+}
+
+.stepBody {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-heading);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── ステップ区切り（SP のみ表示）── */
+
+.stepSeparator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+}
+
+.separatorLine {
+  width: 2px;
+  height: 80px;
+  background: var(--lp-bg-light-gray);
+}
+
+.separatorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--lp-bg-light-gray);
+  margin-top: 8px;
+}
+
+/* ── CTA ボタン ── */
+
+.ctaWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── 装飾サークル ── */
+
+.decoTopLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  top: -175px;
+  left: -175px;
+  pointer-events: none;
+}
+
+.decoBottomRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  bottom: -150px;
+  right: -150px;
+  pointer-events: none;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .section {
+    padding: 80px 40px 60px;
+  }
+
+  .bgLabel {
+    right: 5px;
+  }
+
+  .stepList {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    max-width: 1100px;
+  }
+
+  .stepItem {
+    flex: 1 1 0;
+  }
+
+  /* PC ではステップ間の区切り線を非表示 */
+  .stepSeparator {
+    display: none;
+  }
+}

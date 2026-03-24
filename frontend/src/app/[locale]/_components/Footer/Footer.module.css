@@ -1,0 +1,111 @@
+/* ── Footer ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.footer {
+  background: var(--lp-bg-dark);
+  padding: 20px 20px;
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── コピーライト ── */
+
+.copyright {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-cta-signup-text);
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  text-align: center;
+}
+
+/* ── 区切り線（SP のみ）── */
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background: var(--lp-cta-signup-text);
+  opacity: 0.3;
+  margin: 10px 0;
+}
+
+/* ── リンク行 ── */
+
+.links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.contactLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-cta-signup-text);
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  text-decoration: none;
+}
+
+.contactLink:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
+/* ── SNS アイコン ── */
+
+.socialIcons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.socialLink:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.socialIcon {
+  width: 30px;
+  height: 30px;
+  display: block;
+  filter: invert(1);
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .footer {
+    padding: 16px 40px;
+  }
+
+  .inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .links {
+    width: auto;
+    justify-content: flex-end;
+  }
+}

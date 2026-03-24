@@ -1,0 +1,261 @@
+/* ── New Feature セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  padding: 100px 20px;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── 装飾テキスト「TRACKABLE」── */
+
+.bgLabel {
+  position: absolute;
+  right: 6px;
+  top: 16px;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-bg-light-gray);
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  mix-blend-mode: multiply;
+}
+
+/* ── ヘッダー（バッジ + タイトル + 区切り線）── */
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+.badge {
+  display: inline-block;
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 6.4px;
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+/* ── カードパネル（グレー背景）── */
+
+.cardPanel {
+  background: var(--lp-bg-light-gray);
+  border-radius: 20px 0 0 20px;
+  margin-left: 0;
+  margin-right: -20px;
+  padding: 40px 20px 40px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  position: relative;
+  z-index: -1; /* カードパネルを装飾要素より背面に */
+}
+
+/* ── フィーチャーブロック ── */
+
+.featureBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── ビジュアルエリア（モック + ピル型背景）── */
+
+.featureVisual {
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  min-height: 280px;
+}
+
+.featureBlockReverse .featureVisual {
+  justify-content: flex-end;
+}
+
+/* ピル型背景画像 */
+.pillBg {
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 350px;
+  height: 180px;
+  border-radius: 0 90px 90px 0;
+  overflow: hidden;
+}
+
+.pillBgRight {
+  left: auto;
+  right: -20px;
+  border-radius: 90px 0 0 90px;
+}
+
+.pillBgImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* モック画像 */
+.mockImageWrapper {
+  position: relative;
+  /* ピル型背景の上に重ねる */
+  z-index: 1;
+}
+
+.mockImage {
+  width: 250px;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+}
+
+/* ── テキストエリア ── */
+
+.featureText {
+  padding: 0 4px;
+}
+
+.featureTitle {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--lp-text-body);
+  letter-spacing: 4.6px;
+  line-height: 1;
+  margin: 0 0 12px;
+}
+
+.featureBody {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-body);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── CTA ── */
+
+.ctaWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── 装飾サークル ── */
+
+.decoTopLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  top: -200px;
+  left: -150px;
+  pointer-events: none;
+}
+
+.decoBottomRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-light-gray);
+  border-radius: 50%;
+  bottom: -175px;
+  right: -175px;
+  pointer-events: none;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .section {
+    padding: 80px 40px 60px;
+  }
+
+  .bgLabel {
+    right: 5px;
+  }
+
+  .cardPanel {
+    max-width: 1100px;
+    margin: 0 auto;
+    margin-right: 0;
+    border-radius: 20px 0 0 20px;
+    padding: 60px 40px 60px;
+    gap: 60px;
+  }
+
+  .featureBlock {
+    flex-direction: row;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .featureBlockReverse {
+    flex-direction: row-reverse;
+  }
+
+  .featureVisual {
+    flex-shrink: 0;
+    width: 300px;
+    min-height: 320px;
+    justify-content: center;
+  }
+
+  .featureBlockReverse .featureVisual {
+    justify-content: center;
+  }
+
+  .pillBg {
+    left: -40px;
+    width: 350px;
+  }
+
+  .pillBgRight {
+    left: auto;
+    right: -40px;
+  }
+
+  .mockImage {
+    width: 250px;
+  }
+
+  .featureText {
+    flex: 1;
+    padding: 0;
+  }
+}

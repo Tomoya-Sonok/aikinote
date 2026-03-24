@@ -1,0 +1,178 @@
+/* ── Search Feature セクション ── */
+/* モバイルファースト: SP がデフォルト、PC は @media (min-width: 768px) */
+
+.section {
+  background: var(--lp-bg-light-gray);
+  padding: 100px 20px;
+  position: relative;
+  overflow: hidden;
+  scroll-margin-top: 68px;
+}
+
+/* ── 装飾テキスト「SEARCHABLE」── */
+
+.bgLabel {
+  position: absolute;
+  left: 12px;
+  top: 0;
+  writing-mode: vertical-rl;
+  font-size: 64px;
+  font-weight: 505;
+  color: var(--lp-cta-signup-text);
+  letter-spacing: 12.8px;
+  line-height: 30px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── コンテンツ ── */
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── テキストエリア ── */
+
+.textArea {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.badge {
+  display: inline-block;
+  background: var(--lp-bg-dark);
+  color: var(--lp-cta-signup-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2.8px;
+  line-height: 30px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-family: var(--font-zen-old-mincho);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--lp-text-heading);
+  line-height: 50px;
+  letter-spacing: 6.4px;
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  width: 60px;
+  height: 2px;
+  background: var(--lp-text-heading);
+  margin: 24px auto;
+}
+
+/* ── ビジュアルエリア ── */
+
+.visualArea {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.mockImage {
+  height: auto;
+  display: block;
+  border-radius: 16px;
+}
+
+/* ── 説明文 ── */
+
+.body {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--lp-text-heading);
+  line-height: 30px;
+  letter-spacing: 2.8px;
+  margin: 0;
+  text-align: justify;
+}
+
+/* ── CTA ── */
+
+.ctaWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+  position: relative;
+  z-index: 1; /* コンテンツを装飾要素より前面に */
+}
+
+/* ── 装飾サークル ── */
+
+.decoTopRight {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-base);
+  border-radius: 50%;
+  top: -200px;
+  right: -150px;
+  pointer-events: none;
+}
+
+.decoBottomLeft {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  border: 40px solid var(--lp-bg-base);
+  border-radius: 50%;
+  bottom: -150px;
+  left: -150px;
+  pointer-events: none;
+}
+
+/* ── PC (min-width: 768px) ── */
+
+@media (min-width: 768px) {
+  .section {
+    padding: 80px 40px 60px;
+  }
+
+  .bgLabel {
+    left: 10px;
+  }
+
+  .inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "visual text"
+      "visual body";
+    gap: 16px 48px;
+    align-items: start;
+  }
+
+  .textArea {
+    grid-area: text;
+    text-align: left;
+    margin-bottom: 0;
+  }
+
+  .title {
+    text-align: left;
+  }
+
+  .divider {
+    margin: 24px 0;
+  }
+
+  .visualArea {
+    grid-area: visual;
+    margin-bottom: 0;
+  }
+
+  .body {
+    grid-area: body;
+  }
+}
