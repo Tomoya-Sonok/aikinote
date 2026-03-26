@@ -34,7 +34,7 @@
     "@vitest/ui": "^3.2.4",
     "dotenv-cli": "^10.0.0",
     "happy-dom": "^18.0.1",
-    "tsx": "^4.19.3",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.3",
     "undici": "^7.16.0",
     "vitest": "^3.2.4",
