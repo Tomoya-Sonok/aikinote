@@ -8,7 +8,7 @@ interface PrivacyPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "プライバシーポリシー | AikiNote",
+  title: "プライバシーポリシー",
   description: "AikiNoteのプライバシーポリシーをご確認いただけます。",
 };
 

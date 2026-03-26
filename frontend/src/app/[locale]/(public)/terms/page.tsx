@@ -8,7 +8,7 @@ interface TermsPageProps {
 }
 
 export const metadata: Metadata = {
-  title: "利用規約 | AikiNote",
+  title: "利用規約",
   description: "AikiNoteの利用規約をご確認いただけます。",
 };
 

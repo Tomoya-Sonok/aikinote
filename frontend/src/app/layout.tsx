@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "AikiNote",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://www.aikinote.com",
+  ),
+  title: {
+    default: "AikiNote",
+    template: "%s | AikiNote",
+  },
   description: "合気道の稽古記録アプリ",
 };
 

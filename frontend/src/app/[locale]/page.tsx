@@ -21,11 +21,15 @@ export async function generateMetadata({
   const { locale } = await params;
   const isJa = locale === "ja";
   return buildMetadata({
-    title: "AikiNote",
+    titleAbsolute: isJa
+      ? "AikiNote（アイキノート）| 合気道の稽古記録・交流アプリ"
+      : "AikiNote - Digital Aikido Training Journal & Community",
     description: isJa
-      ? "日々の合気道の稽古で学んだことや感想を自由に記録・検索・閲覧できるデジタル稽古日誌アプリ"
+      ? "合気道の稽古を記録・振り返り・共有できるデジタル日誌アプリ。流派や世代を問わず全国の合気道家とつながる「みんなで」機能搭載。"
       : "A digital training journal app for Aikido practitioners to freely record, search, and review daily practice notes.",
     isIndexing: true,
+    canonical: isJa ? "/" : "/en/",
+    alternateLanguages: { ja: "/", en: "/en/" },
   });
 }
 
