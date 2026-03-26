@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useMemo, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
 import { Skeleton } from "@/components/shared/Skeleton";
+import { SubscriptionGate } from "@/components/shared/SubscriptionGate/SubscriptionGate";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
 import styles from "./page.module.css";
 
@@ -77,6 +78,17 @@ function computeDuration(firstDate: string | null): {
 }
 
 export function PersonalStats() {
+  return (
+    <SubscriptionGate
+      title="統計データは Premium 限定"
+      description="稽古の記録数・タグ比率・月別推移などの統計データを確認できます。月額380円で利用可能です。"
+    >
+      <PersonalStatsContent />
+    </SubscriptionGate>
+  );
+}
+
+function PersonalStatsContent() {
   const t = useTranslations("personalStats");
 
   const [period, setPeriod] = useState<PeriodPreset>("all");

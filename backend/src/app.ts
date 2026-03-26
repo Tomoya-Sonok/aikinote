@@ -15,9 +15,11 @@ import socialProfileRoute from "./routes/social-profile/index.js";
 import socialReportsRoute from "./routes/social-reports/index.js";
 import socialSearchRoute from "./routes/social-search/index.js";
 import statsRoute from "./routes/stats/index.js";
+import subscriptionRoute from "./routes/subscription/index.js";
 import tagsRoute from "./routes/tags/index.js";
 import trainingDatesRoute from "./routes/training-dates/index.js";
 import usersRoute from "./routes/users/index.js";
+import revenuecatWebhookRoute from "./routes/webhooks/revenuecat.js";
 
 type AppBindings = {
   SUPABASE_URL?: string;
@@ -198,9 +200,11 @@ app.route("/api/social/search", socialSearchRoute);
 app.route("/api/social/notifications", socialNotificationsRoute);
 app.route("/api/social/profile", socialProfileRoute);
 app.route("/api/stats", statsRoute);
+app.route("/api/subscription", subscriptionRoute);
 app.route("/api/tags", tagsRoute);
 app.route("/api/training-dates", trainingDatesRoute);
 app.route("/api/users", usersRoute);
+app.route("/api/webhooks", revenuecatWebhookRoute);
 
 export type AppType = typeof app;
 

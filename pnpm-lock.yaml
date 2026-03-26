@@ -96,6 +96,9 @@ importers:
       '@react-email/render':
         specifier: ^1.1.0
         version: 1.4.0(react-dom@19.2.3)(react@19.2.3)
+      '@revenuecat/purchases-js':
+        specifier: ^1.29.1
+        version: 1.29.1
       '@supabase/ssr':
         specifier: ^0.7.0
         version: 0.7.0(@supabase/supabase-js@2.57.4)
@@ -2785,6 +2788,10 @@ packages:
       reselect: 5.1.1
     dev: false
 
+  /@revenuecat/purchases-js@1.29.1:
+    resolution: {integrity: sha512-e/zrC/AGih4NeayqaYD+NLLh0dn1kFhxf6vvQiDIKXiQ0qOnslQYhGCDo1+8Hn8CnSDxESSE1MWBXb2c+sCTXw==}
+    dev: false
+
   /@rolldown/pluginutils@1.0.0-beta.34:
     resolution: {integrity: sha512-LyAREkZHP5pMom7c24meKmJCdhf2hEyvam2q0unr3or9ydwDL+DJ8chTF6Av/RFPb3rH8UFBdMzO5MxTZW97oA==}
     dev: true
@@ -4340,7 +4347,7 @@ packages:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.19.13)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(tsx@4.20.5)
+      vitest: 3.2.4(@types/node@22.19.13)(happy-dom@18.0.1)(jsdom@27.0.0)
     transitivePeerDependencies:
       - supports-color
     dev: true

@@ -1185,3 +1185,25 @@ export const getUnreadNotificationPostIdsProcedure = publicProcedure.query(
     );
   },
 );
+
+// ======== サブスクリプション ========
+
+export type SubscriptionStatusData = {
+  tier: "free" | "premium";
+  status: "active" | "canceled" | "expired" | "billing_issue" | "inactive";
+  is_premium: boolean;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+};
+
+export const getSubscriptionStatusProcedure = publicProcedure.query(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<SubscriptionStatusData>>(
+      "/api/subscription/status",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);

@@ -1,6 +1,7 @@
 name = "aikinote-api"
 main = "src/index.worker.ts"
 compatibility_date = "2025-12-28"
+compatibility_flags = ["nodejs_compat"]
 
 # Cloudflare上の設定に合わせてデフォルトの動作を保持
 workers_dev = true

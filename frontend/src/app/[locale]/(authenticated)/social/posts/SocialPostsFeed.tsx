@@ -16,9 +16,11 @@ import {
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
 import styles from "./page.module.css";
 
@@ -31,6 +33,8 @@ const parseTabParam = (param: string | null): SocialTab => {
   return "all";
 };
 
+const PREVIEW_TIMER_MS = 2000;
+
 export function SocialPostsFeed() {
   const { user } = useAuth();
   const locale = useLocale();
@@ -42,8 +46,23 @@ export function SocialPostsFeed() {
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
     useSocialFeed(user?.id, activeTab);
   const { handleToggleFavorite } = useSocialFavorite();
+  const { isPremium, loading: subLoading } = useSubscription();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const [showPreviewLock, setShowPreviewLock] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // Free ユーザー: 2秒後にプレビューロック
+  useEffect(() => {
+    if (subLoading || isPremium || isLoading) return;
+
+    const timer = setTimeout(() => {
+      setShowPreviewLock(true);
+      setShowUpgradeModal(true);
+    }, PREVIEW_TIMER_MS);
+
+    return () => clearTimeout(timer);
+  }, [subLoading, isPremium, isLoading]);
 
   // Intersection Observer で無限スクロール
   useEffect(() => {
@@ -128,9 +147,35 @@ export function SocialPostsFeed() {
         )}
       </div>
 
-      <FloatingActionButton
-        href={`/${locale}/social/posts/new`}
-        label={t("createPost")}
+      {isPremium && (
+        <FloatingActionButton
+          href={`/${locale}/social/posts/new`}
+          label={t("createPost")}
+        />
+      )}
+
+      {showPreviewLock && (
+        <div className={styles.previewLock}>
+          <div className={styles.previewLockContent}>
+            <p className={styles.previewLockTitle}>
+              「みんなで」のすべての機能を使うには
+            </p>
+            <button
+              type="button"
+              className={styles.previewLockButton}
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              Premium にアップグレード
+            </button>
+          </div>
+        </div>
+      )}
+
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title="「みんなで」を使おう"
+        description="投稿・返信・お気に入り・検索など、すべてのSNS機能が使い放題になります。月額380円で利用可能です。"
       />
     </SocialLayout>
   );

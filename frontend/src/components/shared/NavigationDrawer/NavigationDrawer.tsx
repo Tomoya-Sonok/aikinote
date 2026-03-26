@@ -15,6 +15,7 @@ interface NavigationDrawerProps {
   onLanguageClick: () => void;
   onTagManagementClick: () => void;
   onPublicityClick: () => void;
+  onSubscriptionClick?: () => void;
 }
 
 export const NavigationDrawer: FC<NavigationDrawerProps> = ({
@@ -25,6 +26,7 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   onLanguageClick,
   onTagManagementClick,
   onPublicityClick,
+  onSubscriptionClick,
 }) => {
   const t = useTranslations();
   // ESCキーでドロワーを閉じる
@@ -75,6 +77,11 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
 
         <div className={styles.content}>
           <div className={styles.menu}>
+            {onSubscriptionClick && (
+              <SettingItem onClick={onSubscriptionClick}>
+                {t("navigation.subscription")}
+              </SettingItem>
+            )}
             <SettingItem onClick={onPublicityClick}>
               {t("navigation.publicity")}
             </SettingItem>

@@ -17,6 +17,7 @@ import {
   getSocialFeedProcedure,
   getSocialPostByIdProcedure,
   getSocialProfileProcedure,
+  getSubscriptionStatusProcedure,
   getTagsProcedure,
   getTrainingDatesMonthProcedure,
   getTrainingStatsProcedure,
@@ -113,6 +114,9 @@ export const appRouter = createTRPCRouter({
     markAsRead: markNotificationsReadProcedure,
     getUnreadCount: getUnreadNotificationCountProcedure,
     getUnreadPostIds: getUnreadNotificationPostIdsProcedure,
+  }),
+  subscription: createTRPCRouter({
+    getStatus: getSubscriptionStatusProcedure,
   }),
 });
 

@@ -1,0 +1,184 @@
+.container {
+  padding: 16px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  margin: 0 0 12px;
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--black);
+}
+
+.description {
+  margin: 0 0 16px;
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* 現在のプラン */
+.planCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--white);
+}
+
+.planCardPremium {
+  border-color: var(--accent-color);
+  background: linear-gradient(135deg, var(--white) 0%, #faf6f0 100%);
+}
+
+.planName {
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--black);
+}
+
+.planDetail {
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+/* メッセージ */
+.successMessage {
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  background: #e8f5e9;
+  color: var(--success-color);
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.errorMessage {
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  background: #ffeaea;
+  color: var(--error-color);
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-sm);
+}
+
+/* パッケージ選択 */
+.packages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.packageCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--white);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  text-align: left;
+}
+
+.packageCard:hover:not(:disabled) {
+  border-color: var(--black);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.packageCard:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.packagePrice {
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--black);
+}
+
+.packagePeriod {
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  color: var(--text-light);
+  margin-left: 4px;
+}
+
+.packageName {
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+}
+
+.packageProcessing {
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-xs);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.noPackages {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
+
+/* ボタン */
+.purchaseButton {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.purchaseButton:hover {
+  opacity: 0.85;
+}
+
+.manageButton {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.manageButton:hover {
+  border-color: var(--black);
+  background: var(--background-light);
+}
