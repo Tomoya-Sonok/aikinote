@@ -151,7 +151,7 @@ app.post("/checkout", async (c) => {
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/ja/settings/subscription?success=1`,
-      cancel_url: `${appUrl}/ja/settings/subscription?canceled=1`,
+      cancel_url: `${appUrl}/ja/settings/subscription`,
       metadata: {
         supabase_user_id: payload.userId,
       },

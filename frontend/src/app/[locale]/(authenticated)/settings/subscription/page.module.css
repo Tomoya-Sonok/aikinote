@@ -4,60 +4,240 @@
   margin: 0 auto;
 }
 
-.section {
-  margin-bottom: 32px;
-}
-
-.sectionTitle {
-  margin: 0 0 12px;
-  font-family: var(--font-ui);
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  color: var(--black);
-}
-
-.description {
-  margin: 0 0 16px;
+/* 上部サブタイトル */
+.subtitle {
+  text-align: center;
   font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--text-light);
-  line-height: 1.6;
+  margin: 0 0 20px;
 }
 
-/* 現在のプラン */
-.planCard {
+/* 月額/年額トグル */
+.toggleWrapper {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px;
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--border-color);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 0;
   background: var(--white);
 }
 
-.planCardPremium {
-  border-color: var(--accent-color);
-  background: linear-gradient(135deg, var(--white) 0%, #faf6f0 100%);
+.toggleButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  background: transparent;
+  color: var(--text-light);
 }
 
-.planName {
+.toggleButtonActive {
+  background: var(--black);
+  color: var(--white);
+}
+
+.discountBadge {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-color);
+  line-height: 1.2;
+}
+
+.toggleButtonActive .discountBadge {
+  color: var(--accent-color);
+}
+
+/* プランカード共通 */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.card {
+  position: relative;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--white);
+}
+
+.cardPremium {
+  background: var(--black);
+  border-color: var(--black);
+}
+
+/* バッジ（右上） */
+.badge {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  color: var(--text-light);
+  background: transparent;
+}
+
+.badgePremium {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.badgeCurrent {
+  border-color: var(--border-color);
+  color: var(--text-light);
+}
+
+.badgeCurrentPremium {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--accent-color);
+}
+
+/* カード内テキスト */
+.planLabel {
+  display: block;
   font-family: var(--font-ui);
   font-size: var(--font-size-lg);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.planLabelPremium {
+  color: var(--accent-color);
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.priceValue {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-2xl);
   font-weight: 700;
   color: var(--black);
 }
 
-.planDetail {
+.priceValuePremium {
+  color: var(--white);
+}
+
+.pricePeriod {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
   color: var(--text-light);
 }
 
-.planDetailCancel {
+.pricePeriodPremium {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.planDescription {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.planDescriptionPremium {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* CTA ボタン */
+.ctaButton {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--accent-color) 0%, #b07f54 100%);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.ctaButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.ctaButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* プラン管理ボタン */
+.manageButton {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--black);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.manageButton:hover:not(:disabled) {
+  border-color: var(--black);
+  background: var(--background-light);
+}
+
+.manageButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 解約・更新情報 */
+.subscriptionInfo {
+  margin-top: 12px;
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  color: var(--accent-color);
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.5;
+}
+
+.subscriptionInfoCancel {
+  color: var(--accent-color);
 }
 
 /* メッセージ */
@@ -82,80 +262,95 @@
   font-size: var(--font-size-sm);
 }
 
-/* パッケージ選択 */
-.packages {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.packageCard {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 20px;
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
+/* 機能比較テーブル */
+.featureTable {
   background: var(--white);
-  cursor: pointer;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-  text-align: left;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
 }
 
-.packageCard:hover:not(:disabled) {
-  border-color: var(--black);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1fr 48px 48px;
+  gap: 8px;
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.packageCard:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.packagePrice {
+.tableHeaderLabel {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.tableHeaderSpacer {
+  /* 空のスペーサー */
+}
+
+.categoryLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-light);
+  padding: 12px 0 4px;
+}
+
+.featureRow {
+  display: grid;
+  grid-template-columns: 1fr 48px 48px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.featureRow:last-child {
+  border-bottom: none;
+}
+
+.featureName {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
   color: var(--black);
 }
 
-.packagePeriod {
-  font-size: var(--font-size-sm);
-  font-weight: 400;
-  color: var(--text-light);
-  margin-left: 4px;
+.featureCheck {
+  text-align: center;
+  font-size: var(--font-size-base);
+  color: var(--accent-color);
+  font-weight: 700;
 }
 
-.packageName {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+.featureDash {
+  text-align: center;
+  font-size: var(--font-size-base);
   color: var(--text-light);
 }
 
-.packageProcessing {
+/* 注意書き */
+.mobileNote {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  color: var(--accent-color);
-  font-weight: 600;
-}
-
-.noPackages {
-  text-align: center;
-  padding: 24px;
   color: var(--text-light);
-  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  margin: 16px 0 0;
 }
 
-/* ボタン */
-.purchaseButton {
+/* ネイティブアプリ用ボタン */
+.nativeButton {
   display: block;
   width: 100%;
-  padding: 16px;
+  padding: 14px;
+  margin-top: 20px;
   border: none;
-  border-radius: 8px;
-  background: var(--black);
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--accent-color) 0%, #b07f54 100%);
   color: var(--white);
   font-family: var(--font-ui);
   font-size: var(--font-size-base);
@@ -164,28 +359,14 @@
   transition: opacity 0.2s;
 }
 
-.purchaseButton:hover {
-  opacity: 0.85;
+.nativeButton:hover {
+  opacity: 0.9;
 }
 
-.manageButton {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--white);
-  color: var(--black);
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.2s,
-    background 0.2s;
-}
-
-.manageButton:hover {
-  border-color: var(--black);
-  background: var(--background-light);
+/* ローディング */
+.loadingCards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
 }

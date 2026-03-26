@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout/MinimalLayout";
 import { Skeleton } from "@/components/shared/Skeleton";
@@ -15,27 +16,31 @@ declare global {
   }
 }
 
-// Stripe Price ID（環境変数 or ハードコード）
-// TODO: 本番用 Price ID に差し替え
 const PRICE_IDS = {
   monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY ?? "",
   yearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY ?? "",
 };
 
-const PLANS = [
+const FEATURE_MATRIX = [
   {
-    key: "monthly" as const,
-    label: "月額プラン",
-    price: "¥380",
-    period: "/ 月",
-    description: "",
+    categoryKey: "categoryPersonal" as const,
+    features: [
+      { nameKey: "featureRecord" as const, free: true, pro: true },
+      { nameKey: "featureCalendar" as const, free: true, pro: true },
+      { nameKey: "featureStats" as const, free: false, pro: true },
+    ],
   },
   {
-    key: "yearly" as const,
-    label: "年額プラン",
-    price: "¥3,800",
-    period: "/ 年",
-    description: "2ヶ月分お得",
+    categoryKey: "categorySocial" as const,
+    features: [
+      { nameKey: "featureBrowse" as const, free: false, pro: true },
+      { nameKey: "featurePost" as const, free: false, pro: true },
+      { nameKey: "featurePublish" as const, free: false, pro: true },
+    ],
+  },
+  {
+    categoryKey: "categoryMobile" as const,
+    features: [{ nameKey: "featurePush" as const, free: false, pro: true }],
   },
 ];
 
@@ -44,6 +49,7 @@ interface SubscriptionSettingProps {
 }
 
 export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
+  const t = useTranslations("subscriptionPage");
   const {
     loading: subLoading,
     isPremium,
@@ -54,6 +60,10 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isNativeApp, setIsNativeApp] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<"monthly" | "yearly">(
+    "monthly",
+  );
+  const [managingPortal, setManagingPortal] = useState(false);
 
   useEffect(() => {
     setIsNativeApp(!!window.__AIKINOTE_NATIVE_APP__);
@@ -74,7 +84,6 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     try {
       const url = await createCheckoutSession(priceId);
       if (url) {
-        // Stripe Checkout ページにリダイレクト（replace で履歴を置換し、戻るボタンのループを防止）
         window.location.replace(url);
       } else {
         setError("チェックアウトの作成に失敗しました");
@@ -100,8 +109,6 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     }
   }, [refetch, locale]);
 
-  const [managingPortal, setManagingPortal] = useState(false);
-
   const handleManageSubscription = useCallback(async () => {
     if (isNativeApp && window.showNativeCustomerCenter) {
       window.showNativeCustomerCenter();
@@ -125,122 +132,227 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     }
   }, [isNativeApp]);
 
+  const premiumPrice =
+    selectedPeriod === "monthly"
+      ? t("premiumMonthlyPrice")
+      : t("premiumYearlyPrice");
+  const premiumPeriod =
+    selectedPeriod === "monthly" ? t("perMonth") : t("perYear");
+
   return (
-    <MinimalLayout headerTitle="プラン" backHref={`/${locale}/personal/pages`}>
+    <MinimalLayout
+      headerTitle="プラン"
+      backHref={`/${locale}/personal/pages`}
+      forceBackHref
+    >
       <div className={styles.container}>
-        {/* 現在のプラン */}
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>現在のプラン</h2>
-          {subLoading ? (
-            <Skeleton
-              variant="rect"
-              width="100%"
-              height="60px"
-              borderRadius="8px"
-            />
-          ) : (
-            <div
-              className={`${styles.planCard} ${isPremium ? styles.planCardPremium : ""}`}
+        {/* サブタイトル */}
+        <p className={styles.subtitle}>{t("subtitle")}</p>
+
+        {/* 月額/年額トグル */}
+        <div className={styles.toggleWrapper}>
+          <div className={styles.toggle}>
+            <button
+              type="button"
+              className={`${styles.toggleButton} ${selectedPeriod === "monthly" ? styles.toggleButtonActive : ""}`}
+              onClick={() => setSelectedPeriod("monthly")}
             >
-              <span className={styles.planName}>
-                {isPremium ? "Premium" : "Free"}
+              {t("monthly")}
+            </button>
+            <button
+              type="button"
+              className={`${styles.toggleButton} ${selectedPeriod === "yearly" ? styles.toggleButtonActive : ""}`}
+              onClick={() => setSelectedPeriod("yearly")}
+            >
+              {t("yearly")}
+              <span className={styles.discountBadge}>
+                {t("yearlyDiscount")}
               </span>
-              {isPremium &&
-                subscription?.cancel_at_period_end &&
-                subscription?.current_period_end && (
-                  <span className={styles.planDetailCancel}>
-                    解約済み —{" "}
-                    {new Date(
-                      subscription.current_period_end,
-                    ).toLocaleDateString("ja-JP")}{" "}
-                    まで Premium 機能をご利用いただけます
-                  </span>
-                )}
-              {isPremium &&
-                !subscription?.cancel_at_period_end &&
-                subscription?.current_period_end && (
-                  <span className={styles.planDetail}>
-                    次回更新:{" "}
-                    {new Date(
-                      subscription.current_period_end,
-                    ).toLocaleDateString("ja-JP")}
-                  </span>
-                )}
-            </div>
-          )}
-        </section>
+            </button>
+          </div>
+        </div>
 
         {/* 成功メッセージ */}
         {success && (
-          <div className={styles.successMessage}>
-            Premium プランへのアップグレードが完了しました！
-          </div>
+          <div className={styles.successMessage}>{t("successMessage")}</div>
         )}
 
         {/* エラーメッセージ */}
         {error && <div className={styles.errorMessage}>{error}</div>}
 
-        {/* アップグレード（Free ユーザーのみ） */}
-        {!subLoading && !isPremium && (
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Premium にアップグレード</h2>
-            <p className={styles.description}>
-              統計データ・SNS全機能（投稿・返信・お気に入り・検索）が使い放題になります。
-            </p>
-
-            {isNativeApp ? (
-              <button
-                type="button"
-                className={styles.purchaseButton}
-                onClick={handleNativeUpgrade}
-              >
-                プランを選択して購入
-              </button>
-            ) : (
-              <div className={styles.packages}>
-                {PLANS.map((plan) => (
-                  <button
-                    key={plan.key}
-                    type="button"
-                    className={styles.packageCard}
-                    onClick={() => handlePurchase(plan.key)}
-                    disabled={purchasing !== null}
-                  >
-                    <span className={styles.packagePrice}>
-                      {plan.price}
-                      <span className={styles.packagePeriod}>
-                        {plan.period}
-                      </span>
-                    </span>
-                    <span className={styles.packageName}>
-                      {plan.label}
-                      {plan.description && ` — ${plan.description}`}
-                    </span>
-                    {purchasing === plan.key && (
-                      <span className={styles.packageProcessing}>
-                        処理中...
-                      </span>
-                    )}
-                  </button>
-                ))}
+        {/* プランカード */}
+        {subLoading ? (
+          <div className={styles.loadingCards}>
+            <Skeleton
+              variant="rect"
+              width="100%"
+              height="140px"
+              borderRadius="12px"
+            />
+            <Skeleton
+              variant="rect"
+              width="100%"
+              height="200px"
+              borderRadius="12px"
+            />
+          </div>
+        ) : (
+          <div className={styles.cards}>
+            {/* Free カード */}
+            <div className={styles.card}>
+              {!isPremium && (
+                <span className={`${styles.badge} ${styles.badgeCurrent}`}>
+                  {t("currentBadge")}
+                </span>
+              )}
+              <span className={styles.planLabel}>{t("free")}</span>
+              <div className={styles.priceRow}>
+                <span className={styles.priceValue}>{t("freePrice")}</span>
               </div>
-            )}
-          </section>
+              <p className={styles.planDescription}>{t("freeDescription")}</p>
+            </div>
+
+            {/* Premium カード */}
+            <div className={`${styles.card} ${styles.cardPremium}`}>
+              {isPremium ? (
+                <span
+                  className={`${styles.badge} ${styles.badgeCurrentPremium}`}
+                >
+                  {t("currentBadge")}
+                </span>
+              ) : (
+                <span className={`${styles.badge} ${styles.badgePremium}`}>
+                  {t("recommendedBadge")}
+                </span>
+              )}
+              <span
+                className={`${styles.planLabel} ${styles.planLabelPremium}`}
+              >
+                {t("premium")}
+              </span>
+              <div className={styles.priceRow}>
+                <span
+                  className={`${styles.priceValue} ${styles.priceValuePremium}`}
+                >
+                  {premiumPrice}
+                </span>
+                <span
+                  className={`${styles.pricePeriod} ${styles.pricePeriodPremium}`}
+                >
+                  {premiumPeriod}
+                </span>
+              </div>
+              <p
+                className={`${styles.planDescription} ${styles.planDescriptionPremium}`}
+              >
+                {t("premiumDescription")}
+              </p>
+
+              {/* CTA / 管理ボタン */}
+              {!isPremium && !isNativeApp && (
+                <button
+                  type="button"
+                  className={styles.ctaButton}
+                  onClick={() => handlePurchase(selectedPeriod)}
+                  disabled={purchasing !== null}
+                >
+                  {purchasing ? t("processing") : t("startPremium")}
+                </button>
+              )}
+
+              {!isPremium && isNativeApp && (
+                <button
+                  type="button"
+                  className={styles.nativeButton}
+                  onClick={handleNativeUpgrade}
+                >
+                  {t("nativeUpgrade")}
+                </button>
+              )}
+
+              {isPremium && (
+                <>
+                  <button
+                    type="button"
+                    className={styles.manageButton}
+                    onClick={handleManageSubscription}
+                    disabled={managingPortal}
+                  >
+                    {managingPortal ? t("loading") : t("managePlan")}
+                  </button>
+                  {subscription?.cancel_at_period_end &&
+                    subscription?.current_period_end && (
+                      <p
+                        className={`${styles.subscriptionInfo} ${styles.subscriptionInfoCancel}`}
+                      >
+                        {t("canceledUntil", {
+                          date: new Date(
+                            subscription.current_period_end,
+                          ).toLocaleDateString(
+                            locale === "ja" ? "ja-JP" : "en-US",
+                          ),
+                        })}
+                      </p>
+                    )}
+                  {!subscription?.cancel_at_period_end &&
+                    subscription?.current_period_end && (
+                      <p className={styles.subscriptionInfo}>
+                        {t("renewalDate", {
+                          date: new Date(
+                            subscription.current_period_end,
+                          ).toLocaleDateString(
+                            locale === "ja" ? "ja-JP" : "en-US",
+                          ),
+                        })}
+                      </p>
+                    )}
+                </>
+              )}
+            </div>
+          </div>
         )}
 
-        {/* サブスクリプション管理（Premium ユーザーのみ） */}
-        {!subLoading && isPremium && (
-          <section className={styles.section}>
-            <button
-              type="button"
-              className={styles.manageButton}
-              onClick={handleManageSubscription}
-              disabled={managingPortal}
-            >
-              {managingPortal ? "読み込み中..." : "プランを管理"}
-            </button>
-          </section>
-        )}
+        {/* 機能比較テーブル */}
+        <div className={styles.featureTable}>
+          <div className={styles.tableHeader}>
+            <span className={styles.tableHeaderSpacer} />
+            <span className={styles.tableHeaderLabel}>
+              {t("tableHeaderFree")}
+            </span>
+            <span className={styles.tableHeaderLabel}>
+              {t("tableHeaderPro")}
+            </span>
+          </div>
+          {FEATURE_MATRIX.map((category) => (
+            <div key={category.categoryKey}>
+              <div className={styles.categoryLabel}>
+                {t(category.categoryKey)}
+              </div>
+              {category.features.map((feature) => (
+                <div key={feature.nameKey} className={styles.featureRow}>
+                  <span className={styles.featureName}>
+                    {t(feature.nameKey)}
+                  </span>
+                  <span
+                    className={
+                      feature.free ? styles.featureCheck : styles.featureDash
+                    }
+                  >
+                    {feature.free ? "✓" : "—"}
+                  </span>
+                  <span
+                    className={
+                      feature.pro ? styles.featureCheck : styles.featureDash
+                    }
+                  >
+                    {feature.pro ? "✓" : "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ))}
+          <p className={styles.mobileNote}>{t("mobileNote")}</p>
+        </div>
       </div>
     </MinimalLayout>
   );

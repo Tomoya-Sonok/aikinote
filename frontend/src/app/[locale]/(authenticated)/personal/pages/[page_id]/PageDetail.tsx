@@ -5,12 +5,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import { deletePage, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import styles from "./page.module.css";
 
@@ -31,6 +33,8 @@ export function PageDetail() {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeletingPage, setDeletingPage] = useState(false);
   const [isTogglingPublic, setTogglingPublic] = useState(false);
+  const { isPremium } = useSubscription();
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const handleBackToList = () => {
     router.push(`/${locale}/personal/pages`);
@@ -38,6 +42,13 @@ export function PageDetail() {
 
   const handleTogglePublic = async () => {
     if (!pageData || !user?.id || isTogglingPublic) return;
+
+    // Free ユーザーが ON にしようとした場合は PremiumUpgradeModal を表示
+    if (!pageData.is_public && !isPremium) {
+      setShowPremiumModal(true);
+      return;
+    }
+
     setTogglingPublic(true);
     try {
       const newValue = !pageData.is_public;
@@ -304,6 +315,11 @@ export function PageDetail() {
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
         isProcessing={isDeletingPage}
+      />
+
+      <PremiumUpgradeModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
       />
     </div>
   );

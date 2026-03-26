@@ -56,7 +56,7 @@ export function SocialPostsFeed() {
   // Free ユーザー: 1秒後にモーダル表示 + スクロールロック
   const modalShownRef = useRef(false);
   useEffect(() => {
-    if (subLoading || isPremium || isLoading) return;
+    if (subLoading || isPremium || isLoading || modalShownRef.current) return;
 
     const timer = setTimeout(() => {
       modalShownRef.current = true;
@@ -66,11 +66,8 @@ export function SocialPostsFeed() {
 
     return () => {
       clearTimeout(timer);
-      if (modalShownRef.current && !showPreviewLock) {
-        document.body.style.overflow = "";
-      }
     };
-  }, [subLoading, isPremium, isLoading, showPreviewLock]);
+  }, [subLoading, isPremium, isLoading]);
 
   // previewLock 表示中はスクロールを無効化
   useEffect(() => {
