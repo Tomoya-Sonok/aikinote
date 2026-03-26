@@ -47,7 +47,7 @@
     "next-intl": "^4.3.9",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-hook-form": "^7.62.0",
+    "react-hook-form": "^7.72.0",
     "react-markdown": "^10.1.0",
     "recharts": "^3.8.0",
     "resend": "^6.0.3",
