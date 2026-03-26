@@ -311,17 +311,15 @@ app.post("/sync", async (c) => {
     });
 
     if (customers.data.length === 0) {
-      // Stripe に顧客がいない → Free に戻す
-      await upsertSubscriptionFromWebhook(supabase, {
-        userId: payload.userId,
-        revenuecatCustomerId: "",
-        tier: "free",
-        status: "inactive",
-        platform: "web",
-      });
+      // Stripe に顧客がいない → DB の現在の値を信頼して返す
+      // （手動 Premium 付与など、Stripe を経由しないケースに対応）
+      const currentStatus = await getSubscriptionStatus(
+        supabase,
+        payload.userId,
+      );
       return c.json({
         success: true,
-        data: { tier: "free", status: "inactive" },
+        data: { tier: currentStatus.tier, status: currentStatus.status },
       });
     }
 

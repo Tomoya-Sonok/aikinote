@@ -74,8 +74,8 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     try {
       const url = await createCheckoutSession(priceId);
       if (url) {
-        // Stripe Checkout ページにリダイレクト
-        window.location.href = url;
+        // Stripe Checkout ページにリダイレクト（replace で履歴を置換し、戻るボタンのループを防止）
+        window.location.replace(url);
       } else {
         setError("チェックアウトの作成に失敗しました");
       }
@@ -126,10 +126,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
   }, [isNativeApp]);
 
   return (
-    <MinimalLayout
-      headerTitle="サブスクリプション"
-      backHref={`/${locale}/personal/pages`}
-    >
+    <MinimalLayout headerTitle="プラン" backHref={`/${locale}/personal/pages`}>
       <div className={styles.container}>
         {/* 現在のプラン */}
         <section className={styles.section}>
@@ -240,7 +237,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
               onClick={handleManageSubscription}
               disabled={managingPortal}
             >
-              {managingPortal ? "読み込み中..." : "サブスクリプションを管理"}
+              {managingPortal ? "読み込み中..." : "プランを管理"}
             </button>
           </section>
         )}
