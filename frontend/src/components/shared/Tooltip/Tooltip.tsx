@@ -8,12 +8,14 @@ interface TooltipProps {
   text: string;
   children: ReactNode;
   position?: "top" | "bottom";
+  align?: "center" | "left" | "right";
 }
 
 export const Tooltip: FC<TooltipProps> = ({
   text,
   children,
   position = "top",
+  align = "center",
 }) => {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -52,7 +54,7 @@ export const Tooltip: FC<TooltipProps> = ({
       {children}
       {visible && (
         <span
-          className={`${styles.tooltip} ${position === "bottom" ? styles.bottom : styles.top}`}
+          className={`${styles.tooltip} ${position === "bottom" ? styles.bottom : styles.top}${align === "left" ? ` ${styles.alignLeft}` : ""}${align === "right" ? ` ${styles.alignRight}` : ""}`}
           role="tooltip"
         >
           {text}

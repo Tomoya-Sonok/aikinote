@@ -16,7 +16,8 @@
   border-radius: 6px;
   z-index: var(--z-header-dropdown);
   pointer-events: none;
-  max-width: 240px;
+  width: max-content;
+  max-width: min(240px, 80vw);
   white-space: normal;
   text-align: center;
   line-height: 1.4;
@@ -28,4 +29,15 @@
 
 .bottom {
   top: calc(100% + 6px);
+}
+
+.alignLeft {
+  left: 0;
+  transform: none;
+}
+
+.alignRight {
+  left: auto;
+  right: 0;
+  transform: none;
 }
