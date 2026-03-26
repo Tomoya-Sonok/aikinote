@@ -79,7 +79,8 @@ export function SocialPostEdit() {
     );
   }, [content, initialContent, attachmentMgmt.attachments.length]);
 
-  useBeforeUnload(() => hasUnsavedChanges());
+  const isNavigatingRef = useRef(false);
+  useBeforeUnload(() => !isNavigatingRef.current && hasUnsavedChanges());
 
   const handleSave = useCallback(async () => {
     if (!content.trim() || isSaving) return;
@@ -93,6 +94,7 @@ export function SocialPostEdit() {
       // 新規追加された添付を保存
       await attachmentMgmt.saveNewAttachments(postId);
 
+      isNavigatingRef.current = true;
       window.location.replace(`/${locale}/social/posts/${postId}`);
     } catch {
       showToast(t("editFailed"), "error");
@@ -105,6 +107,7 @@ export function SocialPostEdit() {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
+      isNavigatingRef.current = true;
       window.location.replace(`/${locale}/social/posts/${postId}`);
     }
   }, [hasUnsavedChanges, locale, postId]);

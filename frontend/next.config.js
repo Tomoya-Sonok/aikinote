@@ -15,10 +15,6 @@ const withNextIntl = createNextIntlPlugin("./src/lib/i18n/i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // RevenueCat Web SDK の Stripe Elements が Strict Mode の二重マウントで破壊される問題を回避
-  // TODO: RevenueCat SDK 側の修正後に true に戻す
-  reactStrictMode: false,
-
   // TypeScript型チェックをビルド時に無効化（一時的）
   typescript: {
     ignoreBuildErrors: true,
