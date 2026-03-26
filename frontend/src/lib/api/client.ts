@@ -45,6 +45,7 @@ const CACHE_TTL_MS = {
   userInfo: 60_000,
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
+  subscription: 30_000,
   socialFeed: 15_000,
   socialPost: 15_000,
   socialSearch: 15_000,
@@ -905,6 +906,92 @@ export const getUnreadNotificationPostIds = async (): Promise<string[]> => {
     return [];
   } catch {
     return [];
+  }
+};
+
+// サブスクリプション状態取得API関数
+export interface SubscriptionStatusResult {
+  tier: "free" | "premium";
+  status: "active" | "canceled" | "expired" | "billing_issue" | "inactive";
+  is_premium: boolean;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+}
+
+export const getSubscriptionStatus =
+  async (): Promise<SubscriptionStatusResult> => {
+    try {
+      const result = await cachedQuery(
+        "subscription:status",
+        {},
+        CACHE_TTL_MS.subscription,
+        async () => trpcClient.subscription.getStatus.query(),
+      );
+      if (result?.success && "data" in result && result.data) {
+        return result.data as SubscriptionStatusResult;
+      }
+      return {
+        tier: "free",
+        status: "inactive",
+        is_premium: false,
+        current_period_end: null,
+        cancel_at_period_end: false,
+      };
+    } catch {
+      return {
+        tier: "free",
+        status: "inactive",
+        is_premium: false,
+        current_period_end: null,
+        cancel_at_period_end: false,
+      };
+    }
+  };
+
+// Stripe サブスクリプション同期API関数
+export const syncSubscription = async (): Promise<void> => {
+  try {
+    await trpcClient.subscription.sync.mutate();
+  } catch {
+    // 同期失敗はサイレントに無視（次回のステータス取得で反映される）
+  }
+};
+
+// Stripe Customer Portal セッション作成API関数
+export const createPortalSession = async (
+  locale: string,
+): Promise<string | null> => {
+  try {
+    const result = await trpcClient.subscription.createPortal.mutate({
+      locale,
+    });
+    if (result?.success && "data" in result && result.data?.url) {
+      return result.data.url;
+    }
+    return null;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "管理画面の表示に失敗しました"));
+  }
+};
+
+// Stripe Checkout Session 作成API関数
+export const createCheckoutSession = async (
+  priceId: string,
+  locale: string,
+): Promise<string | null> => {
+  try {
+    const result = await trpcClient.subscription.createCheckout.mutate({
+      priceId,
+      locale,
+    });
+    if (result?.success && "data" in result && result.data?.url) {
+      return result.data.url;
+    }
+    return null;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "チェックアウトの作成に失敗しました"),
+    );
   }
 };
 

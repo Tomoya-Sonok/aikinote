@@ -10,7 +10,7 @@
 
 /* タイトル */
 .title {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
@@ -44,7 +44,7 @@
 }
 
 .errorTitle {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 500;
   color: #141414;
@@ -52,7 +52,7 @@
 }
 
 .errorMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.333;
@@ -69,7 +69,7 @@
 }
 
 .errorCodeText {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   color: #707070;
 }
@@ -86,7 +86,7 @@
   height: 35px;
   border-radius: 24px;
   border: none;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   line-height: 1.448;
   cursor: pointer;

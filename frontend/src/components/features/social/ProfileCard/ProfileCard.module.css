@@ -7,6 +7,7 @@
 }
 
 .fullName {
+  font-family: var(--font-brand);
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--black);
@@ -14,6 +15,7 @@
 }
 
 .username {
+  font-family: var(--font-brand);
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--black);
@@ -44,6 +46,7 @@
 }
 
 .bio {
+  font-family: var(--font-brand);
   font-size: var(--font-size-sm);
   color: var(--black);
   line-height: 1.6;

@@ -2,9 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
 import styles from "./page.module.css";
 
@@ -77,6 +79,125 @@ function computeDuration(firstDate: string | null): {
 }
 
 export function PersonalStats() {
+  const t = useTranslations("premiumModalStats");
+  const { isPremium, loading: subLoading } = useSubscription();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPreviewLock, setShowPreviewLock] = useState(false);
+
+  // Free ユーザー: 即時モーダル表示 + スクロール最初からロック
+  useEffect(() => {
+    if (subLoading) return;
+    if (!isPremium) {
+      setShowUpgradeModal(true);
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [subLoading, isPremium]);
+
+  // モーダル dismiss → previewLock を表示（スクロールはロックのまま）
+  const handleDismissModal = useCallback(() => {
+    setShowUpgradeModal(false);
+    setShowPreviewLock(true);
+  }, []);
+
+  if (isPremium) {
+    return <PersonalStatsContent />;
+  }
+
+  // Free ユーザー: スケルトン UI + モーダル + previewLock
+  return (
+    <>
+      <PersonalStatsSkeleton />
+
+      {showPreviewLock && (
+        <div className={styles.previewLock}>
+          <div className={styles.previewLockContent}>
+            <p className={styles.previewLockTitle}>{t("title")}</p>
+            <button
+              type="button"
+              className={styles.previewLockButton}
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              {t("upgradeMain")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={handleDismissModal}
+        translationKey="premiumModalStats"
+      />
+    </>
+  );
+}
+
+/** Free ユーザー向けのスケルトン UI（統計データの形だけ見せる） */
+function PersonalStatsSkeleton() {
+  const t = useTranslations("personalStats");
+
+  return (
+    <div className={styles.container}>
+      <p className={styles.description}>{t("description")}</p>
+
+      {/* 期間選択 */}
+      <div className={styles.periodSection}>
+        <span className={styles.periodLabel}>{t("periodLabel")}</span>
+        <div className={styles.periodButtons}>
+          {[
+            t("periodAll"),
+            t("period3Months"),
+            t("period6Months"),
+            t("period1Year"),
+            t("periodCustom"),
+          ].map((label) => (
+            <span key={label} className={styles.periodButton}>
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* サマリーカード群（スケルトン） */}
+      <div className={styles.summaryCards}>
+        {[t("trainingDuration"), t("attendedDays"), t("totalPages")].map(
+          (label) => (
+            <div key={label} className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>{label}</span>
+              <Skeleton variant="text" width="48px" height="20px" />
+            </div>
+          ),
+        )}
+      </div>
+
+      {/* チャートカード（スケルトン） */}
+      <div className={styles.chartCard}>
+        <h3 className={styles.chartTitle}>{t("monthlyTrend")}</h3>
+        <Skeleton
+          variant="rect"
+          width="100%"
+          height="200px"
+          borderRadius="8px"
+        />
+      </div>
+
+      <div className={styles.chartCard}>
+        <h3 className={styles.chartTitle}>{t("tagTrend")}</h3>
+        <Skeleton
+          variant="rect"
+          width="100%"
+          height="160px"
+          borderRadius="8px"
+        />
+      </div>
+    </div>
+  );
+}
+
+function PersonalStatsContent() {
   const t = useTranslations("personalStats");
 
   const [period, setPeriod] = useState<PeriodPreset>("all");

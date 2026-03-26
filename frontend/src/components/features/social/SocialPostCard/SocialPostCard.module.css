@@ -85,10 +85,11 @@
   font-weight: 600;
   color: var(--black);
   margin: 0 0 8px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
 }
 
 .text {
+  font-family: var(--font-brand);
   font-size: var(--font-size-sm);
   color: var(--black);
   line-height: 1.6;

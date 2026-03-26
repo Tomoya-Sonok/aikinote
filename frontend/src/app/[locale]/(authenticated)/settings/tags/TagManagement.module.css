@@ -72,7 +72,7 @@
 
 .tagItem {
   position: relative;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   list-style: none;
 }
@@ -122,7 +122,7 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: var(--font-size-sm);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   height: 32px;
 }
 

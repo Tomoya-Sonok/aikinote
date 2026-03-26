@@ -58,12 +58,14 @@ export function PageCreate() {
     return () => clearTimeout(id);
   }, []);
 
-  // 未保存データの保護
+  // 未保存データの保護（意図的な遷移時は無効化）
+  const isNavigatingRef = useRef(false);
   const hasUnsavedChanges = useCallback(
     () =>
-      title.trim() !== "" ||
-      content.trim() !== "" ||
-      attachmentMgmt.attachments.length > 0,
+      !isNavigatingRef.current &&
+      (title.trim() !== "" ||
+        content.trim() !== "" ||
+        attachmentMgmt.attachments.length > 0),
     [title, content, attachmentMgmt.attachments],
   );
   useBeforeUnload(hasUnsavedChanges);
@@ -121,6 +123,7 @@ export function PageCreate() {
           console.warn("稽古参加の自動登録に失敗:", err);
         }
 
+        isNavigatingRef.current = true;
         window.location.replace(returnUrl);
       } else {
         throw new Error(
@@ -158,6 +161,7 @@ export function PageCreate() {
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
+    isNavigatingRef.current = true;
     window.location.replace(returnUrl);
   }, [returnUrl]);
 

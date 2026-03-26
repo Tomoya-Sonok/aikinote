@@ -97,7 +97,13 @@ export function PageEdit() {
     initialAttachments,
   ]);
 
-  useBeforeUnload(hasUnsavedChanges);
+  const isNavigatingRef = useRef(false);
+  useBeforeUnload(
+    useCallback(
+      () => !isNavigatingRef.current && hasUnsavedChanges(),
+      [hasUnsavedChanges],
+    ),
+  );
 
   // バリデーション
   const validateForm = useCallback((): boolean => {
@@ -138,6 +144,7 @@ export function PageEdit() {
         // 新規追加された添付を保存
         await attachmentMgmt.saveNewAttachments(pageId);
 
+        isNavigatingRef.current = true;
         window.location.replace(`/${locale}/personal/pages/${pageId}`);
       } else {
         throw new Error(

@@ -144,6 +144,7 @@
 }
 
 .profileCardName {
+  font-family: var(--font-brand);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--black);
@@ -154,6 +155,7 @@
 }
 
 .profileCardDojoRank {
+  font-family: var(--font-brand);
   display: flex;
   gap: 4px;
   font-size: var(--font-size-xs);
@@ -165,6 +167,7 @@
 }
 
 .profileCardFullName {
+  font-family: var(--font-brand);
   font-size: var(--font-size-xs);
   color: var(--text-light);
   line-height: 1.3;

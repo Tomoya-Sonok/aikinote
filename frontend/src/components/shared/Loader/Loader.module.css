@@ -54,7 +54,7 @@
 .text {
   font-size: var(--font-size-sm);
   color: var(--primary-color);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-weight: 400;
   letter-spacing: 0.06em;
 }

@@ -11,6 +11,8 @@ interface MinimalLayoutProps {
   headerTitle?: string;
   backButtonLabel?: string;
   backHref?: string;
+  /** true にすると router.back() を使わず常に backHref に遷移する */
+  forceBackHref?: boolean;
 }
 
 export function MinimalLayout({
@@ -18,17 +20,27 @@ export function MinimalLayout({
   showHeader = true,
   headerTitle,
   backHref = "/",
+  forceBackHref = false,
 }: MinimalLayoutProps) {
   const router = useRouter();
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
 
-    if (window.history.length > 1) {
-      router.back();
+    if (forceBackHref) {
+      router.push(backHref);
       return;
     }
 
-    router.push(backHref);
+    // 外部サイト（Stripe 等）から戻ってきた場合は backHref にフォールバック
+    const referrer = document.referrer;
+    const isFromExternal = referrer && !referrer.includes(window.location.host);
+
+    if (isFromExternal || window.history.length <= 1) {
+      router.push(backHref);
+      return;
+    }
+
+    router.back();
   };
 
   return (

@@ -632,12 +632,16 @@ export const getTrainingStatsProcedure = publicProcedure
     }),
   )
   .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
     const query = new URLSearchParams({ user_id: input.userId });
     if (input.startDate) query.set("start_date", input.startDate);
     if (input.endDate) query.set("end_date", input.endDate);
 
     return callHonoApi<ApiResponse<TrainingStatsData>>(
       `/api/stats?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
     );
   });
 
@@ -1185,3 +1189,67 @@ export const getUnreadNotificationPostIdsProcedure = publicProcedure.query(
     );
   },
 );
+
+// ======== サブスクリプション ========
+
+export type SubscriptionStatusData = {
+  tier: "free" | "premium";
+  status: "active" | "canceled" | "expired" | "billing_issue" | "inactive";
+  is_premium: boolean;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+};
+
+export const getSubscriptionStatusProcedure = publicProcedure.query(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<SubscriptionStatusData>>(
+      "/api/subscription/status",
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);
+
+export const createCheckoutSessionProcedure = publicProcedure
+  .input(z.object({ priceId: z.string().min(1), locale: z.string().min(1) }))
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ url: string }>>(
+      "/api/subscription/checkout",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          priceId: input.priceId,
+          locale: input.locale,
+        }),
+      },
+    );
+  });
+
+export const createPortalSessionProcedure = publicProcedure
+  .input(z.object({ locale: z.string().min(1) }))
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ url: string }>>(
+      "/api/subscription/portal",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ locale: input.locale }),
+      },
+    );
+  });
+
+export const syncSubscriptionProcedure = publicProcedure.mutation(async () => {
+  const token = await createBackendAuthToken();
+  return callHonoApi<ApiResponse<{ tier: string; status: string }>>(
+    "/api/subscription/sync",
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+});

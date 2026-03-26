@@ -40,7 +40,7 @@
   padding: 8px 10px;
   font-size: var(--font-size-xs);
   color: var(--text-light);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -54,7 +54,7 @@
   color: var(--black);
   line-height: 1.4;
   padding: 6px 10px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;

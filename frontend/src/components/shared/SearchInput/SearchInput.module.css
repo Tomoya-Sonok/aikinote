@@ -19,7 +19,7 @@
   border: 0.5px solid var(--border-color);
   border-radius: 6px;
   background: var(--white);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
   outline: none;

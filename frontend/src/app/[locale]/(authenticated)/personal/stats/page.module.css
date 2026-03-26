@@ -52,7 +52,7 @@
 }
 
 .summaryValue {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-lg);
   font-weight: 400;
   color: var(--black);
@@ -79,7 +79,7 @@
 }
 
 .periodButton {
-  font-family: var(--font-inter);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: var(--black);
   background: var(--white);
@@ -125,7 +125,7 @@
 }
 
 .chartTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-md);
   font-weight: 400;
   color: var(--black);
@@ -142,7 +142,7 @@
 }
 
 .toggleButton {
-  font-family: var(--font-inter);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: var(--text-light);
   background: var(--white);
@@ -161,6 +161,51 @@
 
 .chartLoading {
   height: 280px;
+}
+
+/* プレビューロック（Free ユーザー: モーダル dismiss 後） */
+.previewLock {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(to bottom, transparent 30%, var(--white) 70%);
+  pointer-events: auto;
+}
+
+.previewLockContent {
+  width: 100%;
+  max-width: 580px;
+  padding: 32px 24px 100px;
+  text-align: center;
+}
+
+.previewLockTitle {
+  margin: 0 0 16px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--black);
+}
+
+.previewLockButton {
+  display: inline-block;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #3e3e3c 0%, var(--black) 40%);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.previewLockButton:hover {
+  opacity: 0.85;
 }
 
 @media (max-width: 480px) {

@@ -35,7 +35,7 @@
 }
 
 .label {
-  font-family: var(--font-inter);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   font-weight: 400;
   line-height: 1.2;

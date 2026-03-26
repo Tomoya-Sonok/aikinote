@@ -19,7 +19,7 @@
 }
 
 .input {
-  font-family: var(--font-inter);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
   border: 1px solid var(--border-color);

@@ -72,6 +72,7 @@ export function SocialPostCreate() {
 
   // 未保存データの保護
   const hasUnsavedChanges = useCallback(() => {
+    if (isNavigatingRef.current) return false;
     if (mode === "post") {
       return (
         postContent.trim() !== "" || postAttachmentMgmt.attachments.length > 0
@@ -90,6 +91,7 @@ export function SocialPostCreate() {
     trainingContent,
     trainingAttachmentMgmt.attachments,
   ]);
+  const isNavigatingRef = useRef(false);
   useBeforeUnload(hasUnsavedChanges);
 
   // バリデーション
@@ -133,6 +135,7 @@ export function SocialPostCreate() {
         await postAttachmentMgmt.saveNewAttachments(postId);
       }
 
+      isNavigatingRef.current = true;
       window.location.replace(`/${locale}/social/posts`);
     } catch {
       showToast(tSocial("createFailed"), "error");
@@ -181,6 +184,7 @@ export function SocialPostCreate() {
           console.warn("稽古参加の自動登録に失敗:", err);
         }
 
+        isNavigatingRef.current = true;
         window.location.replace(`/${locale}/social/posts`);
       } else {
         throw new Error(
@@ -219,6 +223,7 @@ export function SocialPostCreate() {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
+      isNavigatingRef.current = true;
       window.location.replace(`/${locale}/social/posts`);
     }
   }, [hasUnsavedChanges, locale]);

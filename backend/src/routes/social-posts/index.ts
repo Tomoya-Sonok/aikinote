@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { extractHashtags } from "../../lib/hashtag.js";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import { containsNgWord } from "../../lib/ng-word.js";
+import { isPremiumUser } from "../../lib/subscription.js";
 import {
   checkRateLimit,
   createNotification,
@@ -136,9 +137,17 @@ app.get("/", zValidator("query", getSocialPostsSchema), async (c) => {
     // バッチクエリでエンリッチ（N+1 解消）
     const enrichedPosts = await enrichSocialPosts(supabase, posts, user_id);
 
+    // Free ユーザーはプレビュー件数のみ返却
+    const premium = await isPremiumUser(supabase, user_id);
+    const FREE_PREVIEW_LIMIT = 5;
+
     return c.json({
       success: true,
-      data: enrichedPosts,
+      data: premium
+        ? enrichedPosts
+        : enrichedPosts.slice(0, FREE_PREVIEW_LIMIT),
+      is_preview: !premium,
+      premium_required: !premium,
     });
   } catch (error) {
     if (
@@ -169,6 +178,19 @@ app.post("/", zValidator("json", createSocialPostSchema), async (c) => {
     const supabase = resolveSupabase(c);
     if (!supabase) {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    // Premium チェック: Free ユーザーは投稿不可
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json(
+        {
+          success: false,
+          error: "投稿は Premium プランの機能です",
+          code: "PREMIUM_REQUIRED",
+        },
+        403,
+      );
     }
 
     // レート制限チェック（60分以内に10件まで）
@@ -470,6 +492,19 @@ app.post(
       const supabase = resolveSupabase(c);
       if (!supabase) {
         return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+      }
+
+      // Premium チェック: Free ユーザーは返信不可
+      const premiumForReply = await isPremiumUser(supabase, payload.userId);
+      if (!premiumForReply) {
+        return c.json(
+          {
+            success: false,
+            error: "返信は Premium プランの機能です",
+            code: "PREMIUM_REQUIRED",
+          },
+          403,
+        );
       }
 
       // レート制限チェック（60分以内に20件まで）

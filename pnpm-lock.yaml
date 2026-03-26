@@ -35,6 +35,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
+      stripe:
+        specifier: ^21.0.0
+        version: 21.0.0(@types/node@22.19.13)
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -96,6 +99,9 @@ importers:
       '@react-email/render':
         specifier: ^1.1.0
         version: 1.4.0(react-dom@19.2.3)(react@19.2.3)
+      '@revenuecat/purchases-js':
+        specifier: ^1.29.1
+        version: 1.29.1
       '@supabase/ssr':
         specifier: ^0.7.0
         version: 0.7.0(@supabase/supabase-js@2.57.4)
@@ -2783,6 +2789,10 @@ packages:
       redux: 5.0.1
       redux-thunk: 3.1.0(redux@5.0.1)
       reselect: 5.1.1
+    dev: false
+
+  /@revenuecat/purchases-js@1.29.1:
+    resolution: {integrity: sha512-e/zrC/AGih4NeayqaYD+NLLh0dn1kFhxf6vvQiDIKXiQ0qOnslQYhGCDo1+8Hn8CnSDxESSE1MWBXb2c+sCTXw==}
     dev: false
 
   /@rolldown/pluginutils@1.0.0-beta.34:
@@ -8317,6 +8327,18 @@ packages:
     dependencies:
       js-tokens: 9.0.1
     dev: true
+
+  /stripe@21.0.0(@types/node@22.19.13):
+    resolution: {integrity: sha512-VlQ1QhjQAhmCgY3g3BgfZFLo8AkJw1r9zTrG4hdjSDX2AcwS5sPz4eHJG0zfzCO8zO/md0Xe+zrkxRqg604ZWA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+    dependencies:
+      '@types/node': 22.19.13
+    dev: false
 
   /strnum@2.1.1:
     resolution: {integrity: sha512-7ZvoFTiCnGxBtDqJ//Cu6fWtZtc7Y3x+QOirG15wztbdngGSkht27o2pyGWrVy0b4WAy3jbKmnoK6g5VlVNUUw==}

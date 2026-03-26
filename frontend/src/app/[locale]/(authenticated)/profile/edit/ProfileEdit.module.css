@@ -89,7 +89,7 @@
 
 .label {
   display: block;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   font-weight: 400;
   color: var(--black);

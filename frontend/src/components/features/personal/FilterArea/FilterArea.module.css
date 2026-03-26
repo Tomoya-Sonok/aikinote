@@ -58,7 +58,7 @@
   padding: 8px 14px;
   border-radius: 6px;
   font-size: var(--font-size-sm);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
@@ -99,7 +99,7 @@
 }
 
 .filterLabel {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--black);
@@ -108,7 +108,7 @@
 }
 
 .filterValue {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   font-weight: 400;
   color: var(--black);
@@ -120,7 +120,7 @@
 }
 
 .arrow {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--black);
@@ -147,7 +147,7 @@
 }
 
 .dateInput {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
   border: 1px solid #ccc;

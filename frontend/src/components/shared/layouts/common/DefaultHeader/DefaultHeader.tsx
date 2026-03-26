@@ -69,6 +69,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     window.location.href = `/${locale}/settings/publicity`;
   };
 
+  const handleSubscriptionClick = () => {
+    setIsDrawerOpen(false);
+    window.location.href = `/${locale}/settings/subscription`;
+  };
+
   useEffect(() => {
     if (!isTooltipVisible || typeof window === "undefined") {
       return;
@@ -256,6 +261,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
         onLanguageClick={handleLanguageClick}
         onTagManagementClick={handleTagManagementClick}
         onPublicityClick={handlePublicityClick}
+        onSubscriptionClick={handleSubscriptionClick}
       />
     </header>
   );

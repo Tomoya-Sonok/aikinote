@@ -1,0 +1,53 @@
+.loadingContainer {
+  padding: 24px;
+}
+
+.gateContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: 32px 24px;
+}
+
+.gateContent {
+  text-align: center;
+  max-width: 320px;
+}
+
+.gateTitle {
+  margin: 0 0 8px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--black);
+}
+
+.gateDescription {
+  margin: 0 0 20px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.upgradeButton {
+  display: inline-block;
+  padding: 12px 32px;
+  border: 2px solid var(--black);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--black);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.upgradeButton:hover {
+  background: var(--black);
+  color: var(--white);
+}

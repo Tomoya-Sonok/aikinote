@@ -10,7 +10,7 @@
 
 /* タイトル */
 .title {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 20px;
   line-height: 1.448;
   color: var(--black);
@@ -34,7 +34,7 @@
 }
 
 .stepText {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
@@ -62,14 +62,14 @@
 }
 
 .loadingTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 16px;
   color: var(--black);
   margin-bottom: 8px;
 }
 
 .loadingMessage {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.333;
   color: var(--black);
@@ -84,7 +84,7 @@
 }
 
 .successTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 500;
   color: #141414;
@@ -92,7 +92,7 @@
 }
 
 .successMessage {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.333;
   color: var(--black);
@@ -112,7 +112,7 @@
 }
 
 .completionMessage {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.333;
   color: var(--black);
@@ -127,7 +127,7 @@
 }
 
 .errorTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 500;
   color: #141414;
@@ -135,7 +135,7 @@
 }
 
 .errorMessage {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.333;
   color: var(--black);
@@ -147,7 +147,7 @@
 }
 
 .errorDetailsTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 10px;
   color: #707070;
   margin-bottom: 8px;
@@ -160,7 +160,7 @@
 }
 
 .errorDetailsItem {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 10px;
   color: #707070;
   margin-bottom: 4px;
@@ -179,7 +179,7 @@
   height: 35px;
   border-radius: 24px;
   border: none;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 14px;
   line-height: 1.448;
   cursor: pointer;
@@ -224,7 +224,7 @@
 
 /* メール送信完了メッセージ */
 .emailSentMessage {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.333;
   color: var(--black);

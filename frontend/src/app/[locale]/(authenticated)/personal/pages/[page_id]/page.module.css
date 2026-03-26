@@ -31,7 +31,7 @@
 }
 
 .title {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-lg);
   line-height: 1.45;
   color: #000000;
@@ -56,7 +56,7 @@
 }
 
 .sectionTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-base);
   line-height: 1.45;
   color: #000000;
@@ -74,7 +74,7 @@
 }
 
 .content {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-sm);
   line-height: 2; /* Generous line height for readability and to align with the background lines */
   color: #000000;
@@ -121,7 +121,7 @@
   border: none;
   border-radius: 24px;
   padding: 0 16px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-sm);
   line-height: 1.45;
   cursor: pointer;
@@ -144,7 +144,7 @@
   border: none;
   border-radius: 24px;
   padding: 0 16px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-sm);
   line-height: 1.45;
   cursor: pointer;
@@ -166,7 +166,7 @@
   border: none;
   border-radius: 24px;
   padding: 0 16px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-sm);
   line-height: 1.45;
   cursor: pointer;
@@ -185,7 +185,7 @@
 .notFound {
   text-align: center;
   padding: 40px 20px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   font-size: var(--font-size-base);
   color: #666;
 }

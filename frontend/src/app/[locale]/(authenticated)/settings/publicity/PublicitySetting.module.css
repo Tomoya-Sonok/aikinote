@@ -101,7 +101,7 @@
   border: 1px solid var(--border-color);
   border-radius: 20px;
   background-color: var(--white);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
 }
 
 .dojoChipName {
