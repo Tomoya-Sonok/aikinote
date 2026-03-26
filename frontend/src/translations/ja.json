@@ -835,10 +835,10 @@
     "saveFailed": "回答の保存に失敗しました"
   },
   "subscriptionPage": {
-    "subtitle": "いつでも変更できますし、キャンセルしても次回決済日まではプレミアム機能を利用できます。",
+    "subtitle": "いつでも変更可能、キャンセルしても次回決済日までは引き続きプレミアム機能をご利用いただけます。",
     "monthly": "月額",
     "yearly": "年額",
-    "yearlyDiscount": "2ヶ月",
+    "yearlyDiscount": "2か月分お得！",
     "free": "FREE",
     "premium": "PREMIUM",
     "freePrice": "¥0",
@@ -847,7 +847,7 @@
     "perMonth": "/ 月",
     "perYear": "/ 年",
     "freeDescription": "稽古記録の作成・閲覧・検索",
-    "premiumDescription": "統計データ・SNS全機能・プッシュ通知",
+    "premiumDescription": "統計データ・みんなで機能・プッシュ通知*",
     "currentBadge": "現在",
     "recommendedBadge": "おすすめ",
     "startPremium": "Premium を始める",
@@ -863,13 +863,13 @@
     "categoryPersonal": "ひとりで",
     "categorySocial": "みんなで",
     "categoryMobile": "iOS/Androidアプリ版",
-    "featureRecord": "稽古記録・検索",
+    "featureRecord": "稽古記録の作成・閲覧・検索",
     "featureCalendar": "カレンダー・稽古日数管理",
     "featureStats": "統計データ",
-    "featureBrowse": "投稿や稽古記録の閲覧",
-    "featurePost": "投稿・返信・検索",
+    "featureBrowse": "他の投稿・稽古記録の閲覧・検索",
+    "featurePost": "投稿・返信・お気に入り保存",
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "プッシュ通知",
-    "mobileNote": "アプリ版は鋭意開発中です。リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせいたします。"
+    "mobileNote": "*アプリ版は鋭意開発中です。リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせいたします。"
   }
 }

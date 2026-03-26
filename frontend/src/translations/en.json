@@ -833,10 +833,10 @@
     "saveFailed": "Failed to save survey"
   },
   "subscriptionPage": {
-    "subtitle": "Change your plan anytime. You can enjoy Premium features until the end of your current billing period even if you cancel.",
+    "subtitle": "Change anytime. Even after canceling, you can continue using Premium features until the next billing date.",
     "monthly": "Monthly",
     "yearly": "Yearly",
-    "yearlyDiscount": "2 months",
+    "yearlyDiscount": "Save 2 months!",
     "free": "FREE",
     "premium": "PREMIUM",
     "freePrice": "¥0",
@@ -845,7 +845,7 @@
     "perMonth": "/ mo",
     "perYear": "/ yr",
     "freeDescription": "Create, view & search training records",
-    "premiumDescription": "Stats, all social features & push notifications",
+    "premiumDescription": "Stats, Social features & push notifications*",
     "currentBadge": "Current",
     "recommendedBadge": "Recommended",
     "startPremium": "Start Premium",
@@ -861,13 +861,13 @@
     "categoryPersonal": "Personal",
     "categorySocial": "Social",
     "categoryMobile": "iOS/Android App",
-    "featureRecord": "Training records & search",
+    "featureRecord": "Create, view & search training records",
     "featureCalendar": "Calendar & training day tracking",
     "featureStats": "Stats & analytics",
-    "featureBrowse": "Browse posts & training records",
-    "featurePost": "Post, reply & search",
+    "featureBrowse": "Browse & search others' posts & records",
+    "featurePost": "Post, reply & save favorites",
     "featurePublish": "One-tap training record publish",
     "featurePush": "Push notifications",
-    "mobileNote": "The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
+    "mobileNote": "*The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
   }
 }
