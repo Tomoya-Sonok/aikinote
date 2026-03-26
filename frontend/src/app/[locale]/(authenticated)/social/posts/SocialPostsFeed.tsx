@@ -33,7 +33,7 @@ const parseTabParam = (param: string | null): SocialTab => {
   return "all";
 };
 
-const PREVIEW_TIMER_MS = 2000;
+const PREVIEW_TIMER_MS = 1000;
 
 export function SocialPostsFeed() {
   const { user } = useAuth();
@@ -52,7 +52,7 @@ export function SocialPostsFeed() {
   const [showPreviewLock, setShowPreviewLock] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Free ユーザー: 2秒後にプレビューロック
+  // Free ユーザー: 1秒後にプレビューロック
   useEffect(() => {
     if (subLoading || isPremium || isLoading) return;
 
@@ -63,6 +63,16 @@ export function SocialPostsFeed() {
 
     return () => clearTimeout(timer);
   }, [subLoading, isPremium, isLoading]);
+
+  // プレビューロック中はスクロールを無効化
+  useEffect(() => {
+    if (showPreviewLock) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showPreviewLock]);
 
   // Intersection Observer で無限スクロール
   useEffect(() => {
