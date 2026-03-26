@@ -18,7 +18,7 @@
 }
 
 .title {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--black);
@@ -64,7 +64,7 @@
   width: 100%;
   min-height: 80px;
   padding: 10px;
-  font-family: var(--font-inter);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
   border: 1px solid var(--border-color);

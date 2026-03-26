@@ -9,7 +9,7 @@
   font-size: var(--font-size-sm);
   font-weight: 400;
   color: var(--black);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
 }
 
 .actions {
@@ -28,7 +28,7 @@
   background-color: var(--white);
   color: var(--primary-color);
   font-size: var(--font-size-xs);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -50,7 +50,7 @@
 .youtubeHint {
   font-size: var(--font-size-xs);
   color: var(--text-light);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   margin: 0;
 }
 
@@ -73,7 +73,7 @@
   border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: var(--font-size-xs);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   height: 32px;
 }
 
@@ -107,7 +107,7 @@
   align-items: center;
   font-size: var(--font-size-xs);
   color: var(--text-light);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
 }
 
 .progressActions {
@@ -121,7 +121,7 @@
   border: none;
   color: var(--text-light);
   font-size: var(--font-size-xs);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
@@ -156,11 +156,11 @@
 .errorText {
   font-size: var(--font-size-xs);
   color: var(--error-color);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
 }
 
 .note {
   font-size: var(--font-size-xs);
   color: var(--text-light);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
 }

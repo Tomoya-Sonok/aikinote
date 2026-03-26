@@ -5,7 +5,7 @@
 
 .input {
   width: 100%;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   line-height: 1.45;
   padding: 10px 14px;
@@ -134,7 +134,7 @@
 }
 
 .selectedText {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: var(--black);
   overflow: hidden;

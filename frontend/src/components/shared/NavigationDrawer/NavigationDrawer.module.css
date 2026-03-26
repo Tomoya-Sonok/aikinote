@@ -45,7 +45,7 @@
 }
 
 .title {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-lg);
   font-weight: 400;
   color: var(--black, #2c2c2c);

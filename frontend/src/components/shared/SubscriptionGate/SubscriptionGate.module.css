@@ -17,7 +17,7 @@
 
 .gateTitle {
   margin: 0 0 8px;
-  font-family: var(--font-noto-sans-jp);
+  font-family: var(--font-ui);
   font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--black);
@@ -25,7 +25,7 @@
 
 .gateDescription {
   margin: 0 0 20px;
-  font-family: var(--font-noto-sans-jp);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--text-light);
   line-height: 1.6;
@@ -38,7 +38,7 @@
   border-radius: 8px;
   background: transparent;
   color: var(--black);
-  font-family: var(--font-noto-sans-jp);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;

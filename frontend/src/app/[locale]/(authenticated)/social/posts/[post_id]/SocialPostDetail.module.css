@@ -147,7 +147,7 @@
   font-weight: 400;
   color: var(--black);
   margin: 0 0 12px;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
 }
 
 .notebookContent {
@@ -156,7 +156,7 @@
   line-height: 2;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-brand);
   background-image: repeating-linear-gradient(
     to bottom,
     transparent,
@@ -193,7 +193,7 @@
   width: 100%;
   min-height: 120px;
   padding: 12px;
-  font-family: var(--font-inter);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
   border: 1px solid var(--primary-color);

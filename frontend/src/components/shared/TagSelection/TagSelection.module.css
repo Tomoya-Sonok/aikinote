@@ -1,5 +1,5 @@
 .container {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
 }
 
 .header {
@@ -29,7 +29,7 @@
 }
 
 .addButton {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: #000000;
   background: none;

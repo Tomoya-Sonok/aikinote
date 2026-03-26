@@ -52,19 +52,19 @@ export function SocialPostsFeed() {
   const [showPreviewLock, setShowPreviewLock] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Free ユーザー: 1秒後にプレビューロック
+  // Free ユーザー: 1秒後にモーダル表示（スクロールは一時的にロック）
   useEffect(() => {
     if (subLoading || isPremium || isLoading) return;
 
     const timer = setTimeout(() => {
-      setShowPreviewLock(true);
       setShowUpgradeModal(true);
+      document.body.style.overflow = "hidden";
     }, PREVIEW_TIMER_MS);
 
     return () => clearTimeout(timer);
   }, [subLoading, isPremium, isLoading]);
 
-  // プレビューロック中はスクロールを無効化
+  // previewLock 表示中はスクロールを無効化
   useEffect(() => {
     if (showPreviewLock) {
       document.body.style.overflow = "hidden";
@@ -73,6 +73,12 @@ export function SocialPostsFeed() {
       };
     }
   }, [showPreviewLock]);
+
+  // モーダル dismiss → previewLock を表示
+  const handleDismissModal = useCallback(() => {
+    setShowUpgradeModal(false);
+    setShowPreviewLock(true);
+  }, []);
 
   // Intersection Observer で無限スクロール
   useEffect(() => {
@@ -183,9 +189,7 @@ export function SocialPostsFeed() {
 
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        title="「みんなで」を使おう"
-        description="投稿・返信・お気に入り・検索など、すべてのSNS機能が使い放題になります。月額380円で利用可能です。"
+        onClose={handleDismissModal}
       />
     </SocialLayout>
   );

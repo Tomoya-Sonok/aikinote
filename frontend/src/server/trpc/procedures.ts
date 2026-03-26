@@ -632,12 +632,16 @@ export const getTrainingStatsProcedure = publicProcedure
     }),
   )
   .query(async ({ input }) => {
+    const token = await createBackendAuthToken();
     const query = new URLSearchParams({ user_id: input.userId });
     if (input.startDate) query.set("start_date", input.startDate);
     if (input.endDate) query.set("end_date", input.endDate);
 
     return callHonoApi<ApiResponse<TrainingStatsData>>(
       `/api/stats?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
     );
   });
 

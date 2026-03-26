@@ -80,7 +80,7 @@
   background: none;
   font-size: var(--font-size-sm);
   font-weight: 500;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   color: var(--black);
   transition:
     border-color 0.15s,

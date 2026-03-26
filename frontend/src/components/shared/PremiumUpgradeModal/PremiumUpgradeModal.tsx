@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   type KeyboardEvent,
   useCallback,
@@ -14,8 +15,8 @@ import styles from "./PremiumUpgradeModal.module.css";
 interface PremiumUpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
-  description?: string;
+  /** 翻訳キーの namespace を切り替える（デフォルト: "premiumModal"） */
+  translationKey?: string;
 }
 
 declare global {
@@ -28,9 +29,9 @@ declare global {
 export function PremiumUpgradeModal({
   isOpen,
   onClose,
-  title = "Premium プランで解放",
-  description = "この機能は Premium プランでご利用いただけます。月額380円で統計データや「みんなで」機能のすべてをお楽しみいただけます。",
+  translationKey = "premiumModal",
 }: PremiumUpgradeModalProps) {
+  const t = useTranslations(translationKey);
   const titleId = useId();
   const upgradeButtonRef = useRef<HTMLButtonElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,7 +43,6 @@ export function PremiumUpgradeModal({
   }, [isOpen]);
 
   const handleUpgrade = useCallback(async () => {
-    // Native アプリ内: ネイティブ Paywall を表示
     if (window.__AIKINOTE_NATIVE_APP__ && window.showNativePaywall) {
       setIsProcessing(true);
       try {
@@ -57,7 +57,6 @@ export function PremiumUpgradeModal({
       return;
     }
 
-    // Web ブラウザ: サブスクリプション設定ページへ
     window.location.href = "/ja/settings/subscription";
   }, [onClose]);
 
@@ -82,13 +81,11 @@ export function PremiumUpgradeModal({
         role="document"
         onKeyDown={(e) => e.stopPropagation()}
       >
-        <div className={styles.icon} aria-hidden="true">
-          &#x2B50;
-        </div>
+        <span className={styles.badge}>{t("badge")}</span>
         <h2 id={titleId} className={styles.title}>
-          {title}
+          {t("title")}
         </h2>
-        <p className={styles.description}>{description}</p>
+        <p className={styles.description}>{t("description")}</p>
         <button
           ref={upgradeButtonRef}
           type="button"
@@ -96,7 +93,16 @@ export function PremiumUpgradeModal({
           onClick={handleUpgrade}
           disabled={isProcessing}
         >
-          {isProcessing ? "処理中..." : "Premium にアップグレード"}
+          {isProcessing ? (
+            t("processing")
+          ) : (
+            <>
+              <span className={styles.upgradeButtonMain}>
+                {t("upgradeMain")}
+              </span>
+              <span className={styles.upgradeButtonSub}>{t("upgradeSub")}</span>
+            </>
+          )}
         </button>
         <button
           type="button"
@@ -104,7 +110,7 @@ export function PremiumUpgradeModal({
           onClick={onClose}
           disabled={isProcessing}
         >
-          あとで
+          {t("close")}
         </button>
       </div>
     </div>,

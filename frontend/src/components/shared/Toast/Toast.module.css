@@ -6,7 +6,7 @@
   padding: 14px 20px;
   border-radius: 6px;
   color: var(--white);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   box-shadow: 0 4px 16px rgba(44, 44, 44, 0.1);
   z-index: var(--z-toast);

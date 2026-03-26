@@ -44,7 +44,7 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-base);
   text-align: center;
   color: var(--black, #2c2c2c);
@@ -53,7 +53,7 @@
 
 .message {
   margin: 0;
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   line-height: 1.75;
   color: var(--text-light, #8b8178);

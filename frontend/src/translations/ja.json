@@ -280,6 +280,24 @@
     "fontSizeTooltip": "文字サイズは設定から変更可能です",
     "editProfile": "プロフィールを編集する"
   },
+  "premiumModal": {
+    "badge": "PREMIUM",
+    "title": "稽古の学びを、\n仲間と分かち合おう",
+    "description": "道場の壁も国境も越えて、日々の気づきや学んだことをシェアしてみませんか？質問をすれば、優しい先輩たちが導いてくれるかも？",
+    "upgradeMain": "みんなで を始める",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "今はひとりで続ける"
+  },
+  "premiumModalStats": {
+    "badge": "PREMIUM",
+    "title": "稽古の積み重ねを\nデータで振り返ろう",
+    "description": "稽古の頻度や内容を自動で分析。稽古日数や取り組んだ技で、あなたの稽古を見える化しませんか？",
+    "upgradeMain": "統計データ を使う",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "記録だけ続ける"
+  },
   "auth": {
     "login": "ログイン",
     "logoutSuccess": "ログアウトしました",

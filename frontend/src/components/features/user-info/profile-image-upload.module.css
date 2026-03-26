@@ -71,7 +71,7 @@
 }
 
 .uploadText {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 14px;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .note {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   color: var(--primary-color);
   text-align: center;

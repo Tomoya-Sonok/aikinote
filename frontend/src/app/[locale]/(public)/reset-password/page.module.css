@@ -26,14 +26,14 @@
 }
 
 .errorTitle {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.448;
   color: var(--black);
 }
 
 .infoText {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.448;
   color: var(--primary-color);
@@ -48,7 +48,7 @@
   border-radius: 6px;
   background-color: var(--primary-color);
   color: var(--white);
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 14px;
   line-height: 1.448;
   text-decoration: none;

@@ -10,7 +10,7 @@
 
 /* タイトル */
 .title {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
@@ -48,7 +48,7 @@
 }
 
 .stepText {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.5;
@@ -103,7 +103,7 @@
 
 /* フォームフィールド */
 .fieldLabel {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 500;
   color: #141414;
@@ -122,7 +122,7 @@
   border: none;
   border-radius: 24px;
   padding: 5px 9px;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   color: #707070;
   outline: none;
@@ -149,14 +149,14 @@
   background: none;
   border: none;
   color: #707070;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   cursor: pointer;
 }
 
 /* ヘルプテキスト */
 .helpText {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.448;
   color: #707070;
@@ -165,7 +165,7 @@
 
 /* エラーメッセージ */
 .errorMessage {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.448;
   color: #fd4545;
@@ -183,7 +183,7 @@
   height: 35px;
   border-radius: 24px;
   border: none;
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   line-height: 1.448;
   cursor: pointer;
@@ -216,7 +216,7 @@
 }
 
 .loginPromptText {
-  font-family: "Zen Old Mincho", serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   line-height: 1.448;
   color: var(--black);
@@ -228,7 +228,7 @@
 }
 
 .successMessage {
-  font-family: "Public Sans", sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 500;
   line-height: 1.333;

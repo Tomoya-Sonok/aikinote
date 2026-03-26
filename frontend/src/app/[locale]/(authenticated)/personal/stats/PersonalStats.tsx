@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
-import { SubscriptionGate } from "@/components/shared/SubscriptionGate/SubscriptionGate";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
 import styles from "./page.module.css";
 
@@ -78,13 +79,118 @@ function computeDuration(firstDate: string | null): {
 }
 
 export function PersonalStats() {
+  const { isPremium, loading: subLoading } = useSubscription();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPreviewLock, setShowPreviewLock] = useState(false);
+  const scrollLocked = useRef(false);
+
+  // Free ユーザー: 即時モーダル表示 + スクロール最初からロック
+  useEffect(() => {
+    if (subLoading) return;
+    if (!isPremium) {
+      setShowUpgradeModal(true);
+      document.body.style.overflow = "hidden";
+      scrollLocked.current = true;
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [subLoading, isPremium]);
+
+  // モーダル dismiss → previewLock を表示（スクロールはロックのまま）
+  const handleDismissModal = useCallback(() => {
+    setShowUpgradeModal(false);
+    setShowPreviewLock(true);
+  }, []);
+
+  if (isPremium) {
+    return <PersonalStatsContent />;
+  }
+
+  // Free ユーザー: スケルトン UI + モーダル + previewLock
   return (
-    <SubscriptionGate
-      title="統計データは Premium 限定"
-      description="稽古の記録数・タグ比率・月別推移などの統計データを確認できます。月額380円で利用可能です。"
-    >
-      <PersonalStatsContent />
-    </SubscriptionGate>
+    <>
+      <PersonalStatsSkeleton />
+
+      {showPreviewLock && (
+        <div className={styles.previewLock}>
+          <div className={styles.previewLockContent}>
+            <p className={styles.previewLockTitle}>
+              稽古の積み重ねを、データで振り返ろう
+            </p>
+            <button
+              type="button"
+              className={styles.previewLockButton}
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              Premium にアップグレード
+            </button>
+          </div>
+        </div>
+      )}
+
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={handleDismissModal}
+        translationKey="premiumModalStats"
+      />
+    </>
+  );
+}
+
+/** Free ユーザー向けのスケルトン UI（統計データの形だけ見せる） */
+function PersonalStatsSkeleton() {
+  const t = useTranslations("personalStats");
+
+  return (
+    <div className={styles.container}>
+      <p className={styles.description}>{t("description")}</p>
+
+      {/* 期間選択 */}
+      <div className={styles.periodSection}>
+        <span className={styles.periodLabel}>{t("periodLabel")}</span>
+        <div className={styles.periodButtons}>
+          {["全期間", "3ヶ月", "6ヶ月", "1年", "カスタム"].map((label) => (
+            <span key={label} className={styles.periodButton}>
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* サマリーカード群（スケルトン） */}
+      <div className={styles.summaryCards}>
+        {[t("trainingDuration"), t("attendedDays"), t("totalPages")].map(
+          (label) => (
+            <div key={label} className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>{label}</span>
+              <Skeleton variant="text" width="48px" height="20px" />
+            </div>
+          ),
+        )}
+      </div>
+
+      {/* チャートカード（スケルトン） */}
+      <div className={styles.chartCard}>
+        <h3 className={styles.chartTitle}>{t("monthlyTrend")}</h3>
+        <Skeleton
+          variant="rect"
+          width="100%"
+          height="200px"
+          borderRadius="8px"
+        />
+      </div>
+
+      <div className={styles.chartCard}>
+        <h3 className={styles.chartTitle}>{t("tagTrend")}</h3>
+        <Skeleton
+          variant="rect"
+          width="100%"
+          height="160px"
+          borderRadius="8px"
+        />
+      </div>
+    </div>
   );
 }
 

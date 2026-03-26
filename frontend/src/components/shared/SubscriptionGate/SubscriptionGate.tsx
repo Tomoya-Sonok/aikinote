@@ -63,8 +63,6 @@ export function SubscriptionGate({
       <PremiumUpgradeModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={title}
-        description={description}
       />
     </>
   );

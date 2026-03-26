@@ -11,7 +11,7 @@
 
 /* タイトル */
 .title {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-xl);
   font-weight: 400;
   color: var(--black);
@@ -22,7 +22,7 @@
 
 /* Markdown 本文エリア */
 .body {
-  font-family: var(--font-zen-old-mincho);
+  font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
   line-height: 1.9;
