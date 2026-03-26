@@ -20,6 +20,7 @@ import tagsRoute from "./routes/tags/index.js";
 import trainingDatesRoute from "./routes/training-dates/index.js";
 import usersRoute from "./routes/users/index.js";
 import revenuecatWebhookRoute from "./routes/webhooks/revenuecat.js";
+import stripeWebhookRoute from "./routes/webhooks/stripe.js";
 
 type AppBindings = {
   SUPABASE_URL?: string;
@@ -205,6 +206,7 @@ app.route("/api/tags", tagsRoute);
 app.route("/api/training-dates", trainingDatesRoute);
 app.route("/api/users", usersRoute);
 app.route("/api/webhooks", revenuecatWebhookRoute);
+app.route("/api/webhooks", stripeWebhookRoute);
 
 export type AppType = typeof app;
 

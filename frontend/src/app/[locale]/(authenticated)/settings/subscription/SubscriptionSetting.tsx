@@ -3,9 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout/MinimalLayout";
 import { Skeleton } from "@/components/shared/Skeleton";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { createCheckoutSession } from "@/lib/api/client";
 import { useSubscription } from "@/lib/hooks/useSubscription";
-import { getOfferings, identifyUser } from "@/lib/revenuecat";
 import styles from "./page.module.css";
 
 declare global {
@@ -16,71 +15,80 @@ declare global {
   }
 }
 
-type RCPackage = {
-  identifier: string;
-  rcBillingProduct: {
-    id: string;
-    currentPrice: { formattedPrice: string; amountMicros: number };
-    title: string;
-    normalPeriodDuration: string | null;
-  };
+// Stripe Price ID（環境変数 or ハードコード）
+// TODO: 本番用 Price ID に差し替え
+const PRICE_IDS = {
+  monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY ?? "",
+  yearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY ?? "",
 };
+
+const PLANS = [
+  {
+    key: "monthly" as const,
+    label: "月額プラン",
+    price: "¥380",
+    period: "/ 月",
+    description: "",
+  },
+  {
+    key: "yearly" as const,
+    label: "年額プラン",
+    price: "¥3,800",
+    period: "/ 年",
+    description: "2ヶ月分お得",
+  },
+];
 
 interface SubscriptionSettingProps {
   locale: string;
 }
 
 export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
-  const { user } = useAuth();
   const {
     loading: subLoading,
     isPremium,
     subscription,
     refetch,
   } = useSubscription();
-  const [packages, setPackages] = useState<RCPackage[]>([]);
-  const [loadingOfferings, setLoadingOfferings] = useState(true);
+  const [purchasing, setPurchasing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const searchParams =
-    typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search)
-      : null;
-  const success = searchParams?.get("success") === "1";
-  const isNativeApp =
-    typeof window !== "undefined" && window.__AIKINOTE_NATIVE_APP__;
+  const [success, setSuccess] = useState(false);
+  const [isNativeApp, setIsNativeApp] = useState(false);
 
-  // RevenueCat 初期化 + Offerings 取得
   useEffect(() => {
-    if (!user?.id || isNativeApp) {
-      setLoadingOfferings(false);
+    setIsNativeApp(!!window.__AIKINOTE_NATIVE_APP__);
+    const params = new URLSearchParams(window.location.search);
+    setSuccess(params.get("success") === "1");
+  }, []);
+
+  const handlePurchase = useCallback(async (planKey: "monthly" | "yearly") => {
+    const priceId = PRICE_IDS[planKey];
+    if (!priceId) {
+      setError("Price ID が設定されていません");
       return;
     }
 
-    const init = async () => {
-      try {
-        await identifyUser(user.id);
-        const offerings = await getOfferings();
-        const current = offerings?.current;
-        if (current?.availablePackages) {
-          setPackages(current.availablePackages as unknown as RCPackage[]);
-        }
-      } catch (err) {
-        console.error("[Subscription] offerings 取得エラー:", err);
-      } finally {
-        setLoadingOfferings(false);
+    setPurchasing(planKey);
+    setError(null);
+
+    try {
+      const url = await createCheckoutSession(priceId);
+      if (url) {
+        // Stripe Checkout ページにリダイレクト
+        window.location.href = url;
+      } else {
+        setError("チェックアウトの作成に失敗しました");
       }
-    };
-
-    init();
-  }, [user?.id, isNativeApp]);
-
-  const handlePurchase = useCallback(
-    (pkg: RCPackage) => {
-      // 別ページに遷移して Stripe Elements のライフサイクルを隔離
-      window.location.href = `/${locale}/settings/subscription/checkout?pkg=${encodeURIComponent(pkg.identifier)}`;
-    },
-    [locale],
-  );
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "チェックアウトの作成に失敗しました",
+      );
+    } finally {
+      setPurchasing(null);
+    }
+  }, []);
 
   const handleNativeUpgrade = useCallback(async () => {
     if (window.showNativePaywall) {
@@ -97,18 +105,10 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
       window.showNativeCustomerCenter();
       return;
     }
-    // Web: Stripe Customer Portal（Phase M2 拡張で RevenueCat の管理 URL に変更可能）
+    // Stripe Customer Portal
+    // TODO: Stripe Customer Portal URL を設定
     window.open("https://billing.stripe.com/p/login/test", "_blank");
   }, [isNativeApp]);
-
-  const formatPeriod = (duration: string | null): string => {
-    if (!duration) return "";
-    if (duration.includes("P1M") || duration === "P1M") return "/ 月";
-    if (duration.includes("P1Y") || duration === "P1Y") return "/ 年";
-    return "";
-  };
-
-  const loading = subLoading || loadingOfferings;
 
   return (
     <MinimalLayout
@@ -119,7 +119,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
         {/* 現在のプラン */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>現在のプラン</h2>
-          {loading ? (
+          {subLoading ? (
             <Skeleton
               variant="rect"
               width="100%"
@@ -155,7 +155,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         {/* アップグレード（Free ユーザーのみ） */}
-        {!loading && !isPremium && (
+        {!subLoading && !isPremium && (
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Premium にアップグレード</h2>
             <p className={styles.description}>
@@ -172,38 +172,38 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
               </button>
             ) : (
               <div className={styles.packages}>
-                {packages.map((pkg) => (
+                {PLANS.map((plan) => (
                   <button
-                    key={pkg.identifier}
+                    key={plan.key}
                     type="button"
                     className={styles.packageCard}
-                    onClick={() => handlePurchase(pkg)}
+                    onClick={() => handlePurchase(plan.key)}
+                    disabled={purchasing !== null}
                   >
                     <span className={styles.packagePrice}>
-                      {pkg.rcBillingProduct.currentPrice.formattedPrice}
+                      {plan.price}
                       <span className={styles.packagePeriod}>
-                        {formatPeriod(
-                          pkg.rcBillingProduct.normalPeriodDuration,
-                        )}
+                        {plan.period}
                       </span>
                     </span>
                     <span className={styles.packageName}>
-                      {pkg.rcBillingProduct.title}
+                      {plan.label}
+                      {plan.description && ` — ${plan.description}`}
                     </span>
+                    {purchasing === plan.key && (
+                      <span className={styles.packageProcessing}>
+                        処理中...
+                      </span>
+                    )}
                   </button>
                 ))}
-                {packages.length === 0 && !loading && (
-                  <p className={styles.noPackages}>
-                    プランの取得に失敗しました。ページを再読み込みしてください。
-                  </p>
-                )}
               </div>
             )}
           </section>
         )}
 
         {/* サブスクリプション管理（Premium ユーザーのみ） */}
-        {!loading && isPremium && (
+        {!subLoading && isPremium && (
           <section className={styles.section}>
             <button
               type="button"

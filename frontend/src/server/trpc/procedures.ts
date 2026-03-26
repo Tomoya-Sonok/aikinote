@@ -1207,3 +1207,17 @@ export const getSubscriptionStatusProcedure = publicProcedure.query(
     );
   },
 );
+
+export const createCheckoutSessionProcedure = publicProcedure
+  .input(z.object({ priceId: z.string().min(1) }))
+  .mutation(async ({ input }) => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ url: string }>>(
+      "/api/subscription/checkout",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ priceId: input.priceId }),
+      },
+    );
+  });

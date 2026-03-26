@@ -948,6 +948,25 @@ export const getSubscriptionStatus =
     }
   };
 
+// Stripe Checkout Session 作成API関数
+export const createCheckoutSession = async (
+  priceId: string,
+): Promise<string | null> => {
+  try {
+    const result = await trpcClient.subscription.createCheckout.mutate({
+      priceId,
+    });
+    if (result?.success && "data" in result && result.data?.url) {
+      return result.data.url;
+    }
+    return null;
+  } catch (error) {
+    throw new Error(
+      getErrorMessage(error, "チェックアウトの作成に失敗しました"),
+    );
+  }
+};
+
 export const getUnreadNotificationCount = async (): Promise<number> => {
   try {
     const result = await cachedQuery(
