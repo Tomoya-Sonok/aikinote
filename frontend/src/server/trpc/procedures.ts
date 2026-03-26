@@ -1213,7 +1213,7 @@ export const getSubscriptionStatusProcedure = publicProcedure.query(
 );
 
 export const createCheckoutSessionProcedure = publicProcedure
-  .input(z.object({ priceId: z.string().min(1) }))
+  .input(z.object({ priceId: z.string().min(1), locale: z.string().min(1) }))
   .mutation(async ({ input }) => {
     const token = await createBackendAuthToken();
     return callHonoApi<ApiResponse<{ url: string }>>(
@@ -1221,23 +1221,27 @@ export const createCheckoutSessionProcedure = publicProcedure
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ priceId: input.priceId }),
+        body: JSON.stringify({
+          priceId: input.priceId,
+          locale: input.locale,
+        }),
       },
     );
   });
 
-export const createPortalSessionProcedure = publicProcedure.mutation(
-  async () => {
+export const createPortalSessionProcedure = publicProcedure
+  .input(z.object({ locale: z.string().min(1) }))
+  .mutation(async ({ input }) => {
     const token = await createBackendAuthToken();
     return callHonoApi<ApiResponse<{ url: string }>>(
       "/api/subscription/portal",
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ locale: input.locale }),
       },
     );
-  },
-);
+  });
 
 export const syncSubscriptionProcedure = publicProcedure.mutation(async () => {
   const token = await createBackendAuthToken();

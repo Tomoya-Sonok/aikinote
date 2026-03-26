@@ -71,33 +71,36 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     setSuccess(params.get("success") === "1");
   }, []);
 
-  const handlePurchase = useCallback(async (planKey: "monthly" | "yearly") => {
-    const priceId = PRICE_IDS[planKey];
-    if (!priceId) {
-      setError("Price ID が設定されていません");
-      return;
-    }
-
-    setPurchasing(planKey);
-    setError(null);
-
-    try {
-      const url = await createCheckoutSession(priceId);
-      if (url) {
-        window.location.replace(url);
-      } else {
-        setError("チェックアウトの作成に失敗しました");
+  const handlePurchase = useCallback(
+    async (planKey: "monthly" | "yearly") => {
+      const priceId = PRICE_IDS[planKey];
+      if (!priceId) {
+        setError("Price ID が設定されていません");
+        return;
       }
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "チェックアウトの作成に失敗しました",
-      );
-    } finally {
-      setPurchasing(null);
-    }
-  }, []);
+
+      setPurchasing(planKey);
+      setError(null);
+
+      try {
+        const url = await createCheckoutSession(priceId, locale);
+        if (url) {
+          window.location.replace(url);
+        } else {
+          setError("チェックアウトの作成に失敗しました");
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "チェックアウトの作成に失敗しました",
+        );
+      } finally {
+        setPurchasing(null);
+      }
+    },
+    [locale],
+  );
 
   const handleNativeUpgrade = useCallback(async () => {
     if (window.showNativePaywall) {
@@ -117,7 +120,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
 
     setManagingPortal(true);
     try {
-      const url = await createPortalSession();
+      const url = await createPortalSession(locale);
       if (url) {
         window.location.href = url;
       } else {
@@ -130,7 +133,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     } finally {
       setManagingPortal(false);
     }
-  }, [isNativeApp]);
+  }, [isNativeApp, locale]);
 
   const premiumPrice =
     selectedPeriod === "monthly"

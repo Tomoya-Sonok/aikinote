@@ -107,6 +107,7 @@ app.post("/checkout", async (c) => {
 
     const body = await c.req.json();
     const priceId: string | undefined = body?.priceId;
+    const locale: string = body?.locale ?? "ja";
     if (!priceId) {
       return c.json(
         { success: false, error: "priceId が指定されていません" },
@@ -150,8 +151,8 @@ app.post("/checkout", async (c) => {
       customer_email: customerId ? undefined : (user?.email ?? undefined),
       mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/ja/settings/subscription?success=1`,
-      cancel_url: `${appUrl}/ja/settings/subscription`,
+      success_url: `${appUrl}/${locale}/settings/subscription?success=1`,
+      cancel_url: `${appUrl}/${locale}/settings/subscription`,
       metadata: {
         supabase_user_id: payload.userId,
       },
@@ -208,6 +209,9 @@ app.post("/portal", async (c) => {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
     }
 
+    const body = await c.req.json().catch(() => ({}));
+    const locale: string = (body as { locale?: string })?.locale ?? "ja";
+
     // ユーザーの email を取得して Stripe Customer を検索
     const { data: user } = await supabase
       .from("User")
@@ -242,7 +246,7 @@ app.post("/portal", async (c) => {
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customers.data[0].id,
-      return_url: `${appUrl}/ja/settings/subscription`,
+      return_url: `${appUrl}/${locale}/settings/subscription`,
     });
 
     return c.json({

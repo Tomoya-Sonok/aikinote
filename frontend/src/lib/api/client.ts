@@ -958,9 +958,13 @@ export const syncSubscription = async (): Promise<void> => {
 };
 
 // Stripe Customer Portal セッション作成API関数
-export const createPortalSession = async (): Promise<string | null> => {
+export const createPortalSession = async (
+  locale: string,
+): Promise<string | null> => {
   try {
-    const result = await trpcClient.subscription.createPortal.mutate();
+    const result = await trpcClient.subscription.createPortal.mutate({
+      locale,
+    });
     if (result?.success && "data" in result && result.data?.url) {
       return result.data.url;
     }
@@ -973,10 +977,12 @@ export const createPortalSession = async (): Promise<string | null> => {
 // Stripe Checkout Session 作成API関数
 export const createCheckoutSession = async (
   priceId: string,
+  locale: string,
 ): Promise<string | null> => {
   try {
     const result = await trpcClient.subscription.createCheckout.mutate({
       priceId,
+      locale,
     });
     if (result?.success && "data" in result && result.data?.url) {
       return result.data.url;
