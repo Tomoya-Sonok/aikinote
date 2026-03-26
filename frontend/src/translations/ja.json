@@ -287,7 +287,9 @@
     "upgradeMain": "みんなで を始める",
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
-    "close": "今はひとりで続ける"
+    "close": "今はひとりで続ける",
+    "previewLockTitle": "「みんなで」のすべての機能を使うには",
+    "previewLockButton": "Premium にアップグレード"
   },
   "premiumModalStats": {
     "badge": "PREMIUM",

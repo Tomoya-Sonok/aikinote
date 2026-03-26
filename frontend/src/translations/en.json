@@ -287,7 +287,9 @@
     "upgradeMain": "Start Minna de",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Continue on my own for now"
+    "close": "Continue on my own for now",
+    "previewLockTitle": "Unlock all social features",
+    "previewLockButton": "Upgrade to Premium"
   },
   "premiumModalStats": {
     "badge": "PREMIUM",

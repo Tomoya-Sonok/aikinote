@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   type KeyboardEvent,
   useCallback,
@@ -32,6 +32,7 @@ export function PremiumUpgradeModal({
   translationKey = "premiumModal",
 }: PremiumUpgradeModalProps) {
   const t = useTranslations(translationKey);
+  const locale = useLocale();
   const titleId = useId();
   const upgradeButtonRef = useRef<HTMLButtonElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -57,8 +58,8 @@ export function PremiumUpgradeModal({
       return;
     }
 
-    window.location.href = "/ja/settings/subscription";
-  }, [onClose]);
+    window.location.href = `/${locale}/settings/subscription`;
+  }, [onClose, locale]);
 
   if (!isOpen) return null;
 

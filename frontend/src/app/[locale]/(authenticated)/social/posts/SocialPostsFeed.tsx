@@ -38,6 +38,7 @@ const PREVIEW_TIMER_MS = 1000;
 export function SocialPostsFeed() {
   const { user } = useAuth();
   const locale = useLocale();
+  const tPremium = useTranslations("premiumModal");
   const t = useTranslations("socialPosts");
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<SocialTab>(() =>
@@ -52,17 +53,24 @@ export function SocialPostsFeed() {
   const [showPreviewLock, setShowPreviewLock] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Free ユーザー: 1秒後にモーダル表示（スクロールは一時的にロック）
+  // Free ユーザー: 1秒後にモーダル表示 + スクロールロック
+  const modalShownRef = useRef(false);
   useEffect(() => {
     if (subLoading || isPremium || isLoading) return;
 
     const timer = setTimeout(() => {
+      modalShownRef.current = true;
       setShowUpgradeModal(true);
       document.body.style.overflow = "hidden";
     }, PREVIEW_TIMER_MS);
 
-    return () => clearTimeout(timer);
-  }, [subLoading, isPremium, isLoading]);
+    return () => {
+      clearTimeout(timer);
+      if (modalShownRef.current && !showPreviewLock) {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [subLoading, isPremium, isLoading, showPreviewLock]);
 
   // previewLock 表示中はスクロールを無効化
   useEffect(() => {
@@ -174,14 +182,14 @@ export function SocialPostsFeed() {
         <div className={styles.previewLock}>
           <div className={styles.previewLockContent}>
             <p className={styles.previewLockTitle}>
-              「みんなで」のすべての機能を使うには
+              {tPremium("previewLockTitle")}
             </p>
             <button
               type="button"
               className={styles.previewLockButton}
               onClick={() => setShowUpgradeModal(true)}
             >
-              Premium にアップグレード
+              {tPremium("previewLockButton")}
             </button>
           </div>
         </div>

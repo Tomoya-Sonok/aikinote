@@ -8,6 +8,18 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 
+/**
+ * sync は Stripe Portal / Checkout からの戻り時のみ実行
+ * 通常のページロードでは getSubscriptionStatus のみ（キャッシュ活用）
+ */
+function shouldSync(): boolean {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  return (
+    params.has("success") || params.has("canceled") || params.has("portal")
+  );
+}
+
 export function useSubscription() {
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -26,8 +38,9 @@ export function useSubscription() {
 
     setLoading(true);
     try {
-      // Stripe Portal から戻ってきた場合など、DB と Stripe の状態がずれている可能性があるため同期
-      await syncSubscription();
+      if (shouldSync()) {
+        await syncSubscription();
+      }
       const status = await getSubscriptionStatus();
       setSubscription(status);
       setIsPremium(status.is_premium);

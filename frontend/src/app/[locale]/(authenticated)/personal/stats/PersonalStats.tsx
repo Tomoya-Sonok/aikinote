@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
@@ -79,10 +79,10 @@ function computeDuration(firstDate: string | null): {
 }
 
 export function PersonalStats() {
+  const t = useTranslations("premiumModalStats");
   const { isPremium, loading: subLoading } = useSubscription();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showPreviewLock, setShowPreviewLock] = useState(false);
-  const scrollLocked = useRef(false);
 
   // Free ユーザー: 即時モーダル表示 + スクロール最初からロック
   useEffect(() => {
@@ -90,7 +90,6 @@ export function PersonalStats() {
     if (!isPremium) {
       setShowUpgradeModal(true);
       document.body.style.overflow = "hidden";
-      scrollLocked.current = true;
       return () => {
         document.body.style.overflow = "";
       };
@@ -115,15 +114,13 @@ export function PersonalStats() {
       {showPreviewLock && (
         <div className={styles.previewLock}>
           <div className={styles.previewLockContent}>
-            <p className={styles.previewLockTitle}>
-              稽古の積み重ねを、データで振り返ろう
-            </p>
+            <p className={styles.previewLockTitle}>{t("title")}</p>
             <button
               type="button"
               className={styles.previewLockButton}
               onClick={() => setShowUpgradeModal(true)}
             >
-              Premium にアップグレード
+              {t("upgradeMain")}
             </button>
           </div>
         </div>
@@ -150,7 +147,13 @@ function PersonalStatsSkeleton() {
       <div className={styles.periodSection}>
         <span className={styles.periodLabel}>{t("periodLabel")}</span>
         <div className={styles.periodButtons}>
-          {["全期間", "3ヶ月", "6ヶ月", "1年", "カスタム"].map((label) => (
+          {[
+            t("periodAll"),
+            t("period3Months"),
+            t("period6Months"),
+            t("period1Year"),
+            t("periodCustom"),
+          ].map((label) => (
             <span key={label} className={styles.periodButton}>
               {label}
             </span>
