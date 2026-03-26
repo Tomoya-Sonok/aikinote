@@ -948,6 +948,28 @@ export const getSubscriptionStatus =
     }
   };
 
+// Stripe サブスクリプション同期API関数
+export const syncSubscription = async (): Promise<void> => {
+  try {
+    await trpcClient.subscription.sync.mutate();
+  } catch {
+    // 同期失敗はサイレントに無視（次回のステータス取得で反映される）
+  }
+};
+
+// Stripe Customer Portal セッション作成API関数
+export const createPortalSession = async (): Promise<string | null> => {
+  try {
+    const result = await trpcClient.subscription.createPortal.mutate();
+    if (result?.success && "data" in result && result.data?.url) {
+      return result.data.url;
+    }
+    return null;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "管理画面の表示に失敗しました"));
+  }
+};
+
 // Stripe Checkout Session 作成API関数
 export const createCheckoutSession = async (
   priceId: string,

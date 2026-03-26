@@ -53,6 +53,13 @@
   color: var(--text-light);
 }
 
+.planDetailCancel {
+  font-family: var(--font-noto-sans-jp);
+  font-size: var(--font-size-xs);
+  color: var(--accent-color);
+  line-height: 1.5;
+}
+
 /* メッセージ */
 .successMessage {
   padding: 12px 16px;

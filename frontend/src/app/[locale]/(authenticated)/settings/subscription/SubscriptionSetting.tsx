@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout/MinimalLayout";
 import { Skeleton } from "@/components/shared/Skeleton";
-import { createCheckoutSession } from "@/lib/api/client";
+import { createCheckoutSession, createPortalSession } from "@/lib/api/client";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import styles from "./page.module.css";
 
@@ -100,14 +100,29 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     }
   }, [refetch, locale]);
 
-  const handleManageSubscription = useCallback(() => {
+  const [managingPortal, setManagingPortal] = useState(false);
+
+  const handleManageSubscription = useCallback(async () => {
     if (isNativeApp && window.showNativeCustomerCenter) {
       window.showNativeCustomerCenter();
       return;
     }
-    // Stripe Customer Portal
-    // TODO: Stripe Customer Portal URL を設定
-    window.open("https://billing.stripe.com/p/login/test", "_blank");
+
+    setManagingPortal(true);
+    try {
+      const url = await createPortalSession();
+      if (url) {
+        window.location.href = url;
+      } else {
+        setError("管理画面の表示に失敗しました");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "管理画面の表示に失敗しました",
+      );
+    } finally {
+      setManagingPortal(false);
+    }
   }, [isNativeApp]);
 
   return (
@@ -133,13 +148,27 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
               <span className={styles.planName}>
                 {isPremium ? "Premium" : "Free"}
               </span>
-              {isPremium && subscription?.current_period_end && (
-                <span className={styles.planDetail}>
-                  {subscription.cancel_at_period_end
-                    ? `${new Date(subscription.current_period_end).toLocaleDateString("ja-JP")} まで有効`
-                    : `次回更新: ${new Date(subscription.current_period_end).toLocaleDateString("ja-JP")}`}
-                </span>
-              )}
+              {isPremium &&
+                subscription?.cancel_at_period_end &&
+                subscription?.current_period_end && (
+                  <span className={styles.planDetailCancel}>
+                    解約済み —{" "}
+                    {new Date(
+                      subscription.current_period_end,
+                    ).toLocaleDateString("ja-JP")}{" "}
+                    まで Premium 機能をご利用いただけます
+                  </span>
+                )}
+              {isPremium &&
+                !subscription?.cancel_at_period_end &&
+                subscription?.current_period_end && (
+                  <span className={styles.planDetail}>
+                    次回更新:{" "}
+                    {new Date(
+                      subscription.current_period_end,
+                    ).toLocaleDateString("ja-JP")}
+                  </span>
+                )}
             </div>
           )}
         </section>
@@ -209,8 +238,9 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
               type="button"
               className={styles.manageButton}
               onClick={handleManageSubscription}
+              disabled={managingPortal}
             >
-              サブスクリプションを管理
+              {managingPortal ? "読み込み中..." : "サブスクリプションを管理"}
             </button>
           </section>
         )}

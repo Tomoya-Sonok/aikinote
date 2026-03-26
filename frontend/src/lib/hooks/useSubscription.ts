@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   getSubscriptionStatus,
   type SubscriptionStatusResult,
+  syncSubscription,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 
@@ -25,6 +26,8 @@ export function useSubscription() {
 
     setLoading(true);
     try {
+      // Stripe Portal から戻ってきた場合など、DB と Stripe の状態がずれている可能性があるため同期
+      await syncSubscription();
       const status = await getSubscriptionStatus();
       setSubscription(status);
       setIsPremium(status.is_premium);

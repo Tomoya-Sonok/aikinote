@@ -17,6 +17,11 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({ className = "" }) => {
 
   return (
     <div className={`${styles.menu} ${className}`}>
+      <SettingItem
+        onClick={() => router.push(`/${locale}/settings/subscription`)}
+      >
+        {t("navigation.subscription")}
+      </SettingItem>
       <SettingItem onClick={() => router.push(`/${locale}/settings/publicity`)}>
         {t("publicitySetting.title")}
       </SettingItem>

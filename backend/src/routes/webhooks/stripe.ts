@@ -179,6 +179,62 @@ function safeTimestampToISO(value: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Stripe Subscription オブジェクトから期間情報を抽出
+ * API バージョンによってフィールド構造が異なるため、複数のパスを試す
+ */
+function extractPeriodDates(subscription: Stripe.Subscription): {
+  periodStart: string | undefined;
+  periodEnd: string | undefined;
+  cancelAtPeriodEnd: boolean;
+} {
+  // biome-ignore lint/suspicious/noExplicitAny: Stripe API バージョンで型が変わるため
+  const sub = subscription as any;
+
+  // デバッグ: 実際のフィールド構造をログ出力
+  const periodKeys = Object.keys(sub).filter(
+    (k) => k.includes("period") || k.includes("cancel"),
+  );
+  console.log("[Stripe] subscription period 関連フィールド:", periodKeys);
+  console.log("[Stripe] current_period_start:", sub.current_period_start);
+  console.log("[Stripe] current_period_end:", sub.current_period_end);
+  console.log("[Stripe] current_period:", sub.current_period);
+  console.log("[Stripe] cancel_at_period_end:", sub.cancel_at_period_end);
+  console.log("[Stripe] cancel_at:", sub.cancel_at);
+
+  // パス1: current_period_start / current_period_end（旧 API）
+  let periodStart = safeTimestampToISO(sub.current_period_start);
+  let periodEnd = safeTimestampToISO(sub.current_period_end);
+
+  // パス2: current_period.start / current_period.end（新 API の可能性）
+  if (!periodStart && sub.current_period?.start) {
+    periodStart = safeTimestampToISO(sub.current_period.start);
+  }
+  if (!periodEnd && sub.current_period?.end) {
+    periodEnd = safeTimestampToISO(sub.current_period.end);
+  }
+
+  // パス3: items.data[0] から取得
+  const item = sub.items?.data?.[0];
+  if (!periodStart && item?.current_period_start) {
+    periodStart = safeTimestampToISO(item.current_period_start);
+  }
+  if (!periodEnd && item?.current_period_end) {
+    periodEnd = safeTimestampToISO(item.current_period_end);
+  }
+  if (!periodStart && item?.current_period?.start) {
+    periodStart = safeTimestampToISO(item.current_period.start);
+  }
+  if (!periodEnd && item?.current_period?.end) {
+    periodEnd = safeTimestampToISO(item.current_period.end);
+  }
+
+  const cancelAtPeriodEnd =
+    sub.cancel_at_period_end === true || sub.cancel_at != null;
+
+  return { periodStart, periodEnd, cancelAtPeriodEnd };
+}
+
 async function updateSubscription(
   supabase: SupabaseClient,
   userId: string,
@@ -187,8 +243,12 @@ async function updateSubscription(
   const isActive =
     subscription.status === "active" || subscription.status === "trialing";
 
-  // biome-ignore lint/suspicious/noExplicitAny: Stripe API バージョンで型が変わるため
-  const sub = subscription as any;
+  const { periodStart, periodEnd, cancelAtPeriodEnd } =
+    extractPeriodDates(subscription);
+
+  console.log(
+    `[Stripe Webhook] 抽出結果: start=${periodStart}, end=${periodEnd}, cancel=${cancelAtPeriodEnd}`,
+  );
 
   await upsertSubscriptionFromWebhook(supabase, {
     userId,
@@ -197,9 +257,9 @@ async function updateSubscription(
     status: mapStripeStatus(subscription.status),
     platform: "web",
     productId: subscription.items.data[0]?.price?.id ?? null,
-    currentPeriodStart: safeTimestampToISO(sub.current_period_start),
-    currentPeriodEnd: safeTimestampToISO(sub.current_period_end),
-    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    currentPeriodStart: periodStart,
+    currentPeriodEnd: periodEnd,
+    cancelAtPeriodEnd,
   });
 
   console.log(

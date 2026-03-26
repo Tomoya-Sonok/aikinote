@@ -1221,3 +1221,27 @@ export const createCheckoutSessionProcedure = publicProcedure
       },
     );
   });
+
+export const createPortalSessionProcedure = publicProcedure.mutation(
+  async () => {
+    const token = await createBackendAuthToken();
+    return callHonoApi<ApiResponse<{ url: string }>>(
+      "/api/subscription/portal",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+  },
+);
+
+export const syncSubscriptionProcedure = publicProcedure.mutation(async () => {
+  const token = await createBackendAuthToken();
+  return callHonoApi<ApiResponse<{ tier: string; status: string }>>(
+    "/api/subscription/sync",
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+  );
+});

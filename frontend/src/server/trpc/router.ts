@@ -4,6 +4,7 @@ import {
   createCheckoutSessionProcedure,
   createDojoStyleProcedure,
   createPageProcedure,
+  createPortalSessionProcedure,
   createSocialPostProcedure,
   createSocialReplyProcedure,
   createTagProcedure,
@@ -37,6 +38,7 @@ import {
   reportReplyProcedure,
   searchDojoStylesProcedure,
   searchSocialPostsProcedure,
+  syncSubscriptionProcedure,
   toggleFavoriteProcedure,
   toggleReplyFavoriteProcedure,
   updatePageProcedure,
@@ -119,6 +121,8 @@ export const appRouter = createTRPCRouter({
   subscription: createTRPCRouter({
     getStatus: getSubscriptionStatusProcedure,
     createCheckout: createCheckoutSessionProcedure,
+    createPortal: createPortalSessionProcedure,
+    sync: syncSubscriptionProcedure,
   }),
 });
 
