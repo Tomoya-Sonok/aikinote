@@ -93,6 +93,7 @@ const signUpSchema = z.object({
   email: z.string().email("メールアドレスの形式が正しくありません"),
   password: z.string().min(8, "パスワードは8文字以上で入力してください"),
   username: z.string().min(1, "ユーザー名は必須です"),
+  language: z.enum(["ja", "en"]).optional().default("ja"),
 });
 
 function formatZodErrors(error: z.ZodError) {
@@ -166,7 +167,12 @@ const hashPassword = async (password: string): Promise<string> => {
 
 const sendVerificationEmail = async (
   c: Context<{ Bindings: UserBindings; Variables: UserVariables }>,
-  params: { email: string; username: string; verificationToken: string },
+  params: {
+    email: string;
+    username: string;
+    verificationToken: string;
+    language: string;
+  },
 ) => {
   const resendApiKey = getEnvValue(c, "RESEND_API_KEY");
   if (!resendApiKey) {
@@ -175,22 +181,35 @@ const sendVerificationEmail = async (
 
   const fromEmail =
     getEnvValue(c, "RESEND_FROM_EMAIL") || "noreply@example.com";
+  const localePrefix = params.language === "ja" ? "" : `/${params.language}`;
   const verificationUrl = buildRedirectUrl(
     c,
-    `/verify-email?token=${params.verificationToken}`,
+    `${localePrefix}/verify-email?token=${params.verificationToken}`,
   );
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: [params.email],
-      subject: "メールアドレスの認証",
-      html: `
+  const isEnglish = params.language === "en";
+
+  const subject = isEnglish
+    ? "Email Address Verification"
+    : "メールアドレスの認証";
+
+  const html = isEnglish
+    ? `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Email Address Verification</h2>
+          <p>Hello, ${params.username}!</p>
+          <p>Thank you for creating your account. Please click the link below to verify your email address.</p>
+          <a
+            href="${verificationUrl}"
+            style="display: inline-block; padding: 12px 24px; background-color: #007cba; color: white; text-decoration: none; border-radius: 4px; margin: 16px 0;"
+          >
+            Verify Email Address
+          </a>
+          <p>This link will expire in 1 hour.</p>
+          <p>If you did not request this email, please ignore it.</p>
+        </div>
+      `
+    : `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>メールアドレスの認証</h2>
           <p>こんにちは、${params.username}さん！</p>
@@ -204,7 +223,19 @@ const sendVerificationEmail = async (
           <p>このリンクは1時間後に期限切れになります。</p>
           <p>もしこのメールに心当たりがない場合は、このメールを無視してください。</p>
         </div>
-      `,
+      `;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: fromEmail,
+      to: [params.email],
+      subject,
+      html,
     }),
   });
 
@@ -299,7 +330,7 @@ app.post("/", async (c) => {
     );
   }
 
-  const { email, password, username } = parsed.data;
+  const { email, password, username, language } = parsed.data;
 
   const { data: existingEmail, error: emailError } = await supabase
     .from("User")
@@ -404,7 +435,7 @@ app.post("/", async (c) => {
         profile_image_url: null,
         training_start_date: null,
         publicity_setting: "public",
-        language: "ja",
+        language,
         is_email_verified: false,
         verification_token: verificationToken,
         password_hash: passwordHash,
@@ -446,6 +477,7 @@ app.post("/", async (c) => {
         email,
         username,
         verificationToken,
+        language,
       });
     } catch (emailError) {
       await supabase.from("User").delete().eq("id", createdUserId);

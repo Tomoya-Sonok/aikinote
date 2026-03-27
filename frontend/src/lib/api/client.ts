@@ -594,6 +594,7 @@ export interface CreateUserPayload {
   email: string;
   password: string;
   username: string;
+  language?: "ja" | "en";
 }
 
 export const createUserViaTrpc = async (payload: CreateUserPayload) => {

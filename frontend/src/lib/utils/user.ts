@@ -51,6 +51,7 @@ export async function createUserProfile(userData: {
   email: string;
   password: string;
   username: string;
+  language?: "ja" | "en";
 }): Promise<{
   success: boolean;
   data?: {
@@ -66,6 +67,7 @@ export async function createUserProfile(userData: {
       email: userData.email,
       password: userData.password,
       username: userData.username,
+      language: userData.language,
     });
 
     if (!result.success) {

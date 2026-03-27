@@ -184,6 +184,7 @@ export function useAuth() {
           email: data.email,
           password: data.password,
           username: data.username,
+          language: locale as "ja" | "en",
         });
 
         if (!userResult.success) {
@@ -205,7 +206,7 @@ export function useAuth() {
         setIsProcessing(false);
       }
     },
-    [],
+    [locale],
   );
 
   const signInWithCredentials = useCallback(

@@ -612,6 +612,7 @@ export const createUserProcedure = publicProcedure
       email: z.string().email(),
       password: z.string().min(8),
       username: z.string().min(1),
+      language: z.enum(["ja", "en"]).optional(),
     }),
   )
   .mutation(async ({ input }) => {
