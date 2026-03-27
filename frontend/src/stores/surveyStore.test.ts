@@ -43,4 +43,25 @@ describe("surveyStore", () => {
     const state = useSurveyStore.getState();
     expect(state.dismissedAt).toBe(second);
   });
+
+  it("旧フォーマット（ISO 8601文字列）からZustand形式に移行される", () => {
+    const isoDate = "2025-06-15T12:00:00.000Z";
+
+    // 旧フォーマットでlocalStorageに保存
+    localStorage.setItem("aikinote-survey-dismissed", isoDate);
+
+    // ストアを再hydrate
+    act(() => {
+      useSurveyStore.persist.rehydrate();
+    });
+
+    const state = useSurveyStore.getState();
+    expect(state.dismissedAt).toBe(isoDate);
+
+    // localStorageが新フォーマットに更新されていることを確認
+    const stored = JSON.parse(
+      localStorage.getItem("aikinote-survey-dismissed") ?? "{}",
+    );
+    expect(stored.state?.dismissedAt).toBe(isoDate);
+  });
 });

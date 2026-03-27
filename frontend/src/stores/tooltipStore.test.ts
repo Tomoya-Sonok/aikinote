@@ -39,4 +39,23 @@ describe("tooltipStore", () => {
     const state = useTooltipStore.getState();
     expect(state.hasShownTooltip).toBe(true);
   });
+
+  it("旧フォーマット（raw 'true'文字列）からZustand形式に移行される", () => {
+    // 旧フォーマットでlocalStorageに保存
+    localStorage.setItem("aikinote-font-size-tooltip-shown", "true");
+
+    // ストアを再hydrate
+    act(() => {
+      useTooltipStore.persist.rehydrate();
+    });
+
+    const state = useTooltipStore.getState();
+    expect(state.hasShownTooltip).toBe(true);
+
+    // localStorageが新フォーマットに更新されていることを確認
+    const stored = JSON.parse(
+      localStorage.getItem("aikinote-font-size-tooltip-shown") ?? "{}",
+    );
+    expect(stored.state?.hasShownTooltip).toBe(true);
+  });
 });

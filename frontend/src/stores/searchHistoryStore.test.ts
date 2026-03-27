@@ -84,4 +84,26 @@ describe("searchHistoryStore", () => {
     const state = useSearchHistoryStore.getState();
     expect(state.history).toEqual([]);
   });
+
+  it("旧フォーマット（JSON配列）からZustand形式に移行される", () => {
+    // 旧フォーマットでlocalStorageに保存
+    localStorage.setItem(
+      "aikinote_search_history",
+      JSON.stringify(["検索A", "検索B"]),
+    );
+
+    // ストアを再hydrate
+    act(() => {
+      useSearchHistoryStore.persist.rehydrate();
+    });
+
+    const state = useSearchHistoryStore.getState();
+    expect(state.history).toEqual(["検索A", "検索B"]);
+
+    // localStorageが新フォーマットに更新されていることを確認
+    const stored = JSON.parse(
+      localStorage.getItem("aikinote_search_history") ?? "{}",
+    );
+    expect(stored.state?.history).toEqual(["検索A", "検索B"]);
+  });
 });

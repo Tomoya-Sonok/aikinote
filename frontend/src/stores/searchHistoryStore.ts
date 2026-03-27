@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import {
+  createJSONStorage,
+  persist,
+  type StateStorage,
+} from "zustand/middleware";
 
 const MAX_ITEMS = 10;
 
@@ -9,6 +13,42 @@ export interface SearchHistoryState {
   removeFromHistory: (query: string) => void;
   clearHistory: () => void;
 }
+
+/**
+ * 旧フォーマット（JSON配列文字列）からZustand persist形式への移行をサポートするストレージアダプタ
+ */
+const migratingStorage: StateStorage = {
+  getItem: (name: string): string | null => {
+    const value = localStorage.getItem(name);
+    if (value === null) return null;
+
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed && typeof parsed === "object" && "state" in parsed) {
+        return value;
+      }
+      // 旧フォーマット: localStorage.setItem(key, JSON.stringify(["query1", "query2"]))
+      if (Array.isArray(parsed)) {
+        const migrated = JSON.stringify({
+          state: { history: parsed },
+          version: 0,
+        });
+        localStorage.setItem(name, migrated);
+        return migrated;
+      }
+    } catch {
+      // JSONとしてパースできない場合は無視
+    }
+
+    return null;
+  },
+  setItem: (name: string, value: string) => {
+    localStorage.setItem(name, value);
+  },
+  removeItem: (name: string) => {
+    localStorage.removeItem(name);
+  },
+};
 
 export const useSearchHistoryStore = create<SearchHistoryState>()(
   persist(
@@ -31,8 +71,8 @@ export const useSearchHistoryStore = create<SearchHistoryState>()(
       clearHistory: () => set({ history: [] }),
     }),
     {
-      name: "aikinote-search-history",
-      storage: createJSONStorage(() => localStorage),
+      name: "aikinote_search_history",
+      storage: createJSONStorage(() => migratingStorage),
     },
   ),
 );
