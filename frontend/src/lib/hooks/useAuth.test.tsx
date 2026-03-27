@@ -183,6 +183,7 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
       email: "test@example.com",
       password: "password123",
       username: "testuser",
+      language: "ja",
     });
 
     expect(mockSupabaseClient.auth.signUp).not.toHaveBeenCalled();
