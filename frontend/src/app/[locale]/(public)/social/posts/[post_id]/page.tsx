@@ -26,10 +26,18 @@ export async function generateMetadata({
       if (json.success && json.data?.post?.content) {
         const content: string = json.data.post.content;
         const snippet =
-          content.length > 15 ? `${content.slice(0, 15)}...` : content;
+          content.length > 50 ? `${content.slice(0, 50)}...` : content;
         return buildMetadata({
           title: t("detail"),
           openGraphDescription: snippet,
+          openGraphImages: [
+            {
+              url: "/og-image.png",
+              width: 1200,
+              height: 630,
+              alt: "AikiNote",
+            },
+          ],
         });
       }
     }
