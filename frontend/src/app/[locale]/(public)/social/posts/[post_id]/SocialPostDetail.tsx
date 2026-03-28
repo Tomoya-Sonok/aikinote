@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeftIcon,
   DotsThreeVerticalIcon,
   HeartIcon,
   ShareFatIcon,
@@ -26,6 +27,7 @@ import { HashtagText } from "@/components/shared/HashtagText/HashtagText";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { ChatLayout } from "@/components/shared/layouts/ChatLayout";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupPromptModal";
 import { Tag } from "@/components/shared/Tag/Tag";
@@ -44,6 +46,7 @@ import {
   updateSocialReply,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import styles from "./SocialPostDetail.module.css";
 
@@ -109,8 +112,10 @@ interface SocialPostDetailProps {
 
 export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const { user, isInitializing } = useAuth();
+  const { isPremium, loading: subLoading } = useSubscription();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
+  const tPremium = useTranslations("premiumModal");
   const { showToast } = useToast();
   const [detail, setDetail] = useState<PostDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -119,9 +124,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPreviewLock, setShowPreviewLock] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isAuthenticated = !!user;
+  const isFreeUser = isAuthenticated && !subLoading && !isPremium;
 
   useEffect(() => {
     if (isInitializing) return;
@@ -145,6 +153,26 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     };
     fetchDetail();
   }, [postId, user, isInitializing]);
+
+  // Free ユーザー: 即時モーダル表示
+  useEffect(() => {
+    if (!isAuthenticated || subLoading || isPremium) return;
+    setShowUpgradeModal(true);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isAuthenticated, subLoading, isPremium]);
+
+  // previewLock 表示中はスクロールを無効化
+  useEffect(() => {
+    if (showPreviewLock) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [showPreviewLock]);
 
   // メニュー外クリックで閉じる
   useEffect(() => {
@@ -409,11 +437,16 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     }
   }, [detail, locale, postId, showToast, t]);
 
+  const handleDismissModal = useCallback(() => {
+    setShowUpgradeModal(false);
+    setShowPreviewLock(true);
+  }, []);
+
   const handleSignupPromptOpen = useCallback(() => {
     setShowSignupPrompt(true);
   }, []);
 
-  if (isLoading || isInitializing) {
+  if (isLoading || isInitializing || (isAuthenticated && subLoading)) {
     return (
       <ChatLayout>
         <Loader centered size="medium" />
@@ -433,21 +466,22 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const isOwner = user?.id === detail.post.user_id;
 
-  const footer = isAuthenticated ? (
-    <SocialReplyForm onSubmit={handleReplySubmit} />
-  ) : (
-    <div className={styles.dummyReplyForm}>
-      <div className={styles.dummyReplyInputWrapper}>
-        <button
-          type="button"
-          className={styles.dummyReplyInput}
-          onClick={handleSignupPromptOpen}
-        >
-          {t("replyPlaceholder")}
-        </button>
+  const footer =
+    isAuthenticated && !isFreeUser ? (
+      <SocialReplyForm onSubmit={handleReplySubmit} />
+    ) : !isAuthenticated ? (
+      <div className={styles.dummyReplyForm}>
+        <div className={styles.dummyReplyInputWrapper}>
+          <button
+            type="button"
+            className={styles.dummyReplyInput}
+            onClick={handleSignupPromptOpen}
+          >
+            {t("replyPlaceholder")}
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    ) : null;
 
   return (
     <ChatLayout footer={footer}>
@@ -652,6 +686,38 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         isOpen={showSignupPrompt}
         onClose={() => setShowSignupPrompt(false)}
       />
+
+      {isFreeUser && showPreviewLock && (
+        <div className={styles.previewLock}>
+          <button
+            type="button"
+            className={styles.previewLockBack}
+            onClick={handleBack}
+            aria-label={t("back")}
+          >
+            <ArrowLeftIcon size={24} weight="regular" />
+          </button>
+          <div className={styles.previewLockContent}>
+            <p className={styles.previewLockTitle}>
+              {tPremium("previewLockTitle")}
+            </p>
+            <button
+              type="button"
+              className={styles.previewLockButton}
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              {tPremium("previewLockButton")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isFreeUser && (
+        <PremiumUpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={handleDismissModal}
+        />
+      )}
     </ChatLayout>
   );
 }
