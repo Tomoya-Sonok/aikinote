@@ -67,6 +67,7 @@
   color: var(--black);
   text-decoration: underline;
   letter-spacing: 1px;
+  text-align: center;
 }
 
 .loginLink:hover {
@@ -133,7 +134,7 @@
   }
 
   .loginLink {
-    text-align: center;
+    text-align: unset;
   }
 
   .visualWrapper {
