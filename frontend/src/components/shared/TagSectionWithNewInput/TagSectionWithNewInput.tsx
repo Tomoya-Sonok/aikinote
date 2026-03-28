@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/shared/Button/Button";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
 import type { UseTagManagementReturn } from "@/lib/hooks/useTagManagement";
 import styles from "./TagSectionWithNewInput.module.css";
@@ -30,6 +31,7 @@ export function TagSectionWithNewInput({
         selectedTags={selectedTags}
         onTagToggle={(tag) => tagManagement.handleTagToggle(category, tag)}
         onAddNew={() => tagManagement.setShowNewTagInput(category)}
+        onCancel={tagManagement.handleCancelNewTag}
         showAddButton={tagManagement.showNewTagInput !== category}
       />
       {tagManagement.showNewTagInput === category && (
@@ -44,16 +46,16 @@ export function TagSectionWithNewInput({
             }}
             maxLength={20}
           />
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="small"
             onClick={() => tagManagement.handleSubmitNewTag(category)}
-            disabled={tagManagement.loading}
+            disabled={
+              tagManagement.loading || !tagManagement.newTagInput.trim()
+            }
           >
             {t("pageModal.add")}
-          </button>
-          <button type="button" onClick={tagManagement.handleCancelNewTag}>
-            {t("common.cancel")}
-          </button>
+          </Button>
         </div>
       )}
     </div>

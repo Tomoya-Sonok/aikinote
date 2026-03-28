@@ -1,6 +1,6 @@
 "use client";
 
-import { PencilSimpleIcon, XIcon } from "@phosphor-icons/react";
+import { X } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import {
   type DragEvent,
@@ -132,9 +132,6 @@ export function TagManagement({ locale }: TagManagementProps) {
   const [tagGroups, setTagGroups] = useState<TagGroupMap>(EMPTY_GROUPS);
   const [initialOrder, setInitialOrder] = useState<OrderMap>(EMPTY_ORDERS);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingCategory, setEditingCategory] = useState<CategoryKey | null>(
-    null,
-  );
   const [newTagInputs, setNewTagInputs] = useState<Record<CategoryKey, string>>(
     {
       tori: "",
@@ -217,11 +214,6 @@ export function TagManagement({ locale }: TagManagementProps) {
     },
     [initialOrder, tagGroups],
   );
-
-  const handleToggleEditing = (category: CategoryKey) => {
-    setEditingCategory((prev) => (prev === category ? null : category));
-    resetDraggingState();
-  };
 
   const handleInputChange = (category: CategoryKey, value: string) => {
     setNewTagInputs((prev) => ({
@@ -352,7 +344,6 @@ export function TagManagement({ locale }: TagManagementProps) {
     tagId: string,
     event: DragEvent<HTMLLIElement>,
   ) => {
-    if (editingCategory !== category) return;
     setDraggingTagId(tagId);
     setDraggingCategory(category);
     if (event.dataTransfer) {
@@ -459,7 +450,7 @@ export function TagManagement({ locale }: TagManagementProps) {
     tagId: string,
     event: TouchEvent<HTMLLIElement>,
   ) => {
-    if (editingCategory !== category || event.touches.length === 0) {
+    if (event.touches.length === 0) {
       return;
     }
 
@@ -482,10 +473,6 @@ export function TagManagement({ locale }: TagManagementProps) {
     category: CategoryKey,
     event: TouchEvent<HTMLUListElement>,
   ) => {
-    if (editingCategory !== category) {
-      return;
-    }
-
     if (draggingCategory && draggingCategory !== category) {
       return;
     }
@@ -627,7 +614,6 @@ export function TagManagement({ locale }: TagManagementProps) {
         const groups = buildGroups(response.data as TagItem[]);
         setTagGroups(groups);
         setInitialOrder(extractOrders(groups));
-        setEditingCategory(null);
       } else {
         showToast(
           ("error" in response && response.error) ||
@@ -652,13 +638,13 @@ export function TagManagement({ locale }: TagManagementProps) {
       backHref={`/${locale}/personal/pages`}
     >
       <div className={styles.container}>
+        <p className={styles.description}>{t("tagManagement.reorderHint")}</p>
         {isLoading ? (
           <div className={styles.loaderWrapper}>
             <Loader centered text={t("tagManagement.loading")} />
           </div>
         ) : (
           CATEGORY_KEYS.map((category) => {
-            const isEditing = editingCategory === category;
             const tagsForCategory = tagGroups[category];
             const inputValue = newTagInputs[category];
             const isSubmitting = submittingCategory === category;
@@ -671,58 +657,27 @@ export function TagManagement({ locale }: TagManagementProps) {
                   <h2 className={styles.categoryTitle}>
                     {t(`tagManagement.categories.${category}`)}
                   </h2>
-                  <button
-                    type="button"
-                    className={styles.editButton}
-                    onClick={() => handleToggleEditing(category)}
-                    aria-pressed={isEditing}
-                    aria-label={t("tagManagement.editAria", {
-                      category: t(`tagManagement.categories.${category}`),
-                    })}
-                  >
-                    {isEditing ? (
-                      <XIcon
-                        size={18}
-                        weight="light"
-                        color="currentColor"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <PencilSimpleIcon
-                        size={18}
-                        weight="light"
-                        color="currentColor"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </button>
-                </div>
-
-                {isEditing && (
-                  <div className={styles.editControls}>
-                    <p className={styles.editHint}>
-                      {t("tagManagement.reorderHint")}
-                    </p>
-                    <div className={styles.reorderButtons}>
-                      <Button
-                        variant="primary"
-                        onClick={() => handleSaveOrder(category)}
-                        disabled={!orderChanged || isSaving}
-                      >
-                        {isSaving
-                          ? t("tagManagement.orderSaving")
-                          : t("tagManagement.saveOrder")}
-                      </Button>
-                      <Button
-                        variant="cancel"
-                        onClick={() => handleCancelReorder(category)}
-                        disabled={isSaving}
-                      >
-                        {t("tagManagement.undo")}
-                      </Button>
-                    </div>
+                  <div className={styles.reorderButtons}>
+                    <Button
+                      variant="cancel"
+                      size="small"
+                      onClick={() => handleCancelReorder(category)}
+                      disabled={!orderChanged || isSaving}
+                    >
+                      {t("tagManagement.undo")}
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="small"
+                      onClick={() => handleSaveOrder(category)}
+                      disabled={!orderChanged || isSaving}
+                    >
+                      {isSaving
+                        ? t("tagManagement.orderSaving")
+                        : t("tagManagement.saveOrder")}
+                    </Button>
                   </div>
-                )}
+                </div>
 
                 <ul
                   className={styles.tagList}
@@ -731,18 +686,14 @@ export function TagManagement({ locale }: TagManagementProps) {
                     tagListRefs.current[category] = node;
                   }}
                   onDragOver={(event) => {
-                    if (isEditing) {
-                      event.preventDefault();
-                      if (event.dataTransfer) {
-                        event.dataTransfer.dropEffect = "move";
-                      }
+                    event.preventDefault();
+                    if (event.dataTransfer) {
+                      event.dataTransfer.dropEffect = "move";
                     }
                   }}
                   onDrop={(event) => {
                     event.preventDefault();
-                    if (isEditing) {
-                      handleDrop(category, null);
-                    }
+                    handleDrop(category, null);
                   }}
                   onTouchMove={(event) => handleTouchMove(category, event)}
                   onTouchEnd={() => handleTouchEnd(category)}
@@ -756,7 +707,7 @@ export function TagManagement({ locale }: TagManagementProps) {
                         isDeleting && deletingTagId === tag.id
                           ? styles.tagItemDeleting
                           : "",
-                        isEditing ? styles.tagItemDraggable : "",
+                        styles.tagItemDraggable,
                         isDragging ? styles.tagItemDragging : "",
                       ]
                         .filter(Boolean)
@@ -766,25 +717,21 @@ export function TagManagement({ locale }: TagManagementProps) {
                         <li
                           key={tag.id}
                           className={className}
-                          draggable={isEditing}
+                          draggable
                           data-tag-id={tag.id}
                           onDragStart={(event) =>
                             handleDragStart(category, tag.id, event)
                           }
                           onDragEnd={handleDragEnd}
                           onDragOver={(event) => {
-                            if (isEditing) {
-                              event.preventDefault();
-                              if (event.dataTransfer) {
-                                event.dataTransfer.dropEffect = "move";
-                              }
+                            event.preventDefault();
+                            if (event.dataTransfer) {
+                              event.dataTransfer.dropEffect = "move";
                             }
                           }}
                           onDrop={(event) => {
                             event.preventDefault();
-                            if (isEditing) {
-                              handleDrop(category, tag.id);
-                            }
+                            handleDrop(category, tag.id);
                           }}
                           onTouchStart={(event) =>
                             handleTouchStart(category, tag.id, event)
@@ -792,23 +739,19 @@ export function TagManagement({ locale }: TagManagementProps) {
                         >
                           <Tag variant="default">
                             <span>{tag.name}</span>
-                            {isEditing && (
-                              <button
-                                type="button"
-                                className={styles.deleteButton}
-                                onClick={() =>
-                                  handleDeleteTag(category, tag.id)
-                                }
-                                aria-label={`Delete tag ${tag.name}`}
-                              >
-                                <span
-                                  className={styles.deleteMark}
-                                  aria-hidden="true"
-                                >
-                                  ×
-                                </span>
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              className={styles.deleteButton}
+                              onClick={() => handleDeleteTag(category, tag.id)}
+                              aria-label={`Delete tag ${tag.name}`}
+                            >
+                              <X
+                                size={12}
+                                weight="bold"
+                                color="var(--white)"
+                                aria-hidden="true"
+                              />
+                            </button>
                           </Tag>
                         </li>
                       );
@@ -840,17 +783,11 @@ export function TagManagement({ locale }: TagManagementProps) {
                   />
                   <Button
                     variant="primary"
+                    size="small"
                     onClick={() => handleCreateTag(category)}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !inputValue.trim()}
                   >
                     {t("pageModal.add")}
-                  </Button>
-                  <Button
-                    variant="cancel"
-                    onClick={() => handleResetInput(category)}
-                    disabled={isSubmitting}
-                  >
-                    {t("common.cancel")}
                   </Button>
                 </div>
               </section>

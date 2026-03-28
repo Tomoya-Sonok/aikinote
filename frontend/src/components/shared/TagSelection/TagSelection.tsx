@@ -1,3 +1,4 @@
+import { PlusCircle, XCircle } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { Tag } from "@/components/shared/Tag/Tag";
@@ -9,6 +10,7 @@ interface TagSelectionProps {
   selectedTags: string[];
   onTagToggle: (tag: string) => void;
   onAddNew?: () => void;
+  onCancel?: () => void;
   showAddButton?: boolean;
 }
 
@@ -18,6 +20,7 @@ export const TagSelection: FC<TagSelectionProps> = ({
   selectedTags,
   onTagToggle,
   onAddNew,
+  onCancel,
   showAddButton = true,
 }) => {
   const t = useTranslations();
@@ -26,14 +29,26 @@ export const TagSelection: FC<TagSelectionProps> = ({
       <div className={styles.titleButtonWrapper}>
         <div className={styles.header}>
           <h3 className={styles.title}>{title}</h3>
-          {showAddButton && (
+          {showAddButton ? (
             <button
               type="button"
               className={styles.addButton}
               onClick={onAddNew}
             >
+              <PlusCircle size={16} weight="light" />
               {t("tagSelection.add")}
             </button>
+          ) : (
+            onCancel && (
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={onCancel}
+              >
+                <XCircle size={16} weight="light" />
+                {t("common.cancel")}
+              </button>
+            )
           )}
         </div>
         <div className={styles.divider} />

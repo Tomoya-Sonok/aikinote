@@ -711,7 +711,7 @@
     "publicToggleFailed": "公開設定の変更に失敗しました"
   },
   "tagSelection": {
-    "add": "＋追加"
+    "add": "追加"
   },
   "tagManagement": {
     "title": "タグ管理",
@@ -723,7 +723,7 @@
     },
     "editAria": "{category}のタグを編集",
     "editingHint": "×が表示されたタグを押すと削除できます",
-    "reorderHint": "タグを動かして並び替えることができます。×を押すとタグを削除できます",
+    "reorderHint": "タグを長押しで並び替え、×ボタンで削除できます。\n新しいタグの追加も可能です",
     "empty": "登録済みのタグはありません",
     "deleteSuccess": "タグを削除しました",
     "deleteFailed": "タグの削除に失敗しました",

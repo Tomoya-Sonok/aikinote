@@ -709,7 +709,7 @@
     "publicToggleFailed": "Failed to change visibility"
   },
   "tagSelection": {
-    "add": "＋Add"
+    "add": "Add"
   },
   "tagManagement": {
     "title": "Tags",
@@ -721,7 +721,7 @@
     },
     "editAria": "Edit tags for {category}",
     "editingHint": "Tap a tag marked with × to delete it",
-    "reorderHint": "Drag and drop tags to reorder them. Tap × to delete a tag",
+    "reorderHint": "Long-press to reorder tags, tap × to delete.\nYou can also add new tags here.",
     "empty": "No tags registered yet",
     "deleteSuccess": "Tag deleted",
     "deleteFailed": "Failed to delete the tag",

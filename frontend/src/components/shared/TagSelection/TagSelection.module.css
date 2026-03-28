@@ -31,16 +31,38 @@
 .addButton {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
-  color: #000000;
+  color: var(--black);
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
   line-height: 1.45;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .addButton:hover {
+  opacity: 0.7;
+}
+
+.cancelButton {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1.45;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cancelButton:hover {
   opacity: 0.7;
 }
 

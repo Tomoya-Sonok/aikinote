@@ -4,6 +4,13 @@
   gap: 24px;
 }
 
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+  margin: 0;
+}
+
 .card {
   background-color: var(--white);
   border-radius: 24px;
@@ -27,38 +34,10 @@
   color: var(--black);
 }
 
-.editButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  border: 1px solid var(--black);
-  background-color: var(--white);
-  color: var(--black);
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.editHint {
-  font-size: var(--font-size-xs);
-  color: var(--text-light);
-}
-
-.editControls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .reorderButtons {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .tagList {
@@ -92,14 +71,6 @@
   pointer-events: none;
 }
 
-.deleteMark {
-  color: var(--white);
-  margin-left: 2px;
-  font-size: 16px;
-  line-height: 1;
-  font-weight: 600;
-}
-
 .emptyMessage {
   font-size: var(--font-size-sm);
   color: var(--text-light);
@@ -108,27 +79,28 @@
 .newTagForm {
   display: flex;
   gap: 8px;
-  align-items: stretch;
-  flex-direction: column;
-  padding: 8px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--bg-base);
+  border-radius: 6px;
 }
 
 .newTagInput {
   flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: var(--font-size-sm);
+  min-width: 0;
+  padding: 8px 10px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
   font-family: var(--font-ui);
-  height: 32px;
+  background: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color 0.4s ease-out;
 }
 
 .newTagInput:focus {
-  outline: none;
-  border-color: #838383;
+  border-color: var(--primary-color);
 }
 
 .loaderWrapper {
@@ -153,11 +125,6 @@
 @media (min-width: 481px) {
   .card {
     padding: 24px 20px;
-  }
-
-  .newTagForm {
-    flex-direction: row;
-    align-items: center;
   }
 
   .tagList {

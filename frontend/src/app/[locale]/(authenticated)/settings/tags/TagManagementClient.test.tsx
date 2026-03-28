@@ -107,7 +107,7 @@ describe("TagManagement", () => {
     expect(screen.getByText("四方投げ")).toBeInTheDocument();
   });
 
-  it("編集ボタンを押すと編集モードが表示される", async () => {
+  it("初期状態で削除ボタンが表示される", async () => {
     render(
       <I18nTestProvider>
         <TagManagement locale="ja" />
@@ -124,25 +124,11 @@ describe("TagManagement", () => {
 
     expect(toriSection).not.toBeNull();
 
-    const editButton = within(toriSection as HTMLElement).getByRole("button", {
-      name: "取りのタグを編集",
-    });
-
-    fireEvent.click(editButton);
-
-    expect(within(toriSection as HTMLElement).getAllByText("×")).toHaveLength(
-      2,
+    const deleteButtons = within(toriSection as HTMLElement).getAllByRole(
+      "button",
+      { name: /Delete tag/ },
     );
-    expect(
-      screen.getByText(
-        "タグを動かして並び替えることができます。×を押すとタグを削除できます。",
-      ),
-    ).toBeInTheDocument();
-    expect(
-      within(toriSection as HTMLElement).getByRole("button", {
-        name: "並び順を保存",
-      }),
-    ).toBeInTheDocument();
+    expect(deleteButtons).toHaveLength(2);
   });
 
   it("タグ削除が成功すると一覧から該当タグが消える", async () => {
@@ -161,11 +147,6 @@ describe("TagManagement", () => {
     ).closest("section");
 
     expect(toriSection).not.toBeNull();
-
-    const editButton = within(toriSection as HTMLElement).getByRole("button", {
-      name: "取りのタグを編集",
-    });
-    fireEvent.click(editButton);
 
     const targetTagButton = within(toriSection as HTMLElement).getByRole(
       "button",
@@ -203,11 +184,6 @@ describe("TagManagement", () => {
     ).closest("section");
 
     expect(toriSection).not.toBeNull();
-
-    const editButton = within(toriSection as HTMLElement).getByRole("button", {
-      name: "取りのタグを編集",
-    });
-    fireEvent.click(editButton);
 
     const listItems = within(toriSection as HTMLElement).getAllByRole(
       "listitem",
@@ -268,11 +244,6 @@ describe("TagManagement", () => {
     ).closest("section");
 
     expect(toriSection).not.toBeNull();
-
-    const editButton = within(toriSection as HTMLElement).getByRole("button", {
-      name: "取りのタグを編集",
-    });
-    fireEvent.click(editButton);
 
     const tagList = within(toriSection as HTMLElement).getByRole("list");
     const listItemsBefore = within(tagList).getAllByRole("listitem");
