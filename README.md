@@ -27,26 +27,34 @@
 
 - 日々の合気道の稽古で学んだことや感想を効率的に記録/振り返りできるデジタル稽古日誌アプリ
   - 個人の稽古記録の用途に特化した世代を問わず使いやすいUIやデザイン
-  - 異なる流派や他道場生と合気道の技の考察や意見交換を通して交流できる機能も初期リリース以降で実装予定
+  - 異なる流派や他道場生と合気道の技の考察や意見交換を通して交流できるSNS機能を搭載
 
 ---
 
 - A digital training journal app designed for Aikido practitioners to freely record, search, and review their daily learnings and reflections from practice sessions.
   - User-friendly UI and design tailored for personal training logs, accessible to all generations and experience levels
-  - Future updates will include features that enable interaction and exchange of insights with practitioners from different dojos or styles of Aikido
+  - Includes a social feature that enables interaction and exchange of insights with practitioners from different dojos or styles of Aikido
 
 ## Features
 
 (\*English follows Japanese.)
 
 - 多言語対応（日本語 / 英語）
-- ひとりで
+- ひとりで（Personal Mode）
   - アプリ起動後、ワンタップですぐに稽古記録が可能。
   - 相半身/逆半身や◯◯手取りなどの情報は、都度入力する必要はなくタグとして選択するのみでよい。重要な学んだことの振り返りの入力に集中できる。
   - タグやフリーワード、記録日で検索して、効率よく過去の稽古記録を参照・閲覧することができる。
-- みんなで（**初期リリースには含めず、後発で実装・追加予定**）
+  - 稽古統計をチャートで可視化し、自分の稽古傾向を振り返ることができる。
+  - 画像や動画を添付して、技の様子やメモを視覚的に記録できる。
+- みんなで（Social Mode）
   - 異なる流派や他道場生と合気道の技の考察や意見交換を通して交流できるSNS機能
+  - 投稿の作成・編集・削除、フィード閲覧、返信、お気に入り
+  - ハッシュタグやフリーワードでの投稿検索、トレンド表示
+  - 通知機能（未読バッジ・既読化）、通報機能
   - 自分の投稿内容の公開範囲をマイページから変更すると、同じ流派（所属道場）のユーザーのみに向けた発信もできる
+  - 未ログインユーザーでも公開投稿を閲覧可能
+- サブスクリプション（AikiNote Premium）
+  - Web版はStripe Checkout、ネイティブ版はRevenueCatによるアプリ内課金に対応
 
 ---
 
@@ -55,20 +63,28 @@
   - Quickly log your training session with just one tap after launching the app.
   - No need to type in details like ai-hanmi / gyaku-hanmi or katate-dori—just select them as tags so you can focus on recording what you’ve truly learned.
   - Easily browse and revisit past entries using tags, free-text search, or training dates.
-- Social Mode (**Coming in future updates**)
+  - Visualize your training statistics with charts to review your practice trends.
+  - Attach images or videos to visually document techniques and notes.
+- Social Mode
   - A social feature to connect with practitioners from different styles and dojos, allowing thoughtful exchange and discussion of Aikido techniques.
-  - You can adjust the visibility of your posts from your profile page—for example, limit them to users from your own style or dojo.
+  - Create, edit, and delete posts; browse your feed; reply to and favorite posts.
+  - Search posts by hashtags or free-text; view trending topics.
+  - Notifications with unread badges, and a reporting system.
+  - Adjust the visibility of your posts from your profile page—for example, limit them to users from your own style or dojo.
+  - Public posts are viewable even without logging in.
+- Subscription (AikiNote Premium)
+  - Supports Stripe Checkout for web and RevenueCat in-app purchases for native apps.
 
 ## Technology Stack Used
 
 | Category     | Technology Stack                                                                                                                                                                                                                                                                                                                                |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend** | Next.js 14 (App Router) / React 18 / TypeScript / CSS Modules / next-intl / React Hook Form / Zustand |
-| **Backend**  | Hono (Node.js 22) / TypeScript / Zod / JSON Web Token / Supabase JavaScript SDK |
+| **Frontend** | Next.js 16 (App Router) / React 19 / TypeScript / CSS Modules / next-intl / React Hook Form / Zustand / TanStack Query / tRPC / recharts |
+| **Backend**  | Hono (Node.js 22) / TypeScript / Zod / JSON Web Token / Supabase JavaScript SDK / Stripe |
 | **Database & Auth** | Supabase (PostgreSQL, Auth, Row Level Security) |
-| **Storage & Messaging** | Amazon S3 / CloudFront / Resend |
+| **Storage & Messaging** | Amazon S3 / CloudFront / Resend / RevenueCat |
 | **Infrastructure** | Vercel (Frontend) / Cloudflare Workers (Backend) / Cloudflare DNS |
-| **Tooling & Testing** | pnpm Workspaces / Docker & Docker Compose / Vitest / Testing Library / Storybook / MSW / Biome |
+| **Tooling & Testing** | pnpm Workspaces / Docker & Docker Compose / Vitest / Testing Library / Storybook 9 / MSW / Biome / Husky |
 
 ## Setup
 
@@ -77,9 +93,12 @@
 - **Node.js** 22.22.0
 - **pnpm** 8.15.4
 - **Docker** and **Docker Compose**
-- **Supabase account** 
+- **Supabase account**
 - **AWS account**
 - **Resend account**
+- **Stripe account** (for subscription features)
+- **RevenueCat account** (for native app in-app purchases)
+- **Google Cloud Console project** (for Google OAuth)
 
 ### 1. Clone the repository
 
@@ -104,6 +123,7 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_URL=your-supabase-project-url
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+SUPABASE_ANON_KEY=your-supabase-anon-key
 
 # App & API endpoints
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -112,6 +132,10 @@ NEXT_PUBLIC_IS_DOCKER=false
 
 # Authentication / security
 JWT_SECRET=your_jwt_secret_key
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Email (Resend)
 RESEND_API_KEY=your_resend_api_key
@@ -124,9 +148,19 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 AWS_S3_BUCKET_NAME=your_s3_bucket_name
 CLOUDFRONT_DOMAIN=your_cloudfront_domain
 NEXT_PUBLIC_CLOUDFRONT_DOMAIN=your_cloudfront_domain
+
+# Stripe (subscription)
+STRIPE_SECRET_KEY=your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+NEXT_PUBLIC_STRIPE_PRICE_MONTHLY=your_stripe_monthly_price_id
+NEXT_PUBLIC_STRIPE_PRICE_YEARLY=your_stripe_yearly_price_id
+
+# RevenueCat (native IAP)
+NEXT_PUBLIC_REVENUECAT_API_KEY=your_revenuecat_public_key
+REVENUECAT_WEBHOOK_TOKEN=your_revenuecat_webhook_token
 ```
 
-> ⚠️  Please note that you cannot use the profile picture upload and email sending functions without configuring the necessary values for AWS and Resend.
+> ⚠️  Please note that you cannot use the profile picture upload and email sending functions without configuring the necessary values for AWS and Resend. Subscription features require Stripe and RevenueCat configuration. Google OAuth requires Google Cloud Console credentials.
 
 ### 3. Install dependencies
 
