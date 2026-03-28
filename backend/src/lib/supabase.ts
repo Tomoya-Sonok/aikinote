@@ -348,29 +348,37 @@ export const getTrainingPages = async ({
       return { pages: [], totalCount: count ?? 0 };
     }
 
-    // 各ページに関連するタグを取得（TODO: N+1問題は残存している、要対応）
-    const pagesWithTags: { page: TrainingPageRow; tags: UserTagRow[] }[] = [];
-    for (const page of pages) {
-      const { data: pageTags, error: tagsError } = await supabase
-        .from("TrainingPageTag")
-        .select("UserTag(*)")
-        .eq("training_page_id", page.id);
+    // 全ページのタグを一括取得（N+1問題の解消）
+    const allPageIds = pages.map((p) => p.id);
+    const { data: allPageTags, error: tagsError } = await supabase
+      .from("TrainingPageTag")
+      .select("training_page_id, UserTag(*)")
+      .in("training_page_id", allPageIds);
 
-      if (tagsError) {
-        console.error(`ページ ${page.id} のタグ取得エラー:`, tagsError);
-        pagesWithTags.push({ page, tags: [] });
-        continue;
-      }
-
-      const tags: UserTagRow[] =
-        pageTags
-          ?.map((pt: { UserTag: UserTagRow | UserTagRow[] }) => {
-            // UserTagが配列の場合は最初の要素を取得、そうでなければそのまま返す
-            return Array.isArray(pt.UserTag) ? pt.UserTag[0] : pt.UserTag;
-          })
-          .filter(Boolean) || [];
-      pagesWithTags.push({ page, tags });
+    if (tagsError) {
+      console.error("ページタグの一括取得エラー:", tagsError);
     }
+
+    // ページIDごとにタグをグループ化
+    const tagsByPageId = new Map<string, UserTagRow[]>();
+    if (allPageTags) {
+      for (const pt of allPageTags as { training_page_id: string; UserTag: UserTagRow | UserTagRow[] }[]) {
+        const tag = Array.isArray(pt.UserTag) ? pt.UserTag[0] : pt.UserTag;
+        if (!tag) continue;
+        const existing = tagsByPageId.get(pt.training_page_id);
+        if (existing) {
+          existing.push(tag);
+        } else {
+          tagsByPageId.set(pt.training_page_id, [tag]);
+        }
+      }
+    }
+
+    const pagesWithTags: { page: TrainingPageRow; tags: UserTagRow[] }[] =
+      pages.map((page) => ({
+        page,
+        tags: tagsByPageId.get(page.id) ?? [],
+      }));
 
     return { pages: pagesWithTags, totalCount: count ?? 0 };
   } catch (error) {
