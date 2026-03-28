@@ -16,6 +16,7 @@ import {
   getSocialFeed,
   getSocialPostById,
   getSocialPostWithDetails,
+  getSocialPostWithDetailsPublic,
   getSocialReplyById,
   getSourcePageData,
   getUserPublicityDojos,
@@ -277,6 +278,62 @@ app.post("/", zValidator("json", createSocialPostSchema), async (c) => {
     }
     console.error("投稿作成エラー:", error);
     return c.json({ success: false, error: "投稿の作成に失敗しました" }, 500);
+  }
+});
+
+// GET /public/:id — 未認証ユーザー向け投稿詳細（publicity_setting=public のみ）
+app.get("/public/:id", async (c) => {
+  try {
+    const postId = c.req.param("id");
+
+    const supabase = resolveSupabase(c);
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const details = await getSocialPostWithDetailsPublic(supabase, postId);
+
+    if (!details) {
+      return c.json({ success: false, error: "投稿が見つかりません" }, 404);
+    }
+
+    // publicity_setting が public でなければ閲覧不可
+    const { data: postOwner } = await supabase
+      .from("User")
+      .select("publicity_setting")
+      .eq("id", details.post.user_id)
+      .single();
+
+    if (postOwner?.publicity_setting !== "public") {
+      return c.json({ success: false, error: "この投稿は閲覧できません" }, 403);
+    }
+
+    // training_record の場合、source_page_id からページデータを取得
+    let sourcePage = null;
+    if (
+      details.post.post_type === "training_record" &&
+      details.post.source_page_id
+    ) {
+      sourcePage = await getSourcePageData(
+        supabase,
+        details.post.source_page_id,
+      );
+    }
+
+    return c.json({
+      success: true,
+      data: {
+        ...details,
+        post: {
+          ...details.post,
+          favorite_count: undefined,
+        },
+        source_page: sourcePage,
+      },
+    });
+  } catch (error) {
+    console.error("公開投稿詳細取得エラー:", error);
+    return c.json({ success: false, error: "投稿の取得に失敗しました" }, 500);
   }
 });
 

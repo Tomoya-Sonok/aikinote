@@ -27,12 +27,14 @@ import { Loader } from "@/components/shared/Loader/Loader";
 import { ChatLayout } from "@/components/shared/layouts/ChatLayout";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupPromptModal";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import {
   createSocialReply,
   deleteSocialPost,
   deleteSocialReply,
+  getPublicSocialPost,
   getSocialPost,
   markNotificationsRead,
   reportPost,
@@ -106,7 +108,7 @@ interface SocialPostDetailProps {
 }
 
 export function SocialPostDetail({ postId }: SocialPostDetailProps) {
-  const { user } = useAuth();
+  const { user, isInitializing } = useAuth();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
   const { showToast } = useToast();
@@ -116,16 +118,24 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const isAuthenticated = !!user;
+
   useEffect(() => {
+    if (isInitializing) return;
+
     const fetchDetail = async () => {
       try {
-        const result = await getSocialPost(postId);
+        const result = user
+          ? await getSocialPost(postId)
+          : await getPublicSocialPost(postId);
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);
-          // この投稿に紐づく未読通知を既読化（fire-and-forget）
-          markNotificationsRead({ postId }).catch(() => {});
+          if (user) {
+            markNotificationsRead({ postId }).catch(() => {});
+          }
         }
       } catch (error) {
         console.error("投稿詳細取得エラー:", error);
@@ -134,7 +144,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
       }
     };
     fetchDetail();
-  }, [postId]);
+  }, [postId, user, isInitializing]);
 
   // メニュー外クリックで閉じる
   useEffect(() => {
@@ -162,6 +172,10 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   }, [locale]);
 
   const handleFavoriteToggle = useCallback(async () => {
+    if (!isAuthenticated) {
+      setShowSignupPrompt(true);
+      return;
+    }
     if (!detail) return;
 
     const wasFavorited = detail.is_favorited;
@@ -195,7 +209,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           : null,
       );
     }
-  }, [detail, postId]);
+  }, [detail, postId, isAuthenticated]);
 
   const handleDelete = useCallback(async () => {
     setIsDeleting(true);
@@ -395,7 +409,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     }
   }, [detail, locale, postId, showToast, t]);
 
-  if (isLoading) {
+  const handleSignupPromptOpen = useCallback(() => {
+    setShowSignupPrompt(true);
+  }, []);
+
+  if (isLoading || isInitializing) {
     return (
       <ChatLayout>
         <Loader centered size="medium" />
@@ -415,76 +433,120 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const isOwner = user?.id === detail.post.user_id;
 
+  const footer = isAuthenticated ? (
+    <SocialReplyForm onSubmit={handleReplySubmit} />
+  ) : (
+    <div className={styles.dummyReplyForm}>
+      <div className={styles.dummyReplyInputWrapper}>
+        <button
+          type="button"
+          className={styles.dummyReplyInput}
+          onClick={handleSignupPromptOpen}
+        >
+          {t("replyPlaceholder")}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <ChatLayout footer={<SocialReplyForm onSubmit={handleReplySubmit} />}>
+    <ChatLayout footer={footer}>
       <SocialHeader
         title={t("detail")}
-        onBack={handleBack}
+        onBack={isAuthenticated ? handleBack : undefined}
         backLabel={t("back")}
         right={
-          <div className={styles.headerRight} ref={menuRef}>
-            <Button
-              className={styles.iconButton}
-              onClick={() => setShowMenu((prev) => !prev)}
-              aria-label="メニュー"
-            >
-              <DotsThreeVerticalIcon size={24} weight="bold" />
-            </Button>
-            {showMenu && (
-              <div className={styles.menuDropdown}>
-                {isOwner ? (
-                  <>
+          isAuthenticated ? (
+            <div className={styles.headerRight} ref={menuRef}>
+              <Button
+                className={styles.iconButton}
+                onClick={() => setShowMenu((prev) => !prev)}
+                aria-label="メニュー"
+              >
+                <DotsThreeVerticalIcon size={24} weight="bold" />
+              </Button>
+              {showMenu && (
+                <div className={styles.menuDropdown}>
+                  {isOwner ? (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={handleStartEdit}
+                      >
+                        {t("menuEdit")}
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowDeleteConfirm(true);
+                        }}
+                      >
+                        {t("menuDelete")}
+                      </button>
+                    </>
+                  ) : (
                     <button
                       type="button"
                       className={styles.menuItem}
-                      onClick={handleStartEdit}
-                    >
-                      {t("menuEdit")}
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.menuItem} ${styles.menuItemDanger}`}
                       onClick={() => {
                         setShowMenu(false);
-                        setShowDeleteConfirm(true);
+                        setShowReportModal(true);
                       }}
                     >
-                      {t("menuDelete")}
+                      {t("menuReport")}
                     </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles.menuItem}
-                    onClick={() => {
-                      setShowMenu(false);
-                      setShowReportModal(true);
-                    }}
-                  >
-                    {t("menuReport")}
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : undefined
         }
       />
 
       <div className={styles.postContent}>
         <div className={styles.authorHeader}>
-          <a
-            href={`/${locale}/social/profile/${detail.author.id}`}
-            className={styles.authorLink}
-          >
-            <ProfileImage src={detail.author.profile_image_url} size="small" />
-          </a>
-          <div className={styles.authorInfo}>
+          {isAuthenticated ? (
             <a
               href={`/${locale}/social/profile/${detail.author.id}`}
-              className={styles.authorNameLink}
+              className={styles.authorLink}
             >
-              {detail.author.username}
+              <ProfileImage
+                src={detail.author.profile_image_url}
+                size="small"
+              />
             </a>
+          ) : (
+            <button
+              type="button"
+              className={styles.authorButton}
+              onClick={handleSignupPromptOpen}
+            >
+              <ProfileImage
+                src={detail.author.profile_image_url}
+                size="small"
+              />
+            </button>
+          )}
+          <div className={styles.authorInfo}>
+            {isAuthenticated ? (
+              <a
+                href={`/${locale}/social/profile/${detail.author.id}`}
+                className={styles.authorNameLink}
+              >
+                {detail.author.username}
+              </a>
+            ) : (
+              <button
+                type="button"
+                className={styles.authorNameButton}
+                onClick={handleSignupPromptOpen}
+              >
+                {detail.author.username}
+              </button>
+            )}
             <span className={styles.authorMeta}>
               {detail.author.aikido_rank && (
                 <span>{detail.author.aikido_rank}</span>
@@ -558,10 +620,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               key={reply.id}
               reply={reply}
               currentUserId={user?.id ?? ""}
+              isAuthenticated={isAuthenticated}
               onReport={handleReplyReport}
               onEdit={handleReplyEdit}
               onDelete={handleReplyDelete}
               onFavoriteToggle={handleReplyFavoriteToggle}
+              onUnauthenticatedAction={handleSignupPromptOpen}
             />
           ))}
       </div>
@@ -582,6 +646,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         onClose={() => setShowReportModal(false)}
         onSubmit={handleReportSubmit}
         title={t("reportTitle")}
+      />
+
+      <SignupPromptModal
+        isOpen={showSignupPrompt}
+        onClose={() => setShowSignupPrompt(false)}
       />
     </ChatLayout>
   );

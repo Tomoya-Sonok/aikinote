@@ -280,6 +280,14 @@
     "fontSizeTooltip": "You can change the font size in Settings",
     "editProfile": "Edit your profile"
   },
+  "signupPromptModal": {
+    "title": "Want to share more\nabout your Aikido journey?",
+    "description": "With AikiNote, you can view profiles, like and reply to posts.",
+    "signupMain": "Sign up",
+    "signupSub": "Free to start",
+    "login": "Already have an account? Log in",
+    "close": "Close"
+  },
   "premiumModal": {
     "badge": "PREMIUM",
     "title": "Share your practice\nwith fellow aikidoka",

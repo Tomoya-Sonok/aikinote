@@ -280,6 +280,14 @@
     "fontSizeTooltip": "文字サイズは設定から変更可能です",
     "editProfile": "プロフィールを編集する"
   },
+  "signupPromptModal": {
+    "title": "合気道で学んだこと\nを共有し合いませんか？",
+    "description": "AikiNoteでは、プロフィールの閲覧・投稿へのいいねや返信もできます。",
+    "signupMain": "他の合気道家とつながる",
+    "signupSub": "無料で新規登録する",
+    "login": "すでにアカウントをお持ちの方はこちら",
+    "close": "閉じる"
+  },
   "premiumModal": {
     "badge": "PREMIUM",
     "title": "稽古の学びを、\n仲間と分かち合おう",

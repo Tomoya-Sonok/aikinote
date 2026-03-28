@@ -39,6 +39,7 @@ interface ReplyData {
 interface SocialReplyItemProps {
   reply: ReplyData;
   currentUserId: string;
+  isAuthenticated?: boolean;
   onReport: (
     replyId: string,
     reason: "spam" | "harassment" | "inappropriate" | "impersonation" | "other",
@@ -47,16 +48,19 @@ interface SocialReplyItemProps {
   onEdit: (replyId: string, newContent: string) => Promise<void>;
   onDelete: (replyId: string) => Promise<void>;
   onFavoriteToggle: (replyId: string) => void;
+  onUnauthenticatedAction?: () => void;
 }
 
 export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
   function SocialReplyItem({
     reply,
     currentUserId,
+    isAuthenticated = true,
     onReport,
     onEdit,
     onDelete,
     onFavoriteToggle,
+    onUnauthenticatedAction,
   }) {
     const t = useTranslations("socialPosts");
     const isOwner = reply.user_id === currentUserId;
@@ -150,48 +154,50 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
             {isEdited && (
               <span className={styles.editedLabel}>{t("edited")}</span>
             )}
-            <div className={styles.menuWrapper} ref={menuRef}>
-              <Button
-                className={styles.menuButton}
-                onClick={() => setShowMenu((prev) => !prev)}
-                aria-label="メニュー"
-              >
-                <DotsThreeVerticalIcon size={16} weight="bold" />
-              </Button>
-              {showMenu && (
-                <div className={styles.menuDropdown}>
-                  {isOwner ? (
-                    <>
+            {isAuthenticated && (
+              <div className={styles.menuWrapper} ref={menuRef}>
+                <Button
+                  className={styles.menuButton}
+                  onClick={() => setShowMenu((prev) => !prev)}
+                  aria-label="メニュー"
+                >
+                  <DotsThreeVerticalIcon size={16} weight="bold" />
+                </Button>
+                {showMenu && (
+                  <div className={styles.menuDropdown}>
+                    {isOwner ? (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.menuItem}
+                          onClick={handleStartEdit}
+                        >
+                          {t("menuEdit")}
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                          onClick={handleDeleteClick}
+                        >
+                          {t("menuDelete")}
+                        </button>
+                      </>
+                    ) : (
                       <button
                         type="button"
                         className={styles.menuItem}
-                        onClick={handleStartEdit}
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowReportModal(true);
+                        }}
                       >
-                        {t("menuEdit")}
+                        {t("menuReport")}
                       </button>
-                      <button
-                        type="button"
-                        className={`${styles.menuItem} ${styles.menuItemDanger}`}
-                        onClick={handleDeleteClick}
-                      >
-                        {t("menuDelete")}
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={() => {
-                        setShowMenu(false);
-                        setShowReportModal(true);
-                      }}
-                    >
-                      {t("menuReport")}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {isEditing ? (
@@ -224,7 +230,11 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
           <div className={styles.replyActions}>
             <Button
               className={`${styles.favoriteButton} ${reply.is_favorited ? styles.favorited : ""}`}
-              onClick={() => onFavoriteToggle(reply.id)}
+              onClick={() =>
+                isAuthenticated
+                  ? onFavoriteToggle(reply.id)
+                  : onUnauthenticatedAction?.()
+              }
               aria-label={t("favorite")}
             >
               <HeartIcon

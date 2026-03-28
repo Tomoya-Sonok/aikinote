@@ -845,6 +845,19 @@ export const getSocialPostByIdProcedure = publicProcedure
     );
   });
 
+export const getPublicSocialPostByIdProcedure = publicProcedure
+  .input(
+    z.object({
+      postId: z.string().min(1),
+    }),
+  )
+  .query(async ({ input }) => {
+    return callHonoApi<ApiResponse<SocialPostDetail>>(
+      `/api/social/posts/public/${input.postId}`,
+      {},
+    );
+  });
+
 export const createSocialPostProcedure = publicProcedure
   .input(
     z.object({

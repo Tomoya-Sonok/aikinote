@@ -1886,6 +1886,133 @@ export const getSocialPostWithDetails = async (
   };
 };
 
+/**
+ * 未認証ユーザー向けの投稿詳細取得（お気に入り判定なし）
+ */
+export const getSocialPostWithDetailsPublic = async (
+  supabaseClient: SupabaseClient,
+  postId: string,
+): Promise<{
+  post: SocialPostRow;
+  attachments: SocialPostAttachmentRow[];
+  tags: { id: string; name: string; category: string }[];
+  author: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    aikido_rank: string | null;
+  };
+  replies: (SocialReplyRow & {
+    user: { id: string; username: string; profile_image_url: string | null };
+    is_favorited: boolean;
+  })[];
+  is_favorited: boolean;
+} | null> => {
+  const post = await getSocialPostById(supabaseClient, postId);
+  if (!post) return null;
+
+  const [attachmentsResult, tagsResult, authorResult, repliesResult] =
+    await Promise.all([
+      supabaseClient
+        .from("SocialPostAttachment")
+        .select("*")
+        .eq("post_id", postId)
+        .order("sort_order", { ascending: true }),
+      supabaseClient
+        .from("SocialPostTag")
+        .select("user_tag_id, UserTag(id, name, category)")
+        .eq("post_id", postId),
+      supabaseClient
+        .from("User")
+        .select("id, username, profile_image_url, aikido_rank")
+        .eq("id", post.user_id)
+        .single(),
+      supabaseClient
+        .from("SocialReply")
+        .select("*, User(id, username, profile_image_url)")
+        .eq("post_id", postId)
+        .eq("is_deleted", false)
+        .order("created_at", { ascending: true }),
+    ]);
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const tags = (tagsResult.data ?? []).map((row: any) => ({
+    id: row.UserTag?.id ?? row.user_tag_id,
+    name: row.UserTag?.name ?? "",
+    category: row.UserTag?.category ?? "",
+  }));
+
+  // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+  const replies = (repliesResult.data ?? []).map((row: any) => ({
+    id: row.id,
+    post_id: row.post_id,
+    user_id: row.user_id,
+    content: row.content,
+    is_deleted: row.is_deleted,
+    favorite_count: row.favorite_count ?? 0,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    user: {
+      id: row.User?.id ?? row.user_id,
+      username: row.User?.username ?? "",
+      profile_image_url: row.User?.profile_image_url ?? null,
+    },
+    is_favorited: false,
+  }));
+
+  // training_record の場合、PageAttachment をフォールバックとして取得
+  let finalAttachments = attachmentsResult.data ?? [];
+  if (
+    finalAttachments.length === 0 &&
+    post.post_type === "training_record" &&
+    post.source_page_id
+  ) {
+    const { data: pageAtts } = await supabaseClient
+      .from("PageAttachment")
+      .select(
+        "id, page_id, type, url, thumbnail_url, original_filename, sort_order",
+      )
+      .eq("page_id", post.source_page_id)
+      .order("sort_order", { ascending: true });
+    finalAttachments = (pageAtts ?? []).map(
+      (pa: {
+        id: string;
+        page_id: string;
+        type: string;
+        url: string;
+        thumbnail_url: string | null;
+        original_filename: string | null;
+        sort_order: number;
+      }) => ({
+        id: pa.id,
+        post_id: postId,
+        user_id: post.user_id,
+        type: pa.type,
+        url: pa.url,
+        thumbnail_url: pa.thumbnail_url,
+        original_filename: pa.original_filename,
+        file_size_bytes: null,
+        sort_order: pa.sort_order,
+        created_at: "",
+      }),
+    );
+  }
+
+  return {
+    post,
+    attachments: finalAttachments,
+    tags,
+    author: authorResult.data ?? {
+      id: post.user_id,
+      username: "",
+      profile_image_url: null,
+      aikido_rank: null,
+    },
+    replies,
+    is_favorited: false,
+  };
+};
+
 export const createSocialReply = async (
   supabaseClient: SupabaseClient,
   postId: string,
