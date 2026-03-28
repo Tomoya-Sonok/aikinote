@@ -8,6 +8,10 @@ import { useToast } from "@/contexts/ToastContext";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { getRedirectUrl } from "@/lib/utils/env";
+import {
+  clearReturnToCookie,
+  getReturnToFromSession,
+} from "@/lib/utils/returnTo";
 import { createUserProfile, fetchUserProfile } from "@/lib/utils/user";
 import type {
   NewPasswordFormData,
@@ -227,8 +231,10 @@ export function useAuth() {
         // セッション確立を待つ
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // ログイン成功後のリダイレクト
-        router.push(`/${locale}/personal/pages`);
+        // ログイン成功後のリダイレクト（returnTo があれば元のページへ）
+        const returnTo = getReturnToFromSession();
+        clearReturnToCookie();
+        router.push(returnTo || `/${locale}/personal/pages`);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "ログインに失敗しました";

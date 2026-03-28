@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { routing } from "@/lib/i18n/routing";
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
+import { isValidReturnTo, RETURN_TO_COOKIE_NAME } from "@/lib/utils/returnTo";
 
 const buildLocalizedUrl = (
   origin: string,
@@ -195,8 +196,25 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // 認証成功時は元のリダイレクト先にリダイレクト
-      return NextResponse.redirect(buildUrl("/personal/pages"));
+      // 認証成功時のリダイレクト（returnTo cookie があれば元のページへ）
+      const returnToCookie = cookieStore.get(RETURN_TO_COOKIE_NAME)?.value;
+      const returnToPath = returnToCookie
+        ? decodeURIComponent(returnToCookie)
+        : null;
+
+      let response: NextResponse;
+      if (returnToPath && isValidReturnTo(returnToPath)) {
+        response = NextResponse.redirect(new URL(returnToPath, redirectOrigin));
+      } else {
+        response = NextResponse.redirect(buildUrl("/personal/pages"));
+      }
+
+      // returnTo cookie をクリア
+      response.cookies.set(RETURN_TO_COOKIE_NAME, "", {
+        path: "/",
+        maxAge: 0,
+      });
+      return response;
     } catch (error) {
       console.error("認証処理エラー:", error);
       return NextResponse.redirect(buildUrl("/login?error=auth_error"));

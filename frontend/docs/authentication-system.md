@@ -139,7 +139,54 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 
 ### 2. コールバック処理
 **場所**: `app/auth/callback/route.ts`
-Google からの戻り（Code）を受け取り、Supabase のセッション（Cookie）に変換します。その後マイページへリダイレクトします。
+Google からの戻り（Code）を受け取り、Supabase のセッション（Cookie）に変換します。returnTo cookie があればその URL へ、なければマイページへリダイレクトします。
+
+---
+
+## 🔁 認証後リダイレクト（returnTo）
+
+未ログインユーザーが投稿詳細などの公開ページを閲覧中に、`SignupPromptModal` からログイン/サインアップした場合、認証完了後に**元のページへ自動的に戻す**仕組みです。
+
+### 仕組み
+
+`SignupPromptModal` でログイン/サインアップボタンをタップした時点で、現在の URL パスを **cookie** と **sessionStorage** の両方に保存します。
+
+| 認証方式 | 保持手段 | リダイレクト実行場所 |
+|---|---|---|
+| メール/パスワード | sessionStorage | `useAuth.ts`（クライアント） |
+| Google OAuth | cookie (`auth_return_to`) | `auth/callback/route.ts`（サーバー） |
+
+Google OAuth ではブラウザが Google の認証画面に遷移するため sessionStorage だけでは不十分です。cookie は同一ドメイン・同一タブで保持されるため、サーバーサイドの OAuth コールバックで読み取れます。
+
+### ユーティリティ
+**場所**: `lib/utils/returnTo.ts`
+
+| 関数 | 用途 |
+|---|---|
+| `isValidReturnTo(path)` | パスのバリデーション（サーバー/クライアント両用） |
+| `setReturnTo(path)` | cookie + sessionStorage に保存（クライアント） |
+| `getReturnToFromSession()` | sessionStorage から取得＆クリア（クライアント） |
+| `clearReturnToCookie()` | cookie クリア（クライアント） |
+
+### セキュリティ: オープンリダイレクト防止
+
+`isValidReturnTo()` で以下を拒否し、自サイト内の相対パスのみ許可します:
+
+- `//evil.com`（プロトコル相対URL）
+- `https://evil.com`（絶対URL）
+- `javascript:alert(1)`（スキーム付きURL）
+- 制御文字・バックスラッシュを含むパス
+
+cookie 設定: `SameSite=Lax`、`max-age=600`（10分）、パスのみ保存（機密情報なし）
+
+### エッジケース
+
+| ケース | 動作 |
+|---|---|
+| cookie 期限切れ（10分超） | `/personal/pages` にフォールバック |
+| 複数タブで別のページから認証開始 | 後勝ち（最後にセットした URL） |
+| 通常のログインページから直接ログイン | returnTo 未設定のため `/personal/pages`（既存動作） |
+| サインアップ → メール認証 → 別タブで開く | 現状のメール認証フローは `/auth/callback` を経由しないためフォールバック |
 
 ---
 
@@ -191,9 +238,12 @@ if (!user) return <Redirect to="/login" />; // 確定後に判定
 | パス | 説明 |
 |---|---|
 | `frontend/src/lib/server/auth.ts` | 認証ヘルパー関数 (`getCurrentUser` 等) |
-| `frontend/src/lib/server/cache.ts` | **(New)** プロフィール情報のキャッシュ制御ロジック |
+| `frontend/src/lib/server/cache.ts` | プロフィール情報のキャッシュ制御ロジック |
 | `frontend/src/lib/supabase/client.ts` | クライアントサイド用 Supabase クライアント |
 | `frontend/src/lib/supabase/server.ts` | サーバーサイド用 Supabase クライアント |
+| `frontend/src/lib/utils/returnTo.ts` | 認証後リダイレクト（returnTo）ユーティリティ |
+| `frontend/src/lib/hooks/useAuth.ts` | 認証フック（ログイン/ログアウト/OAuth） |
+| `frontend/src/app/auth/callback/route.ts` | OAuth コールバック（セッション交換 + returnTo リダイレクト） |
 | `frontend/src/proxy.ts` | ルーティング保護ミドルウェア (旧 `middleware.ts`) |
 | `frontend/src/app/api/user/[userId]/route.ts` | ユーザー情報更新 API (キャッシュ無効化を含む) |
 

@@ -9,6 +9,7 @@ import {
   useRef,
 } from "react";
 import { createPortal } from "react-dom";
+import { setReturnTo } from "@/lib/utils/returnTo";
 import styles from "./SignupPromptModal.module.css";
 
 interface SignupPromptModalProps {
@@ -29,10 +30,12 @@ export function SignupPromptModal({ isOpen, onClose }: SignupPromptModalProps) {
   }, [isOpen]);
 
   const handleSignup = useCallback(() => {
+    setReturnTo(window.location.pathname + window.location.search);
     window.location.href = `/${locale}/signup`;
   }, [locale]);
 
   const handleLogin = useCallback(() => {
+    setReturnTo(window.location.pathname + window.location.search);
     window.location.href = `/${locale}/login`;
   }, [locale]);
 
