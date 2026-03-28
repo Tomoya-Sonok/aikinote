@@ -9,6 +9,7 @@ interface MediaPlayerProps {
   url: string;
   thumbnailUrl?: string | null;
   alt?: string;
+  fillParent?: boolean;
 }
 
 // YouTube URLからビデオIDを抽出
@@ -34,14 +35,17 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   url,
   thumbnailUrl,
   alt = "メディア",
+  fillParent = false,
 }) => {
+  const containerClass = `${styles.container} ${fillParent ? styles.fillParent : ""}`;
+  const aspectClass = `${styles.aspectRatio} ${fillParent ? styles.fillParentAspect : ""}`;
   if (type === "youtube") {
     const videoId = extractYouTubeVideoId(url);
 
     if (!videoId) {
       return (
-        <div className={styles.container}>
-          <div className={styles.aspectRatio}>
+        <div className={containerClass}>
+          <div className={aspectClass}>
             <div className={styles.fallback}>動画を読み込めません</div>
           </div>
         </div>
@@ -49,8 +53,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
     }
 
     return (
-      <div className={styles.container}>
-        <div className={styles.aspectRatio}>
+      <div className={containerClass}>
+        <div className={aspectClass}>
           <iframe
             className={styles.iframe}
             src={`https://www.youtube-nocookie.com/embed/${videoId}`}
@@ -65,8 +69,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
 
   if (type === "video") {
     return (
-      <div className={styles.container}>
-        <div className={styles.aspectRatio}>
+      <div className={containerClass}>
+        <div className={aspectClass}>
           {/* biome-ignore lint/a11y/useMediaCaption: 稽古動画のキャプション不要 */}
           <video
             className={styles.video}
@@ -82,8 +86,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
 
   // image
   return (
-    <div className={styles.container}>
-      <div className={styles.aspectRatio}>
+    <div className={containerClass}>
+      <div className={aspectClass}>
         <Image
           src={url}
           alt={alt}

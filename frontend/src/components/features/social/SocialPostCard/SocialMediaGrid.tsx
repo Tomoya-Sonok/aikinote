@@ -42,6 +42,7 @@ export const SocialMediaGrid: FC<SocialMediaGridProps> = ({ attachments }) => {
             url={attachment.url}
             thumbnailUrl={attachment.thumbnail_url}
             alt={attachment.original_filename || ""}
+            fillParent
           />
         </div>
       ))}

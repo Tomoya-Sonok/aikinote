@@ -48,3 +48,13 @@
   font-size: var(--font-size-sm);
   font-family: var(--font-ui);
 }
+
+/* 親コンテナがサイズを管理する場合 */
+.fillParent {
+  height: 100%;
+}
+
+.fillParentAspect {
+  padding-top: 0;
+  height: 100%;
+}
