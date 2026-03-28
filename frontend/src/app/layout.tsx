@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ServiceWorkerRegister } from "@/components/shared/ServiceWorkerRegister/ServiceWorkerRegister";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
@@ -106,6 +107,7 @@ export default function RootLayout({
           // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD は静的データのみで構成されるため安全
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
