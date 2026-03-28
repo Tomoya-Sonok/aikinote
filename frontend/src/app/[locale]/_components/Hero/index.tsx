@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
@@ -11,11 +12,12 @@ interface HeroProps {
 }
 
 export async function Hero({ locale, signupHref }: HeroProps) {
-  const t = await getTranslations({ locale, namespace: "landing.hero" });
+  const t = await getTranslations({ locale, namespace: "landing" });
   const imgPrefix = locale === "en" ? "en-" : "";
+  const loginHref = locale === "ja" ? "/login" : `/${locale}/login`;
 
-  const headingLines = t("heading").split("\n");
-  const subtextLines = t("subtext").split("\n");
+  const headingLines = t("hero.heading").split("\n");
+  const subtextLines = t("hero.subtext").split("\n");
 
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: ナビゲーションと連携する固定ID
@@ -41,8 +43,11 @@ export async function Hero({ locale, signupHref }: HeroProps) {
               ))}
             </p>
             <CtaButton variant="primary" href={signupHref}>
-              {t("ctaLabel")}
+              {t("hero.ctaLabel")}
             </CtaButton>
+            <Link href={loginHref} className={styles.loginLink}>
+              {t("cta.loginPrompt")}
+            </Link>
           </div>
         </div>
 
@@ -54,7 +59,7 @@ export async function Hero({ locale, signupHref }: HeroProps) {
           <div className={styles.visualArea}>
             <Image
               src={`/images/lp/${imgPrefix}hero-illustration.png`}
-              alt={t("illustrationAlt")}
+              alt={t("hero.illustrationAlt")}
               width={800}
               height={670}
               sizes="(min-width: 768px) 500px, 340px"
@@ -63,7 +68,7 @@ export async function Hero({ locale, signupHref }: HeroProps) {
             />
             <Image
               src={`/images/lp/${imgPrefix}hero-mock1.png`}
-              alt={t("mockAlt")}
+              alt={t("hero.mockAlt")}
               width={400}
               height={500}
               sizes="(min-width: 768px) 330px, 220px"

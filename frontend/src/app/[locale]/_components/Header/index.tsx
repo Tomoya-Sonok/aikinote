@@ -27,6 +27,7 @@ export async function Header({ locale, signupHref }: HeaderProps) {
   const navigation = t.raw("navigation") as NavigationContent;
   const localeSwitchHref = isDefaultLocale ? "/en" : "/";
   const localeSwitchLabel = isDefaultLocale ? "EN" : "日本語";
+  const loginHref = isDefaultLocale ? "/login" : `/${locale}/login`;
 
   return (
     <header className={styles.header} data-locale={locale}>
@@ -80,6 +81,8 @@ export async function Header({ locale, signupHref }: HeaderProps) {
           <HeaderDrawer
             links={navigation.links}
             signupHref={signupHref}
+            loginHref={loginHref}
+            loginPromptLabel={t("cta.loginPrompt")}
             contactLabel={t("cta.contact")}
             ctaLabel={t("hero.ctaLabel")}
             menuLabel={t("drawer.title")}

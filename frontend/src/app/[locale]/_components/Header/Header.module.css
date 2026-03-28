@@ -306,6 +306,20 @@
   flex-shrink: 0;
 }
 
+/* ── ドロワーログインリンク ── */
+
+.drawerLoginLink {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--black);
+  text-decoration: underline;
+  letter-spacing: 1px;
+}
+
+.drawerLoginLink:hover {
+  opacity: 0.7;
+}
+
 /* ── ドロワーソーシャル ── */
 
 .drawerSocial {

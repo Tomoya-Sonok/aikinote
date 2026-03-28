@@ -17,6 +17,8 @@ const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61585911578938";
 interface HeaderDrawerProps {
   links: Array<{ href: string; label: string }>;
   signupHref: string;
+  loginHref: string;
+  loginPromptLabel: string;
   contactLabel: string;
   ctaLabel: string;
   menuLabel: string;
@@ -34,6 +36,8 @@ interface HeaderDrawerProps {
 export const HeaderDrawer: FC<HeaderDrawerProps> = ({
   links,
   signupHref,
+  loginHref,
+  loginPromptLabel,
   contactLabel,
   ctaLabel,
   menuLabel,
@@ -154,6 +158,13 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
             >
               {ctaLabel}
             </CtaButton>
+            <Link
+              href={loginHref}
+              className={styles.drawerLoginLink}
+              onClick={handleClose}
+            >
+              {loginPromptLabel}
+            </Link>
           </div>
 
           {/* ソーシャルアイコン */}

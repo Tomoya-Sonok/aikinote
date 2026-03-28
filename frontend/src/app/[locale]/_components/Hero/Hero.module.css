@@ -59,6 +59,20 @@
   margin: 0;
 }
 
+/* ── ログインリンク ── */
+
+.loginLink {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--black);
+  text-decoration: underline;
+  letter-spacing: 1px;
+}
+
+.loginLink:hover {
+  opacity: 0.7;
+}
+
 /* ── ビジュアルエリア ── */
 
 .visualWrapper {

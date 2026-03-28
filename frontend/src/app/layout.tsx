@@ -10,6 +10,70 @@ export const metadata: Metadata = {
     template: "%s | AikiNote",
   },
   description: "合気道の稽古記録アプリ",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: "/",
+    siteName: "AikiNote",
+    title: "AikiNote | 合気道の稽古記録・交流アプリ",
+    description: "合気道の稽古を記録・振り返り・共有。流派を超えた交流機能も。",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "AikiNote - 合気道の稽古記録・交流アプリ",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AikiNote | 合気道の稽古記録・交流アプリ",
+    description: "合気道の稽古を記録・振り返り・共有。流派を超えた交流機能も。",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: "/",
+    languages: {
+      ja: "/",
+      en: "/en",
+      "x-default": "/",
+    },
+  },
+  manifest: "/manifest.json",
+  themeColor: "#2C2C2C",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "AikiNote",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "AikiNote",
+  description: "合気道の稽古を記録・振り返り・共有できるデジタル日誌アプリ",
+  operatingSystem: "iOS, Android, Web",
+  applicationCategory: "SportsApplication",
+  url: "https://www.aikinote.com",
+  inLanguage: ["ja", "en"],
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "JPY",
+  },
+  author: {
+    "@type": "Person",
+    name: "Sonokui Tomoya",
+  },
 };
 
 export default function RootLayout({
@@ -36,7 +100,14 @@ export default function RootLayout({
           data-website-id="344d247e-0025-4d95-ba54-50e31ea42f22"
         ></script>
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD は静的データのみで構成されるため安全
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

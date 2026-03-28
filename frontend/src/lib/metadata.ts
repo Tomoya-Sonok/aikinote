@@ -8,8 +8,23 @@ export type MetadataOptions = {
   keywords?: string[];
   openGraphTitle?: string;
   openGraphDescription?: string;
+  openGraphType?: "website" | "article";
+  openGraphLocale?: string;
+  openGraphUrl?: string;
+  openGraphSiteName?: string;
+  openGraphImages?: Array<{
+    url: string;
+    width?: number;
+    height?: number;
+    alt?: string;
+  }>;
+  twitterCard?: "summary" | "summary_large_image";
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImages?: string[];
   canonical?: string;
   alternateLanguages?: Record<string, string>;
+  alternateXDefault?: string;
 };
 
 export function buildMetadata({
@@ -20,8 +35,18 @@ export function buildMetadata({
   keywords,
   openGraphTitle,
   openGraphDescription,
+  openGraphType,
+  openGraphLocale,
+  openGraphUrl,
+  openGraphSiteName,
+  openGraphImages,
+  twitterCard,
+  twitterTitle,
+  twitterDescription,
+  twitterImages,
   canonical,
   alternateLanguages,
+  alternateXDefault,
 }: MetadataOptions): Metadata {
   const titleValue = titleAbsolute ? { absolute: titleAbsolute } : title;
 
@@ -36,20 +61,52 @@ export function buildMetadata({
         },
       } satisfies Metadata["robots"]);
 
-  const openGraph =
-    openGraphTitle || openGraphDescription
+  const hasOpenGraph =
+    openGraphTitle || openGraphDescription || openGraphType || openGraphImages;
+  const openGraph = hasOpenGraph
+    ? {
+        type: openGraphType ?? ("website" as const),
+        locale: openGraphLocale,
+        url: openGraphUrl,
+        siteName: openGraphSiteName,
+        title: openGraphTitle ?? titleAbsolute ?? title ?? undefined,
+        description: openGraphDescription ?? description ?? undefined,
+        images: openGraphImages,
+      }
+    : undefined;
+
+  const hasTwitter =
+    twitterCard || twitterTitle || twitterDescription || twitterImages;
+  const twitter = hasTwitter
+    ? {
+        card: twitterCard ?? ("summary_large_image" as const),
+        title:
+          twitterTitle ?? openGraphTitle ?? titleAbsolute ?? title ?? undefined,
+        description:
+          twitterDescription ??
+          openGraphDescription ??
+          description ??
+          undefined,
+        images: twitterImages,
+      }
+    : undefined;
+
+  const languages =
+    alternateLanguages || alternateXDefault
       ? {
-          title: openGraphTitle ?? titleAbsolute ?? title ?? undefined,
-          description: openGraphDescription ?? description ?? undefined,
+          ...(alternateLanguages ?? {}),
+          ...(alternateXDefault ? { "x-default": alternateXDefault } : {}),
         }
       : undefined;
 
   const alternates = canonical
     ? {
         canonical,
-        ...(alternateLanguages ? { languages: alternateLanguages } : {}),
+        ...(languages ? { languages } : {}),
       }
-    : undefined;
+    : languages
+      ? { languages }
+      : undefined;
 
   return {
     title: titleValue,
@@ -57,6 +114,7 @@ export function buildMetadata({
     keywords,
     robots,
     openGraph,
+    twitter,
     alternates,
   };
 }

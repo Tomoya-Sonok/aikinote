@@ -20,16 +20,40 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const isJa = locale === "ja";
+  const jaTitle = "AikiNote | 合気道の稽古記録・交流アプリ";
+  const enTitle = "AikiNote | Aikido Training Journal & Community";
+  const jaDescription =
+    "合気道の稽古を記録・振り返り・共有できるデジタル日誌アプリ。世代や道場の壁を越えて他の合気道家とつながる「みんなで」機能も。";
+  const enDescription =
+    "Record, reflect, and share your aikido training. Connect with practitioners across styles and generations.";
+
   return buildMetadata({
-    titleAbsolute: isJa
-      ? "AikiNote | 合気道の稽古記録・交流アプリ"
-      : "AikiNote - Digital Aikido Training Journal & Community",
-    description: isJa
-      ? "合気道の稽古を記録・振り返り・共有できるデジタル日誌アプリ。世代や道場の壁を越えて他の合気道家とつながる「みんなで」機能も。"
-      : "A digital training journal app for Aikido practitioners to freely record, search, and review daily practice notes.",
+    titleAbsolute: isJa ? jaTitle : enTitle,
+    description: isJa ? jaDescription : enDescription,
     isIndexing: true,
     canonical: isJa ? "/" : "/en/",
     alternateLanguages: { ja: "/", en: "/en/" },
+    alternateXDefault: "/",
+    openGraphType: "website",
+    openGraphLocale: isJa ? "ja_JP" : "en_US",
+    openGraphUrl: isJa ? "/" : "/en",
+    openGraphSiteName: "AikiNote",
+    openGraphTitle: isJa ? jaTitle : enTitle,
+    openGraphDescription: isJa ? jaDescription : enDescription,
+    openGraphImages: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: isJa
+          ? "AikiNote - 合気道の稽古記録・交流アプリ"
+          : "AikiNote - Aikido Training Journal & Community",
+      },
+    ],
+    twitterCard: "summary_large_image",
+    twitterTitle: isJa ? jaTitle : enTitle,
+    twitterDescription: isJa ? jaDescription : enDescription,
+    twitterImages: ["/og-image.png"],
   });
 }
 

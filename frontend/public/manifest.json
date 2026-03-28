@@ -1,21 +1,37 @@
 {
   "name": "AikiNote",
   "short_name": "AikiNote",
-  "description": "日々の合気道の稽古で学んだことや感想を自由に記録・検索〜閲覧ができるデジタル稽古日誌アプリ",
+  "description": "合気道の稽古記録・交流アプリ",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2D3748",
+  "theme_color": "#2C2C2C",
+  "background_color": "#F5F3EF",
+  "orientation": "portrait",
+  "scope": "/",
   "icons": [
     {
-      "src": "/images/pwa/icon-192x192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/images/pwa/icon-512x512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
