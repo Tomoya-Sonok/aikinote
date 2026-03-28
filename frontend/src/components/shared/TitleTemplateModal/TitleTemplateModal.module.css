@@ -1,0 +1,262 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--overlay-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: var(--z-modal);
+}
+
+.modal {
+  background-color: var(--white);
+  width: 100%;
+  max-width: 340px;
+  border-radius: 8px;
+  padding: 20px;
+  border: 0.5px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(44, 44, 44, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  text-align: center;
+  color: var(--black);
+  letter-spacing: 0.06em;
+}
+
+/* テンプレート一覧 */
+.templateList {
+  display: flex;
+  flex-direction: column;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.loading {
+  text-align: center;
+  color: var(--text-light);
+  padding: 12px 0;
+  font-size: var(--font-size-sm);
+}
+
+.templateItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  border-bottom: 0.5px solid var(--border-color);
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.15s;
+}
+
+.templateItem:hover {
+  background-color: var(--hover-gray);
+}
+
+.templateItem:last-child {
+  border-bottom: none;
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color);
+}
+
+.templateText {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.defaultBadge {
+  flex-shrink: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  background-color: var(--bg-base);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.deleteButton {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.deleteButton:hover {
+  background-color: var(--hover-gray);
+}
+
+/* 折りたたみ: 新しいテンプレートを追加 */
+.addSection {
+  border-top: 0.5px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.addToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 500;
+}
+
+.addForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 8px;
+  background-color: var(--bg-base);
+  border-radius: 6px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--black);
+  font-weight: 400;
+}
+
+.select {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  padding: 8px 10px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color 0.4s ease-out;
+}
+
+.select:focus {
+  border-color: var(--primary-color);
+}
+
+.textInput {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  padding: 8px 10px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color 0.4s ease-out;
+}
+
+.textInput:focus {
+  border-color: var(--primary-color);
+}
+
+.textInput::placeholder {
+  color: var(--light-gray);
+}
+
+.previewRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.previewLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.previewValue {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 500;
+}
+
+.errorText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+}
+
+.addButtonRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hint {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* アクションボタン */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  border-top: 0.5px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.actionButton {
+  min-width: auto;
+  width: 100%;
+}
+
+@media (min-width: 431px) {
+  .modal {
+    padding: 24px;
+    max-width: 380px;
+  }
+
+  .actionButton {
+    width: auto;
+    min-width: 120px;
+  }
+}

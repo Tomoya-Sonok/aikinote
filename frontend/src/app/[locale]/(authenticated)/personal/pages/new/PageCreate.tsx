@@ -1,5 +1,6 @@
 "use client";
 
+import { ClipboardText } from "@phosphor-icons/react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,6 +11,7 @@ import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHea
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
+import { TitleTemplateModal } from "@/components/shared/TitleTemplateModal/TitleTemplateModal";
 import { useToast } from "@/contexts/ToastContext";
 import {
   type CreatePagePayload,
@@ -40,6 +42,7 @@ export function PageCreate() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
 
   const tagManagement = useTagManagement({ shouldCreateInitialTags: true });
   const attachmentMgmt = useAttachmentManagement("page");
@@ -187,30 +190,49 @@ export function PageCreate() {
 
       <main className={styles.main}>
         <div className={styles.section}>
-          <TextInput
-            ref={titleInputRef}
-            label={t("pageModal.title")}
-            required
-            value={title}
-            placeholder={titlePlaceholder}
-            onChange={(e) => {
-              const v = e.target.value;
-              setTitle(v);
-              if (v.length > 35) {
-                setErrors((prev) => ({
-                  ...prev,
-                  title: t("pageModal.titleTooLong"),
-                }));
-              } else {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.title;
-                  return next;
-                });
-              }
-            }}
-            error={errors.title}
-          />
+          <div className={styles.titleRow}>
+            <TextInput
+              ref={titleInputRef}
+              label={t("pageModal.title")}
+              required
+              value={title}
+              placeholder={titlePlaceholder}
+              onChange={(e) => {
+                const v = e.target.value;
+                setTitle(v);
+                if (v.length > 35) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    title: t("pageModal.titleTooLong"),
+                  }));
+                } else {
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.title;
+                    return next;
+                  });
+                }
+              }}
+              error={errors.title}
+              className={styles.titleInput}
+            />
+            <button
+              type="button"
+              className={styles.templateButton}
+              onClick={() => setIsTemplateModalOpen(true)}
+              aria-label={t("titleTemplate.insertFromTemplate")}
+            >
+              <ClipboardText
+                width={40}
+                height={40}
+                weight="light"
+                color="var(--text-light)"
+              />
+            </button>
+          </div>
+          <span className={styles.titleHint}>
+            {t("titleTemplate.inputHint")}
+          </span>
         </div>
 
         <TagSectionWithNewInput
@@ -280,6 +302,13 @@ export function PageCreate() {
         cancelLabel={t("common.cancel")}
         onConfirm={handleConfirmBack}
         onCancel={() => setIsBackConfirmOpen(false)}
+      />
+
+      <TitleTemplateModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+        onInsert={(value) => setTitle(value)}
+        dateOverride={dateParam || undefined}
       />
     </div>
   );

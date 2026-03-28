@@ -19,6 +19,38 @@ export const formatToLocalDateTime = (isoString: string): string => {
   return format(parseISO(isoString), "yyyy/MM/dd HH:mm", { locale: ja });
 };
 
+export type DateFormatPattern =
+  | "yyyy-MM-dd"
+  | "yyyy/MM/dd"
+  | "yyyy.MM.dd"
+  | "yyyyMMdd";
+
+export const DATE_FORMAT_OPTIONS: readonly (DateFormatPattern | null)[] = [
+  null,
+  "yyyy-MM-dd",
+  "yyyy/MM/dd",
+  "yyyy.MM.dd",
+  "yyyyMMdd",
+] as const;
+
+export const formatDateByPattern = (
+  pattern: DateFormatPattern,
+  dateOverride?: string,
+): string => {
+  const date = dateOverride ? parseISO(`${dateOverride}T00:00:00`) : new Date();
+  return format(date, pattern, { locale: ja });
+};
+
+export const resolveTemplate = (
+  templateText: string,
+  dateFormat: DateFormatPattern | null,
+  dateOverride?: string,
+): string => {
+  if (!dateFormat) return templateText;
+  const dateString = formatDateByPattern(dateFormat, dateOverride);
+  return `${dateString} ${templateText}`;
+};
+
 /**
  * ISO文字列を読みやすい相対時間に変換する（例：2時間前、3日前）
  * @param isoString - ISO 8601形式の日時文字列

@@ -1,4 +1,5 @@
 import { trpcClient } from "@/lib/trpc/client";
+import type { DateFormatPattern } from "@/lib/utils/dateUtils";
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error && error.message) {
@@ -51,6 +52,7 @@ const CACHE_TTL_MS = {
   socialSearch: 15_000,
   socialProfile: 30_000,
   notifications: 10_000,
+  titleTemplates: 60_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -96,6 +98,79 @@ const invalidateQueryCacheByPrefixes = (prefixes: string[]) => {
       queryCache.delete(key);
     }
   });
+};
+
+// タイトルテンプレートの型定義
+export interface TitleTemplate {
+  id: string;
+  user_id: string;
+  template_text: string;
+  date_format: DateFormatPattern | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface CreateTitleTemplatePayload {
+  user_id: string;
+  template_text: string;
+  date_format?: string | null;
+}
+
+// タイトルテンプレート一覧取得
+export const getTitleTemplates = async (
+  userId: string,
+): Promise<TitleTemplate[]> => {
+  try {
+    const result = await cachedQuery(
+      "titleTemplates:getList",
+      { userId },
+      CACHE_TTL_MS.titleTemplates,
+      async () => trpcClient.titleTemplates.getList.query({ userId }),
+    );
+    if (result?.success && result.data) {
+      return result.data as TitleTemplate[];
+    }
+    return [];
+  } catch {
+    return [];
+  }
+};
+
+// タイトルテンプレート作成
+export const createTitleTemplate = async (
+  payload: CreateTitleTemplatePayload,
+): Promise<TitleTemplate | null> => {
+  try {
+    const result = await trpcClient.titleTemplates.create.mutate({
+      user_id: payload.user_id,
+      template_text: payload.template_text,
+      date_format: (payload.date_format ?? null) as DateFormatPattern | null,
+    });
+    invalidateQueryCacheByPrefixes(["titleTemplates:"]);
+    if (result?.success && result.data) {
+      return result.data as TitleTemplate;
+    }
+    return null;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "テンプレートの作成に失敗しました"));
+  }
+};
+
+// タイトルテンプレート削除
+export const deleteTitleTemplate = async (
+  templateId: string,
+  userId: string,
+): Promise<boolean> => {
+  try {
+    const result = await trpcClient.titleTemplates.remove.mutate({
+      templateId,
+      userId,
+    });
+    invalidateQueryCacheByPrefixes(["titleTemplates:"]);
+    return result?.success ?? false;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "テンプレートの削除に失敗しました"));
+  }
 };
 
 // ページ作成の型定義（フロントエンド用）

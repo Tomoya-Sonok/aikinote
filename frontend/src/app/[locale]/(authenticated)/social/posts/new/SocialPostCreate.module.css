@@ -21,6 +21,42 @@
   flex-direction: column;
 }
 
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.titleInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.templateButton {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  background: var(--white);
+  cursor: pointer;
+  transition: border-color 0.3s ease-out;
+}
+
+.templateButton:hover {
+  border-color: var(--primary-color);
+}
+
+.titleHint {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin-top: 4px;
+}
+
 .srOnly {
   position: absolute;
   width: 1px;
@@ -94,7 +130,7 @@
 }
 
 .textarea::placeholder {
-  color: var(--light-gray);
+  color: var(--text-light);
 }
 
 /* 文字数カウント */

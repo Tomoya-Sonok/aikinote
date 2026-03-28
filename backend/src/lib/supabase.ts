@@ -47,6 +47,15 @@ export interface UserTagRow {
   sort_order: number | null; // 並び順（カテゴリ内）
 }
 
+export interface TitleTemplateRow {
+  id: string;
+  user_id: string;
+  template_text: string;
+  date_format: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
 export interface TrainingPageTagRow {
   id: string; // uuid PK
   training_page_id: string; // uuid FK
@@ -3006,4 +3015,93 @@ export const getTrendingHashtags = async (
   return [...countMap.values()]
     .sort((a, b) => b.count - a.count)
     .slice(0, limit);
+};
+
+// ============================================================
+// タイトルテンプレート CRUD
+// ============================================================
+
+export const getTitleTemplates = async (
+  userId: string,
+): Promise<TitleTemplateRow[]> => {
+  const { data, error } = await supabase
+    .from("TitleTemplate")
+    .select("*")
+    .eq("user_id", userId)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    throw new Error(`タイトルテンプレート取得に失敗しました: ${error.message}`);
+  }
+
+  return data || [];
+};
+
+export const createTitleTemplate = async (
+  userId: string,
+  templateText: string,
+  dateFormat: string | null,
+  existingTemplates?: TitleTemplateRow[],
+): Promise<TitleTemplateRow> => {
+  let maxOrder = 0;
+
+  if (existingTemplates) {
+    maxOrder = existingTemplates.reduce(
+      (max, row) => Math.max(max, row.sort_order ?? 0),
+      0,
+    );
+  } else {
+    const { data, error: fetchError } = await supabase
+      .from("TitleTemplate")
+      .select("sort_order")
+      .eq("user_id", userId);
+
+    if (fetchError) {
+      throw new Error(`並び順情報の取得に失敗しました: ${fetchError.message}`);
+    }
+
+    maxOrder = (data ?? []).reduce(
+      (max, row) => Math.max(max, row.sort_order ?? 0),
+      0,
+    );
+  }
+
+  const { data: newTemplate, error } = await supabase
+    .from("TitleTemplate")
+    .insert([
+      {
+        user_id: userId,
+        template_text: templateText,
+        date_format: dateFormat,
+        sort_order: maxOrder + 1,
+        created_at: new Date().toISOString(),
+      },
+    ])
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`タイトルテンプレート作成に失敗しました: ${error.message}`);
+  }
+
+  return newTemplate;
+};
+
+export const deleteTitleTemplate = async (
+  templateId: string,
+  userId: string,
+): Promise<TitleTemplateRow | null> => {
+  const { data, error } = await supabase
+    .from("TitleTemplate")
+    .delete()
+    .eq("id", templateId)
+    .eq("user_id", userId)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`タイトルテンプレート削除に失敗しました: ${error.message}`);
+  }
+
+  return data;
 };

@@ -544,6 +544,27 @@
     "titlePlaceholder": "e.g.) {date} Practice Record",
     "contentPlaceholder": "Feel free to enter what you learned and noticed through your practice!"
   },
+  "titleTemplate": {
+    "modalTitle": "Select Template",
+    "insertFromTemplate": "Insert from template",
+    "defaultLabel": "Default",
+    "insert": "Insert",
+    "close": "Close",
+    "addNew": "Add new template",
+    "templateName": "Template name",
+    "templateNamePlaceholder": "e.g.) Grading Exam",
+    "dateFormat": "Date format",
+    "dateFormatNone": "None (no date)",
+    "preview": "Preview",
+    "add": "Add",
+    "templateRequired": "Please enter a template name",
+    "templateTooLong": "Template name must be 35 characters or less",
+    "maxTemplatesReached": "Maximum of 5 templates allowed",
+    "addFailed": "Failed to add template",
+    "deleteFailed": "Failed to delete template",
+    "inputHint": "Tap the icon on the right to insert from a template",
+    "dateAutoReplaceHint": "* The date is automatically set to the training record date"
+  },
   "trainingCard": {
     "edit": "Edit",
     "delete": "Delete",

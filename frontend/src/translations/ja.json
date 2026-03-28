@@ -546,6 +546,27 @@
     "titlePlaceholder": "例: {date} 稽古記録",
     "contentPlaceholder": "稽古を通して学んだことや気づきを自由に入力してみましょう！"
   },
+  "titleTemplate": {
+    "modalTitle": "テンプレートの選択",
+    "insertFromTemplate": "テンプレートから挿入",
+    "defaultLabel": "デフォルト",
+    "insert": "挿入する",
+    "close": "閉じる",
+    "addNew": "新しいテンプレートを追加",
+    "templateName": "テンプレート名",
+    "templateNamePlaceholder": "例: 昇級昇段審査",
+    "dateFormat": "日付の形式",
+    "dateFormatNone": "なし（日付なし）",
+    "preview": "プレビュー",
+    "add": "追加",
+    "templateRequired": "テンプレート名を入力してください",
+    "templateTooLong": "テンプレート名は35文字以内で入力してください",
+    "maxTemplatesReached": "テンプレートは5件まで登録できます",
+    "addFailed": "テンプレートの追加に失敗しました",
+    "deleteFailed": "テンプレートの削除に失敗しました",
+    "inputHint": "右側のアイコンからテンプレートの挿入ができます",
+    "dateAutoReplaceHint": "※ 日付は稽古記録日が自動で反映されます"
+  },
   "trainingCard": {
     "edit": "編集",
     "delete": "削除",

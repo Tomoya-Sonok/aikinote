@@ -19,6 +19,15 @@ type UserTag = {
   sort_order?: number | null;
 };
 
+type TitleTemplate = {
+  id: string;
+  user_id: string;
+  template_text: string;
+  date_format: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 type Page = {
   id: string;
   title: string;
@@ -1267,3 +1276,62 @@ export const syncSubscriptionProcedure = publicProcedure.mutation(async () => {
     },
   );
 });
+
+// ============================================================
+// タイトルテンプレート
+// ============================================================
+
+export const getTitleTemplatesProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+    }),
+  )
+  .query(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+    });
+
+    return callHonoApi<ApiResponse<TitleTemplate[]>>(
+      `/api/title-templates?${query.toString()}`,
+    );
+  });
+
+export const createTitleTemplateProcedure = publicProcedure
+  .input(
+    z.object({
+      user_id: z.string().min(1),
+      template_text: z.string().min(1).max(35),
+      date_format: z
+        .enum(["yyyy-MM-dd", "yyyy/MM/dd", "yyyy.MM.dd", "yyyyMMdd"])
+        .nullable()
+        .optional()
+        .default(null),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    return callHonoApi<ApiResponse<TitleTemplate>>("/api/title-templates", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  });
+
+export const deleteTitleTemplateProcedure = publicProcedure
+  .input(
+    z.object({
+      templateId: z.string().min(1),
+      userId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+    });
+
+    return callHonoApi<ApiResponse<TitleTemplate>>(
+      `/api/title-templates/${input.templateId}?${query.toString()}`,
+      {
+        method: "DELETE",
+      },
+    );
+  });
