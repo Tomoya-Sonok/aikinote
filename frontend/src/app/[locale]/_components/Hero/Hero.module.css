@@ -132,6 +132,10 @@
     z-index: 1;
   }
 
+  .loginLink {
+    text-align: center;
+  }
+
   .visualWrapper {
     min-width: auto;
   }

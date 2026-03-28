@@ -45,10 +45,10 @@ export async function Hero({ locale, signupHref }: HeroProps) {
             <CtaButton variant="primary" href={signupHref}>
               {t("hero.ctaLabel")}
             </CtaButton>
-            <Link href={loginHref} className={styles.loginLink}>
-              {t("cta.loginPrompt")}
-            </Link>
           </div>
+          <Link href={loginHref} className={styles.loginLink}>
+            {t("cta.loginPrompt")}
+          </Link>
         </div>
 
         <ScrollFadeIn
