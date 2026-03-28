@@ -16,6 +16,7 @@ import {
   getPagesProcedure,
   getPublicityDojosProcedure,
   getPublicPagesFeedProcedure,
+  getPublicSocialPostByIdProcedure,
   getSocialFeedProcedure,
   getSocialPostByIdProcedure,
   getSocialProfileProcedure,
@@ -92,6 +93,7 @@ export const appRouter = createTRPCRouter({
   socialPosts: createTRPCRouter({
     getFeed: getSocialFeedProcedure,
     getById: getSocialPostByIdProcedure,
+    getPublicById: getPublicSocialPostByIdProcedure,
     create: createSocialPostProcedure,
     update: updateSocialPostProcedure,
     remove: removeSocialPostProcedure,

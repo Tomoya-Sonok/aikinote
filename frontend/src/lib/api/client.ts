@@ -649,6 +649,20 @@ export const getSocialPost = async (postId: string) => {
   }
 };
 
+export const getPublicSocialPost = async (postId: string) => {
+  try {
+    const input = { postId };
+    return await cachedQuery(
+      "socialPosts:getPublicById",
+      input,
+      CACHE_TTL_MS.socialPost,
+      async () => trpcClient.socialPosts.getPublicById.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "投稿の取得に失敗しました"));
+  }
+};
+
 export interface CreateSocialPostPayload {
   user_id: string;
   content: string;

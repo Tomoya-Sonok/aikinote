@@ -113,6 +113,10 @@ const testMessages = {
     comment: "その他・コメント",
     updateFailed: "ページの更新に失敗しました",
     deleteFailed: "ページの削除に失敗しました",
+    publicToggle: "他のユーザーに公開",
+    publicEnabled: "公開中",
+    publicDisabled: "非公開",
+    publicToggleFailed: "公開設定の変更に失敗しました",
   },
   tagSelection: {
     add: "＋追加",
@@ -155,6 +159,33 @@ const testMessages = {
     success: "ページを作成しました",
     titlePlaceholder: "{date} 稽古記録",
     contentPlaceholder: "内容を入力してください",
+  },
+  auth: {
+    login: "ログイン",
+    logoutSuccess: "ログアウトしました",
+    signup: "新規登録",
+  },
+  premiumModal: {
+    badge: "PREMIUM",
+    title: "稽古の学びを、\n仲間と分かち合おう",
+    description:
+      "道場の壁も国境も越えて、日々の気づきや学んだことをシェアしてみませんか？質問をすれば、優しい先輩たちが導いてくれるかも？",
+    upgradeMain: "みんなで を始める",
+    upgradeSub: "月額 ¥380",
+    processing: "処理中...",
+    close: "今はひとりで続ける",
+    previewLockTitle: "「みんなで」のすべての機能を使うには",
+    previewLockButton: "Premium にアップグレード",
+  },
+  premiumModalStats: {
+    badge: "PREMIUM",
+    title: "稽古の積み重ねを\nデータで振り返ろう",
+    description:
+      "稽古の頻度や内容を自動で分析。稽古日数や取り組んだ技で、あなたの稽古を見える化しませんか？",
+    upgradeMain: "統計データ を使う",
+    upgradeSub: "月額 ¥380",
+    processing: "処理中...",
+    close: "記録だけ続ける",
   },
   datePickerModal: {
     close: "閉じる",
