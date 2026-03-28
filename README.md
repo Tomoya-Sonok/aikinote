@@ -10,22 +10,12 @@
 [![GitHub last commit](https://img.shields.io/github/last-commit/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/commits/main)
 [![GitHub](https://img.shields.io/github/license/Tomoya-Sonok/aikinote)](https://github.com/Tomoya-Sonok/aikinote/blob/main/LICENSE)
 
-<img width="260" height="647" alt="Screenshot 2026-03-28 at 11 35 28-portrait" src="https://github.com/user-attachments/assets/36576ff3-c1a5-4d7a-ac24-410094d49918" />
+<img width="260" height="620" alt="Screenshot 2026-03-28 at 11 35 28-portrait" src="https://github.com/user-attachments/assets/36576ff3-c1a5-4d7a-ac24-410094d49918" />
 
-<img width="260" height="647" alt="Screenshot 2026-03-28 at 11 35 50-portrait" src="https://github.com/user-attachments/assets/c02f1150-b927-49a7-966d-54c6a8cdb8c2" />
+<img width="260" height="620" alt="Screenshot 2026-03-28 at 11 35 50-portrait" src="https://github.com/user-attachments/assets/c02f1150-b927-49a7-966d-54c6a8cdb8c2" />
 
-<img width="260" height="647" alt="Screenshot 2026-03-28 at 11 36 09-portrait" src="https://github.com/user-attachments/assets/6a2154d5-1941-459f-9fe3-57fe408d2edc" />
+<img width="260" height="620" alt="Screenshot 2026-03-28 at 11 36 09-portrait" src="https://github.com/user-attachments/assets/6a2154d5-1941-459f-9fe3-57fe408d2edc" />
 
-
-<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 40 53-portrait" src="https://github.com/user-attachments/assets/7be119dd-cce5-4811-a7d4-557327807839" />
-
-<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 32 45-portrait" src="https://github.com/user-attachments/assets/6803f562-4845-42fe-96d2-df7e26486e8b" />
-
-<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 43 47-portrait" src="https://github.com/user-attachments/assets/6be727d9-1061-456e-8923-eef6748373f5" />
-
-<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 43 47-portrait" src="https://github.com/user-attachments/assets/6be727d9-1061-456e-8923-eef6748373f5" />
-
-<img width="300" height="647" alt="Screenshot 2025-09-22 at 16 43 47-portrait" src="https://github.com/user-attachments/assets/6be727d9-1061-456e-8923-eef6748373f5" />
 
 ## About
 
