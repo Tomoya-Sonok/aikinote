@@ -50,8 +50,10 @@
   font-size: var(--font-size-sm);
   color: var(--black);
   line-height: 1.6;
-  text-align: center;
-  margin: 8px 0 0;
+  text-align: left;
+  white-space: pre-line;
+  margin: 8px auto 0;
   max-width: 300px;
+  align-self: flex-start;
   word-break: break-word;
 }

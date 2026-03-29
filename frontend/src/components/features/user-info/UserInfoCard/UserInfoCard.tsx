@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { Button } from "@/components/shared/Button/Button";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./UserInfoCard.module.css";
 
 interface UserInfoCardProps {
@@ -70,7 +71,7 @@ export const UserInfoCard: FC<UserInfoCardProps> = ({
         {bio && (
           <div className={styles.detail}>
             <span className={styles.label}>{t("userInfo.bio")}</span>
-            <span className={styles.value}>{bio}</span>
+            <span className={styles.bioValue}>{linkifyText(bio)}</span>
           </div>
         )}
       </div>

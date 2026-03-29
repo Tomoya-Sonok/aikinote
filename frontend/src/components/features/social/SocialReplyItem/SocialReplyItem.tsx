@@ -17,6 +17,7 @@ import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
+import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./SocialReplyItem.module.css";
 
 interface ReplyUser {
@@ -224,7 +225,7 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
               </div>
             </div>
           ) : (
-            <p className={styles.text}>{reply.content}</p>
+            <p className={styles.text}>{linkifyText(reply.content)}</p>
           )}
 
           <div className={styles.replyActions}>
