@@ -86,6 +86,9 @@ export function SocialPostsFeed() {
   }, []);
 
   // Intersection Observer で無限スクロール
+  const loadMoreRef = useRef(loadMore);
+  loadMoreRef.current = loadMore;
+
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
@@ -93,7 +96,7 @@ export function SocialPostsFeed() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-          loadMore();
+          loadMoreRef.current();
         }
       },
       { rootMargin: "200px" },
@@ -101,7 +104,7 @@ export function SocialPostsFeed() {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, loadMore]);
+  }, [hasMore, isLoadingMore]);
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {

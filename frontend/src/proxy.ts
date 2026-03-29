@@ -5,47 +5,57 @@ import { routing } from "./lib/i18n/routing";
 
 const handleI18nRouting = createIntlMiddleware(routing);
 
+function createMiddlewareSupabase(
+  request: NextRequest,
+  setResponse: (res: NextResponse) => void,
+) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      get(name: string) {
+        return request.cookies.get(name)?.value;
+      },
+      set(name: string, value: string, options: CookieOptions) {
+        request.cookies.set({ name, value, ...options });
+        const res = NextResponse.next({
+          request: { headers: request.headers },
+        });
+        res.cookies.set({ name, value, ...options });
+        setResponse(res);
+      },
+      remove(name: string, options: CookieOptions) {
+        request.cookies.set({ name, value: "", ...options });
+        const res = NextResponse.next({
+          request: { headers: request.headers },
+        });
+        res.cookies.set({ name, value: "", ...options });
+        setResponse(res);
+      },
+    },
+  });
+}
+
 export async function proxy(request: NextRequest) {
   const shouldSkipAuthSync = process.env.SKIP_MIDDLEWARE === "true";
 
   if (request.nextUrl.pathname.startsWith("/auth/")) {
     let response = NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
+      request: { headers: request.headers },
     });
 
-    if (shouldSkipAuthSync) {
-      return response;
-    }
-
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (supabaseUrl && supabaseAnonKey) {
-      const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value;
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            request.cookies.set({ name, value, ...options });
-            response = NextResponse.next({
-              request: { headers: request.headers },
-            });
-            response.cookies.set({ name, value, ...options });
-          },
-          remove(name: string, options: CookieOptions) {
-            request.cookies.set({ name, value: "", ...options });
-            response = NextResponse.next({
-              request: { headers: request.headers },
-            });
-            response.cookies.set({ name, value: "", ...options });
-          },
-        },
+    if (!shouldSkipAuthSync) {
+      const supabase = createMiddlewareSupabase(request, (res) => {
+        response = res;
       });
-
-      await supabase.auth.getSession();
+      if (supabase) {
+        await supabase.auth.getSession();
+      }
     }
 
     return response;
@@ -54,74 +64,27 @@ export async function proxy(request: NextRequest) {
   const i18nResponse =
     handleI18nRouting(request) ||
     NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
+      request: { headers: request.headers },
     });
 
   if (shouldSkipAuthSync) {
     return i18nResponse;
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return i18nResponse;
-  }
-
   let authResponse = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+    request: { headers: request.headers },
   });
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value;
-      },
-      set(name: string, value: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-        authResponse = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        authResponse.cookies.set({
-          name,
-          value,
-          ...options,
-        });
-      },
-      remove(name: string, options: CookieOptions) {
-        request.cookies.set({
-          name,
-          value: "",
-          ...options,
-        });
-        authResponse = NextResponse.next({
-          request: {
-            headers: request.headers,
-          },
-        });
-        authResponse.cookies.set({
-          name,
-          value: "",
-          ...options,
-        });
-      },
-    },
+  const supabase = createMiddlewareSupabase(request, (res) => {
+    authResponse = res;
   });
 
-  await supabase.auth.getSession();
+  if (supabase) {
+    await supabase.auth.getSession();
 
-  for (const cookie of authResponse.cookies.getAll()) {
-    i18nResponse.cookies.set(cookie);
+    for (const cookie of authResponse.cookies.getAll()) {
+      i18nResponse.cookies.set(cookie);
+    }
   }
 
   return i18nResponse;

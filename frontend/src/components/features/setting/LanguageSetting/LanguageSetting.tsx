@@ -18,7 +18,7 @@ interface LanguageSettingProps {
 
 export const LanguageSetting: FC<LanguageSettingProps> = ({ onSave }) => {
   const currentLocale = useLocale() as Language;
-  const { setLanguage } = useLanguageStore();
+  const setLanguage = useLanguageStore((s) => s.setLanguage);
   const [selectedLanguage, setSelectedLanguage] =
     useState<Language>(currentLocale);
   const t = useTranslations();

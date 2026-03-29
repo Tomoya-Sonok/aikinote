@@ -6,7 +6,7 @@ import { type Language, useLanguageStore } from "@/stores/languageStore";
 
 export function LocaleInitializer() {
   const currentLocale = useLocale() as Language;
-  const { setLanguage } = useLanguageStore();
+  const setLanguage = useLanguageStore((s) => s.setLanguage);
 
   useEffect(() => {
     // ページロード時に現在のlocaleでストアを初期化

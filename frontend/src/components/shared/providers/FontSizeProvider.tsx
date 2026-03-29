@@ -8,7 +8,7 @@ interface FontSizeProviderProps {
 }
 
 export function FontSizeProvider({ children }: FontSizeProviderProps) {
-  const { fontSize } = useFontSizeStore();
+  const fontSize = useFontSizeStore((s) => s.fontSize);
 
   useEffect(() => {
     // htmlタグにdata-font-size属性を設定

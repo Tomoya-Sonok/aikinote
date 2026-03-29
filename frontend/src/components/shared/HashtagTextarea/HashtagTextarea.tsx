@@ -55,15 +55,23 @@ export const HashtagTextarea: FC<HashtagTextareaProps> = ({
     }
   }, []);
 
-  // textareaの高さ変動に合わせてミラーDivの高さを同期
-  // biome-ignore lint/correctness/useExhaustiveDependencies: value変更時にミラーの高さを再計算する必要がある
+  // textareaの高さ変動に合わせてミラーDivの高さを同期（ResizeObserverでlayout thrashing回避）
   useEffect(() => {
     const textarea = internalTextareaRef.current;
     const mirror = mirrorRef.current;
-    if (textarea && mirror) {
-      mirror.style.height = `${textarea.offsetHeight}px`;
-    }
-  }, [value]);
+    if (!textarea || !mirror) return;
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        requestAnimationFrame(() => {
+          mirror.style.height = `${entry.contentRect.height}px`;
+        });
+      }
+    });
+    observer.observe(textarea);
+    return () => observer.disconnect();
+  }, []);
 
   // ハッシュタグ部分をハイライトしたHTMLを生成
   const renderHighlightedContent = () => {
