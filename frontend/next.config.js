@@ -22,7 +22,7 @@ const nextConfig = {
 
   // Phosphor Icons 最適化
   experimental: {
-    optimizePackageImports: ["@phosphor-icons/react"],
+    optimizePackageImports: ["@phosphor-icons/react", "date-fns", "recharts"],
   },
 
   // SSGを完全に無効化し、すべてをSSRに変更

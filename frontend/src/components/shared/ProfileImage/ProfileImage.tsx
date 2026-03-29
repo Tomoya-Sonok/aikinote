@@ -27,9 +27,8 @@ export const ProfileImage: FC<ProfileImageProps> = ({
           src={src}
           alt={defaultAlt}
           fill
-          unoptimized
           className={styles.image}
-          sizes="(min-width: 1201px) 33vw, (min-width: 769px) 50vw, 100vw"
+          sizes="120px"
         />
       ) : (
         <UserIcon

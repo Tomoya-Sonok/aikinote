@@ -52,7 +52,7 @@ export function useAuth() {
   useEffect(() => {
     let isMounted = true;
 
-    const supabaseClient = getClientSupabase();
+    const supabaseClient = supabase;
 
     // 共通のユーザー取得関数を使用
 
@@ -176,7 +176,7 @@ export function useAuth() {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   const signUp = useCallback(
     async (data: SignUpFormData): Promise<SignUpResponse> => {

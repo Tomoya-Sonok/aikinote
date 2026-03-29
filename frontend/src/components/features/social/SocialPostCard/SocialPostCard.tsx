@@ -75,13 +75,19 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     const [isTruncated, setIsTruncated] = useState(false);
     const textRef = useRef<HTMLParagraphElement>(null);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: post.content はエフェクト内で直接参照しないが、内容変更時にDOM高さを再計測する必要がある
+    // ResizeObserverでtruncation検出（layout thrashing回避）
     useEffect(() => {
       const el = textRef.current;
-      if (el) {
-        setIsTruncated(el.scrollHeight > el.clientHeight);
-      }
-    }, [post.content]);
+      if (!el) return;
+
+      const observer = new ResizeObserver(() => {
+        requestAnimationFrame(() => {
+          setIsTruncated(el.scrollHeight > el.clientHeight);
+        });
+      });
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, []);
 
     const handleShare = useCallback(
       async (e: React.MouseEvent) => {
