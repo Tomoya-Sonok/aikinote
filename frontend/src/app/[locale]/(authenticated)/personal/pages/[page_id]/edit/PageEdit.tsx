@@ -52,7 +52,7 @@ export function PageEdit() {
 
   // ページデータが読み込まれたらフォームに設定
   useEffect(() => {
-    if (pageData && !initialized) {
+    if (pageData && availableTags.length > 0 && !initialized) {
       setTitle(pageData.title);
       setContent(pageData.content);
       attachmentMgmt.setAttachments(initialAttachments);
