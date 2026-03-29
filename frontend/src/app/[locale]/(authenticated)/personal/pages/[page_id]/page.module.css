@@ -161,8 +161,8 @@
 }
 
 .deleteButton {
-  background-color: #ff2f2f;
-  color: #ffffff;
+  background-color: var(--danger-color);
+  color: var(--white);
   border: none;
   border-radius: 24px;
   padding: 0 16px;
@@ -179,7 +179,7 @@
 }
 
 .deleteButton:hover {
-  background-color: #e62626;
+  background-color: #9e3939;
 }
 
 .notFound {
@@ -245,7 +245,7 @@
 }
 
 .toggle.toggleOn {
-  background: var(--primary-color);
+  background: var(--active-color);
 }
 
 .toggleKnob {

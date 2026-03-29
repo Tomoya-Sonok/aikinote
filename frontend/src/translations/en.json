@@ -705,8 +705,8 @@
     "updateFailed": "Failed to update page",
     "deleteFailed": "Failed to delete page",
     "publicToggle": "Share with other users",
-    "publicEnabled": "Training record is now public",
-    "publicDisabled": "Training record is now private",
+    "publicEnabled": "This training record is now visible to other users",
+    "publicDisabled": "This training record is no longer visible to other users",
     "publicToggleFailed": "Failed to change visibility"
   },
   "tagSelection": {

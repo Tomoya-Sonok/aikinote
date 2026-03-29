@@ -72,9 +72,9 @@
 .danger {
   background: linear-gradient(
     180deg,
-    #f54e4e 0%,
-    var(--error-color) 60%,
-    #d92525 100%
+    #c85858 0%,
+    var(--danger-color) 60%,
+    #9e3939 100%
   );
   color: var(--white);
   border: none;
@@ -90,7 +90,7 @@
 }
 
 .danger:hover {
-  background: linear-gradient(180deg, #bb5a5a 0%, #a94d4d 60%, #984444 100%);
+  background: linear-gradient(180deg, #a84c4c 0%, #9a4040 60%, #8a3636 100%);
 }
 
 .small {

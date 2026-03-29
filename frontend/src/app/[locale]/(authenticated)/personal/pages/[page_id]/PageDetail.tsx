@@ -70,6 +70,12 @@ export function PageDetail() {
       });
       if (response.success) {
         setPageData({ ...pageData, is_public: newValue });
+        showToast(
+          newValue
+            ? t("pageDetail.publicEnabled")
+            : t("pageDetail.publicDisabled"),
+          "success",
+        );
       }
     } catch (error) {
       console.error("公開設定変更エラー:", error);
