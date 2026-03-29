@@ -272,6 +272,31 @@ export function useAuth() {
     }
   }, [supabase.auth]);
 
+  const signInWithApple = useCallback(async () => {
+    setIsProcessing(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: {
+          redirectTo: getRedirectUrl("/auth/callback"),
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || "Appleログインに失敗しました");
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Appleログインに失敗しました";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [supabase.auth]);
+
   const signOutUser = useCallback(async () => {
     setIsProcessing(true);
     setError(null);
@@ -495,6 +520,7 @@ export function useAuth() {
     signUp,
     signInWithCredentials,
     signInWithGoogle,
+    signInWithApple,
     signOutUser,
     forgotPassword,
     resetPassword,
