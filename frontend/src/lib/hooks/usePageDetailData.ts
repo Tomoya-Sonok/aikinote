@@ -29,7 +29,10 @@ export function usePageDetailData(pageId: string) {
       setLoading(true);
       try {
         if (pageId && user?.id) {
-          const response = await getPage(pageId, user.id);
+          const [response, attachJson] = await Promise.all([
+            getPage(pageId, user.id),
+            getAttachments(pageId),
+          ]);
 
           if (response.success && response.data) {
             const convertedData: TrainingPageData = {
@@ -42,10 +45,12 @@ export function usePageDetailData(pageId: string) {
               attachments: response.data.attachments ?? [],
             };
             setPageData(convertedData);
-
-            await fetchAttachments();
           } else {
             setPageData(null);
+          }
+
+          if (attachJson.success && attachJson.data) {
+            setAttachments(attachJson.data);
           }
         }
       } catch (err) {
@@ -57,7 +62,7 @@ export function usePageDetailData(pageId: string) {
     };
 
     fetchData();
-  }, [pageId, user?.id, authLoading, fetchAttachments]);
+  }, [pageId, user?.id, authLoading]);
 
   return {
     loading,

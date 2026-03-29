@@ -102,16 +102,22 @@ export function PersonalPages() {
     };
   }, [isSortDropdownOpen, handleClickOutside]);
 
-  const handleSortSelect = (order: SortOrder) => {
-    setSortOrder(order);
-    setIsSortDropdownOpen(false);
-  };
+  const handleSortSelect = useCallback(
+    (order: SortOrder) => {
+      setSortOrder(order);
+      setIsSortDropdownOpen(false);
+    },
+    [setSortOrder],
+  );
 
-  const handleEditTraining = (id: string) => {
-    window.location.href = `/${locale}/personal/pages/${id}/edit`;
-  };
+  const handleEditTraining = useCallback(
+    (id: string) => {
+      window.location.href = `/${locale}/personal/pages/${id}/edit`;
+    },
+    [locale],
+  );
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!deleteTargetPageId) {
       closeDeleteDialog();
       return;
@@ -120,7 +126,7 @@ export function PersonalPages() {
     await removePage(deleteTargetPageId);
     setIsProcessing(false);
     closeDeleteDialog();
-  };
+  }, [deleteTargetPageId, closeDeleteDialog, removePage]);
 
   const handleViewTraining = useCallback(
     (id: string) => {

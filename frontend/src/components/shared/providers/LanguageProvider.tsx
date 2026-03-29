@@ -10,7 +10,8 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children, locale }: LanguageProviderProps) {
-  const { language, setLanguage } = useLanguageStore();
+  const language = useLanguageStore((s) => s.language);
+  const setLanguage = useLanguageStore((s) => s.setLanguage);
   const router = useRouter();
   const pathname = usePathname();
   const isInitializedRef = useRef(false);

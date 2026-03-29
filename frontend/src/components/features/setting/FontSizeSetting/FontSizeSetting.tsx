@@ -18,7 +18,8 @@ interface FontSizeSettingProps {
 }
 
 export const FontSizeSetting: FC<FontSizeSettingProps> = ({ onSave }) => {
-  const { fontSize, setFontSize } = useFontSizeStore();
+  const fontSize = useFontSizeStore((s) => s.fontSize);
+  const setFontSize = useFontSizeStore((s) => s.setFontSize);
   const t = useTranslations();
   const uniqueId = useId();
 

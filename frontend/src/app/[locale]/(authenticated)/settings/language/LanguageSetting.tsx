@@ -12,7 +12,7 @@ interface LanguageSettingProps {
 
 export function LanguageSetting({ locale }: LanguageSettingProps) {
   const router = useRouter();
-  const { getNavigationPath } = useLanguageStore();
+  const getNavigationPath = useLanguageStore((s) => s.getNavigationPath);
   const t = useTranslations();
 
   const handleSave = () => {
