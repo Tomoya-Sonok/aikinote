@@ -3019,10 +3019,12 @@ export const getTrendingHashtags = async (
     }
   }
 
-  // カウント降順でソートし、上位N件を返す
-  return [...countMap.values()]
-    .sort((a, b) => b.count - a.count)
-    .slice(0, limit);
+  // カウント降順でソートし、上位N位までを返す（同率含む）
+  const sorted = [...countMap.values()].sort((a, b) => b.count - a.count);
+  if (sorted.length === 0) return [];
+  const cutoffCount =
+    sorted[Math.min(limit - 1, sorted.length - 1)]?.count ?? 0;
+  return sorted.filter((item) => item.count >= cutoffCount);
 };
 
 // ============================================================

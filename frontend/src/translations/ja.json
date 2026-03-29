@@ -301,6 +301,26 @@
     "previewLockTitle": "「みんなで」のすべての機能を使うには",
     "previewLockButton": "Premium にアップグレード"
   },
+  "premiumModalBrowse": {
+    "badge": "PREMIUM",
+    "title": "もっと深く、\nみんなとつながろう",
+    "description": "投稿・返信・お気に入り・検索など、全ての機能を使って、仲間との交流を深めませんか？",
+    "upgradeMain": "結びを大切にする",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "今は閲覧だけでいい",
+    "feedBottomTitle": "もっと多くの投稿を見るには",
+    "feedBottomButton": "Premium にアップグレード"
+  },
+  "premiumModalSearch": {
+    "badge": "PREMIUM",
+    "title": "気になる技や話題を、\n探してみませんか？",
+    "description": "キーワード・道場名・段級位でカンタン絞り込み、あなたに合った稽古の知恵が見つかります。",
+    "upgradeMain": "検索機能を使ってみる",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "今は閲覧だけでいい"
+  },
   "premiumModalStats": {
     "badge": "PREMIUM",
     "title": "稽古の積み重ねを\nデータで振り返ろう",
@@ -897,7 +917,8 @@
     "featureRecord": "稽古記録の作成・閲覧・検索",
     "featureCalendar": "カレンダー・稽古日数管理",
     "featureStats": "統計データ",
-    "featureBrowse": "他の投稿・稽古記録の閲覧・検索",
+    "featureBrowseOnly": "他の投稿・稽古記録の閲覧",
+    "featureSearch": "投稿・稽古記録の絞り込み検索",
     "featurePost": "投稿・返信・お気に入り保存",
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "プッシュ通知",

@@ -301,6 +301,26 @@
     "previewLockTitle": "Unlock all social features",
     "previewLockButton": "Upgrade to Premium"
   },
+  "premiumModalBrowse": {
+    "badge": "PREMIUM",
+    "title": "Connect deeper\nwith the community",
+    "description": "Unlock all features — posting, replying, favorites, and search — to engage more with fellow aikidoka.",
+    "upgradeMain": "Cherish the connection",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Just browsing for now",
+    "feedBottomTitle": "See more posts",
+    "feedBottomButton": "Upgrade to Premium"
+  },
+  "premiumModalSearch": {
+    "badge": "PREMIUM",
+    "title": "Find techniques and topics\nthat interest you",
+    "description": "Easily filter by keyword, dojo name, or rank to discover training insights tailored to you.",
+    "upgradeMain": "Try Search",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Just browsing for now"
+  },
   "premiumModalStats": {
     "badge": "PREMIUM",
     "title": "Reflect on your journey\nwith training data",
@@ -895,7 +915,8 @@
     "featureRecord": "Create, view & search training records",
     "featureCalendar": "Calendar & training day tracking",
     "featureStats": "Stats & analytics",
-    "featureBrowse": "Browse & search others' posts & records",
+    "featureBrowseOnly": "Browse others' posts & records",
+    "featureSearch": "Filter & search posts and records",
     "featurePost": "Post, reply & save favorites",
     "featurePublish": "One-tap training record publish",
     "featurePush": "Push notifications",

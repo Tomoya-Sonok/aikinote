@@ -12,7 +12,16 @@
 }
 
 .searchWrapper {
+  position: relative;
   flex: 1;
+}
+
+.searchOverlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .filterButton {
@@ -52,12 +61,22 @@
 }
 
 .filterSection {
+  position: relative;
   padding: 12px 16px;
   background: var(--background-light);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.filterSectionOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .postTypeSelector {

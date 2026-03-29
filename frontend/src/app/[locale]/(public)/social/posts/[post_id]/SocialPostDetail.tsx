@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowLeftIcon,
   DotsThreeVerticalIcon,
   HeartIcon,
   ShareFatIcon,
@@ -116,7 +115,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const { isPremium, loading: subLoading } = useSubscription();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
-  const tPremium = useTranslations("premiumModal");
+
   const { showToast } = useToast();
   const [detail, setDetail] = useState<PostDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -126,7 +125,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [showPreviewLock, setShowPreviewLock] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isAuthenticated = !!user;
@@ -155,26 +153,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     fetchDetail();
   }, [postId, user, isInitializing]);
 
-  // Free ユーザー: 即時モーダル表示
-  useEffect(() => {
-    if (!isAuthenticated || subLoading || isPremium) return;
-    setShowUpgradeModal(true);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isAuthenticated, subLoading, isPremium]);
-
-  // previewLock 表示中はスクロールを無効化
-  useEffect(() => {
-    if (showPreviewLock) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [showPreviewLock]);
-
   // メニュー外クリックで閉じる
   useEffect(() => {
     if (!showMenu) return;
@@ -201,6 +179,10 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   }, [locale]);
 
   const handleFavoriteToggle = useCallback(async () => {
+    if (isFreeUser) {
+      setShowUpgradeModal(true);
+      return;
+    }
     if (!isAuthenticated) {
       setShowSignupPrompt(true);
       return;
@@ -238,7 +220,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           : null,
       );
     }
-  }, [detail, postId, isAuthenticated]);
+  }, [detail, postId, isAuthenticated, isFreeUser]);
 
   const handleDelete = useCallback(async () => {
     setIsDeleting(true);
@@ -359,6 +341,10 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleReplyFavoriteToggle = useCallback(
     (replyId: string) => {
+      if (isFreeUser) {
+        setShowUpgradeModal(true);
+        return;
+      }
       if (!detail) return;
 
       const targetReply = detail.replies.find((r) => r.id === replyId);
@@ -407,7 +393,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         );
       });
     },
-    [detail],
+    [detail, isFreeUser],
   );
 
   const handleStartEdit = useCallback(() => {
@@ -438,11 +424,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     }
   }, [detail, locale, postId, showToast, t]);
 
-  const handleDismissModal = useCallback(() => {
-    setShowUpgradeModal(false);
-    setShowPreviewLock(true);
-  }, []);
-
   const handleSignupPromptOpen = useCallback(() => {
     setShowSignupPrompt(true);
   }, []);
@@ -470,19 +451,23 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const footer =
     isAuthenticated && !isFreeUser ? (
       <SocialReplyForm onSubmit={handleReplySubmit} />
-    ) : !isAuthenticated ? (
+    ) : (
       <div className={styles.dummyReplyForm}>
         <div className={styles.dummyReplyInputWrapper}>
           <button
             type="button"
             className={styles.dummyReplyInput}
-            onClick={handleSignupPromptOpen}
+            onClick={
+              isFreeUser
+                ? () => setShowUpgradeModal(true)
+                : handleSignupPromptOpen
+            }
           >
             {t("replyPlaceholder")}
           </button>
         </div>
       </div>
-    ) : null;
+    );
 
   return (
     <ChatLayout footer={footer}>
@@ -543,7 +528,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
       <div className={styles.postContent}>
         <div className={styles.authorHeader}>
-          {isAuthenticated ? (
+          {isAuthenticated && !isFreeUser ? (
             <a
               href={`/${locale}/social/profile/${detail.author.id}`}
               className={styles.authorLink}
@@ -557,7 +542,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             <button
               type="button"
               className={styles.authorButton}
-              onClick={handleSignupPromptOpen}
+              onClick={
+                isFreeUser
+                  ? () => setShowUpgradeModal(true)
+                  : handleSignupPromptOpen
+              }
             >
               <ProfileImage
                 src={detail.author.profile_image_url}
@@ -566,7 +555,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             </button>
           )}
           <div className={styles.authorInfo}>
-            {isAuthenticated ? (
+            {isAuthenticated && !isFreeUser ? (
               <a
                 href={`/${locale}/social/profile/${detail.author.id}`}
                 className={styles.authorNameLink}
@@ -577,7 +566,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               <button
                 type="button"
                 className={styles.authorNameButton}
-                onClick={handleSignupPromptOpen}
+                onClick={
+                  isFreeUser
+                    ? () => setShowUpgradeModal(true)
+                    : handleSignupPromptOpen
+                }
               >
                 {detail.author.username}
               </button>
@@ -660,7 +653,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               onEdit={handleReplyEdit}
               onDelete={handleReplyDelete}
               onFavoriteToggle={handleReplyFavoriteToggle}
-              onUnauthenticatedAction={handleSignupPromptOpen}
+              onUnauthenticatedAction={
+                isFreeUser
+                  ? () => setShowUpgradeModal(true)
+                  : handleSignupPromptOpen
+              }
             />
           ))}
       </div>
@@ -688,37 +685,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         onClose={() => setShowSignupPrompt(false)}
       />
 
-      {isFreeUser && showPreviewLock && (
-        <div className={styles.previewLock}>
-          <button
-            type="button"
-            className={styles.previewLockBack}
-            onClick={handleBack}
-            aria-label={t("back")}
-          >
-            <ArrowLeftIcon size={24} weight="regular" />
-          </button>
-          <div className={styles.previewLockContent}>
-            <p className={styles.previewLockTitle}>
-              {tPremium("previewLockTitle")}
-            </p>
-            <button
-              type="button"
-              className={styles.previewLockButton}
-              onClick={() => setShowUpgradeModal(true)}
-            >
-              {tPremium("previewLockButton")}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {isFreeUser && (
-        <PremiumUpgradeModal
-          isOpen={showUpgradeModal}
-          onClose={handleDismissModal}
-        />
-      )}
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        translationKey="premiumModalBrowse"
+      />
     </ChatLayout>
   );
 }

@@ -29,6 +29,7 @@ import {
   SocialHeader,
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
@@ -36,6 +37,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrendingHashtags } from "@/lib/hooks/useTrendingHashtags";
 import styles from "./SocialSearch.module.css";
 
@@ -128,7 +130,7 @@ export function SocialSearch() {
   const [postTypes, setPostTypes] = useState<Set<"post" | "training_record">>(
     new Set<"post" | "training_record">(["post", "training_record"]),
   );
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const isInitializedRef = useRef(false);
   const { results, isLoading, search, updateResult } = useSocialSearch(
     user?.id,
@@ -137,6 +139,9 @@ export function SocialSearch() {
   const { history, addToHistory, removeFromHistory, clearHistory } =
     useSearchHistory();
   const { trending, isLoading: trendingLoading } = useTrendingHashtags();
+  const { isPremium, loading: subLoading } = useSubscription();
+  const isFreeUser = !subLoading && !isPremium;
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // URLパラメータから検索条件を読み取り・復元（ブラウザバック/ハッシュタグリンク対応）
   // biome-ignore lint/correctness/useExhaustiveDependencies: 初回マウント + user.id 確定時のみ実行
@@ -159,27 +164,32 @@ export function SocialSearch() {
       setPostTypes(new Set<"post" | "training_record">([validType]));
     if (dojoParam || rankParam || validType) setShowFilters(true);
 
+    // Free ユーザーはURL復元時に検索を実行しない（表示のみ）
     if (hashtagParam) {
       const searchQuery = `#${hashtagParam}`;
       searchBarRef.current?.setQuery(searchQuery);
-      search(
-        searchQuery,
-        dojoParam || undefined,
-        rankParam || undefined,
-        hashtagParam,
-        validType,
-      );
-      addToHistory(searchQuery);
+      if (!isFreeUser) {
+        search(
+          searchQuery,
+          dojoParam || undefined,
+          rankParam || undefined,
+          hashtagParam,
+          validType,
+        );
+        addToHistory(searchQuery);
+      }
     } else if (qParam) {
       searchBarRef.current?.setQuery(qParam);
-      search(
-        qParam,
-        dojoParam || undefined,
-        rankParam || undefined,
-        undefined,
-        validType,
-      );
-    } else if (dojoParam || rankParam || validType) {
+      if (!isFreeUser) {
+        search(
+          qParam,
+          dojoParam || undefined,
+          rankParam || undefined,
+          undefined,
+          validType,
+        );
+      }
+    } else if ((dojoParam || rankParam || validType) && !isFreeUser) {
       search(
         "",
         dojoParam || undefined,
@@ -240,6 +250,10 @@ export function SocialSearch() {
 
   const handleSearchBarSearch = useCallback(
     (q: string) => {
+      if (isFreeUser) {
+        setShowUpgradeModal(true);
+        return;
+      }
       triggerSearch(q, dojoName, rank);
       syncUrlParams({
         q: q.trim() || undefined,
@@ -248,16 +262,28 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [triggerSearch, dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
+    [
+      isFreeUser,
+      triggerSearch,
+      dojoName,
+      rank,
+      syncUrlParams,
+      getPostTypeParam,
+      postTypes,
+    ],
   );
 
   const handleSearchBarSubmit = useCallback(
     (q: string) => {
+      if (isFreeUser) {
+        setShowUpgradeModal(true);
+        return;
+      }
       if (q.trim()) {
         addToHistory(q.trim());
       }
     },
-    [addToHistory],
+    [isFreeUser, addToHistory],
   );
 
   const handleQueryActiveChange = useCallback((active: boolean) => {
@@ -353,6 +379,10 @@ export function SocialSearch() {
 
   const handleHistoryClick = useCallback(
     (historyQuery: string) => {
+      if (isFreeUser) {
+        setShowUpgradeModal(true);
+        return;
+      }
       searchBarRef.current?.setQuery(historyQuery);
       triggerSearch(historyQuery, dojoName, rank);
       addToHistory(historyQuery);
@@ -364,6 +394,7 @@ export function SocialSearch() {
       });
     },
     [
+      isFreeUser,
       triggerSearch,
       dojoName,
       rank,
@@ -376,6 +407,10 @@ export function SocialSearch() {
 
   const handleTrendingClick = useCallback(
     (hashtagName: string) => {
+      if (isFreeUser) {
+        setShowUpgradeModal(true);
+        return;
+      }
       const searchQuery = `#${hashtagName}`;
       searchBarRef.current?.setQuery(searchQuery);
       search(
@@ -393,6 +428,7 @@ export function SocialSearch() {
       });
     },
     [
+      isFreeUser,
       search,
       dojoName,
       rank,
@@ -404,7 +440,7 @@ export function SocialSearch() {
   );
 
   const handleFilterToggle = useCallback(() => {
-    if (showFilters) {
+    if (showFilters && !isFreeUser) {
       setDojoName("");
       setDojoStyleId(null);
       setRank("");
@@ -423,7 +459,7 @@ export function SocialSearch() {
       });
     }
     setShowFilters((prev) => !prev);
-  }, [showFilters, triggerSearch, syncUrlParams]);
+  }, [isFreeUser, showFilters, triggerSearch, syncUrlParams]);
 
   const hasActiveFilters =
     dojoName.trim() !== "" || rank !== "" || postTypes.size < 2;
@@ -442,9 +478,23 @@ export function SocialSearch() {
           onQueryActiveChange={handleQueryActiveChange}
           placeholder={t("searchPlaceholder")}
         />
+        {isFreeUser && (
+          <button
+            type="button"
+            className={styles.searchOverlay}
+            onClick={() => setShowUpgradeModal(true)}
+            aria-label={t("searchPlaceholder")}
+          />
+        )}
       </div>
     ),
-    [handleSearchBarSearch, handleSearchBarSubmit, handleQueryActiveChange, t],
+    [
+      isFreeUser,
+      handleSearchBarSearch,
+      handleSearchBarSubmit,
+      handleQueryActiveChange,
+      t,
+    ],
   );
 
   const rightElement = useMemo(
@@ -475,6 +525,14 @@ export function SocialSearch() {
 
         {showFilters && (
           <div className={styles.filterSection}>
+            {isFreeUser && (
+              <button
+                type="button"
+                className={styles.filterSectionOverlay}
+                onClick={() => setShowUpgradeModal(true)}
+                aria-label="Premium"
+              />
+            )}
             <fieldset className={styles.postTypeSelector}>
               <button
                 type="button"
@@ -637,6 +695,11 @@ export function SocialSearch() {
           ))
         )}
       </div>
+      <PremiumUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        translationKey="premiumModalSearch"
+      />
     </SocialLayout>
   );
 }
