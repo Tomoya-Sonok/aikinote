@@ -1,6 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ServiceWorkerRegister } from "@/components/shared/ServiceWorkerRegister/ServiceWorkerRegister";
 import "../styles/globals.css";
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(

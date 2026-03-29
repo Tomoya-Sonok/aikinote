@@ -7,6 +7,7 @@
   background: var(--white);
   border-top: 0.5px solid var(--border-color);
   z-index: var(--z-tab);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .tab {
