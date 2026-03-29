@@ -350,7 +350,7 @@ export const getTrendingHashtagsSchema = z.object({
   limit: z
     .string()
     .optional()
-    .default("10")
+    .default("5")
     .transform((val) => parseInt(val, 10))
     .pipe(z.number().int().min(1).max(20)),
 });

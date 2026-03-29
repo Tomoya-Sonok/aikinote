@@ -29,16 +29,22 @@ const nextConfig = {
   output: "standalone",
   trailingSlash: false,
 
-  // 外部画像ドメインの許可（CloudFront経由のS3画像）
+  // 外部画像ドメインの許可（CloudFront経由のS3画像 + Google OAuth プロフィール画像）
   images: {
-    remotePatterns: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN
-      ? [
-          {
-            protocol: "https",
-            hostname: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN,
-          },
-        ]
-      : [],
+    remotePatterns: [
+      ...(process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN
+        ? [
+            {
+              protocol: "https",
+              hostname: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN,
+            },
+          ]
+        : []),
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
   },
 
   // webpack設定

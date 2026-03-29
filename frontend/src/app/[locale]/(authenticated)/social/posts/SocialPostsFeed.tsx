@@ -33,12 +33,10 @@ const parseTabParam = (param: string | null): SocialTab => {
   return "all";
 };
 
-const PREVIEW_TIMER_MS = 1000;
-
 export function SocialPostsFeed() {
   const { user } = useAuth();
   const locale = useLocale();
-  const tPremium = useTranslations("premiumModal");
+  const tPremium = useTranslations("premiumModalBrowse");
   const t = useTranslations("socialPosts");
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<SocialTab>(() =>
@@ -50,40 +48,11 @@ export function SocialPostsFeed() {
   const { isPremium, loading: subLoading } = useSubscription();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const [showPreviewLock, setShowPreviewLock] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeModalKey, setUpgradeModalKey] =
+    useState<string>("premiumModalBrowse");
 
-  // Free ユーザー: 1秒後にモーダル表示 + スクロールロック
-  const modalShownRef = useRef(false);
-  useEffect(() => {
-    if (subLoading || isPremium || isLoading || modalShownRef.current) return;
-
-    const timer = setTimeout(() => {
-      modalShownRef.current = true;
-      setShowUpgradeModal(true);
-      document.body.style.overflow = "hidden";
-    }, PREVIEW_TIMER_MS);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [subLoading, isPremium, isLoading]);
-
-  // previewLock 表示中はスクロールを無効化
-  useEffect(() => {
-    if (showPreviewLock) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [showPreviewLock]);
-
-  // モーダル dismiss → previewLock を表示
-  const handleDismissModal = useCallback(() => {
-    setShowUpgradeModal(false);
-    setShowPreviewLock(true);
-  }, []);
+  const isFreeUser = !subLoading && !isPremium;
 
   // Intersection Observer で無限スクロール
   const loadMoreRef = useRef(loadMore);
@@ -108,9 +77,13 @@ export function SocialPostsFeed() {
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
+      if (isFreeUser) {
+        setShowUpgradeModal(true);
+        return;
+      }
       handleToggleFavorite(postId, posts, updatePost);
     },
-    [handleToggleFavorite, posts, updatePost],
+    [isFreeUser, handleToggleFavorite, posts, updatePost],
   );
 
   const handlePostClick = useCallback(
@@ -120,16 +93,23 @@ export function SocialPostsFeed() {
     [locale],
   );
 
-  const handleTabChange = useCallback((tab: SocialTab) => {
-    setActiveTab(tab);
-    const url = new URL(window.location.href);
-    if (tab === "all") {
-      url.searchParams.delete("tab");
-    } else {
-      url.searchParams.set("tab", tab);
-    }
-    window.history.replaceState(null, "", url.toString());
-  }, []);
+  const handleTabChange = useCallback(
+    (tab: SocialTab) => {
+      if (isFreeUser && tab === "favorites") {
+        setShowUpgradeModal(true);
+        return;
+      }
+      setActiveTab(tab);
+      const url = new URL(window.location.href);
+      if (tab === "all") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", tab);
+      }
+      window.history.replaceState(null, "", url.toString());
+    },
+    [isFreeUser],
+  );
 
   const emptyKey =
     activeTab === "all"
@@ -158,46 +138,56 @@ export function SocialPostsFeed() {
                 hasUnreadReplies={unreadReplyPostIds.has(post.id)}
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
+                isFreeUser={isFreeUser}
+                onPremiumAction={() => setShowUpgradeModal(true)}
               />
             ))}
 
-            <div ref={sentinelRef} className={styles.sentinel}>
-              {isLoadingMore && <Loader size="small" centered />}
-              {!hasMore && posts.length > 0 && (
-                <p className={styles.noMore}>{t("noMorePosts")}</p>
-              )}
-            </div>
+            {isFreeUser ? (
+              <div className={styles.feedBottomCta}>
+                <p className={styles.feedBottomCtaTitle}>
+                  {tPremium("feedBottomTitle")}
+                </p>
+                <button
+                  type="button"
+                  className={styles.feedBottomCtaButton}
+                  onClick={() => setShowUpgradeModal(true)}
+                >
+                  {tPremium("feedBottomButton")}
+                </button>
+              </div>
+            ) : (
+              <div ref={sentinelRef} className={styles.sentinel}>
+                {isLoadingMore && <Loader size="small" centered />}
+                {!hasMore && posts.length > 0 && (
+                  <p className={styles.noMore}>{t("noMorePosts")}</p>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
 
-      {isPremium && (
-        <FloatingActionButton
-          href={`/${locale}/social/posts/new`}
-          label={t("createPost")}
-        />
-      )}
-
-      {showPreviewLock && (
-        <div className={styles.previewLock}>
-          <div className={styles.previewLockContent}>
-            <p className={styles.previewLockTitle}>
-              {tPremium("previewLockTitle")}
-            </p>
-            <button
-              type="button"
-              className={styles.previewLockButton}
-              onClick={() => setShowUpgradeModal(true)}
-            >
-              {tPremium("previewLockButton")}
-            </button>
-          </div>
-        </div>
-      )}
+      <FloatingActionButton
+        href={isPremium ? `/${locale}/social/posts/new` : undefined}
+        onClick={
+          isFreeUser
+            ? () => {
+                setUpgradeModalKey("premiumModal");
+                setShowUpgradeModal(true);
+              }
+            : undefined
+        }
+        label={t("createPost")}
+      />
 
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}
-        onClose={handleDismissModal}
+        onClose={() => {
+          setShowUpgradeModal(false);
+          setUpgradeModalKey("premiumModalBrowse");
+        }}
+        translationKey={upgradeModalKey}
       />
     </SocialLayout>
   );

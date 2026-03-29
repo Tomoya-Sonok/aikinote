@@ -33,7 +33,8 @@ const FEATURE_MATRIX = [
   {
     categoryKey: "categorySocial" as const,
     features: [
-      { nameKey: "featureBrowse" as const, free: false, pro: true },
+      { nameKey: "featureBrowseOnly" as const, free: true, pro: true },
+      { nameKey: "featureSearch" as const, free: false, pro: true },
       { nameKey: "featurePost" as const, free: false, pro: true },
       { nameKey: "featurePublish" as const, free: false, pro: true },
     ],

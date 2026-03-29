@@ -138,15 +138,21 @@ app.get("/", zValidator("query", getSocialPostsSchema), async (c) => {
     // バッチクエリでエンリッチ（N+1 解消）
     const enrichedPosts = await enrichSocialPosts(supabase, posts, user_id);
 
-    // Free ユーザーはプレビュー件数のみ返却
+    // Free ユーザー: 初回ページ(offset=0)は全件返却、loadMore(offset>0)はブロック
     const premium = await isPremiumUser(supabase, user_id);
-    const FREE_PREVIEW_LIMIT = 5;
+
+    if (!premium && offset > 0) {
+      return c.json({
+        success: true,
+        data: [],
+        is_preview: true,
+        premium_required: true,
+      });
+    }
 
     return c.json({
       success: true,
-      data: premium
-        ? enrichedPosts
-        : enrichedPosts.slice(0, FREE_PREVIEW_LIMIT),
+      data: enrichedPosts,
       is_preview: !premium,
       premium_required: !premium,
     });

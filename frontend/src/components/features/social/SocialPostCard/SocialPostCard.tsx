@@ -58,6 +58,8 @@ interface SocialPostCardProps {
   hasUnreadReplies?: boolean;
   onFavoriteToggle: (postId: string) => void;
   onClick: (postId: string) => void;
+  isFreeUser?: boolean;
+  onPremiumAction?: () => void;
 }
 
 export const SocialPostCard: FC<SocialPostCardProps> = memo(
@@ -67,6 +69,8 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     hasUnreadReplies,
     onFavoriteToggle,
     onClick,
+    isFreeUser,
+    onPremiumAction,
   }) {
     const t = useTranslations("socialPosts");
     const locale = useLocale();
@@ -130,21 +134,47 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
         }}
       >
         <div className={styles.authorHeader}>
-          <a
-            href={`/${locale}/social/profile/${post.author.id}`}
-            className={styles.authorLink}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ProfileImage src={post.author.profile_image_url} size="small" />
-          </a>
-          <div className={styles.authorInfo}>
+          {isFreeUser ? (
+            <button
+              type="button"
+              className={styles.authorButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                onPremiumAction?.();
+              }}
+            >
+              <ProfileImage src={post.author.profile_image_url} size="small" />
+            </button>
+          ) : (
             <a
               href={`/${locale}/social/profile/${post.author.id}`}
-              className={styles.authorNameLink}
+              className={styles.authorLink}
               onClick={(e) => e.stopPropagation()}
             >
-              {post.author.username}
+              <ProfileImage src={post.author.profile_image_url} size="small" />
             </a>
+          )}
+          <div className={styles.authorInfo}>
+            {isFreeUser ? (
+              <button
+                type="button"
+                className={styles.authorNameButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPremiumAction?.();
+                }}
+              >
+                {post.author.username}
+              </button>
+            ) : (
+              <a
+                href={`/${locale}/social/profile/${post.author.id}`}
+                className={styles.authorNameLink}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {post.author.username}
+              </a>
+            )}
             <span className={styles.authorMeta}>
               {post.author_dojo_name && (
                 <span className={styles.dojoName}>{post.author_dojo_name}</span>
@@ -227,16 +257,20 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
           </Button>
 
           <Button
-            className={`${styles.actionButton} ${post.is_favorited ? styles.favorited : ""}`}
+            className={`${styles.actionButton} ${!isFreeUser && post.is_favorited ? styles.favorited : ""}`}
             onClick={(e) => {
               e.stopPropagation();
-              onFavoriteToggle(post.id);
+              if (isFreeUser) {
+                onPremiumAction?.();
+              } else {
+                onFavoriteToggle(post.id);
+              }
             }}
             aria-label={t("favorite")}
           >
             <HeartIcon
               size={20}
-              weight={post.is_favorited ? "fill" : "regular"}
+              weight={!isFreeUser && post.is_favorited ? "fill" : "regular"}
             />
             {post.user_id === currentUserId &&
               post.favorite_count !== undefined &&

@@ -149,14 +149,16 @@ Web 版は Stripe Checkout（リダイレクト方式）、Native 版は Revenue
 |--------------|------|------|
 | `SubscriptionGate` | 統計データページ等 | Free ユーザーにはアップグレード誘導を表示 |
 | `PremiumUpgradeModal` | SNS フィード等 | Native なら `showNativePaywall()`、Web なら `/settings/subscription` に遷移 |
-| 2秒プレビューロック | `SocialPostsFeed.tsx` | Free ユーザーは2秒後にロックオーバーレイ表示 |
+| フィード末尾CTA | `SocialPostsFeed.tsx` | Free ユーザーは初回20件閲覧可能、末尾にアップグレードCTA表示 |
+| インタラクション制御 | `SocialPostCard.tsx` / `SocialPostDetail.tsx` | Free ユーザーはプロフィール遷移・お気に入り・返信で `PremiumUpgradeModal` 表示 |
+| 検索制限 | `SocialSearch.tsx` | Free ユーザーはトレンド閲覧のみ可能、検索・フィルター操作で `PremiumUpgradeModal` 表示 |
 
 ### サーバーサイド制限
 
 | API | 制限内容 |
 |-----|---------|
 | `GET /api/stats` | Free ユーザーは 403 (`PREMIUM_REQUIRED`) |
-| `GET /api/social/posts` | Free ユーザーは最新5件のみ返却、`is_preview: true` |
+| `GET /api/social/posts` | Free ユーザーは初回ページ（offset=0）のみ返却、loadMore（offset>0）は空配列。`is_preview: true` |
 | `POST /api/social/posts` | Free ユーザーは 403 |
 | `POST /api/social/posts/:id/replies` | Free ユーザーは 403 |
 

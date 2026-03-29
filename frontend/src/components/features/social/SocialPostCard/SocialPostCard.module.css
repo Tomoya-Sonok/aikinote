@@ -56,6 +56,32 @@
   text-decoration: underline;
 }
 
+.authorButton {
+  display: flex;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.authorNameButton {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.3;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.authorNameButton:hover {
+  text-decoration: underline;
+}
+
 .authorMeta {
   display: flex;
   align-items: center;
