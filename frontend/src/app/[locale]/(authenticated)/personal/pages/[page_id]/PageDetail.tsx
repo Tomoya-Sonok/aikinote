@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./page.module.css";
 
 export function PageDetail() {
@@ -70,6 +71,12 @@ export function PageDetail() {
       });
       if (response.success) {
         setPageData({ ...pageData, is_public: newValue });
+        showToast(
+          newValue
+            ? t("pageDetail.publicEnabled")
+            : t("pageDetail.publicDisabled"),
+          "success",
+        );
       }
     } catch (error) {
       console.error("公開設定変更エラー:", error);
@@ -241,7 +248,7 @@ export function PageDetail() {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("pageDetail.content")}</h2>
           <div className={styles.divider} />
-          <div className={styles.content}>{trainingContent}</div>
+          <div className={styles.content}>{linkifyText(trainingContent)}</div>
         </div>
 
         {/* 添付ファイルセクション */}

@@ -3,3 +3,8 @@
   text-decoration: none;
   font-weight: 500;
 }
+
+.urlLink {
+  color: #2563eb;
+  text-decoration: underline;
+}

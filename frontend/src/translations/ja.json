@@ -707,8 +707,8 @@
     "updateFailed": "ページの更新に失敗しました",
     "deleteFailed": "ページの削除に失敗しました",
     "publicToggle": "他のユーザーに公開",
-    "publicEnabled": "稽古記録を公開しました",
-    "publicDisabled": "稽古記録を非公開にしました",
+    "publicEnabled": "この稽古記録が他のユーザーに公開されました",
+    "publicDisabled": "この稽古記録は他のユーザーは閲覧できません",
     "publicToggleFailed": "公開設定の変更に失敗しました"
   },
   "tagSelection": {

@@ -1,11 +1,17 @@
 "use client";
 
 import type { FC } from "react";
+import { URL_REGEX } from "@/lib/utils/linkifyText";
 import styles from "./HashtagText.module.css";
 
 // ハッシュタグの正規表現（フロントエンド用）
 const HASHTAG_REGEX =
   /(?:^|[\s\u3000])(#[a-zA-Z0-9\u3041-\u3096\u30A1-\u30F6\u30FC\u4E00-\u9FFF\u3005\u3006\u3024\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A_]+)/g;
+
+type Token =
+  | { type: "text"; value: string }
+  | { type: "url"; value: string }
+  | { type: "hashtag"; tag: string; name: string };
 
 interface HashtagTextProps {
   content: string;
@@ -13,67 +19,103 @@ interface HashtagTextProps {
 }
 
 /**
- * テキスト内の #xxx をリンク化して表示するコンポーネント。
- * ハッシュタグ部分をタップすると検索画面に遷移する。
+ * テキスト内の URL をクリッカブルリンクに、#xxx をハッシュタグリンクに変換して表示する。
+ * URL を先に検出し、残りテキストからハッシュタグを探す（#https://... の誤検出を防止）。
  */
 export const HashtagText: FC<HashtagTextProps> = ({ content, locale }) => {
-  const parts: (string | { tag: string; name: string })[] = [];
+  // 第1パス: URL を検出してセグメントに分割
+  URL_REGEX.lastIndex = 0;
+  const segments: { type: "text" | "url"; value: string }[] = [];
   let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  let urlMatch: RegExpExecArray | null = URL_REGEX.exec(content);
 
-  // 正規表現をリセット（グローバルフラグのため）
-  HASHTAG_REGEX.lastIndex = 0;
+  while (urlMatch !== null) {
+    if (urlMatch.index > lastIndex) {
+      segments.push({
+        type: "text",
+        value: content.slice(lastIndex, urlMatch.index),
+      });
+    }
+    segments.push({ type: "url", value: urlMatch[0] });
+    lastIndex = urlMatch.index + urlMatch[0].length;
+    urlMatch = URL_REGEX.exec(content);
+  }
+  if (lastIndex < content.length) {
+    segments.push({ type: "text", value: content.slice(lastIndex) });
+  }
 
-  // biome-ignore lint/suspicious/noAssignInExpressions: regex exec loop pattern
-  while ((match = HASHTAG_REGEX.exec(content)) !== null) {
-    const fullMatch = match[0];
-    const tag = match[1]; // #付きのハッシュタグ
-    const matchStart = match.index;
+  // 第2パス: テキストセグメント内のハッシュタグを検出
+  const tokens: Token[] = [];
 
-    // マッチ前のテキスト（先頭のスペースを含む場合がある）
-    const prefixLength = fullMatch.length - tag.length;
-    const textBefore = content.slice(lastIndex, matchStart + prefixLength);
-    if (textBefore) {
-      parts.push(textBefore);
+  for (const segment of segments) {
+    if (segment.type === "url") {
+      tokens.push(segment);
+      continue;
     }
 
-    // ハッシュタグ部分
-    const name = tag.slice(1); // # を除去
-    parts.push({ tag, name });
+    HASHTAG_REGEX.lastIndex = 0;
+    const text = segment.value;
+    let hashLastIndex = 0;
+    let hashMatch: RegExpExecArray | null = HASHTAG_REGEX.exec(text);
 
-    lastIndex = matchStart + fullMatch.length;
+    while (hashMatch !== null) {
+      const fullMatch = hashMatch[0];
+      const tag = hashMatch[1];
+      const matchStart = hashMatch.index;
+      const prefixLength = fullMatch.length - tag.length;
+      const textBefore = text.slice(hashLastIndex, matchStart + prefixLength);
+
+      if (textBefore) {
+        tokens.push({ type: "text", value: textBefore });
+      }
+      tokens.push({ type: "hashtag", tag, name: tag.slice(1) });
+      hashLastIndex = matchStart + fullMatch.length;
+      hashMatch = HASHTAG_REGEX.exec(text);
+    }
+
+    if (hashLastIndex < text.length) {
+      tokens.push({ type: "text", value: text.slice(hashLastIndex) });
+    }
   }
 
-  // 残りのテキスト
-  if (lastIndex < content.length) {
-    parts.push(content.slice(lastIndex));
-  }
-
-  // ハッシュタグが1つもない場合はそのまま表示
-  if (parts.length === 0 || parts.every((p) => typeof p === "string")) {
+  // URL もハッシュタグもない場合はそのまま返す
+  if (tokens.every((t) => t.type === "text")) {
     return <>{content}</>;
   }
 
-  // パーツごとにユニークキーを生成
-  let textPartIndex = 0;
+  let keyIndex = 0;
 
   return (
     <>
-      {parts.map((part) => {
-        if (typeof part === "string") {
-          const key = `text-${textPartIndex++}`;
-          return <span key={key}>{part}</span>;
+      {tokens.map((token) => {
+        const key = `${token.type}-${keyIndex++}`;
+        if (token.type === "url") {
+          return (
+            <a
+              key={key}
+              href={token.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.urlLink}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {token.value}
+            </a>
+          );
         }
-        return (
-          <a
-            key={`tag-${part.name}`}
-            href={`/${locale}/social/posts/search?hashtag=${encodeURIComponent(part.name)}`}
-            className={styles.hashtagLink}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {part.tag}
-          </a>
-        );
+        if (token.type === "hashtag") {
+          return (
+            <a
+              key={key}
+              href={`/${locale}/social/posts/search?hashtag=${encodeURIComponent(token.name)}`}
+              className={styles.hashtagLink}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {token.tag}
+            </a>
+          );
+        }
+        return <span key={key}>{token.value}</span>;
       })}
     </>
   );

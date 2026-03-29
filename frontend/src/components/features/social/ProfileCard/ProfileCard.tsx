@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
+import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./ProfileCard.module.css";
 
 interface ProfileCardProps {
@@ -42,11 +43,7 @@ export const ProfileCard: FC<ProfileCardProps> = ({
         </div>
       )}
 
-      {bio && (
-        <p className={styles.bio} style={{ whiteSpace: "pre-line" }}>
-          {bio}
-        </p>
-      )}
+      {bio && <p className={styles.bio}>{linkifyText(bio)}</p>}
     </div>
   );
 };

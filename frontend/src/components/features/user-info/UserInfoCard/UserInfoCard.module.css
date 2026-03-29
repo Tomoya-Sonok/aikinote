@@ -57,3 +57,13 @@
   overflow-wrap: break-word;
   word-break: break-word;
 }
+
+.bioValue {
+  font-family: var(--font-brand);
+  font-size: var(--font-size-base);
+  color: var(--black);
+  font-weight: 400;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-line;
+}

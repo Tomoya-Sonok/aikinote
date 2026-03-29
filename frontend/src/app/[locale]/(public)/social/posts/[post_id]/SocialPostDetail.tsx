@@ -48,6 +48,7 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
+import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./SocialPostDetail.module.css";
 
 interface SocialReplyData {
@@ -604,7 +605,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               </div>
             )}
             <div className={styles.notebookContent}>
-              {detail.source_page.content}
+              {linkifyText(detail.source_page.content)}
             </div>
           </div>
         ) : (

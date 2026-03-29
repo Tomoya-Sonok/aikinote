@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { type FC, type KeyboardEvent, memo } from "react";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { Tag } from "@/components/shared/Tag/Tag";
+import { linkifyText } from "@/lib/utils/linkifyText";
 import type { TrainingPageAttachment } from "@/types/training";
 import styles from "./TrainingCard.module.css";
 
@@ -79,7 +80,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
           ))}
         </div>
 
-        <p className={styles.content}>{content}</p>
+        <p className={styles.content}>{linkifyText(content)}</p>
 
         {attachments && attachments.length > 0 && (
           <SocialMediaGrid attachments={attachments} />
