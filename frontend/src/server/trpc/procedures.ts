@@ -1,14 +1,8 @@
-import { TRPCError } from "@trpc/server";
-import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
-import { getServerSupabase } from "@/lib/supabase/server";
 import type { ApiResponse } from "@/types/api";
 import { callHonoApi } from "./hono";
-import { publicProcedure } from "./index";
-
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+import { authenticatedProcedure, publicProcedure } from "./index";
 
 type UserTag = {
   id: string;
@@ -132,32 +126,6 @@ type CreatePageInput = {
 
 type UpdatePageInput = CreatePageInput & {
   id: string;
-};
-
-const createBackendAuthToken = async () => {
-  const serverSupabase = await getServerSupabase();
-  const {
-    data: { user },
-    error,
-  } = await serverSupabase.auth.getUser();
-
-  if (error || !user) {
-    throw new TRPCError({
-      code: "UNAUTHORIZED",
-      message: "認証が必要です",
-    });
-  }
-
-  return jwt.sign(
-    {
-      userId: user.id,
-      email: user.email ?? "",
-    },
-    JWT_SECRET,
-    {
-      expiresIn: "24h",
-    },
-  );
 };
 
 export const healthProcedure = publicProcedure
@@ -497,41 +465,39 @@ export const searchDojoStylesProcedure = publicProcedure
     );
   });
 
-export const createDojoStyleProcedure = publicProcedure
+export const createDojoStyleProcedure = authenticatedProcedure
   .input(
     z.object({
       dojo_name: z.string().min(1).max(100),
       dojo_name_kana: z.string().optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<DojoStyleCreateResult>>("/api/dojo-styles", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${ctx.authToken}`,
       },
       body: JSON.stringify(input),
     });
   });
 
-export const getUserInfoProcedure = publicProcedure
+export const getUserInfoProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<UserProfile>>(`/api/users/${input.userId}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${ctx.authToken}`,
       },
     });
   });
 
-export const updateUserInfoProcedure = publicProcedure
+export const updateUserInfoProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -554,14 +520,13 @@ export const updateUserInfoProcedure = publicProcedure
         .optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     const { userId, ...updateData } = input;
 
     return callHonoApi<ApiResponse<UserProfile>>(`/api/users/${userId}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${ctx.authToken}`,
       },
       body: JSON.stringify(updateData),
     });
@@ -585,31 +550,29 @@ export const checkUsernameProcedure = publicProcedure
     );
   });
 
-export const getPublicityDojosProcedure = publicProcedure
+export const getPublicityDojosProcedure = authenticatedProcedure
   .input(z.object({ userId: z.string().min(1) }))
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     return callHonoApi<
       ApiResponse<{ dojo_style_id: string; dojo_name: string }[]>
     >(`/api/users/${input.userId}/publicity-dojos`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
     });
   });
 
-export const updatePublicityDojosProcedure = publicProcedure
+export const updatePublicityDojosProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
       dojoStyleIds: z.array(z.string()),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<null>>(
       `/api/users/${input.userId}/publicity-dojos`,
       {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify({ dojo_style_ids: input.dojoStyleIds }),
       },
     );
@@ -633,7 +596,7 @@ export const createUserProcedure = publicProcedure
     });
   });
 
-export const getTrainingStatsProcedure = publicProcedure
+export const getTrainingStatsProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -641,8 +604,7 @@ export const getTrainingStatsProcedure = publicProcedure
       endDate: z.string().optional(),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({ user_id: input.userId });
     if (input.startDate) query.set("start_date", input.startDate);
     if (input.endDate) query.set("end_date", input.endDate);
@@ -650,7 +612,7 @@ export const getTrainingStatsProcedure = publicProcedure
     return callHonoApi<ApiResponse<TrainingStatsData>>(
       `/api/stats?${query.toString()}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
@@ -812,7 +774,7 @@ type SocialProfileData = {
   public_pages: { id: string; title: string; created_at: string }[];
 };
 
-export const getSocialFeedProcedure = publicProcedure
+export const getSocialFeedProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -821,8 +783,7 @@ export const getSocialFeedProcedure = publicProcedure
       offset: z.number().int().min(0).optional(),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -833,23 +794,22 @@ export const getSocialFeedProcedure = publicProcedure
     return callHonoApi<ApiResponse<SocialFeedPost[]>>(
       `/api/social/posts?${query.toString()}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
 
-export const getSocialPostByIdProcedure = publicProcedure
+export const getSocialPostByIdProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<SocialPostDetail>>(
       `/api/social/posts/${input.postId}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
@@ -867,7 +827,7 @@ export const getPublicSocialPostByIdProcedure = publicProcedure
     );
   });
 
-export const createSocialPostProcedure = publicProcedure
+export const createSocialPostProcedure = authenticatedProcedure
   .input(
     z.object({
       user_id: z.string().min(1),
@@ -877,16 +837,15 @@ export const createSocialPostProcedure = publicProcedure
       tag_ids: z.array(z.string().uuid()).optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<SocialPostBasic>>("/api/social/posts", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       body: JSON.stringify(input),
     });
   });
 
-export const updateSocialPostProcedure = publicProcedure
+export const updateSocialPostProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
@@ -894,37 +853,35 @@ export const updateSocialPostProcedure = publicProcedure
       tag_ids: z.array(z.string().uuid()).optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     const { postId, ...updateData } = input;
     return callHonoApi<ApiResponse<SocialPostBasic>>(
       `/api/social/posts/${postId}`,
       {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify(updateData),
       },
     );
   });
 
-export const removeSocialPostProcedure = publicProcedure
+export const removeSocialPostProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<never>>(
       `/api/social/posts/${input.postId}`,
       {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
 
-export const createSocialReplyProcedure = publicProcedure
+export const createSocialReplyProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
@@ -932,20 +889,19 @@ export const createSocialReplyProcedure = publicProcedure
       content: z.string().min(1).max(1000),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     const { postId, ...body } = input;
     return callHonoApi<ApiResponse<SocialReplyBasic>>(
       `/api/social/posts/${postId}/replies`,
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify(body),
       },
     );
   });
 
-export const updateSocialReplyProcedure = publicProcedure
+export const updateSocialReplyProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
@@ -953,54 +909,51 @@ export const updateSocialReplyProcedure = publicProcedure
       content: z.string().min(1).max(1000),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     const { postId, replyId, ...body } = input;
     return callHonoApi<ApiResponse<SocialReplyBasic>>(
       `/api/social/posts/${postId}/replies/${replyId}`,
       {
         method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify(body),
       },
     );
   });
 
-export const removeSocialReplyProcedure = publicProcedure
+export const removeSocialReplyProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
       replyId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<never>>(
       `/api/social/posts/${input.postId}/replies/${input.replyId}`,
       {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
 
-export const toggleFavoriteProcedure = publicProcedure
+export const toggleFavoriteProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<
       ApiResponse<{ is_favorited: boolean; favorite_count?: number }>
     >(`/api/social/favorites/${input.postId}`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
     });
   });
 
-export const reportPostProcedure = publicProcedure
+export const reportPostProcedure = authenticatedProcedure
   .input(
     z.object({
       postId: z.string().min(1),
@@ -1015,20 +968,19 @@ export const reportPostProcedure = publicProcedure
       detail: z.string().max(500).optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     const { postId, ...body } = input;
     return callHonoApi<ApiResponse<unknown>>(
       `/api/social/reports/posts/${postId}`,
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify(body),
       },
     );
   });
 
-export const reportReplyProcedure = publicProcedure
+export const reportReplyProcedure = authenticatedProcedure
   .input(
     z.object({
       replyId: z.string().min(1),
@@ -1043,36 +995,34 @@ export const reportReplyProcedure = publicProcedure
       detail: z.string().max(500).optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     const { replyId, ...body } = input;
     return callHonoApi<ApiResponse<unknown>>(
       `/api/social/reports/replies/${replyId}`,
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify(body),
       },
     );
   });
 
-export const toggleReplyFavoriteProcedure = publicProcedure
+export const toggleReplyFavoriteProcedure = authenticatedProcedure
   .input(
     z.object({
       replyId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<
       ApiResponse<{ is_favorited: boolean; favorite_count: number }>
     >(`/api/social/favorites/reply/${input.replyId}`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
     });
   });
 
-export const searchSocialPostsProcedure = publicProcedure
+export const searchSocialPostsProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -1085,8 +1035,7 @@ export const searchSocialPostsProcedure = publicProcedure
       offset: z.number().int().min(0).optional(),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     const params = new URLSearchParams({
       user_id: input.userId,
     });
@@ -1101,12 +1050,12 @@ export const searchSocialPostsProcedure = publicProcedure
     return callHonoApi<ApiResponse<SocialFeedPost[]>>(
       `/api/social/search?${params.toString()}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
 
-export const getTrendingHashtagsProcedure = publicProcedure
+export const getTrendingHashtagsProcedure = authenticatedProcedure
   .input(
     z
       .object({
@@ -1114,8 +1063,7 @@ export const getTrendingHashtagsProcedure = publicProcedure
       })
       .optional(),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     const params = new URLSearchParams();
     if (input?.limit) params.set("limit", String(input.limit));
 
@@ -1125,35 +1073,33 @@ export const getTrendingHashtagsProcedure = publicProcedure
       : "/api/social/search/trending";
 
     return callHonoApi<ApiResponse<{ name: string; count: number }[]>>(url, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
     });
   });
 
-export const getSocialProfileProcedure = publicProcedure
+export const getSocialProfileProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<SocialProfileData>>(
       `/api/social/profile/${input.userId}`,
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   });
 
-export const getNotificationsProcedure = publicProcedure
+export const getNotificationsProcedure = authenticatedProcedure
   .input(
     z.object({
       limit: z.number().int().positive().optional(),
       offset: z.number().int().min(0).optional(),
     }),
   )
-  .query(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .query(async ({ input, ctx }) => {
     const params = new URLSearchParams();
     if (input.limit) params.set("limit", String(input.limit));
     if (input.offset) params.set("offset", String(input.offset));
@@ -1164,11 +1110,11 @@ export const getNotificationsProcedure = publicProcedure
       : "/api/social/notifications";
 
     return callHonoApi<ApiResponse<NotificationItem[]>>(path, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
     });
   });
 
-export const markNotificationsReadProcedure = publicProcedure
+export const markNotificationsReadProcedure = authenticatedProcedure
   .input(
     z.object({
       notificationIds: z.array(z.string().uuid()).optional(),
@@ -1176,11 +1122,10 @@ export const markNotificationsReadProcedure = publicProcedure
       postId: z.string().uuid().optional(),
     }),
   )
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<never>>("/api/social/notifications/read", {
       method: "PATCH",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       body: JSON.stringify({
         notification_ids: input.notificationIds,
         mark_all: input.markAll,
@@ -1189,29 +1134,26 @@ export const markNotificationsReadProcedure = publicProcedure
     });
   });
 
-export const getUnreadNotificationCountProcedure = publicProcedure.query(
-  async () => {
-    const token = await createBackendAuthToken();
+export const getUnreadNotificationCountProcedure = authenticatedProcedure.query(
+  async ({ ctx }) => {
     return callHonoApi<ApiResponse<{ count: number }>>(
       "/api/social/notifications/unread-count",
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   },
 );
 
-export const getUnreadNotificationPostIdsProcedure = publicProcedure.query(
-  async () => {
-    const token = await createBackendAuthToken();
+export const getUnreadNotificationPostIdsProcedure =
+  authenticatedProcedure.query(async ({ ctx }) => {
     return callHonoApi<ApiResponse<{ post_ids: string[] }>>(
       "/api/social/notifications/unread-post-ids",
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
-  },
-);
+  });
 
 // ======== サブスクリプション ========
 
@@ -1223,27 +1165,25 @@ export type SubscriptionStatusData = {
   cancel_at_period_end: boolean;
 };
 
-export const getSubscriptionStatusProcedure = publicProcedure.query(
-  async () => {
-    const token = await createBackendAuthToken();
+export const getSubscriptionStatusProcedure = authenticatedProcedure.query(
+  async ({ ctx }) => {
     return callHonoApi<ApiResponse<SubscriptionStatusData>>(
       "/api/subscription/status",
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
       },
     );
   },
 );
 
-export const createCheckoutSessionProcedure = publicProcedure
+export const createCheckoutSessionProcedure = authenticatedProcedure
   .input(z.object({ priceId: z.string().min(1), locale: z.string().min(1) }))
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<{ url: string }>>(
       "/api/subscription/checkout",
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify({
           priceId: input.priceId,
           locale: input.locale,
@@ -1252,30 +1192,30 @@ export const createCheckoutSessionProcedure = publicProcedure
     );
   });
 
-export const createPortalSessionProcedure = publicProcedure
+export const createPortalSessionProcedure = authenticatedProcedure
   .input(z.object({ locale: z.string().min(1) }))
-  .mutation(async ({ input }) => {
-    const token = await createBackendAuthToken();
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<{ url: string }>>(
       "/api/subscription/portal",
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         body: JSON.stringify({ locale: input.locale }),
       },
     );
   });
 
-export const syncSubscriptionProcedure = publicProcedure.mutation(async () => {
-  const token = await createBackendAuthToken();
-  return callHonoApi<ApiResponse<{ tier: string; status: string }>>(
-    "/api/subscription/sync",
-    {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    },
-  );
-});
+export const syncSubscriptionProcedure = authenticatedProcedure.mutation(
+  async ({ ctx }) => {
+    return callHonoApi<ApiResponse<{ tier: string; status: string }>>(
+      "/api/subscription/sync",
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
+    );
+  },
+);
 
 // ============================================================
 // タイトルテンプレート
