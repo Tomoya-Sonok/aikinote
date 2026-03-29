@@ -264,7 +264,8 @@
       "videoFileTooLarge": "Video file is too large (max 300MB). For longer videos, upload to YouTube and paste the URL below.",
       "imageFileTooLarge": "Image file is too large (max 5MB).",
       "unsupportedFormat": "Unsupported file format",
-      "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 300MB)",
+      "maxCountReached": "Maximum of 5 attachments allowed",
+      "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 300MB), max 5 files",
       "cancelUpload": "Cancel",
       "youtubeHint": "For long videos, upload to YouTube and paste the URL below"
     }

@@ -1,6 +1,7 @@
 "use client";
 
-import type { FC } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import { type FC, useCallback, useEffect, useState } from "react";
 import { MediaPlayer } from "@/components/features/personal/MediaPlayer/MediaPlayer";
 import styles from "./SocialMediaGrid.module.css";
 
@@ -16,36 +17,100 @@ interface SocialMediaGridProps {
   attachments: MediaItem[];
 }
 
+const isVideo = (type: string) => type === "video" || type === "youtube";
+
 const getMediaType = (type: string): "image" | "video" | "youtube" => {
   if (type === "video") return "video";
   if (type === "youtube") return "youtube";
   return "image";
 };
 
+function ImageCarousel({ images }: { images: MediaItem[] }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setActiveIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
+  return (
+    <div className={styles.carouselWrapper}>
+      <div className={styles.carousel} ref={emblaRef}>
+        <div className={styles.carouselContainer}>
+          {images.map((image) => (
+            <div key={image.id} className={styles.carouselSlide}>
+              <MediaPlayer
+                type="image"
+                url={image.url}
+                alt={image.original_filename || ""}
+                fillParent
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      {images.length > 1 && (
+        <div className={styles.dots}>
+          {images.map((image, i) => (
+            <button
+              key={image.id}
+              type="button"
+              className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ""}`}
+              onClick={() => emblaApi?.scrollTo(i)}
+              aria-label={`画像 ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const SocialMediaGrid: FC<SocialMediaGridProps> = ({ attachments }) => {
   if (attachments.length === 0) return null;
 
-  const count = Math.min(attachments.length, 4);
-  const gridClass =
-    count === 1
-      ? styles.gridSingle
-      : count === 2
-        ? styles.gridDouble
-        : styles.gridMultiple;
+  const videos = attachments.filter((a) => isVideo(a.type));
+  const images = attachments.filter((a) => !isVideo(a.type));
 
   return (
-    <div className={`${styles.grid} ${gridClass}`}>
-      {attachments.slice(0, 4).map((attachment) => (
-        <div key={attachment.id} className={styles.mediaItem}>
+    <div className={styles.mediaSection}>
+      {videos.length > 0 && (
+        <div className={styles.videoStack}>
+          {videos.map((video) => (
+            <div key={video.id} className={styles.videoItem}>
+              <MediaPlayer
+                type={getMediaType(video.type)}
+                url={video.url}
+                thumbnailUrl={video.thumbnail_url}
+                alt={video.original_filename || ""}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {images.length === 1 && (
+        <div className={styles.singleImage}>
           <MediaPlayer
-            type={getMediaType(attachment.type)}
-            url={attachment.url}
-            thumbnailUrl={attachment.thumbnail_url}
-            alt={attachment.original_filename || ""}
+            type="image"
+            url={images[0].url}
+            alt={images[0].original_filename || ""}
             fillParent
           />
         </div>
-      ))}
+      )}
+
+      {images.length > 1 && <ImageCarousel images={images} />}
     </div>
   );
 };

@@ -4,6 +4,8 @@ import { Image as ImageIcon, VideoCamera } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useCallback, useRef, useState } from "react";
+import { ATTACHMENT_MAX_COUNT } from "@/lib/aws-s3";
+import { compressImage } from "@/lib/utils/compressImage";
 import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
 import { AttachmentCard } from "../AttachmentCard/AttachmentCard";
 import styles from "./AttachmentUpload.module.css";
@@ -71,6 +73,13 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
       const file = event.target.files?.[0];
       if (!file) return;
 
+      // 件数上限チェック
+      if (attachments.length >= ATTACHMENT_MAX_COUNT) {
+        setError(t("pageModal.attachments.maxCountReached"));
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+
       // クライアントサイドでのサイズチェック
       const isVideo = file.type.startsWith("video/");
       const maxSize = isVideo ? 300 * 1024 * 1024 : 5 * 1024 * 1024;
@@ -84,10 +93,25 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         return;
       }
 
+      // 画像の場合は圧縮
+      let uploadFile: File = file;
+      if (!isVideo && file.type.startsWith("image/")) {
+        try {
+          uploadFile = await compressImage(file, {
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 0.85,
+            maxFileSize: 3 * 1024 * 1024, // 3MB
+          });
+        } catch {
+          // 圧縮失敗時は元ファイルをそのまま使用
+        }
+      }
+
       setError(null);
       setIsUploading(true);
       setUploadProgress(0);
-      setUploadingFileName(file.name);
+      setUploadingFileName(uploadFile.name);
 
       try {
         // ステップ1: 署名付きURL取得
@@ -95,9 +119,9 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            filename: file.name,
-            contentType: file.type,
-            fileSize: file.size,
+            filename: uploadFile.name,
+            contentType: uploadFile.type,
+            fileSize: uploadFile.size,
             uploadType,
           }),
         });
@@ -146,12 +170,12 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           });
 
           xhr.open("PUT", uploadUrl);
-          xhr.setRequestHeader("Content-Type", file.type);
-          xhr.send(file);
+          xhr.setRequestHeader("Content-Type", uploadFile.type);
+          xhr.send(uploadFile);
         });
 
         // ステップ3: 添付データを追加
-        const isVideo = file.type.startsWith("video/");
+        const isVideo = uploadFile.type.startsWith("video/");
         const cloudFrontDomain =
           process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || "";
 
@@ -159,8 +183,8 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           id: generateTempId(),
           type: isVideo ? "video" : "image",
           url: `https://${cloudFrontDomain}/${fileKey}`,
-          original_filename: file.name,
-          file_size_bytes: file.size,
+          original_filename: uploadFile.name,
+          file_size_bytes: uploadFile.size,
         };
 
         onAttachmentAdd({
@@ -184,7 +208,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         }
       }
     },
-    [onAttachmentAdd, t, uploadType],
+    [attachments.length, onAttachmentAdd, t, uploadType],
   );
 
   // YouTube URL入力のデバウンスチェック
@@ -208,6 +232,12 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         url.includes("youtube.com/shorts/");
 
       if (!isYoutubeUrl || url.length < 10) {
+        return;
+      }
+
+      // 件数上限チェック
+      if (attachments.length >= ATTACHMENT_MAX_COUNT) {
+        setError(t("pageModal.attachments.maxCountReached"));
         return;
       }
 
@@ -246,11 +276,13 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         }
       }, 500);
     },
-    [onAttachmentAdd],
+    [attachments.length, onAttachmentAdd, t],
   );
 
+  const isMaxReached = attachments.length >= ATTACHMENT_MAX_COUNT;
+
   const handleUploadClick = () => {
-    if (disabled || isUploading) return;
+    if (disabled || isUploading || isMaxReached) return;
     fileInputRef.current?.click();
   };
 
@@ -263,7 +295,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         type="file"
         accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
         onChange={handleFileSelect}
-        disabled={disabled || isUploading}
+        disabled={disabled || isUploading || isMaxReached}
         className={styles.hiddenInput}
       />
 
@@ -273,7 +305,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           type="button"
           className={styles.fileButton}
           onClick={handleUploadClick}
-          disabled={disabled || isUploading}
+          disabled={disabled || isUploading || isMaxReached}
         >
           <ImageIcon size={16} />
           <VideoCamera size={16} />
@@ -318,7 +350,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
             placeholder={t("pageModal.attachments.youtubeUrlPlaceholder")}
             value={youtubeUrl}
             onChange={(e) => handleYoutubeUrlChange(e.target.value)}
-            disabled={disabled || isUploading}
+            disabled={disabled || isUploading || isMaxReached}
           />
           {isLoadingYoutube && (
             <span className={styles.youtubeLoading}>...</span>
