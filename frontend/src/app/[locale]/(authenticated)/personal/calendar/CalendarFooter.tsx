@@ -72,7 +72,9 @@ export function CalendarFooter({
 
   const dots = goal
     ? Array.from({ length: goal }, (_, i) => i < monthlyCount)
-    : null;
+    : monthlyCount > 0
+      ? Array.from({ length: monthlyCount }, () => true)
+      : null;
 
   return (
     <div className={styles.footer}>
@@ -80,14 +82,17 @@ export function CalendarFooter({
         <div className={styles.monthlyRow}>
           <span className={styles.monthlyLabel}>{t("monthlyLabel")}</span>
 
-          {isPremium && dots && (
+          {dots && (
             <div className={styles.dots}>
-              {dots.map((filled, i) => (
-                <span
-                  key={`dot-${i}`}
-                  className={`${styles.dot} ${filled ? styles.dotFilled : styles.dotEmpty}`}
-                />
-              ))}
+              {dots.map((filled, i) => {
+                const key = `dot-${filled ? "f" : "e"}-${i}`;
+                return (
+                  <span
+                    key={key}
+                    className={`${styles.dot} ${filled ? styles.dotFilled : styles.dotEmpty}`}
+                  />
+                );
+              })}
             </div>
           )}
 
