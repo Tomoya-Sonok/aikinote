@@ -1,0 +1,39 @@
+name: Backend Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # CI が成功した後にデプロイ
+    needs: []
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.0'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy to Cloudflare Workers
+        working-directory: ./backend
+        run: pnpm wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
