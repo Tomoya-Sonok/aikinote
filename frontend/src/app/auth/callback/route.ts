@@ -44,23 +44,30 @@ const getStringFromRecord = (
   return typeof value === "string" ? value : null;
 };
 
-async function pickGoogleAvatarUrl(
+async function pickOAuthAvatarUrl(
   user: SupabaseUserForAvatar | null | undefined,
 ): Promise<string | null> {
   if (!user) return null;
+
+  // Apple プロバイダーは通常プロフィール画像を提供しない
+  const isAppleOnly =
+    user.identities?.every((i) => i.provider === "apple") ?? false;
+  if (isAppleOnly && !user.user_metadata?.avatar_url) return null;
 
   const fromMetadata =
     getStringFromRecord(user.user_metadata, "avatar_url") ??
     getStringFromRecord(user.user_metadata, "picture") ??
     null;
 
-  const googleIdentity = user.identities?.find(
-    (identity) => identity.provider === "google",
+  // Google / その他プロバイダーの identity_data からアバターを探す
+  const oauthIdentity = user.identities?.find(
+    (identity) =>
+      identity.provider !== "apple" && identity.identity_data?.avatar_url,
   );
 
   const fromIdentity =
-    getStringFromRecord(googleIdentity?.identity_data, "avatar_url") ??
-    getStringFromRecord(googleIdentity?.identity_data, "picture") ??
+    getStringFromRecord(oauthIdentity?.identity_data, "avatar_url") ??
+    getStringFromRecord(oauthIdentity?.identity_data, "picture") ??
     null;
 
   const candidate = fromMetadata ?? fromIdentity;
@@ -162,7 +169,7 @@ export async function GET(request: NextRequest) {
 
             // usernameを生成 (emailのローカル部分を使用)
             const username = data.user.email.split("@")[0];
-            const profileImageUrl = await pickGoogleAvatarUrl(data.user);
+            const profileImageUrl = await pickOAuthAvatarUrl(data.user);
             const { error: insertError } = await serviceSupabase
               .from("User")
               .insert({
