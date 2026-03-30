@@ -19,6 +19,7 @@
   /* ベース・UI要素カラー */
   --bg-base: #efecec;
   --white: #ffffff;
+  --bg-white: #ffffff;
   --light-gray: #b5afa6;
   --hover-gray: #f0ece7;
   --overlay-scrim: rgba(44, 44, 44, 0.35);
