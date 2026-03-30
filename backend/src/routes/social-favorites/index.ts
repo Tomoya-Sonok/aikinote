@@ -56,10 +56,6 @@ app.post("/:postId", async (c) => {
         post_id: postId,
       });
       // プッシュ通知送信
-      console.log("[Push] いいねプッシュ送信開始:", {
-        recipientUserId: post.user_id,
-        actorUserId: payload.userId,
-      });
       await sendPushToUser(supabase, post.user_id, {
         type: "favorite",
         actorUserId: payload.userId,

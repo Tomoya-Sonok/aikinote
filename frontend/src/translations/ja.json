@@ -427,7 +427,13 @@
     "invalidToken": "無効な認証トークン",
     "retrySignup": "新規登録をやり直す",
     "verificationTokenInvalid": "認証トークンが無効です",
-    "emailVerificationFailed": "メール認証に失敗しました"
+    "emailVerificationFailed": "メール認証に失敗しました",
+    "signupSubtitle": "まずはお好きな方法でアカウントを作成",
+    "agreeFirst": "↑ まず上の同意にチェック",
+    "signupWithEmail": "メールアドレスで登録",
+    "agreementText": "<terms>利用規約</terms> および <privacy>プライバシーポリシー</privacy> に同意します",
+    "startWithApple": "Appleで始める",
+    "startWithGoogle": "Googleで始める"
   },
   "components": {
     "profileImage": "プロフィール画像",

@@ -56,11 +56,6 @@ export async function sendPushToUser(
     // 自分自身へのプッシュはスキップ
     if (recipientUserId === payload.actorUserId) return;
 
-    console.log("[Push] sendPushToUser 開始:", {
-      recipientUserId,
-      type: payload.type,
-    });
-
     // 受信者のプッシュトークン一覧を取得
     const { data: tokens, error } = await supabaseClient
       .from("UserPushToken")
@@ -72,14 +67,8 @@ export async function sendPushToUser(
       return;
     }
     if (!tokens || tokens.length === 0) {
-      console.log(
-        "[Push] トークンなし (recipientUserId:",
-        recipientUserId,
-        ")",
-      );
       return;
     }
-    console.log("[Push] トークン", tokens.length, "件取得");
 
     const actorUsername = await getUsername(
       supabaseClient,
@@ -94,8 +83,6 @@ export async function sendPushToUser(
       sound: "default" as const,
       ...(payload.postId ? { data: { postId: payload.postId } } : {}),
     }));
-
-    console.log("[Push] Expo Push API に送信:", JSON.stringify(messages));
 
     // Expo Push API に送信
     const response = await fetch(EXPO_PUSH_API, {

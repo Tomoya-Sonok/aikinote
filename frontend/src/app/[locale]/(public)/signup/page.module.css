@@ -15,13 +15,281 @@
   font-weight: 400;
   line-height: 1.448;
   color: var(--black);
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   align-self: start;
   margin-left: 4px;
   letter-spacing: 0.06em;
+  width: 100%;
+  max-width: 450px;
 }
 
-/* フォームカード */
+/* サブタイトル */
+.subtitle {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.448;
+  color: var(--text-light);
+  margin-bottom: 20px;
+  margin-left: 4px;
+  letter-spacing: 0.02em;
+  width: 100%;
+  max-width: 450px;
+}
+
+/* ─── 利用規約同意カード（独立） ─── */
+
+.agreementCard {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 16px;
+  width: 100%;
+  max-width: 450px;
+  border: 0.5px solid var(--border-color);
+  transition: border-color 0.3s ease;
+  margin-bottom: 16px;
+}
+
+.agreementCardChecked {
+  border-color: var(--accent-color);
+}
+
+.agreementLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.hiddenCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.customCheckbox {
+  flex-shrink: 0;
+}
+
+.checkboxVisual {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--light-gray);
+  border-radius: 6px;
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.checkboxChecked {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: var(--white);
+}
+
+.agreementText {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--black);
+  letter-spacing: 0.02em;
+}
+
+.legalLink {
+  color: var(--accent-color);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.3s ease;
+}
+
+.legalLink:hover {
+  opacity: 0.8;
+}
+
+/* ─── ソーシャルログインボタン ─── */
+
+.socialButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 16px;
+}
+
+.socialHint {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: -4px;
+}
+
+/* Apple ボタン */
+.appleButton {
+  width: 100%;
+  height: 44px;
+  background: linear-gradient(
+    180deg,
+    var(--disabled-bg-light) 0%,
+    var(--disabled-bg) 60%,
+    var(--disabled-bg-dark) 100%
+  );
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: default;
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.appleButtonActive {
+  background-color: var(--black);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.appleButtonActive:hover {
+  opacity: 0.9;
+}
+
+.appleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Google ボタン */
+.googleButton {
+  width: 100%;
+  height: 44px;
+  background-color: var(--white);
+  border: 0.5px solid var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--black);
+  cursor: pointer;
+  transition: all 0.4s ease-out;
+}
+
+.googleButton:hover:not(:disabled) {
+  background-color: var(--hover-gray);
+  border-color: var(--primary-color);
+}
+
+.googleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ─── 区切り線 ─── */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 16px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.dividerText {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+/* ─── メール登録セクション（折りたたみ式） ─── */
+
+.emailToggleButton {
+  width: 100%;
+  max-width: 450px;
+  height: 44px;
+  background-color: transparent;
+  border: 1.5px dashed var(--border-color);
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+
+.emailToggleButton:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.emailFormCard {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 450px;
+  border: 0.5px solid var(--border-color);
+  animation: slideDown 0.25s ease-out forwards;
+  margin-bottom: 16px;
+}
+
+.emailSubmitButton {
+  background: linear-gradient(180deg, #918f8a 0%, #706e69 60%, #5e5c58 100%);
+  color: var(--white);
+  border: none;
+}
+
+.emailSubmitButton:hover:not(:disabled) {
+  background: linear-gradient(180deg, #868480 0%, #656360 60%, #535250 100%);
+}
+
+.emailSubmitButton:disabled {
+  background: var(--light-gray);
+  cursor: not-allowed;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── 共通フォーム要素（Step 1・Step 2 共通） ─── */
+
+/* フォームカード（Step 2 ユーザー名入力で使用） */
 .formCard {
   background-color: var(--white);
   border-radius: 8px;
@@ -48,7 +316,11 @@
   gap: 20px;
 }
 
-/* フォームフィールド */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
 .fieldLabel {
   font-family: var(--font-ui);
   font-size: 16px;
@@ -91,7 +363,6 @@
   box-shadow: 0 0 0 1px rgba(193, 91, 91, 0.15);
 }
 
-/* パスワード表示トグル */
 .passwordToggle {
   position: absolute;
   right: 12px;
@@ -105,7 +376,6 @@
   cursor: pointer;
 }
 
-/* ヘルプテキスト */
 .helpText {
   font-family: var(--font-ui);
   font-size: 12px;
@@ -114,7 +384,6 @@
   margin-top: 8px;
 }
 
-/* エラーメッセージ */
 .errorMessage {
   font-family: var(--font-ui);
   font-size: 12px;
@@ -123,7 +392,8 @@
   margin-top: 4px;
 }
 
-/* ボタン */
+/* ─── ボタン ─── */
+
 .buttonContainer {
   display: flex;
   justify-content: center;
@@ -168,8 +438,12 @@
   border-color: var(--primary-color);
 }
 
+/* ─── ログインリンク ─── */
+
 .loginPrompt {
   text-align: center;
+  width: 100%;
+  max-width: 450px;
 }
 
 .loginPromptText {
@@ -190,7 +464,8 @@
   opacity: 0.8;
 }
 
-/* 成功画面 */
+/* ─── 成功画面 ─── */
+
 .successContainer {
   text-align: center;
 }
@@ -223,129 +498,37 @@
   background-color: var(--primary-dark);
 }
 
-.otherActions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+/* ─── エラー表示（カード外） ─── */
 
-/* Googleボタン */
-.googleButton {
+.errorCard {
   width: 100%;
-  height: 40px;
-  background-color: var(--white);
-  border: 0.5px solid var(--border-color);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--black);
-  cursor: pointer;
-  transition: all 0.4s ease-out;
+  max-width: 450px;
 }
 
-.googleButton:hover:not(:disabled) {
-  background-color: var(--hover-gray);
-  border-color: var(--primary-color);
-}
-
-.googleButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.googleIcon {
-  width: 20px;
-  height: 20px;
-}
-
-.appleButton {
-  width: 100%;
-  height: 40px;
-  background-color: var(--white);
-  border: 0.5px solid var(--border-color);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--black);
-  cursor: pointer;
-  transition: all 0.4s ease-out;
-}
-
-.appleButton:hover:not(:disabled) {
-  background-color: var(--hover-gray);
-  border-color: var(--primary-color);
-}
-
-.appleButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.appleIcon {
-  width: 20px;
-  height: 20px;
-}
+/* ─── レスポンシブ ─── */
 
 @media (min-width: 768px) {
   .container {
     padding: 0 20px;
   }
 
-  .formCard {
+  .title,
+  .subtitle,
+  .agreementCard,
+  .socialButtons,
+  .divider,
+  .emailToggleButton,
+  .emailFormCard,
+  .formCard,
+  .loginPrompt {
     max-width: 580px;
+  }
+
+  .formCard {
     padding: 36px;
   }
 
   .secondaryButton {
     width: 74px;
   }
-}
-
-/* 同意確認セクション */
-.agreementSection {
-  margin-top: 4px;
-}
-
-.agreementLabel {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.agreementCheckbox {
-  align-self: center;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--primary-color);
-  flex-shrink: 0;
-  cursor: pointer;
-}
-
-.agreementText {
-  font-family: var(--font-ui);
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--black);
-  letter-spacing: 0.02em;
-}
-
-.legalLink {
-  color: var(--accent-color);
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.legalLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  opacity: 0.8;
 }

@@ -425,7 +425,13 @@
     "invalidToken": "Invalid verification token",
     "retrySignup": "Retry Registration",
     "verificationTokenInvalid": "Verification token is invalid",
-    "emailVerificationFailed": "Email verification failed"
+    "emailVerificationFailed": "Email verification failed",
+    "signupSubtitle": "Create your account with your preferred method",
+    "agreeFirst": "↑ Please agree to the terms above first",
+    "signupWithEmail": "Sign up with email",
+    "agreementText": "I agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>",
+    "startWithApple": "Continue with Apple",
+    "startWithGoogle": "Continue with Google"
   },
   "components": {
     "profileImage": "profile image",
