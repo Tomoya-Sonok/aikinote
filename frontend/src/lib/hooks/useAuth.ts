@@ -248,6 +248,16 @@ export function useAuth() {
   );
 
   const signInWithGoogle = useCallback(async () => {
+    // ネイティブアプリの場合はブリッジに委譲
+    if (
+      typeof window !== "undefined" &&
+      (window as any).__AIKINOTE_NATIVE_APP__ &&
+      typeof (window as any).startNativeOAuth === "function"
+    ) {
+      (window as any).startNativeOAuth("google");
+      return;
+    }
+
     setIsProcessing(true);
     setError(null);
 
@@ -273,6 +283,16 @@ export function useAuth() {
   }, [supabase.auth]);
 
   const signInWithApple = useCallback(async () => {
+    // ネイティブアプリの場合はブリッジに委譲
+    if (
+      typeof window !== "undefined" &&
+      (window as any).__AIKINOTE_NATIVE_APP__ &&
+      typeof (window as any).startNativeOAuth === "function"
+    ) {
+      (window as any).startNativeOAuth("apple");
+      return;
+    }
+
     setIsProcessing(true);
     setError(null);
 
