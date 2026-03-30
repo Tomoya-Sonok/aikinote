@@ -1,6 +1,6 @@
 # AikiNote Terms of Service
 
-Last updated: March 20, 2026
+Last updated: March 30, 2026
 
 These Terms of Service ("Terms") set forth the conditions for using AikiNote ("the Service"). By using the Service, you agree to these Terms.
 
@@ -57,6 +57,7 @@ Users shall not engage in the following activities when using the Service:
    - Video files (MP4, MOV, WebM): up to 300 MB per file
 
    These restrictions (supported formats, size limits, etc.) may be changed without prior notice due to operational or technical circumstances. The latest restrictions shall be as displayed within the Service.
+5. The Operator shall not use content posted by users as training data for artificial intelligence (AI) or machine learning models. If the use of user-posted content becomes necessary for providing AI features within the Service in the future, the Operator shall obtain prior consent from users.
 
 ## Article 7 (Usage Restrictions and Deregistration)
 
@@ -67,23 +68,32 @@ Users shall not engage in the following activities when using the Service:
 
 ## Article 8 (Disclaimer)
 
-1. The Operator makes no express or implied warranty that the Service is free from defects in fact or law (including defects relating to safety, reliability, accuracy, completeness, effectiveness, fitness for a particular purpose, security, errors, bugs, infringement of rights, etc.).
-2. The Operator shall not be liable for any damage arising from the Service to users.
-3. The Service is an application intended for recording Aikido training. However, the Operator assumes no responsibility whatsoever for any injuries, accidents, or other physical harm resulting from practicing techniques, training content, or exercise methods described in the Service. Users should exercise their own judgment and take appropriate safety precautions when engaging in training or practice.
+1. The Service is provided on an "as-is" basis. The Operator makes no express or implied warranty that the Service is free from defects in fact or law (including defects relating to safety, reliability, accuracy, completeness, effectiveness, fitness for a particular purpose, security, errors, bugs, infringement of rights, etc.).
+2. The Service is provided on a fundamentally free-of-charge basis. The Operator shall not be liable for any damage arising from the Service to users, except in cases of willful misconduct or gross negligence on the part of the Operator.
+3. The Operator shall not be liable for any damage to users caused by communication failures, system failures, loss of data, unauthorized access by third parties, or other causes beyond the Operator's reasonable control, except in cases of willful misconduct or gross negligence on the part of the Operator.
+4. The Service is an application intended for recording Aikido training. However, the Operator assumes no responsibility whatsoever for any injuries, accidents, or other physical harm resulting from practicing techniques, training content, or exercise methods described in the Service. Users should exercise their own judgment and take appropriate safety precautions when engaging in training or practice.
 
 ## Article 9 (Changes to Service Content)
 
-The Operator may change the content of the Service or discontinue provision of the Service without notice to users, and shall not be liable for any damage caused to users thereby.
+1. The Operator may change the content of the Service or temporarily suspend provision of all or part of the Service without notice to users.
+2. The Operator shall not be liable for any damage caused to users by such changes or suspension, except in cases of willful misconduct or gross negligence on the part of the Operator.
+3. Permanent termination of the Service shall be governed by Article 10.
 
-## Article 10 (Changes to Terms)
+## Article 10 (Service Termination)
 
-The Operator may change these Terms at any time without notice to users when deemed necessary. Users who begin using the Service after the Terms have been changed shall be deemed to have agreed to the modified Terms.
+1. When terminating the Service, the Operator shall notify users at least 30 days prior to the termination date by posting a notice within the Service or by sending a notification to users' registered email addresses.
+2. If paid features are offered within the Service, the handling of refunds for any unused period at the time of service termination shall be determined separately by the Operator.
+3. In the event of force majeure such as natural disasters or changes in applicable laws or regulations, the notice period set forth in Paragraph 1 may be shortened.
 
-## Article 11 (Handling of Personal Information)
+## Article 11 (Changes to Terms)
+
+The Operator may change these Terms at any time without notice to users when deemed necessary. Users who continue to use the Service after the Terms have been changed shall be deemed to have agreed to the modified Terms.
+
+## Article 12 (Handling of Personal Information)
 
 Personal information obtained through the use of the Service shall be handled appropriately in accordance with the "Privacy Policy" of the Service.
 
-## Article 12 (Governing Law and Jurisdiction)
+## Article 13 (Governing Law and Jurisdiction)
 
 These Terms shall be governed by and construed in accordance with the laws of Japan. Any disputes arising in connection with the Service shall be subject to the exclusive jurisdiction of the courts having jurisdiction over the location of the Operator.
 
