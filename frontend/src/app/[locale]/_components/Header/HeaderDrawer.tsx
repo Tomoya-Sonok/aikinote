@@ -30,6 +30,7 @@ interface HeaderDrawerProps {
   instagramLabel: string;
   termsLabel: string;
   privacyLabel: string;
+  tokushohoLabel: string;
   locale: string;
 }
 
@@ -49,6 +50,7 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
   instagramLabel,
   termsLabel,
   privacyLabel,
+  tokushohoLabel,
   locale,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -218,6 +220,13 @@ export const HeaderDrawer: FC<HeaderDrawerProps> = ({
               onClick={handleClose}
             >
               {privacyLabel}
+            </Link>
+            <Link
+              href={`/${locale}/tokushoho`}
+              className={styles.drawerLegalLink}
+              onClick={handleClose}
+            >
+              {tokushohoLabel}
             </Link>
           </div>
         </div>

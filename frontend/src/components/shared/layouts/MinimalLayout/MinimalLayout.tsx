@@ -26,16 +26,7 @@ export function MinimalLayout({
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
 
-    if (forceBackHref) {
-      router.push(backHref);
-      return;
-    }
-
-    // 外部サイト（Stripe 等）から戻ってきた場合は backHref にフォールバック
-    const referrer = document.referrer;
-    const isFromExternal = referrer && !referrer.includes(window.location.host);
-
-    if (isFromExternal || window.history.length <= 1) {
+    if (forceBackHref || window.history.length <= 1) {
       router.push(backHref);
       return;
     }

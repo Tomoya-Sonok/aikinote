@@ -80,6 +80,35 @@
   opacity: 0.8;
 }
 
+/* テーブル */
+.body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: var(--font-size-sm);
+}
+
+.body th,
+.body td {
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.7;
+}
+
+.body th {
+  background-color: var(--bg-base);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.body td:first-child {
+  white-space: nowrap;
+  font-weight: 500;
+  min-width: 100px;
+}
+
 /* レスポンシブ: PC */
 @media (min-width: 768px) {
   .card {

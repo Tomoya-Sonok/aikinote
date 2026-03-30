@@ -29,6 +29,9 @@ export const OtherMenu: FC<OtherMenuProps> = ({
       <SettingItem onClick={() => router.push(`/${locale}/privacy`)}>
         {t("legal.privacyPolicy")}
       </SettingItem>
+      <SettingItem onClick={() => router.push(`/${locale}/tokushoho`)}>
+        {t("legal.tokushoho")}
+      </SettingItem>
       <SettingItem onClick={onHelpClick}>
         {t("components.helpContact")}
       </SettingItem>

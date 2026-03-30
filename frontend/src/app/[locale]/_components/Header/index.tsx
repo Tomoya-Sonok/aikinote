@@ -94,6 +94,7 @@ export async function Header({ locale, signupHref }: HeaderProps) {
             instagramLabel={t("footer.instagram")}
             termsLabel={t("drawer.terms")}
             privacyLabel={t("drawer.privacy")}
+            tokushohoLabel={t("drawer.tokushoho")}
             locale={locale}
           />
 

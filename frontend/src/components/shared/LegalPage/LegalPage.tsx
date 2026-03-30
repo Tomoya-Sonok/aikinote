@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { FC } from "react";
+import remarkGfm from "remark-gfm";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import styles from "./LegalPage.module.css";
 
@@ -25,7 +26,7 @@ export const LegalPage: FC<LegalPageProps> = ({
       <article className={`${styles.card} ${className}`}>
         <h1 className={styles.title}>{title}</h1>
         <div className={styles.body}>
-          <ReactMarkdown>{content}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
         </div>
       </article>
     </MinimalLayout>

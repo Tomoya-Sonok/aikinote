@@ -2,11 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
-import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout/MinimalLayout";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { createCheckoutSession, createPortalSession } from "@/lib/api/client";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import styles from "./page.module.css";
+import { SubscriptionLayout } from "./SubscriptionLayout";
 
 declare global {
   interface Window {
@@ -144,10 +144,9 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     selectedPeriod === "monthly" ? t("perMonth") : t("perYear");
 
   return (
-    <MinimalLayout
+    <SubscriptionLayout
       headerTitle="プラン"
       backHref={`/${locale}/personal/pages`}
-      forceBackHref
     >
       <div className={styles.container}>
         {/* サブタイトル */}
@@ -358,6 +357,6 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
           <p className={styles.mobileNote}>{t("mobileNote")}</p>
         </div>
       </div>
-    </MinimalLayout>
+    </SubscriptionLayout>
   );
 }
