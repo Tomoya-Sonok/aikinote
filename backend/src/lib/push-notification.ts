@@ -53,15 +53,33 @@ export async function sendPushToUser(
   payload: PushPayload,
 ): Promise<void> {
   try {
+    // 自分自身へのプッシュはスキップ
+    if (recipientUserId === payload.actorUserId) return;
+
+    console.log("[Push] sendPushToUser 開始:", {
+      recipientUserId,
+      type: payload.type,
+    });
+
     // 受信者のプッシュトークン一覧を取得
     const { data: tokens, error } = await supabaseClient
       .from("UserPushToken")
       .select("expo_push_token")
       .eq("user_id", recipientUserId);
 
-    if (error || !tokens || tokens.length === 0) {
+    if (error) {
+      console.error("[Push] トークン取得エラー:", error);
       return;
     }
+    if (!tokens || tokens.length === 0) {
+      console.log(
+        "[Push] トークンなし (recipientUserId:",
+        recipientUserId,
+        ")",
+      );
+      return;
+    }
+    console.log("[Push] トークン", tokens.length, "件取得");
 
     const actorUsername = await getUsername(
       supabaseClient,
@@ -76,6 +94,8 @@ export async function sendPushToUser(
       sound: "default" as const,
       ...(payload.postId ? { data: { postId: payload.postId } } : {}),
     }));
+
+    console.log("[Push] Expo Push API に送信:", JSON.stringify(messages));
 
     // Expo Push API に送信
     const response = await fetch(EXPO_PUSH_API, {
@@ -104,13 +124,17 @@ export async function sendPushToUsers(
   recipientUserIds: string[],
   payload: PushPayload,
 ): Promise<void> {
-  if (recipientUserIds.length === 0) return;
+  // 自分自身を除外
+  const filteredIds = recipientUserIds.filter(
+    (id) => id !== payload.actorUserId,
+  );
+  if (filteredIds.length === 0) return;
 
   try {
     const { data: tokens, error } = await supabaseClient
       .from("UserPushToken")
       .select("expo_push_token")
-      .in("user_id", recipientUserIds);
+      .in("user_id", filteredIds);
 
     if (error || !tokens || tokens.length === 0) {
       return;

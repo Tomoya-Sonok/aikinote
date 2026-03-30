@@ -55,8 +55,12 @@ app.post("/:postId", async (c) => {
         actor_user_id: payload.userId,
         post_id: postId,
       });
-      // プッシュ通知送信（非同期、エラーは握りつぶす）
-      sendPushToUser(supabase, post.user_id, {
+      // プッシュ通知送信
+      console.log("[Push] いいねプッシュ送信開始:", {
+        recipientUserId: post.user_id,
+        actorUserId: payload.userId,
+      });
+      await sendPushToUser(supabase, post.user_id, {
         type: "favorite",
         actorUserId: payload.userId,
         postId,
@@ -126,7 +130,7 @@ app.post("/reply/:replyId", async (c) => {
         post_id: reply.post_id,
         reply_id: replyId,
       });
-      sendPushToUser(supabase, reply.user_id, {
+      await sendPushToUser(supabase, reply.user_id, {
         type: "favorite_reply",
         actorUserId: payload.userId,
         postId: reply.post_id,

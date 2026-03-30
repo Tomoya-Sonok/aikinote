@@ -638,7 +638,11 @@ app.post(
         post_id: postId,
         reply_id: reply.id,
       });
-      sendPushToUser(supabase, post.user_id, {
+      console.log("[Push] 返信プッシュ送信開始:", {
+        recipientUserId: post.user_id,
+        actorUserId: input.user_id,
+      });
+      await sendPushToUser(supabase, post.user_id, {
         type: "reply",
         actorUserId: input.user_id,
         postId,
@@ -666,7 +670,7 @@ app.post(
           reply_id: reply.id,
         }));
         await supabase.from("Notification").insert(notifications);
-        sendPushToUsers(supabase, uniqueRepliers, {
+        await sendPushToUsers(supabase, uniqueRepliers, {
           type: "reply_to_thread",
           actorUserId: input.user_id,
           postId,
