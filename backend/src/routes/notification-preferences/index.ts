@@ -10,6 +10,21 @@ type NotificationPreferencesVariables = {
   supabase: SupabaseClient | null;
 };
 
+/**
+ * 時刻を5分刻みに丸める（Cron ジョブが5分間隔のため）
+ * "21:03" → "21:05", "21:07" → "21:05", "23:58" → "00:00"
+ */
+function roundToFiveMinutes(time: string): string {
+  const parts = time.split(":").map(Number);
+  const hours = parts[0] ?? 0;
+  const minutes = parts[1] ?? 0;
+  const rounded = Math.round(minutes / 5) * 5;
+  if (rounded === 60) {
+    return `${String((hours + 1) % 24).padStart(2, "0")}:00`;
+  }
+  return `${String(hours).padStart(2, "0")}:${String(rounded).padStart(2, "0")}`;
+}
+
 const app = new Hono<{
   Bindings: NotificationPreferencesBindings;
   Variables: NotificationPreferencesVariables;
@@ -152,7 +167,7 @@ app.post("/reminders", async (c) => {
       .from("UserPracticeReminder")
       .insert({
         user_id: payload.userId,
-        reminder_time: body.reminder_time ?? "21:00",
+        reminder_time: roundToFiveMinutes(body.reminder_time ?? "21:00"),
         reminder_days: body.reminder_days ?? [],
         timezone: body.timezone ?? "Asia/Tokyo",
       })
@@ -209,7 +224,9 @@ app.put("/reminders/:id", async (c) => {
     const { data, error } = await supabase
       .from("UserPracticeReminder")
       .update({
-        reminder_time: body.reminder_time,
+        reminder_time: body.reminder_time
+          ? roundToFiveMinutes(body.reminder_time)
+          : undefined,
         reminder_days: body.reminder_days,
         timezone: body.timezone,
         updated_at: new Date().toISOString(),

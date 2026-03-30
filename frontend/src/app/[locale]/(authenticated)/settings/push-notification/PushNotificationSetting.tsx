@@ -323,6 +323,7 @@ export function PushNotificationSetting({
 
                     <input
                       type="time"
+                      step={300}
                       className={styles.timeInput}
                       value={reminder.time}
                       onChange={(e) =>
