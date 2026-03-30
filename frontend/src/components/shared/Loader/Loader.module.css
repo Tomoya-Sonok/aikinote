@@ -7,10 +7,10 @@
 /* スピナー本体 - 禅円をイメージ */
 .spinner {
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid var(--border-color);
-  border-top: 1.5px solid var(--primary-color);
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
   border-radius: 50%;
   animation: zen-rotation 2s ease-in-out infinite;
   opacity: 0.9;
@@ -18,16 +18,16 @@
 
 /* 大きいサイズ */
 .large .spinner {
-  width: 32px;
-  height: 32px;
-  border-width: 2px;
+  width: 64px;
+  height: 64px;
+  border-width: 4px;
 }
 
 /* 小さいサイズ */
 .small .spinner {
-  width: 16px;
-  height: 16px;
-  border-width: 1.5px;
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
 }
 
 /* 中央揃えコンテナ */
