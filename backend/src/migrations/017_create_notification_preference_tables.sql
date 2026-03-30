@@ -5,6 +5,7 @@ CREATE TABLE "UserNotificationPreference" (
   notify_favorite BOOLEAN NOT NULL DEFAULT true,
   notify_reply BOOLEAN NOT NULL DEFAULT true,
   notify_reply_to_thread BOOLEAN NOT NULL DEFAULT true,
+  notify_streak BOOLEAN NOT NULL DEFAULT true,
   reminder_enabled BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

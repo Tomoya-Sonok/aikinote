@@ -14,6 +14,7 @@ import {
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
 type DayStatus = {
@@ -381,6 +382,8 @@ export function PersonalCalendar() {
       </div>
 
       <p className={styles.legend}>{t("personalCalendar.legend")}</p>
+
+      <CalendarFooter dayStatusMap={dayStatusMap} currentMonth={currentMonth} />
 
       <CalendarActionModal
         isOpen={isActionModalOpen}

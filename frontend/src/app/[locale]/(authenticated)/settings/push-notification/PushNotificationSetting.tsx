@@ -23,6 +23,7 @@ interface NotificationPreferences {
   notify_favorite: boolean;
   notify_reply: boolean;
   notify_reply_to_thread: boolean;
+  notify_streak: boolean;
   reminder_enabled: boolean;
   reminders: Reminder[];
 }
@@ -51,6 +52,7 @@ export function PushNotificationSetting({
             notify_favorite: data.notify_favorite ?? true,
             notify_reply: data.notify_reply ?? true,
             notify_reply_to_thread: data.notify_reply_to_thread ?? true,
+            notify_streak: data.notify_streak ?? true,
             reminder_enabled: data.reminder_enabled ?? false,
             reminders: (data.reminders ?? []).map(
               (r: { id: string; time: string; days_of_week: number[] }) => ({
@@ -66,6 +68,7 @@ export function PushNotificationSetting({
             notify_favorite: true,
             notify_reply: true,
             notify_reply_to_thread: true,
+            notify_streak: true,
             reminder_enabled: false,
             reminders: [],
           });
@@ -75,6 +78,7 @@ export function PushNotificationSetting({
           notify_favorite: true,
           notify_reply: true,
           notify_reply_to_thread: true,
+          notify_streak: true,
           reminder_enabled: false,
           reminders: [],
         });
@@ -163,6 +167,7 @@ export function PushNotificationSetting({
           notify_favorite: preferences.notify_favorite,
           notify_reply: preferences.notify_reply,
           notify_reply_to_thread: preferences.notify_reply_to_thread,
+          notify_streak: preferences.notify_streak,
           reminder_enabled: preferences.reminder_enabled,
         }),
       });
@@ -217,6 +222,7 @@ export function PushNotificationSetting({
           notify_favorite: data.notify_favorite ?? true,
           notify_reply: data.notify_reply ?? true,
           notify_reply_to_thread: data.notify_reply_to_thread ?? true,
+          notify_streak: data.notify_streak ?? true,
           reminder_enabled: data.reminder_enabled ?? false,
           reminders: (data.reminders ?? []).map(
             (r: { id: string; time: string; days_of_week: number[] }) => ({
@@ -282,6 +288,13 @@ export function PushNotificationSetting({
             description={t("pushNotification.notifyReplyToThreadDescription")}
             checked={preferences.notify_reply_to_thread}
             onChange={(v) => updatePreference("notify_reply_to_thread", v)}
+          />
+
+          <ToggleRow
+            label={t("pushNotification.notifyStreak")}
+            description={t("pushNotification.notifyStreakDescription")}
+            checked={preferences.notify_streak}
+            onChange={(v) => updatePreference("notify_streak", v)}
           />
         </div>
 

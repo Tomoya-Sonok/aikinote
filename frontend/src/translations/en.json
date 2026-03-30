@@ -525,7 +525,14 @@
     "createPage": "Create page",
     "cancel": "Cancel",
     "legend": "○: Practice attendance　•: Pages created",
-    "futureDateError": "Cannot perform actions on future dates"
+    "futureDateError": "Cannot perform actions on future dates",
+    "monthlyLabel": "This month",
+    "monthlyCount": "{count} sessions",
+    "monthlyGoal": "{current} / {goal} sessions",
+    "setGoal": "Set goal",
+    "goalPlaceholder": "Count",
+    "goalSave": "Save",
+    "goalSaved": "Goal saved"
   },
   "filter": {
     "clearFilters": "Clear filters",
@@ -943,6 +950,8 @@
     "notifyReplyDescription": "When someone replies to your post",
     "notifyReplyToThread": "Thread Reply Notifications",
     "notifyReplyToThreadDescription": "When a new reply is added to a thread you replied to",
+    "notifyStreak": "Training streak reminder",
+    "notifyStreakDescription": "Get notified when your weekly training streak is about to break",
     "reminderSection": "Training Reminders",
     "reminderEnabled": "Reminders",
     "reminderDescription": "Send training record reminder notifications on selected days and times",

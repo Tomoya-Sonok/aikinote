@@ -527,7 +527,14 @@
     "createPage": "ページ作成",
     "cancel": "キャンセル",
     "legend": "◯：稽古参加　・：ページ作成数",
-    "futureDateError": "未来の日付では操作できません"
+    "futureDateError": "未来の日付では操作できません",
+    "monthlyLabel": "今月",
+    "monthlyCount": "{count}回",
+    "monthlyGoal": "{current} / {goal}回",
+    "setGoal": "目標を設定",
+    "goalPlaceholder": "回数",
+    "goalSave": "保存",
+    "goalSaved": "目標を保存しました"
   },
   "filter": {
     "clearFilters": "絞り込みをクリア",
@@ -945,6 +952,8 @@
     "notifyReplyDescription": "自分の投稿に返信があった時",
     "notifyReplyToThread": "スレッド返信通知",
     "notifyReplyToThreadDescription": "自分が返信した投稿に新しい返信があった時",
+    "notifyStreak": "稽古継続リマインド",
+    "notifyStreakDescription": "稽古参加の連続記録が途切れそうな時にお知らせ",
     "reminderSection": "稽古リマインダー",
     "reminderEnabled": "リマインダー",
     "reminderDescription": "設定した曜日・時刻に稽古記録のリマインド通知を送信します",

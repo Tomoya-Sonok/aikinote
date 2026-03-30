@@ -1,0 +1,99 @@
+.footer {
+  padding: 8px 20px 32px;
+}
+
+.section {
+  padding: 12px 0;
+}
+
+.monthlyRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.monthlyLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--primary-color);
+}
+
+.dots {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dotFilled {
+  background: var(--primary-color);
+}
+
+.dotEmpty {
+  background: var(--border-color);
+}
+
+.monthlyCount {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  margin-left: auto;
+}
+
+.goalAchieved {
+  color: var(--primary-dark);
+  font-weight: 500;
+}
+
+.goalLink {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0;
+}
+
+.goalForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.goalInput {
+  width: 64px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  background: var(--white);
+}
+
+.goalInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.goalSaveButton {
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary-color);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+}

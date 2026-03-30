@@ -71,6 +71,7 @@ app.get("/", async (c) => {
       notify_favorite: true,
       notify_reply: true,
       notify_reply_to_thread: true,
+      notify_streak: true,
       reminder_enabled: false,
     };
 
@@ -103,6 +104,7 @@ app.put("/", async (c) => {
       notify_favorite?: boolean;
       notify_reply?: boolean;
       notify_reply_to_thread?: boolean;
+      notify_streak?: boolean;
       reminder_enabled?: boolean;
     }>();
 
@@ -112,6 +114,7 @@ app.put("/", async (c) => {
         notify_favorite: body.notify_favorite ?? true,
         notify_reply: body.notify_reply ?? true,
         notify_reply_to_thread: body.notify_reply_to_thread ?? true,
+        notify_streak: body.notify_streak ?? true,
         reminder_enabled: body.reminder_enabled ?? false,
         updated_at: new Date().toISOString(),
       },
