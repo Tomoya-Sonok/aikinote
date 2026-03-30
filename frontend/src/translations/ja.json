@@ -528,7 +528,7 @@
     "cancel": "キャンセル",
     "legend": "◯：稽古参加　・：ページ作成数",
     "futureDateError": "未来の日付では操作できません",
-    "monthlyLabel": "今月",
+    "monthlyLabel": "今月の稽古参加日数:",
     "monthlyCount": "{count}回",
     "monthlyGoal": "{current} / {goal}回",
     "setGoal": "目標を設定",

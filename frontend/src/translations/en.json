@@ -526,7 +526,7 @@
     "cancel": "Cancel",
     "legend": "○: Practice attendance　•: Pages created",
     "futureDateError": "Cannot perform actions on future dates",
-    "monthlyLabel": "This month",
+    "monthlyLabel": "Training days this month:",
     "monthlyCount": "{count} sessions",
     "monthlyGoal": "{current} / {goal} sessions",
     "setGoal": "Set goal",
