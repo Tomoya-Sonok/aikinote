@@ -4,6 +4,10 @@ import { Hono } from "hono";
 import { extractHashtags } from "../../lib/hashtag.js";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import { containsNgWord } from "../../lib/ng-word.js";
+import {
+  sendPushToUser,
+  sendPushToUsers,
+} from "../../lib/push-notification.js";
 import { isPremiumUser } from "../../lib/subscription.js";
 import {
   checkRateLimit,
@@ -634,6 +638,11 @@ app.post(
         post_id: postId,
         reply_id: reply.id,
       });
+      sendPushToUser(supabase, post.user_id, {
+        type: "reply",
+        actorUserId: input.user_id,
+        postId,
+      });
 
       // 通知作成: 他の返信者へ reply_to_thread 通知（バッチINSERT）
       const { data: otherRepliers } = await supabase
@@ -657,6 +666,11 @@ app.post(
           reply_id: reply.id,
         }));
         await supabase.from("Notification").insert(notifications);
+        sendPushToUsers(supabase, uniqueRepliers, {
+          type: "reply_to_thread",
+          actorUserId: input.user_id,
+          postId,
+        });
       }
 
       return c.json(

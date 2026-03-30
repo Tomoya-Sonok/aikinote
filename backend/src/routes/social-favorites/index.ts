@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
+import { sendPushToUser } from "../../lib/push-notification.js";
 import {
   createNotification,
   deleteNotificationByFavorite,
@@ -53,6 +54,12 @@ app.post("/:postId", async (c) => {
         recipient_user_id: post.user_id,
         actor_user_id: payload.userId,
         post_id: postId,
+      });
+      // プッシュ通知送信（非同期、エラーは握りつぶす）
+      sendPushToUser(supabase, post.user_id, {
+        type: "favorite",
+        actorUserId: payload.userId,
+        postId,
       });
     } else {
       await deleteNotificationByFavorite(supabase, postId, payload.userId);
@@ -118,6 +125,11 @@ app.post("/reply/:replyId", async (c) => {
         actor_user_id: payload.userId,
         post_id: reply.post_id,
         reply_id: replyId,
+      });
+      sendPushToUser(supabase, reply.user_id, {
+        type: "favorite_reply",
+        actorUserId: payload.userId,
+        postId: reply.post_id,
       });
     } else {
       await deleteNotificationByReplyFavorite(
