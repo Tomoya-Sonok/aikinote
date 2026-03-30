@@ -178,6 +178,25 @@ export function useAuth() {
     };
   }, [supabase]);
 
+  // ネイティブアプリにユーザー情報を通知（認証状態変化時）
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window as any).__AIKINOTE_NATIVE_APP__ &&
+      (window as any).ReactNativeWebView
+    ) {
+      (window as any).ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "USER_INFO",
+          payload: {
+            profileImageUrl: user?.profile_image_url ?? null,
+            userId: user?.id ?? null,
+          },
+        }),
+      );
+    }
+  }, [user]);
+
   const signUp = useCallback(
     async (data: SignUpFormData): Promise<SignUpResponse> => {
       setIsProcessing(true);
