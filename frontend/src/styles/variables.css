@@ -4,6 +4,7 @@
   --primary-dark: #6d6d6d;
   --secondary-color: #c9c9c9;
   --accent-color: #c4956a;
+  --accent-color-light: #d4a87a;
   --success-color: #34ae3a;
   --error-color: #f12b2b;
   --info-color: #2563eb;
@@ -22,6 +23,9 @@
   --bg-white: #ffffff;
   --light-gray: #b5afa6;
   --hover-gray: #f0ece7;
+  --disabled-bg: #e8e8e8;
+  --disabled-bg-light: #ebebeb;
+  --disabled-bg-dark: #e4e4e4;
   --overlay-scrim: rgba(44, 44, 44, 0.35);
 
   /* スケルトンUI */
