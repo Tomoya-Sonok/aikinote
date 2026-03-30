@@ -1,6 +1,9 @@
 "use client";
 
 import {
+  CaretDownIcon,
+  CaretUpIcon,
+  CheckFatIcon,
   ClockCounterClockwiseIcon,
   FunnelIcon,
   TrendUpIcon,
@@ -506,11 +509,11 @@ export function SocialSearch() {
       >
         <FunnelIcon size={20} weight={hasActiveFilters ? "fill" : "regular"} />
         <span className={styles.filterButtonLabel}>
-          {hasActiveFilters ? t("filterClear") : t("filterToggle")}
+          {showFilters ? t("filterClose") : t("filterToggle")}
         </span>
       </Button>
     ),
-    [handleFilterToggle, hasActiveFilters, t],
+    [handleFilterToggle, hasActiveFilters, showFilters, t],
   );
 
   return (
@@ -533,24 +536,31 @@ export function SocialSearch() {
                 aria-label="Premium"
               />
             )}
-            <fieldset className={styles.postTypeSelector}>
-              <button
-                type="button"
-                className={`${styles.postTypeButton} ${postTypes.has("post") ? styles.postTypeActive : ""}`}
-                aria-pressed={postTypes.has("post")}
-                onClick={() => handlePostTypeToggle("post")}
-              >
-                {t("createTypePost")}
-              </button>
-              <button
-                type="button"
-                className={`${styles.postTypeButton} ${postTypes.has("training_record") ? styles.postTypeActive : ""}`}
-                aria-pressed={postTypes.has("training_record")}
-                onClick={() => handlePostTypeToggle("training_record")}
-              >
-                {t("createTypeTraining")}
-              </button>
-            </fieldset>
+            <div className={styles.filterRow}>
+              <span className={styles.filterLabel}>{t("postTypeFilter")}</span>
+              <fieldset className={styles.postTypeSelector}>
+                <button
+                  type="button"
+                  className={`${styles.postTypeButton} ${postTypes.has("post") ? styles.postTypeActive : ""}`}
+                  aria-pressed={postTypes.has("post")}
+                  onClick={() => handlePostTypeToggle("post")}
+                >
+                  {postTypes.has("post") && <CheckFatIcon size={14} />}
+                  {t("createTypePost")}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.postTypeButton} ${postTypes.has("training_record") ? styles.postTypeActive : ""}`}
+                  aria-pressed={postTypes.has("training_record")}
+                  onClick={() => handlePostTypeToggle("training_record")}
+                >
+                  {postTypes.has("training_record") && (
+                    <CheckFatIcon size={14} />
+                  )}
+                  {t("createTypeTraining")}
+                </button>
+              </fieldset>
+            </div>
             <div className={styles.filterRow}>
               <span className={styles.filterLabel}>{t("dojoFilter")}</span>
               <div className={styles.filterFieldWrapper}>
@@ -572,7 +582,7 @@ export function SocialSearch() {
                 onChange={(e) => handleRankChange(e.target.value)}
                 aria-label={t("rankFilter")}
               >
-                <option value="">{t("selectPlaceholder")}</option>
+                <option value="">ー</option>
                 {AIKIDO_RANK_OPTIONS.map((r) => (
                   <option key={r} value={r}>
                     {r}
@@ -582,6 +592,21 @@ export function SocialSearch() {
             </div>
           </div>
         )}
+
+        <div className={styles.filterToggleTabWrapper}>
+          <button
+            type="button"
+            className={styles.filterToggleTab}
+            onClick={handleFilterToggle}
+            aria-label={showFilters ? t("filterClose") : t("filterToggle")}
+          >
+            {showFilters ? (
+              <CaretUpIcon size={14} />
+            ) : (
+              <CaretDownIcon size={14} />
+            )}
+          </button>
+        </div>
       </div>
 
       <div className={styles.results}>

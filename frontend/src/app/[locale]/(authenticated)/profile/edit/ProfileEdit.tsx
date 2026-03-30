@@ -434,7 +434,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
               }))
             }
           >
-            <option value="">{t("userInfoEdit.aikidoRankPlaceholder")}</option>
+            <option value="">ー</option>
             {AIKIDO_RANK_OPTIONS.map((r) => (
               <option key={r} value={r}>
                 {r}

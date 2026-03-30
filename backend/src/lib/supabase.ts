@@ -2989,13 +2989,14 @@ export const getTrendingHashtags = async (
   supabaseClient: SupabaseClient,
   limit: number,
 ): Promise<{ name: string; count: number }[]> => {
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const { data, error } = await supabaseClient
     .from("SocialPostHashtag")
-    .select("hashtag_id, Hashtag(name)")
-    .gte("created_at", sevenDaysAgo.toISOString());
+    .select("hashtag_id, Hashtag(name), SocialPost!inner(is_deleted)")
+    .eq("SocialPost.is_deleted", false)
+    .gte("created_at", thirtyDaysAgo.toISOString());
 
   if (error) {
     throw new Error(
