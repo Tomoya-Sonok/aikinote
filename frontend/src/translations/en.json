@@ -278,6 +278,7 @@
     "language": "Language / 言語",
     "tagManagement": "Tags",
     "publicity": "Privacy",
+    "pushNotification": "Push Notifications",
     "subscription": "Subscription",
     "close": "Close settings",
     "fontSizeTooltip": "You can change the font size in Settings",
@@ -932,5 +933,35 @@
     "featurePublish": "One-tap training record publish",
     "featurePush": "Push notifications",
     "mobileNote": "*The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
+  },
+  "pushNotification": {
+    "title": "Push Notifications",
+    "socialSection": "Social Notifications",
+    "notifyFavorite": "Like Notifications",
+    "notifyFavoriteDescription": "When your post receives a like",
+    "notifyReply": "Reply Notifications",
+    "notifyReplyDescription": "When someone replies to your post",
+    "notifyReplyToThread": "Thread Reply Notifications",
+    "notifyReplyToThreadDescription": "When a new reply is added to a thread you replied to",
+    "reminderSection": "Training Reminders",
+    "reminderEnabled": "Reminders",
+    "reminderDescription": "Send training record reminder notifications on selected days and times",
+    "reminderTime": "Reminder Time",
+    "reminderDays": "Reminder Days",
+    "addReminder": "Add Reminder",
+    "removeReminder": "Remove",
+    "reminderLimit": "You can register up to 5 reminders",
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "save": "Save",
+    "saving": "Saving...",
+    "saved": "Push notification settings saved"
   }
 }

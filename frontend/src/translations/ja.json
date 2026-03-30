@@ -278,6 +278,7 @@
     "language": "言語 / Language",
     "tagManagement": "タグ管理",
     "publicity": "公開範囲",
+    "pushNotification": "プッシュ通知",
     "subscription": "プラン",
     "close": "設定を閉じる",
     "fontSizeTooltip": "文字サイズは設定から変更可能です",
@@ -934,5 +935,35 @@
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "プッシュ通知",
     "mobileNote": "*アプリ版は鋭意開発中です。リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせいたします。"
+  },
+  "pushNotification": {
+    "title": "プッシュ通知",
+    "socialSection": "ソーシャル通知",
+    "notifyFavorite": "いいね通知",
+    "notifyFavoriteDescription": "自分の投稿がいいねされた時",
+    "notifyReply": "返信通知",
+    "notifyReplyDescription": "自分の投稿に返信があった時",
+    "notifyReplyToThread": "スレッド返信通知",
+    "notifyReplyToThreadDescription": "自分が返信した投稿に新しい返信があった時",
+    "reminderSection": "稽古リマインダー",
+    "reminderEnabled": "リマインダー",
+    "reminderDescription": "設定した曜日・時刻に稽古記録のリマインド通知を送信します",
+    "reminderTime": "リマインド時刻",
+    "reminderDays": "リマインドする曜日",
+    "addReminder": "リマインダーを追加",
+    "removeReminder": "削除",
+    "reminderLimit": "リマインダーは最大5件まで登録できます",
+    "days": {
+      "sun": "日",
+      "mon": "月",
+      "tue": "火",
+      "wed": "水",
+      "thu": "木",
+      "fri": "金",
+      "sat": "土"
+    },
+    "save": "保存する",
+    "saving": "保存中...",
+    "saved": "プッシュ通知設定を保存しました"
   }
 }

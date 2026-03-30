@@ -1,0 +1,256 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px;
+  max-width: 580px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- セクションカード --- */
+.card {
+  width: 100%;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--black);
+  margin: 0;
+}
+
+/* --- トグル行 --- */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.toggleLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.toggleLabelText {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--black);
+}
+
+.toggleDescription {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.5;
+}
+
+/* --- iOS風トグルスイッチ --- */
+.toggleWrapper {
+  flex-shrink: 0;
+}
+
+.toggleInput {
+  display: none;
+}
+
+.toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  background: var(--border-color);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle.active {
+  background: var(--primary-color);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: var(--white);
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle.active .toggleKnob {
+  transform: translateX(20px);
+}
+
+/* --- リマインダーカード --- */
+.reminderCard {
+  background: var(--background-light);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reminderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reminderTimeLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+.removeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.removeButton:hover {
+  background: var(--border-color);
+}
+
+.timeInput {
+  font-size: var(--font-size-base);
+  color: var(--black);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--white);
+  width: 100%;
+  font-family: var(--font-ui);
+}
+
+.timeInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.daysLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+.daysRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* --- 曜日チップ --- */
+.dayChip {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  font-size: 14px;
+  color: var(--black);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-ui);
+}
+
+.dayChip.selected {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white);
+}
+
+/* --- リマインダー追加ボタン --- */
+.addReminderButton {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px dashed var(--border-color);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-ui);
+}
+
+.addReminderButton:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.addReminderButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.addReminderButton:disabled:hover {
+  border-color: var(--border-color);
+  color: var(--text-light);
+}
+
+.limitNote {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* --- 保存ボタン --- */
+.saveButton {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary-color);
+  color: var(--white);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: var(--font-ui);
+}
+
+.saveButton:hover {
+  background: var(--primary-dark);
+}
+
+.saveButton:disabled {
+  background: var(--disabled-bg);
+  color: var(--text-light);
+  cursor: not-allowed;
+}
+
+/* --- ローディング --- */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: 24px;
+  }
+}
