@@ -74,6 +74,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     window.location.href = `/${locale}/settings/subscription`;
   };
 
+  const handlePushNotificationClick = () => {
+    setIsDrawerOpen(false);
+    window.location.href = `/${locale}/settings/push-notification`;
+  };
+
   useEffect(() => {
     if (!isTooltipVisible || typeof window === "undefined") {
       return;
@@ -262,6 +267,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
         onTagManagementClick={handleTagManagementClick}
         onPublicityClick={handlePublicityClick}
         onSubscriptionClick={handleSubscriptionClick}
+        onPushNotificationClick={handlePushNotificationClick}
       />
     </header>
   );
