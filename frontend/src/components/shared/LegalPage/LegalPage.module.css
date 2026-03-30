@@ -100,13 +100,17 @@
 .body th {
   background-color: var(--bg-base);
   font-weight: 600;
-  white-space: nowrap;
 }
 
 .body td:first-child {
-  white-space: nowrap;
   font-weight: 500;
-  min-width: 100px;
+}
+
+@media (min-width: 480px) {
+  .body th,
+  .body td:first-child {
+    white-space: nowrap;
+  }
 }
 
 /* レスポンシブ: PC */
