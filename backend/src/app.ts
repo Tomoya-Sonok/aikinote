@@ -7,6 +7,8 @@ import {
   supabase as supabaseFromModule,
 } from "./lib/supabase.js";
 import dojoStylesRoute from "./routes/dojo-styles/index.js";
+import examGoalsRoute from "./routes/exam-goals/index.js";
+import notificationPreferencesRoute from "./routes/notification-preferences/index.js";
 import pagesRoute from "./routes/pages/index.js";
 import pushTokensRoute from "./routes/push-tokens/index.js";
 import socialFavoritesRoute from "./routes/social-favorites/index.js";
@@ -195,6 +197,8 @@ app.get("/health", (c) => {
 
 // APIルートを追加
 app.route("/api/dojo-styles", dojoStylesRoute);
+app.route("/api/exam-goals", examGoalsRoute);
+app.route("/api/notification-preferences", notificationPreferencesRoute);
 app.route("/api/pages", pagesRoute);
 app.route("/api/push-tokens", pushTokensRoute);
 app.route("/api/social/posts", socialPostsRoute);

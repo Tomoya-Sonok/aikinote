@@ -122,8 +122,30 @@
 
 .legend {
   margin-top: -8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-xs);
   color: var(--text-light);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.legendExamLine {
+  display: inline-block;
+  width: 12px;
+  height: 2px;
+  background: var(--error-color);
+  border-radius: 1px;
+  vertical-align: middle;
+  margin-right: 2px;
 }
 
 @media (min-width: 481px) {

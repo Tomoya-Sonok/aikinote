@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import { sendPushToUser } from "../../lib/push-notification.js";
+import { isPremiumUser } from "../../lib/subscription.js";
 import {
   createNotification,
   deleteNotificationByFavorite,
@@ -37,6 +38,11 @@ app.post("/:postId", async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     // 投稿存在チェック
@@ -107,6 +113,11 @@ app.post("/reply/:replyId", async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     // 返信存在チェック

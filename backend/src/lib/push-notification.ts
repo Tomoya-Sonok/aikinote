@@ -56,6 +56,26 @@ export async function sendPushToUser(
     // 自分自身へのプッシュはスキップ
     if (recipientUserId === payload.actorUserId) return;
 
+    // 通知設定を確認
+    const { data: pref } = await supabaseClient
+      .from("UserNotificationPreference")
+      .select("notify_favorite, notify_reply, notify_reply_to_thread")
+      .eq("user_id", recipientUserId)
+      .maybeSingle();
+
+    // 設定レコードがある場合、対応する通知タイプが OFF ならスキップ
+    if (pref) {
+      if (
+        (payload.type === "favorite" || payload.type === "favorite_reply") &&
+        !pref.notify_favorite
+      )
+        return;
+      if (payload.type === "reply" && !pref.notify_reply) return;
+      if (payload.type === "reply_to_thread" && !pref.notify_reply_to_thread)
+        return;
+    }
+    // 設定レコードがない場合はデフォルト（全て ON）として動作
+
     // 受信者のプッシュトークン一覧を取得
     const { data: tokens, error } = await supabaseClient
       .from("UserPushToken")

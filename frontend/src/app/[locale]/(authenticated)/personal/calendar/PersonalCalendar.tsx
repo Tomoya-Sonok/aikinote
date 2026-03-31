@@ -1,6 +1,10 @@
 "use client";
 
-import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
+import {
+  BellRingingIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+} from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -14,6 +18,7 @@ import {
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
 type DayStatus = {
@@ -145,6 +150,17 @@ export function PersonalCalendar() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminders, setReminders] = useState<
+    Array<{ reminder_time: string; reminder_days: number[] }>
+  >([]);
+  const [examGoal, setExamGoal] = useState<{
+    exam_rank: string;
+    exam_date: string;
+    prev_exam_date: string | null;
+    target_attendance: number;
+  } | null>(null);
+  const [examAttendanceCount, setExamAttendanceCount] = useState(0);
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -229,6 +245,71 @@ export function PersonalCalendar() {
     void fetchMonthData();
   }, [fetchMonthData]);
 
+  // リマインダーデータ取得
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch("/api/notification-preferences", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.data) {
+          setReminderEnabled(data.data.preferences?.reminder_enabled ?? false);
+          setReminders(
+            (data.data.reminders ?? []).map(
+              (r: { reminder_time: string; reminder_days: number[] }) => ({
+                reminder_time: r.reminder_time,
+                reminder_days: r.reminder_days,
+              }),
+            ),
+          );
+        }
+      })
+      .catch(() => {});
+  }, [user?.id]);
+
+  // 審査目標データ取得
+  const fetchExamGoal = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch("/api/exam-goals", { credentials: "include" });
+      if (!res.ok) {
+        setExamGoal(null);
+        setExamAttendanceCount(0);
+        return;
+      }
+      const json = await res.json();
+      if (json?.data) {
+        setExamGoal(json.data);
+        // 稽古日数カウント取得（前回審査日 < x < 次回審査日）
+        const params = new URLSearchParams({ to: json.data.exam_date });
+        if (json.data.prev_exam_date) {
+          params.set("from", json.data.prev_exam_date);
+        }
+        const countRes = await fetch(
+          `/api/training-dates-count?${params.toString()}`,
+          { credentials: "include" },
+        );
+        if (countRes.ok) {
+          const countJson = await countRes.json();
+          setExamAttendanceCount(countJson?.data?.count ?? 0);
+        }
+      } else {
+        setExamGoal(null);
+        setExamAttendanceCount(0);
+      }
+    } catch {
+      setExamGoal(null);
+      setExamAttendanceCount(0);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    void fetchExamGoal();
+  }, [fetchExamGoal]);
+
+  const handleExamGoalSaved = useCallback(() => {
+    void fetchExamGoal();
+  }, [fetchExamGoal]);
+
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentMonth((prev) => {
       const nextMonth = new Date(prev);
@@ -242,6 +323,10 @@ export function PersonalCalendar() {
   const selectedDateKey = selectedDate ? formatDateKey(selectedDate) : null;
   const selectedStatus = selectedDateKey ? dayStatusMap[selectedDateKey] : null;
   const isSelectedDateAttended = selectedStatus?.isAttended ?? false;
+
+  // legend 表示条件
+  const hasAttendance = Object.values(dayStatusMap).some((s) => s.isAttended);
+  const hasPages = Object.values(dayStatusMap).some((s) => s.pageCount > 0);
 
   const handleDateClick = (date: Date, isCurrentMonth: boolean) => {
     if (!isCurrentMonth) {
@@ -369,7 +454,15 @@ export function PersonalCalendar() {
               onDateClick={handleDateClick}
               highlightSelectedDate={false}
               getDateStatus={(date) => dayStatusMap[formatDateKey(date)]}
+              highlightedDaysOfWeek={
+                reminderEnabled && reminders.length > 0
+                  ? Array.from(
+                      new Set(reminders.flatMap((r) => r.reminder_days)),
+                    )
+                  : undefined
+              }
               onMonthChange={navigateMonth}
+              examDate={examGoal?.exam_date}
             />
           </div>
           {(loading || authLoading) && (
@@ -380,7 +473,35 @@ export function PersonalCalendar() {
         </div>
       </div>
 
-      <p className={styles.legend}>{t("personalCalendar.legend")}</p>
+      <div className={styles.legend}>
+        {hasAttendance && (
+          <span>◯：{t("personalCalendar.legendAttendance")}</span>
+        )}
+        {hasPages && <span>・：{t("personalCalendar.legendPages")}</span>}
+        {reminderEnabled && reminders.length > 0 && (
+          <span className={styles.legendItem}>
+            <BellRingingIcon size={10} weight="fill" style={{ opacity: 0.6 }} />
+            ：{t("personalCalendar.legendReminder")}
+          </span>
+        )}
+        {examGoal && (
+          <span className={styles.legendItem}>
+            <span className={styles.legendExamLine} />：
+            {t("personalCalendar.legendExam")}
+          </span>
+        )}
+      </div>
+
+      <CalendarFooter
+        dayStatusMap={dayStatusMap}
+        currentMonth={currentMonth}
+        locale={locale}
+        reminderEnabled={reminderEnabled}
+        reminders={reminders}
+        examGoal={examGoal}
+        examAttendanceCount={examAttendanceCount}
+        onExamGoalSaved={handleExamGoalSaved}
+      />
 
       <CalendarActionModal
         isOpen={isActionModalOpen}

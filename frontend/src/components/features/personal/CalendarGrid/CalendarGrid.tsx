@@ -1,5 +1,6 @@
 "use client";
 
+import { BellRingingIcon } from "@phosphor-icons/react";
 import {
   type PointerEvent as ReactPointerEvent,
   useCallback,
@@ -38,7 +39,9 @@ interface CalendarGridProps {
   highlightRange?: boolean;
   classNames?: CalendarGridClassNames;
   getDateStatus?: (date: Date) => CalendarDayStatus | undefined;
+  highlightedDaysOfWeek?: number[];
   onMonthChange?: (direction: "prev" | "next") => void;
+  examDate?: string;
 }
 
 const SWIPE_DEAD_ZONE = 5;
@@ -100,10 +103,22 @@ export function CalendarGrid({
   highlightRange = false,
   classNames,
   getDateStatus,
+  highlightedDaysOfWeek,
   onMonthChange,
+  examDate,
 }: CalendarGridProps) {
   const today = useMemo(() => new Date(), []);
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
+  const examDateParts = useMemo(() => {
+    if (!examDate) return null;
+    const parts = examDate.split("-");
+    if (parts.length !== 3) return null;
+    return {
+      year: Number(parts[0]),
+      month: Number(parts[1]),
+      day: Number(parts[2]),
+    };
+  }, [examDate]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerIdRef = useRef<number | null>(null);
@@ -238,6 +253,16 @@ export function CalendarGrid({
               ? isSameDate(selectedDate, date)
               : false;
           const isAttended = isCurrentMonth && Boolean(status?.isAttended);
+          const hasReminderMark =
+            isCurrentMonth &&
+            highlightedDaysOfWeek !== undefined &&
+            highlightedDaysOfWeek.includes(date.getDay());
+          const isExamDay =
+            isCurrentMonth &&
+            examDateParts !== null &&
+            date.getFullYear() === examDateParts.year &&
+            date.getMonth() + 1 === examDateParts.month &&
+            date.getDate() === examDateParts.day;
           const dotCount = isCurrentMonth
             ? Math.min(status?.pageCount ?? 0, 3)
             : 0;
@@ -269,6 +294,7 @@ export function CalendarGrid({
             highlightSelectedDate && isSelected ? classNames?.selected : "",
             isInRange ? styles.rangeDay : "",
             isInRange ? classNames?.rangeDay : "",
+            isExamDay ? styles.examDay : "",
           ]
             .filter(Boolean)
             .join(" ");
@@ -295,6 +321,13 @@ export function CalendarGrid({
               className={buttonClass}
               onClick={() => onDateClick(date, isCurrentMonth)}
             >
+              {hasReminderMark && (
+                <BellRingingIcon
+                  size={10}
+                  weight="fill"
+                  className={styles.reminderIcon}
+                />
+              )}
               <span
                 className={[
                   styles.dayNumber,

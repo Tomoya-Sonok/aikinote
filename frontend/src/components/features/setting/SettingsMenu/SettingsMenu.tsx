@@ -37,6 +37,11 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({ className = "" }) => {
       <SettingItem onClick={() => router.push(`/${locale}/settings/language`)}>
         {t("language.label")}
       </SettingItem>
+      <SettingItem
+        onClick={() => router.push(`/${locale}/settings/push-notification`)}
+      >
+        {t("navigation.pushNotification")}
+      </SettingItem>
     </div>
   );
 };
