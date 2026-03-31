@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { FC } from "react";
+import { type CSSProperties, type FC, useCallback, useState } from "react";
 import styles from "./MediaPlayer.module.css";
 
 interface MediaPlayerProps {
@@ -10,6 +10,7 @@ interface MediaPlayerProps {
   thumbnailUrl?: string | null;
   alt?: string;
   fillParent?: boolean;
+  onImageLoad?: (naturalWidth: number, naturalHeight: number) => void;
 }
 
 // YouTube URLからビデオIDを抽出
@@ -36,7 +37,26 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   thumbnailUrl,
   alt = "メディア",
   fillParent = false,
+  onImageLoad,
 }) => {
+  const [portraitStyle, setPortraitStyle] = useState<
+    CSSProperties | undefined
+  >();
+
+  const handleImageLoad = useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement>) => {
+      const { naturalWidth, naturalHeight } = e.currentTarget;
+      if (!fillParent && naturalHeight > naturalWidth) {
+        setPortraitStyle({
+          paddingTop: 0,
+          aspectRatio: `${naturalWidth} / ${naturalHeight}`,
+        });
+      }
+      onImageLoad?.(naturalWidth, naturalHeight);
+    },
+    [fillParent, onImageLoad],
+  );
+
   const containerClass = `${styles.container} ${fillParent ? styles.fillParent : ""}`;
   const aspectClass = `${styles.aspectRatio} ${fillParent ? styles.fillParentAspect : ""}`;
   if (type === "youtube") {
@@ -87,13 +107,14 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   // image
   return (
     <div className={containerClass}>
-      <div className={aspectClass}>
+      <div className={aspectClass} style={portraitStyle}>
         <Image
           src={url}
           alt={alt}
           fill
           className={styles.image}
           sizes="(max-width: 580px) 100vw, 580px"
+          onLoad={handleImageLoad}
         />
       </div>
     </div>

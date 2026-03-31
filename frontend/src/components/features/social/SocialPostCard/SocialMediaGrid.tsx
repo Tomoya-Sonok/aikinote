@@ -1,7 +1,13 @@
 "use client";
 
 import useEmblaCarousel from "embla-carousel-react";
-import { type FC, useCallback, useEffect, useState } from "react";
+import {
+  type CSSProperties,
+  type FC,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { MediaPlayer } from "@/components/features/personal/MediaPlayer/MediaPlayer";
 import styles from "./SocialMediaGrid.module.css";
 
@@ -25,9 +31,34 @@ const getMediaType = (type: string): "image" | "video" | "youtube" => {
   return "image";
 };
 
+function SingleImage({ image }: { image: MediaItem }) {
+  const [aspectStyle, setAspectStyle] = useState<CSSProperties | undefined>();
+
+  const handleImageLoad = useCallback((w: number, h: number) => {
+    if (h > w) {
+      setAspectStyle({ aspectRatio: `${w} / ${h}` });
+    }
+  }, []);
+
+  return (
+    <div className={styles.singleImage} style={aspectStyle}>
+      <MediaPlayer
+        type="image"
+        url={image.url}
+        alt={image.original_filename || ""}
+        fillParent
+        onImageLoad={handleImageLoad}
+      />
+    </div>
+  );
+}
+
 function ImageCarousel({ images }: { images: MediaItem[] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
   const [activeIndex, setActiveIndex] = useState(0);
+  const [slideRatios, setSlideRatios] = useState<Record<string, CSSProperties>>(
+    {},
+  );
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -43,17 +74,40 @@ function ImageCarousel({ images }: { images: MediaItem[] }) {
     };
   }, [emblaApi, onSelect]);
 
+  // スライドのアスペクト比変更後にEmblaを再計算
+  useEffect(() => {
+    if (!emblaApi || Object.keys(slideRatios).length === 0) return;
+    emblaApi.reInit();
+  }, [emblaApi, slideRatios]);
+
+  const handleSlideImageLoad = useCallback(
+    (id: string, w: number, h: number) => {
+      if (h > w) {
+        setSlideRatios((prev) => ({
+          ...prev,
+          [id]: { aspectRatio: `${w} / ${h}` },
+        }));
+      }
+    },
+    [],
+  );
+
   return (
     <div className={styles.carouselWrapper}>
       <div className={styles.carousel} ref={emblaRef}>
         <div className={styles.carouselContainer}>
           {images.map((image) => (
-            <div key={image.id} className={styles.carouselSlide}>
+            <div
+              key={image.id}
+              className={styles.carouselSlide}
+              style={slideRatios[image.id]}
+            >
               <MediaPlayer
                 type="image"
                 url={image.url}
                 alt={image.original_filename || ""}
                 fillParent
+                onImageLoad={(w, h) => handleSlideImageLoad(image.id, w, h)}
               />
             </div>
           ))}
@@ -99,16 +153,7 @@ export const SocialMediaGrid: FC<SocialMediaGridProps> = ({ attachments }) => {
         </div>
       )}
 
-      {images.length === 1 && (
-        <div className={styles.singleImage}>
-          <MediaPlayer
-            type="image"
-            url={images[0].url}
-            alt={images[0].original_filename || ""}
-            fillParent
-          />
-        </div>
-      )}
+      {images.length === 1 && <SingleImage image={images[0]} />}
 
       {images.length > 1 && <ImageCarousel images={images} />}
     </div>

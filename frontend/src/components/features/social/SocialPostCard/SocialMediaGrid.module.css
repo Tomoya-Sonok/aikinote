@@ -36,6 +36,7 @@
 
 .carouselContainer {
   display: flex;
+  align-items: center;
 }
 
 .carouselSlide {
