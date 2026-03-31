@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
+import { isPremiumUser } from "../../lib/subscription.js";
 
 type NotificationPreferencesBindings = {
   JWT_SECRET?: string;
@@ -100,6 +101,11 @@ app.put("/", async (c) => {
       return c.json({ error: "Supabase クライアント未初期化" }, 500);
     }
 
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
+    }
+
     const body = await c.req.json<{
       notify_favorite?: boolean;
       notify_reply?: boolean;
@@ -143,6 +149,11 @@ app.post("/reminders", async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ error: "Supabase クライアント未初期化" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     const body = await c.req.json<{
@@ -199,6 +210,11 @@ app.put("/reminders/:id", async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ error: "Supabase クライアント未初期化" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     const reminderId = c.req.param("id");
@@ -260,6 +276,11 @@ app.delete("/reminders/:id", async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ error: "Supabase クライアント未初期化" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     const reminderId = c.req.param("id");

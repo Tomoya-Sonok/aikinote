@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
+import { isPremiumUser } from "../../lib/subscription.js";
 
 type ExamGoalsBindings = {
   JWT_SECRET?: string;
@@ -71,6 +72,11 @@ app.put("/", async (c) => {
       return c.json({ error: "Supabase クライアント未初期化" }, 500);
     }
 
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
+    }
+
     const body = await c.req.json<{
       exam_rank: string;
       exam_date: string;
@@ -112,6 +118,11 @@ app.delete("/", async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ error: "Supabase クライアント未初期化" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     const { error } = await supabase

@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
+import { isPremiumUser } from "../../lib/subscription.js";
 import {
   enrichSocialPosts,
   getTrendingHashtags,
@@ -90,6 +91,11 @@ app.get("/", zValidator("query", searchSocialPostsSchema), async (c) => {
     const supabase = c.get("supabase");
     if (!supabase) {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const premium = await isPremiumUser(supabase, payload.userId);
+    if (!premium) {
+      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
     }
 
     // viewer の dojo_style_id を取得
