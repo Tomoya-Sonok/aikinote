@@ -967,6 +967,7 @@
   },
   "pushNotification": {
     "title": "プッシュ通知",
+    "description": "プッシュ通知の設定を変更できます。iOS / Android アプリをご利用いただき、アプリの通知許可をONに設定いただくことで通知を受けとれるようになります。",
     "socialSection": "SNS通知",
     "notifyFavorite": "いいね通知",
     "notifyFavoriteDescription": "自分の投稿がいいねされた時",

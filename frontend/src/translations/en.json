@@ -965,6 +965,7 @@
   },
   "pushNotification": {
     "title": "Push Notifications",
+    "description": "Manage your push notification settings. To receive notifications, please use the iOS / Android app and enable notification permissions in your device settings.",
     "socialSection": "SNS Notifications",
     "notifyFavorite": "Like Notifications",
     "notifyFavoriteDescription": "When your post receives a like",

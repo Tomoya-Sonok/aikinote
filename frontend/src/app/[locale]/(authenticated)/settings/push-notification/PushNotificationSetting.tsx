@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "@phosphor-icons/react";
+import { PlusCircle, X } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
@@ -275,7 +275,11 @@ export function PushNotificationSetting({
       backHref={`/${locale}/mypage`}
     >
       <div className={styles.container}>
-        {/* ソーシャル通知セクション */}
+        <p className={styles.description}>
+          {t("pushNotification.description")}
+        </p>
+
+        {/* SNS通知セクション */}
         <div className={styles.card}>
           <h2 className={styles.sectionTitle}>
             {t("pushNotification.socialSection")}
@@ -378,6 +382,7 @@ export function PushNotificationSetting({
                   className={styles.addReminderButton}
                   onClick={addReminder}
                 >
+                  <PlusCircle size={18} weight="bold" />
                   {t("pushNotification.addReminder")}
                 </button>
               ) : (
