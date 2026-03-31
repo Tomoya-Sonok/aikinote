@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const EXPO_PUSH_API = "https://exp.host/--/api/v2/push/send";
 
@@ -219,5 +219,117 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
     }
   } catch (err) {
     console.error("[Reminder] リマインダー処理全体エラー:", err);
+  }
+
+  // ストリーク途切れ通知（毎週土曜 18:00 JST に1回実行）
+  try {
+    await processStreakNotifications(supabase);
+  } catch (err) {
+    console.error("[Streak] ストリーク処理エラー:", err);
+  }
+}
+
+/**
+ * ストリーク途切れ通知。
+ * 毎週土曜 18:00 JST に、その週（月〜土）の稽古参加が0日のユーザーに通知。
+ * notify_streak = true のユーザーのみ対象。
+ */
+async function processStreakNotifications(
+  supabase: SupabaseClient,
+): Promise<void> {
+  // 土曜 18:00 JST の5分枠（17:55〜18:00）でのみ実行
+  const { hours, minutes, dayOfWeek } = getNowInTimezone("Asia/Tokyo");
+  if (dayOfWeek !== 6 || hours !== 18 || roundToFiveMinSlot(minutes) !== 0) {
+    return;
+  }
+
+  console.log("[Streak] ストリーク途切れチェック開始");
+
+  // 1. notify_streak = true のユーザーを取得
+  const { data: streakPrefs, error: prefError } = await supabase
+    .from("UserNotificationPreference")
+    .select("user_id")
+    .eq("notify_streak", true);
+
+  if (prefError || !streakPrefs || streakPrefs.length === 0) {
+    return;
+  }
+
+  const userIds = streakPrefs.map((p) => p.user_id);
+
+  // 2. 今週の月曜〜今日（土曜）の日付範囲を計算
+  const now = new Date();
+  const jstFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tokyo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const todayStr = jstFormatter.format(now); // "YYYY-MM-DD"
+
+  // 今日（土曜）から5日前が月曜
+  const monday = new Date(now);
+  monday.setDate(monday.getDate() - 5);
+  const mondayStr = jstFormatter.format(monday);
+
+  // 3. 今週に稽古参加があるユーザーを取得
+  const { data: attendedRecords, error: attendError } = await supabase
+    .from("training_dates")
+    .select("user_id")
+    .in("user_id", userIds)
+    .eq("is_attended", true)
+    .gte("training_date", mondayStr)
+    .lte("training_date", todayStr);
+
+  if (attendError) {
+    console.error("[Streak] 稽古参加データ取得エラー:", attendError);
+    return;
+  }
+
+  // 今週参加済みのユーザーIDセット
+  const attendedUserIds = new Set(
+    (attendedRecords ?? []).map((r) => r.user_id),
+  );
+
+  // 4. 今週参加がないユーザーを特定
+  const targetUserIds = userIds.filter((id) => !attendedUserIds.has(id));
+  if (targetUserIds.length === 0) {
+    return;
+  }
+
+  // 5. プッシュトークンを取得して送信
+  const { data: tokens, error: tokenError } = await supabase
+    .from("UserPushToken")
+    .select("expo_push_token")
+    .in("user_id", targetUserIds);
+
+  if (tokenError || !tokens || tokens.length === 0) {
+    return;
+  }
+
+  const messages: ExpoPushMessage[] = tokens.map((t) => ({
+    to: t.expo_push_token,
+    title: "AikiNote",
+    body: "今週まだ稽古記録がありません",
+    channelId: "default",
+    sound: "default" as const,
+  }));
+
+  const response = await fetch(EXPO_PUSH_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(messages),
+  });
+
+  if (!response.ok) {
+    console.error(
+      "[Streak] Expo Push API エラー:",
+      response.status,
+      await response.text(),
+    );
+  } else {
+    console.log(
+      `[Streak] ${targetUserIds.length} ユーザーにストリーク途切れ通知を送信`,
+    );
   }
 }
