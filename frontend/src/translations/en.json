@@ -525,6 +525,8 @@
     "createPage": "Create page",
     "cancel": "Cancel",
     "legend": "○: Practice attendance　•: Pages created",
+    "legendAttendance": "Practice attendance",
+    "legendPages": "Pages created",
     "futureDateError": "Cannot perform actions on future dates",
     "monthlyLabel": "Training days this month:",
     "monthlyCount": "{count} days",

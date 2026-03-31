@@ -325,6 +325,10 @@ export function PersonalCalendar() {
   const selectedStatus = selectedDateKey ? dayStatusMap[selectedDateKey] : null;
   const isSelectedDateAttended = selectedStatus?.isAttended ?? false;
 
+  // legend 表示条件
+  const hasAttendance = Object.values(dayStatusMap).some((s) => s.isAttended);
+  const hasPages = Object.values(dayStatusMap).some((s) => s.pageCount > 0);
+
   const handleDateClick = (date: Date, isCurrentMonth: boolean) => {
     if (!isCurrentMonth) {
       setCurrentMonth(new Date(date.getFullYear(), date.getMonth(), 1));
@@ -470,15 +474,17 @@ export function PersonalCalendar() {
         </div>
       </div>
 
-      <p className={styles.legend}>
-        <span>{t("personalCalendar.legend")}</span>
+      <div className={styles.legend}>
+        {hasAttendance && (
+          <span>◯：{t("personalCalendar.legendAttendance")}</span>
+        )}
+        {hasPages && <span>・：{t("personalCalendar.legendPages")}</span>}
         {reminderEnabled && reminders.length > 0 && (
           <span
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "2px",
-              marginLeft: "8px",
             }}
           >
             <BellRingingIcon size={10} weight="fill" style={{ opacity: 0.6 }} />
@@ -491,8 +497,6 @@ export function PersonalCalendar() {
               display: "inline-flex",
               alignItems: "center",
               gap: "2px",
-              marginLeft: "8px",
-              fontSize: "var(--font-size-xs)",
             }}
           >
             <span
@@ -509,7 +513,7 @@ export function PersonalCalendar() {
             ：{t("personalCalendar.legendExam")}
           </span>
         )}
-      </p>
+      </div>
 
       <CalendarFooter
         dayStatusMap={dayStatusMap}
