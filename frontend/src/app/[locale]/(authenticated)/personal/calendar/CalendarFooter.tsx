@@ -193,12 +193,9 @@ export function CalendarFooter({
     }
   }, [onExamGoalSaved]);
 
-  // 審査日までの残り日数
+  // 残り必要稽古日数
   const examDaysLeft = examGoal
-    ? Math.ceil(
-        (new Date(examGoal.exam_date).getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24),
-      )
+    ? Math.max(0, examGoal.target_attendance - examAttendanceCount)
     : 0;
 
   // 審査目標の達成度ドット列

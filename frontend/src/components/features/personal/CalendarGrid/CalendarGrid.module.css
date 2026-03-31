@@ -128,11 +128,13 @@
 }
 
 .examDay::after {
-  content: "\25C6";
+  content: "";
   position: absolute;
-  bottom: 1px;
-  right: 2px;
-  font-size: 6px;
-  color: var(--primary-color);
-  opacity: 0.6;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  background: var(--error-color);
+  border-radius: 1px;
 }

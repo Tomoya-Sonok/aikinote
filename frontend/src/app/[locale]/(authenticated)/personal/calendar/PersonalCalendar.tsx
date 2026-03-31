@@ -492,12 +492,22 @@ export function PersonalCalendar() {
               alignItems: "center",
               gap: "2px",
               marginLeft: "8px",
-              color: "var(--primary-color)",
-              opacity: 0.6,
+              color: "var(--error-color)",
               fontSize: "var(--font-size-xs)",
             }}
           >
-            ◆：{t("personalCalendar.legendExam")}
+            <span
+              style={{
+                display: "inline-block",
+                width: "12px",
+                height: "2px",
+                background: "var(--error-color)",
+                borderRadius: "1px",
+                verticalAlign: "middle",
+                marginRight: "2px",
+              }}
+            />
+            ：{t("personalCalendar.legendExam")}
           </span>
         )}
       </p>
