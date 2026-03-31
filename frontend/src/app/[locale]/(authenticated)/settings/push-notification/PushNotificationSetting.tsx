@@ -55,10 +55,14 @@ export function PushNotificationSetting({
             notify_streak: data.notify_streak ?? true,
             reminder_enabled: data.reminder_enabled ?? false,
             reminders: (data.reminders ?? []).map(
-              (r: { id: string; time: string; days_of_week: number[] }) => ({
+              (r: {
+                id: string;
+                reminder_time: string;
+                reminder_days: number[];
+              }) => ({
                 id: r.id,
-                time: r.time,
-                days_of_week: r.days_of_week,
+                time: r.reminder_time?.slice(0, 5) ?? "21:00",
+                days_of_week: r.reminder_days ?? [],
               }),
             ),
           });
@@ -192,8 +196,8 @@ export function PushNotificationSetting({
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                time: reminder.time,
-                days_of_week: reminder.days_of_week,
+                reminder_time: reminder.time,
+                reminder_days: reminder.days_of_week,
               }),
             }),
           );
@@ -204,8 +208,8 @@ export function PushNotificationSetting({
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                time: reminder.time,
-                days_of_week: reminder.days_of_week,
+                reminder_time: reminder.time,
+                reminder_days: reminder.days_of_week,
               }),
             }),
           );
