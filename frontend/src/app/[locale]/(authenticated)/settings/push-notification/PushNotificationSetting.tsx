@@ -301,16 +301,9 @@ export function PushNotificationSetting({
             checked={preferences.notify_reply_to_thread}
             onChange={(v) => updatePreference("notify_reply_to_thread", v)}
           />
-
-          <ToggleRow
-            label={t("pushNotification.notifyStreak")}
-            description={t("pushNotification.notifyStreakDescription")}
-            checked={preferences.notify_streak}
-            onChange={(v) => updatePreference("notify_streak", v)}
-          />
         </div>
 
-        {/* 稽古リマインダーセクション */}
+        {/* リマインダーセクション */}
         <div className={styles.card}>
           <h2 className={styles.sectionTitle}>
             {t("pushNotification.reminderSection")}
@@ -394,6 +387,13 @@ export function PushNotificationSetting({
               )}
             </>
           )}
+
+          <ToggleRow
+            label={t("pushNotification.notifyStreak")}
+            description={t("pushNotification.notifyStreakDescription")}
+            checked={preferences.notify_streak}
+            onChange={(v) => updatePreference("notify_streak", v)}
+          />
         </div>
 
         {/* 保存ボタン */}
