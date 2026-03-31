@@ -25,3 +25,12 @@
   width: 100%;
   margin: 0 auto;
 }
+
+/* PWA standalone モードで body スクロールによるフッター隠れを防止 */
+@media all and (display-mode: standalone) {
+  .layout {
+    position: fixed;
+    inset: 0;
+    height: auto;
+  }
+}
