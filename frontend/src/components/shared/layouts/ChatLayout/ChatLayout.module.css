@@ -10,6 +10,7 @@
   overflow-y: auto;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .main {
@@ -17,7 +18,7 @@
   width: 100%;
   max-width: 580px;
   background: var(--white);
-  min-height: 0;
+  min-height: 100%;
 }
 
 .footer {
