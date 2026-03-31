@@ -641,7 +641,7 @@ export function TagManagement({ locale }: TagManagementProps) {
         <p className={styles.description}>{t("tagManagement.reorderHint")}</p>
         {isLoading ? (
           <div className={styles.loaderWrapper}>
-            <Loader centered text={t("tagManagement.loading")} />
+            <Loader centered size="large" text={t("tagManagement.loading")} />
           </div>
         ) : (
           CATEGORY_KEYS.map((category) => {

@@ -467,7 +467,7 @@ export function PersonalCalendar() {
           </div>
           {(loading || authLoading) && (
             <div className={styles.calendarLoader}>
-              <Loader size="small" centered />
+              <Loader size="large" centered />
             </div>
           )}
         </div>

@@ -163,7 +163,7 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
       backHref={`/${locale}/mypage`}
     >
       {isLoading ? (
-        <Loader centered size="medium" />
+        <Loader centered size="large" />
       ) : (
         <div className={styles.container}>
           <p className={styles.description}>

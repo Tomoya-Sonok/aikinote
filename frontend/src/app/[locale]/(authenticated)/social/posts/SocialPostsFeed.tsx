@@ -158,7 +158,7 @@ export function SocialPostsFeed() {
               </div>
             ) : (
               <div ref={sentinelRef} className={styles.sentinel}>
-                {isLoadingMore && <Loader size="small" centered />}
+                {isLoadingMore && <Loader size="large" centered />}
                 {!hasMore && posts.length > 0 && (
                   <p className={styles.noMore}>{t("noMorePosts")}</p>
                 )}

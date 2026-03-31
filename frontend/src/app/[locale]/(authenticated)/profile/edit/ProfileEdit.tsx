@@ -316,7 +316,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
   if (loading) {
     return (
       <div className={styles.content}>
-        <Loader size="medium" centered text={t("userInfoEdit.loading")} />
+        <Loader size="large" centered text={t("userInfoEdit.loading")} />
       </div>
     );
   }

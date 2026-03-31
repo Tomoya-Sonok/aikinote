@@ -431,7 +431,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   if (isLoading || isInitializing || (isAuthenticated && subLoading)) {
     return (
       <ChatLayout>
-        <Loader centered size="medium" />
+        <Loader centered size="large" />
       </ChatLayout>
     );
   }

@@ -611,7 +611,7 @@ export function SocialSearch() {
 
       <div className={styles.results}>
         {results.length === 0 && isLoading ? (
-          <Loader centered size="small" />
+          <Loader centered size="large" />
         ) : showEmptyState ? (
           <>
             {/* 検索履歴 */}

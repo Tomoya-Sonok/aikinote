@@ -119,7 +119,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   if (isLoading) {
     return (
       <SocialLayout>
-        <Loader centered size="medium" />
+        <Loader centered size="large" />
       </SocialLayout>
     );
   }

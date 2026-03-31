@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { Loader } from "@/components/shared/Loader/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./EmailVerificationForm.module.css";
 
@@ -72,7 +73,7 @@ export function EmailVerificationForm({
           <p className={styles.loadingMessage}>
             {t("auth.emailVerificationProcessing")}
           </p>
-          <div className={styles.loadingSpinner} />
+          <Loader size="large" />
         </div>
       </div>
     );

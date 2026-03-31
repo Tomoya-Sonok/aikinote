@@ -126,7 +126,7 @@ export function SocialPostEdit() {
           backLabel={t("back")}
         />
         <main className={styles.main}>
-          <Loader size="small" centered />
+          <Loader size="large" centered />
         </main>
       </div>
     );
