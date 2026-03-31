@@ -4,7 +4,9 @@ import { PlusCircle, X } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
+import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import styles from "./PushNotificationSetting.module.css";
 
 interface PushNotificationSettingProps {
@@ -34,7 +36,28 @@ export function PushNotificationSetting({
   locale,
 }: PushNotificationSettingProps) {
   const t = useTranslations();
+  const tPremium = useTranslations("premiumModalCalendar");
   const { showToast } = useToast();
+  const { isPremium, loading: subLoading } = useSubscription();
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showPreviewLock, setShowPreviewLock] = useState(false);
+
+  // Free ユーザー: 即時モーダル表示 + スクロールロック
+  useEffect(() => {
+    if (subLoading) return;
+    if (!isPremium) {
+      setShowUpgradeModal(true);
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [subLoading, isPremium]);
+
+  const handleDismissModal = useCallback(() => {
+    setShowUpgradeModal(false);
+    setShowPreviewLock(true);
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -268,6 +291,43 @@ export function PushNotificationSetting({
   if (!preferences) return null;
 
   const activeReminders = preferences.reminders.filter((r) => !r._deleted);
+
+  // Free ユーザー: コンテンツ表示 + モーダル + previewLock
+  if (!isPremium) {
+    return (
+      <MinimalLayout
+        headerTitle={t("pushNotification.title")}
+        backHref={`/${locale}/mypage`}
+      >
+        <div className={styles.container}>
+          <p className={styles.description}>
+            {t("pushNotification.description")}
+          </p>
+        </div>
+
+        {showPreviewLock && (
+          <div className={styles.previewLock}>
+            <div className={styles.previewLockContent}>
+              <p className={styles.previewLockTitle}>{tPremium("title")}</p>
+              <button
+                type="button"
+                className={styles.previewLockButton}
+                onClick={() => setShowUpgradeModal(true)}
+              >
+                {tPremium("upgradeMain")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <PremiumUpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={handleDismissModal}
+          translationKey="premiumModalCalendar"
+        />
+      </MinimalLayout>
+    );
+  }
 
   return (
     <MinimalLayout

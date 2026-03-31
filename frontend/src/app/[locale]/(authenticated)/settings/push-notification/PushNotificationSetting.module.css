@@ -265,3 +265,48 @@
     padding: 24px;
   }
 }
+
+/* Free ユーザー用 previewLock */
+.previewLock {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(to bottom, transparent 30%, var(--white) 70%);
+  pointer-events: auto;
+}
+
+.previewLockContent {
+  width: 100%;
+  max-width: 580px;
+  padding: 32px 24px 100px;
+  text-align: center;
+}
+
+.previewLockTitle {
+  margin: 0 0 16px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--black);
+  white-space: pre-line;
+}
+
+.previewLockButton {
+  display: inline-block;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #3e3e3c 0%, var(--black) 40%);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.previewLockButton:hover {
+  opacity: 0.85;
+}
