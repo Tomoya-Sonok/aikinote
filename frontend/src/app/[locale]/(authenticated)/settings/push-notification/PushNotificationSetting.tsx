@@ -47,14 +47,16 @@ export function PushNotificationSetting({
       try {
         const res = await fetch("/api/notification-preferences");
         if (res.ok) {
-          const data = await res.json();
+          const json = await res.json();
+          const pref = json.data?.preferences ?? json;
+          const rems = json.data?.reminders ?? json.reminders ?? [];
           setPreferences({
-            notify_favorite: data.notify_favorite ?? true,
-            notify_reply: data.notify_reply ?? true,
-            notify_reply_to_thread: data.notify_reply_to_thread ?? true,
-            notify_streak: data.notify_streak ?? true,
-            reminder_enabled: data.reminder_enabled ?? false,
-            reminders: (data.reminders ?? []).map(
+            notify_favorite: pref.notify_favorite ?? true,
+            notify_reply: pref.notify_reply ?? true,
+            notify_reply_to_thread: pref.notify_reply_to_thread ?? true,
+            notify_streak: pref.notify_streak ?? true,
+            reminder_enabled: pref.reminder_enabled ?? false,
+            reminders: rems.map(
               (r: {
                 id: string;
                 reminder_time: string;
@@ -221,18 +223,24 @@ export function PushNotificationSetting({
       // 保存後にリロードして最新状態を反映
       const refreshRes = await fetch("/api/notification-preferences");
       if (refreshRes.ok) {
-        const data = await refreshRes.json();
+        const json = await refreshRes.json();
+        const pref = json.data?.preferences ?? json;
+        const rems = json.data?.reminders ?? json.reminders ?? [];
         setPreferences({
-          notify_favorite: data.notify_favorite ?? true,
-          notify_reply: data.notify_reply ?? true,
-          notify_reply_to_thread: data.notify_reply_to_thread ?? true,
-          notify_streak: data.notify_streak ?? true,
-          reminder_enabled: data.reminder_enabled ?? false,
-          reminders: (data.reminders ?? []).map(
-            (r: { id: string; time: string; days_of_week: number[] }) => ({
+          notify_favorite: pref.notify_favorite ?? true,
+          notify_reply: pref.notify_reply ?? true,
+          notify_reply_to_thread: pref.notify_reply_to_thread ?? true,
+          notify_streak: pref.notify_streak ?? true,
+          reminder_enabled: pref.reminder_enabled ?? false,
+          reminders: rems.map(
+            (r: {
+              id: string;
+              reminder_time: string;
+              reminder_days: number[];
+            }) => ({
               id: r.id,
-              time: r.time,
-              days_of_week: r.days_of_week,
+              time: r.reminder_time?.slice(0, 5) ?? "21:00",
+              days_of_week: r.reminder_days ?? [],
             }),
           ),
         });
