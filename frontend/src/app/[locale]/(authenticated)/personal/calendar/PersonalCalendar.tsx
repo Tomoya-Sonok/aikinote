@@ -418,18 +418,19 @@ export function PersonalCalendar() {
       </div>
 
       <p className={styles.legend}>
-        {t("personalCalendar.legend")}
+        <span>{t("personalCalendar.legend")}</span>
         {reminderEnabled && reminders.length > 0 && (
-          <>
-            {"　"}
-            <BellRingingIcon
-              size={10}
-              weight="fill"
-              style={{ verticalAlign: "middle", opacity: 0.6 }}
-            />
-            {"："}
-            {t("personalCalendar.legendReminder")}
-          </>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "2px",
+              marginLeft: "8px",
+            }}
+          >
+            <BellRingingIcon size={10} weight="fill" style={{ opacity: 0.6 }} />
+            ：{t("personalCalendar.legendReminder")}
+          </span>
         )}
       </p>
 

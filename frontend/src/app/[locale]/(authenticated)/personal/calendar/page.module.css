@@ -126,6 +126,10 @@
   border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-xs);
   color: var(--text-light);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
 }
 
 @media (min-width: 481px) {
