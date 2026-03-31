@@ -534,7 +534,10 @@
     "clearGoal": "Clear goal",
     "goalPlaceholder": "Count",
     "goalSave": "Save",
-    "goalSaved": "Goal saved"
+    "goalSaved": "Goal saved",
+    "reminderLabel": "Reminders:",
+    "reminderSetup": "Set up reminders",
+    "reminderChange": "Edit settings"
   },
   "filter": {
     "clearFilters": "Clear filters",

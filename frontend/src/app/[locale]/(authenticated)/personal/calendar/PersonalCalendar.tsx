@@ -146,6 +146,10 @@ export function PersonalCalendar() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminders, setReminders] = useState<
+    Array<{ reminder_time: string; reminder_days: number[] }>
+  >([]);
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -229,6 +233,27 @@ export function PersonalCalendar() {
   useEffect(() => {
     void fetchMonthData();
   }, [fetchMonthData]);
+
+  // リマインダーデータ取得
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch("/api/notification-preferences", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.data) {
+          setReminderEnabled(data.data.preferences?.reminder_enabled ?? false);
+          setReminders(
+            (data.data.reminders ?? []).map(
+              (r: { reminder_time: string; reminder_days: number[] }) => ({
+                reminder_time: r.reminder_time,
+                reminder_days: r.reminder_days,
+              }),
+            ),
+          );
+        }
+      })
+      .catch(() => {});
+  }, [user?.id]);
 
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentMonth((prev) => {
@@ -370,6 +395,13 @@ export function PersonalCalendar() {
               onDateClick={handleDateClick}
               highlightSelectedDate={false}
               getDateStatus={(date) => dayStatusMap[formatDateKey(date)]}
+              highlightedDaysOfWeek={
+                reminderEnabled && reminders.length > 0
+                  ? Array.from(
+                      new Set(reminders.flatMap((r) => r.reminder_days)),
+                    )
+                  : undefined
+              }
               onMonthChange={navigateMonth}
             />
           </div>
@@ -383,7 +415,13 @@ export function PersonalCalendar() {
 
       <p className={styles.legend}>{t("personalCalendar.legend")}</p>
 
-      <CalendarFooter dayStatusMap={dayStatusMap} currentMonth={currentMonth} />
+      <CalendarFooter
+        dayStatusMap={dayStatusMap}
+        currentMonth={currentMonth}
+        locale={locale}
+        reminderEnabled={reminderEnabled}
+        reminders={reminders}
+      />
 
       <CalendarActionModal
         isOpen={isActionModalOpen}

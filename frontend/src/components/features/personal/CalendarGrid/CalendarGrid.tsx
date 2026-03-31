@@ -1,5 +1,6 @@
 "use client";
 
+import { BellRingingIcon } from "@phosphor-icons/react";
 import {
   type PointerEvent as ReactPointerEvent,
   useCallback,
@@ -38,6 +39,7 @@ interface CalendarGridProps {
   highlightRange?: boolean;
   classNames?: CalendarGridClassNames;
   getDateStatus?: (date: Date) => CalendarDayStatus | undefined;
+  highlightedDaysOfWeek?: number[];
   onMonthChange?: (direction: "prev" | "next") => void;
 }
 
@@ -100,6 +102,7 @@ export function CalendarGrid({
   highlightRange = false,
   classNames,
   getDateStatus,
+  highlightedDaysOfWeek,
   onMonthChange,
 }: CalendarGridProps) {
   const today = useMemo(() => new Date(), []);
@@ -238,6 +241,10 @@ export function CalendarGrid({
               ? isSameDate(selectedDate, date)
               : false;
           const isAttended = isCurrentMonth && Boolean(status?.isAttended);
+          const hasReminderMark =
+            isCurrentMonth &&
+            highlightedDaysOfWeek !== undefined &&
+            highlightedDaysOfWeek.includes(date.getDay());
           const dotCount = isCurrentMonth
             ? Math.min(status?.pageCount ?? 0, 3)
             : 0;
@@ -295,6 +302,13 @@ export function CalendarGrid({
               className={buttonClass}
               onClick={() => onDateClick(date, isCurrentMonth)}
             >
+              {hasReminderMark && (
+                <BellRingingIcon
+                  size={10}
+                  weight="fill"
+                  className={styles.reminderIcon}
+                />
+              )}
               <span
                 className={[
                   styles.dayNumber,

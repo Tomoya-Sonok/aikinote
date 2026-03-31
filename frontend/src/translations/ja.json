@@ -536,7 +536,10 @@
     "clearGoal": "目標を取消",
     "goalPlaceholder": "回数",
     "goalSave": "保存",
-    "goalSaved": "目標を保存しました"
+    "goalSaved": "目標を保存しました",
+    "reminderLabel": "リマインダー:",
+    "reminderSetup": "リマインダーを設定",
+    "reminderChange": "設定を変更"
   },
   "filter": {
     "clearFilters": "絞り込みをクリア",

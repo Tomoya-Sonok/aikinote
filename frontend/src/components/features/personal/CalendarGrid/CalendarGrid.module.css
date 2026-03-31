@@ -27,6 +27,7 @@
 }
 
 .dayButton {
+  position: relative;
   aspect-ratio: 1;
   border: 1px solid transparent;
   background: var(--white);
@@ -39,6 +40,14 @@
   align-items: center;
   gap: 3px;
   padding: 2px;
+}
+
+.reminderIcon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: var(--primary-color);
+  opacity: 0.4;
 }
 
 .dayButton:hover {

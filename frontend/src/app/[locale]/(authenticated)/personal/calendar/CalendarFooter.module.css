@@ -9,6 +9,18 @@
   padding: 12px 0;
 }
 
+.reminderSection {
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.reminderSummary {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  text-align: right;
+}
+
 .monthlyHeader {
   display: flex;
   align-items: baseline;
