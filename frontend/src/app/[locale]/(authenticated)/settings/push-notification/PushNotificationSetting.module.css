@@ -198,6 +198,10 @@
   cursor: pointer;
   transition: all 0.2s;
   font-family: var(--font-ui);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .addReminderButton:hover {
