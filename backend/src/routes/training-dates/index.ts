@@ -246,20 +246,23 @@ app.get("/count", async (c) => {
     const from = c.req.query("from");
     const to = c.req.query("to");
 
-    if (!from || !to) {
-      return c.json(
-        { success: false, error: "from と to パラメータは必須です" },
-        400,
-      );
+    if (!to) {
+      return c.json({ success: false, error: "to パラメータは必須です" }, 400);
     }
 
-    const { count, error } = await supabase
+    // 前回審査日を含まず（gt）、次回審査日を含まず（lt）
+    let query = supabase
       .from("TrainingDate")
       .select("id", { count: "exact", head: true })
       .eq("user_id", payload.userId)
       .eq("is_attended", true)
-      .gte("training_date", from)
-      .lte("training_date", to);
+      .lt("training_date", to);
+
+    if (from) {
+      query = query.gt("training_date", from);
+    }
+
+    const { count, error } = await query;
 
     if (error) {
       console.error("出席日数カウントエラー:", error);

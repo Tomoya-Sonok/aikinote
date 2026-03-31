@@ -384,6 +384,17 @@ export function CalendarFooter({
                 ))}
               </select>
             </label>
+            {examRankInput !== "五級" && (
+              <label className={styles.examFormLabel}>
+                {t("prevExamDate")}
+                <input
+                  type="date"
+                  value={prevExamDateInput}
+                  onChange={(e) => setPrevExamDateInput(e.target.value)}
+                  className={styles.examFormInput}
+                />
+              </label>
+            )}
             <label className={styles.examFormLabel}>
               {t("examDate")}
               <input
@@ -403,17 +414,6 @@ export function CalendarFooter({
                 className={styles.examFormInput}
               />
             </label>
-            {examRankInput !== "五級" && (
-              <label className={styles.examFormLabel}>
-                {t("prevExamDate")}
-                <input
-                  type="date"
-                  value={prevExamDateInput}
-                  onChange={(e) => setPrevExamDateInput(e.target.value)}
-                  className={styles.examFormInput}
-                />
-              </label>
-            )}
             <div className={styles.examFormActions}>
               <button
                 type="button"

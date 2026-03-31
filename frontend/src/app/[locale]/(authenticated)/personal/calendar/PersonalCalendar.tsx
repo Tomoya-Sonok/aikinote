@@ -279,12 +279,11 @@ export function PersonalCalendar() {
       const json = await res.json();
       if (json?.data) {
         setExamGoal(json.data);
-        // 稽古日数カウント取得
-        const today = new Date();
-        const toDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-        const fromDate = json.data.prev_exam_date || undefined;
-        const params = new URLSearchParams({ to: toDate });
-        if (fromDate) params.set("from", fromDate);
+        // 稽古日数カウント取得（前回審査日 < x < 次回審査日）
+        const params = new URLSearchParams({ to: json.data.exam_date });
+        if (json.data.prev_exam_date) {
+          params.set("from", json.data.prev_exam_date);
+        }
         const countRes = await fetch(
           `/api/training-dates-count?${params.toString()}`,
           { credentials: "include" },
