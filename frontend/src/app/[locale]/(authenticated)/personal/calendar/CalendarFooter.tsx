@@ -301,7 +301,7 @@ export function CalendarFooter({
       </div>
 
       {/* リマインダーセクション */}
-      <div className={styles.reminderSection}>
+      <div className={styles.section}>
         <div className={styles.monthlyHeader}>
           <span className={styles.monthlyLabel}>{t("reminderLabel")}</span>
           {reminderEnabled && reminders.length > 0 ? (
@@ -336,7 +336,7 @@ export function CalendarFooter({
       </div>
 
       {/* 審査目標セクション */}
-      <div className={styles.examSection}>
+      <div className={styles.section}>
         {isPremium ? (
           examGoal && !isEditingExam ? (
             <>

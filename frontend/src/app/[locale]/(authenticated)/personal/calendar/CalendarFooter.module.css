@@ -3,15 +3,19 @@
   margin: 12px 20px 32px;
   background: var(--bg-white);
   border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .section {
-  padding: 12px 0;
+  border-top: 1px solid var(--border-color);
+  padding: 12px 0 0;
 }
 
-.reminderSection {
-  padding: 12px 0 0;
-  border-top: 1px solid var(--border-color);
+.section:first-child {
+  border-top: none;
+  padding-top: 0;
 }
 
 .reminderSummary {
@@ -130,12 +134,6 @@
 .goalSaveButton:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* 審査目標セクション */
-.examSection {
-  padding: 12px 0 0;
-  border-top: 1px solid var(--border-color);
 }
 
 .examProgressRow {
