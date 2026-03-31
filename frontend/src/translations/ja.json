@@ -550,8 +550,8 @@
     "examClear": "取消",
     "examSaved": "審査目標を保存しました",
     "examRank": "受験する段級位",
-    "examDate": "審査日",
-    "prevExamDate": "前回の審査日（任意）",
+    "examDate": "次回の審査日",
+    "prevExamDate": "前回の審査日",
     "examTargetDays": "必要稽古日数",
     "examPremium": "Premium で審査管理",
     "legendExam": "審査日"

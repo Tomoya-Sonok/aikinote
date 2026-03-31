@@ -254,7 +254,7 @@ app.get("/count", async (c) => {
     }
 
     const { count, error } = await supabase
-      .from("training_dates")
+      .from("TrainingDate")
       .select("id", { count: "exact", head: true })
       .eq("user_id", payload.userId)
       .eq("is_attended", true)

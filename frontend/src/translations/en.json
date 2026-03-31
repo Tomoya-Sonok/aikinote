@@ -548,8 +548,8 @@
     "examClear": "Clear",
     "examSaved": "Exam goal saved",
     "examRank": "Target rank",
-    "examDate": "Exam date",
-    "prevExamDate": "Previous exam date (optional)",
+    "examDate": "Next exam date",
+    "prevExamDate": "Previous exam date",
     "examTargetDays": "Required training days",
     "examPremium": "Exam tracking with Premium",
     "legendExam": "Exam day"
