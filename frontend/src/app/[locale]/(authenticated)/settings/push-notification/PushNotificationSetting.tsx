@@ -292,43 +292,6 @@ export function PushNotificationSetting({
 
   const activeReminders = preferences.reminders.filter((r) => !r._deleted);
 
-  // Free ユーザー: コンテンツ表示 + モーダル + previewLock
-  if (!isPremium) {
-    return (
-      <MinimalLayout
-        headerTitle={t("pushNotification.title")}
-        backHref={`/${locale}/mypage`}
-      >
-        <div className={styles.container}>
-          <p className={styles.description}>
-            {t("pushNotification.description")}
-          </p>
-        </div>
-
-        {showPreviewLock && (
-          <div className={styles.previewLock}>
-            <div className={styles.previewLockContent}>
-              <p className={styles.previewLockTitle}>{tPremium("title")}</p>
-              <button
-                type="button"
-                className={styles.previewLockButton}
-                onClick={() => setShowUpgradeModal(true)}
-              >
-                {tPremium("upgradeMain")}
-              </button>
-            </div>
-          </div>
-        )}
-
-        <PremiumUpgradeModal
-          isOpen={showUpgradeModal}
-          onClose={handleDismissModal}
-          translationKey="premiumModalCalendar"
-        />
-      </MinimalLayout>
-    );
-  }
-
   return (
     <MinimalLayout
       headerTitle={t("pushNotification.title")}
@@ -466,11 +429,35 @@ export function PushNotificationSetting({
           type="button"
           className={styles.saveButton}
           onClick={handleSave}
-          disabled={saving}
+          disabled={saving || !isPremium}
         >
           {saving ? t("pushNotification.saving") : t("pushNotification.save")}
         </button>
       </div>
+
+      {/* Free ユーザー: previewLock + PremiumUpgradeModal */}
+      {!isPremium && showPreviewLock && (
+        <div className={styles.previewLock}>
+          <div className={styles.previewLockContent}>
+            <p className={styles.previewLockTitle}>{tPremium("title")}</p>
+            <button
+              type="button"
+              className={styles.previewLockButton}
+              onClick={() => setShowUpgradeModal(true)}
+            >
+              {tPremium("upgradeMain")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!isPremium && (
+        <PremiumUpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={handleDismissModal}
+          translationKey="premiumModalCalendar"
+        />
+      )}
     </MinimalLayout>
   );
 }
