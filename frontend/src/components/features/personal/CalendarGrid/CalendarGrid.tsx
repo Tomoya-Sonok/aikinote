@@ -109,6 +109,16 @@ export function CalendarGrid({
 }: CalendarGridProps) {
   const today = useMemo(() => new Date(), []);
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
+  const examDateParts = useMemo(() => {
+    if (!examDate) return null;
+    const parts = examDate.split("-");
+    if (parts.length !== 3) return null;
+    return {
+      year: Number(parts[0]),
+      month: Number(parts[1]),
+      day: Number(parts[2]),
+    };
+  }, [examDate]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerIdRef = useRef<number | null>(null);
@@ -247,16 +257,12 @@ export function CalendarGrid({
             isCurrentMonth &&
             highlightedDaysOfWeek !== undefined &&
             highlightedDaysOfWeek.includes(date.getDay());
-          const isExamDay = (() => {
-            if (!isCurrentMonth || !examDate) return false;
-            const parts = examDate.split("-");
-            if (parts.length !== 3) return false;
-            return (
-              date.getFullYear() === Number(parts[0]) &&
-              date.getMonth() + 1 === Number(parts[1]) &&
-              date.getDate() === Number(parts[2])
-            );
-          })();
+          const isExamDay =
+            isCurrentMonth &&
+            examDateParts !== null &&
+            date.getFullYear() === examDateParts.year &&
+            date.getMonth() + 1 === examDateParts.month &&
+            date.getDate() === examDateParts.day;
           const dotCount = isCurrentMonth
             ? Math.min(status?.pageCount ?? 0, 3)
             : 0;

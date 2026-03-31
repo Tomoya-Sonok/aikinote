@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { useToast } from "@/contexts/ToastContext";
@@ -67,7 +67,6 @@ export function CalendarFooter({
   onExamGoalSaved,
 }: CalendarFooterProps) {
   const t = useTranslations("personalCalendar");
-  const currentLocale = useLocale();
   const { isPremium } = useSubscription();
   const { showToast } = useToast();
   const [goal, setGoal] = useState<number | null>(null);
@@ -462,42 +461,40 @@ export function CalendarFooter({
         )}
       </div>
 
-      {/* リマインダーセクション（Premium のみ） */}
-      {isPremium && (
-        <div className={styles.section}>
-          <div className={styles.monthlyHeader}>
-            <span className={styles.monthlyLabel}>{t("reminderLabel")}</span>
-            {reminderEnabled && reminders.length > 0 ? (
-              <span className={styles.reminderSummary}>
-                {formatReminderSummary(reminders, locale)}
-              </span>
-            ) : (
-              <button
-                type="button"
-                className={styles.goalLink}
-                onClick={() => {
-                  window.location.href = `/${locale}/settings/push-notification`;
-                }}
-              >
-                {t("reminderSetup")} →
-              </button>
-            )}
-          </div>
-          {reminderEnabled && reminders.length > 0 && (
-            <div className={styles.goalLinkRow}>
-              <button
-                type="button"
-                className={styles.goalLink}
-                onClick={() => {
-                  window.location.href = `/${locale}/settings/push-notification`;
-                }}
-              >
-                {t("reminderChange")} →
-              </button>
-            </div>
+      {/* リマインダーセクション */}
+      <div className={styles.section}>
+        <div className={styles.monthlyHeader}>
+          <span className={styles.monthlyLabel}>{t("reminderLabel")}</span>
+          {reminderEnabled && reminders.length > 0 ? (
+            <span className={styles.reminderSummary}>
+              {formatReminderSummary(reminders, locale)}
+            </span>
+          ) : (
+            <button
+              type="button"
+              className={styles.goalLink}
+              onClick={() => {
+                location.replace(`/${locale}/settings/push-notification`);
+              }}
+            >
+              {t("reminderSetup")} →
+            </button>
           )}
         </div>
-      )}
+        {reminderEnabled && reminders.length > 0 && (
+          <div className={styles.goalLinkRow}>
+            <button
+              type="button"
+              className={styles.goalLink}
+              onClick={() => {
+                location.replace(`/${locale}/settings/push-notification`);
+              }}
+            >
+              {t("reminderChange")} →
+            </button>
+          </div>
+        )}
+      </div>
 
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}

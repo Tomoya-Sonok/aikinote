@@ -480,37 +480,15 @@ export function PersonalCalendar() {
         )}
         {hasPages && <span>・：{t("personalCalendar.legendPages")}</span>}
         {reminderEnabled && reminders.length > 0 && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "2px",
-            }}
-          >
+          <span className={styles.legendItem}>
             <BellRingingIcon size={10} weight="fill" style={{ opacity: 0.6 }} />
             ：{t("personalCalendar.legendReminder")}
           </span>
         )}
         {examGoal && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "2px",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-block",
-                width: "12px",
-                height: "2px",
-                background: "var(--error-color)",
-                borderRadius: "1px",
-                verticalAlign: "middle",
-                marginRight: "2px",
-              }}
-            />
-            ：{t("personalCalendar.legendExam")}
+          <span className={styles.legendItem}>
+            <span className={styles.legendExamLine} />：
+            {t("personalCalendar.legendExam")}
           </span>
         )}
       </div>

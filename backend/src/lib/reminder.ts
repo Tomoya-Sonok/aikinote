@@ -274,7 +274,7 @@ async function processStreakNotifications(
 
   // 3. 今週に稽古参加があるユーザーを取得
   const { data: attendedRecords, error: attendError } = await supabase
-    .from("training_dates")
+    .from("TrainingDate")
     .select("user_id")
     .in("user_id", userIds)
     .eq("is_attended", true)

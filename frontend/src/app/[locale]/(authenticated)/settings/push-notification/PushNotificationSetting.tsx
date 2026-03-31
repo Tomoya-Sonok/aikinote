@@ -32,6 +32,15 @@ interface NotificationPreferences {
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
+const DEFAULT_PREFERENCES: NotificationPreferences = {
+  notify_favorite: true,
+  notify_reply: true,
+  notify_reply_to_thread: true,
+  notify_streak: true,
+  reminder_enabled: false,
+  reminders: [],
+};
+
 export function PushNotificationSetting({
   locale,
 }: PushNotificationSettingProps) {
@@ -92,25 +101,10 @@ export function PushNotificationSetting({
             ),
           });
         } else {
-          // デフォルト値を設定
-          setPreferences({
-            notify_favorite: true,
-            notify_reply: true,
-            notify_reply_to_thread: true,
-            notify_streak: true,
-            reminder_enabled: false,
-            reminders: [],
-          });
+          setPreferences({ ...DEFAULT_PREFERENCES });
         }
       } catch {
-        setPreferences({
-          notify_favorite: true,
-          notify_reply: true,
-          notify_reply_to_thread: true,
-          notify_streak: true,
-          reminder_enabled: false,
-          reminders: [],
-        });
+        setPreferences({ ...DEFAULT_PREFERENCES });
       } finally {
         setLoading(false);
       }

@@ -76,7 +76,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 
   const handlePushNotificationClick = () => {
     setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/push-notification`;
+    location.replace(`/${locale}/settings/push-notification`);
   };
 
   useEffect(() => {
