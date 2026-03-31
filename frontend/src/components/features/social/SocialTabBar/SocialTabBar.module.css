@@ -1,5 +1,6 @@
 .tabBar {
   display: flex;
+  position: relative;
 }
 
 .tab {
@@ -27,13 +28,27 @@
   font-weight: 600;
 }
 
-.tab.active::after {
-  content: "";
+/* インジケーター（実DOM要素） */
+.indicator {
   position: absolute;
   bottom: 0;
-  left: 20%;
-  right: 20%;
+  left: 0;
+  /* 各タブ幅の60%: (100% / 3) * 0.6 = 20% */
+  width: calc(100% / 3 * 0.6);
+  /* 各タブ内で中央に配置: (100% / 3) * 0.2 = 左マージン分 */
+  margin-left: calc(100% / 3 * 0.2);
   height: 2px;
   background: var(--primary-color);
   border-radius: 1px;
+  will-change: transform;
+}
+
+.indicatorAnimated {
+  transition: transform 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabBar .indicatorAnimated {
+    transition-duration: 0s;
+  }
 }

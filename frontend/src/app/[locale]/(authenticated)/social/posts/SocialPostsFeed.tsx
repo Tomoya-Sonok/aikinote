@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
 import styles from "./page.module.css";
 
@@ -53,6 +54,34 @@ export function SocialPostsFeed() {
     useState<string>("premiumModalBrowse");
 
   const isFreeUser = !subLoading && !isPremium;
+
+  const handleSwipeTabChange = useCallback(
+    (newTab: string): boolean => {
+      if (isFreeUser && newTab === "favorites") {
+        setShowUpgradeModal(true);
+        return false;
+      }
+      const tab = newTab as SocialTab;
+      setActiveTab(tab);
+      const url = new URL(window.location.href);
+      if (tab === "all") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", tab);
+      }
+      window.history.replaceState(null, "", url.toString());
+      return true;
+    },
+    [isFreeUser],
+  );
+
+  const { containerRef, handlers, swipeProgress, isDragging } =
+    useSwipeNavigation({
+      tabs: VALID_TABS,
+      activeTab,
+      onTabChange: handleSwipeTabChange,
+      enabled: !subLoading,
+    });
 
   // Intersection Observer で無限スクロール
   const loadMoreRef = useRef(loadMore);
@@ -121,9 +150,17 @@ export function SocialPostsFeed() {
   return (
     <SocialLayout>
       <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
-      <SocialTabBar activeTab={activeTab} onTabChange={handleTabChange} />
+      <SocialTabBar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        swipeProgress={isDragging ? swipeProgress : 0}
+      />
 
-      <div className={styles.feedContainer}>
+      <div
+        ref={containerRef}
+        className={`${styles.feedContainer} ${isDragging ? styles.feedContainerSwiping : ""}`}
+        {...handlers}
+      >
         {isLoading ? (
           <SocialPostCardSkeleton />
         ) : posts.length === 0 ? (

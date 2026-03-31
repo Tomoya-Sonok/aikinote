@@ -9,6 +9,12 @@
   min-height: calc(100vh - 200px);
   padding-bottom: 60px;
   background: var(--bg-base);
+  touch-action: pan-y;
+}
+
+.feedContainerSwiping {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .emptyMessage {
