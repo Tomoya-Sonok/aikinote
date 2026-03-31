@@ -450,7 +450,9 @@
     "signupWithEmail": "Sign up with email",
     "agreementText": "I agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>",
     "startWithApple": "Continue with Apple",
-    "startWithGoogle": "Continue with Google"
+    "startWithGoogle": "Continue with Google",
+    "loginSubtitle": "Log in with your preferred method",
+    "loginWithEmail": "Log in with email"
   },
   "components": {
     "profileImage": "profile image",

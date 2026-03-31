@@ -452,7 +452,9 @@
     "signupWithEmail": "メールアドレスで登録",
     "agreementText": "<terms>利用規約</terms> および <privacy>プライバシーポリシー</privacy> に同意します",
     "startWithApple": "Appleで始める",
-    "startWithGoogle": "Googleで始める"
+    "startWithGoogle": "Googleで始める",
+    "loginSubtitle": "お好きな方法でログイン",
+    "loginWithEmail": "メールアドレスでログイン"
   },
   "components": {
     "profileImage": "プロフィール画像",

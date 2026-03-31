@@ -1,6 +1,6 @@
 /* ログインフォーム全体のコンテナ */
 .container {
-  background-color: var(--bg-base, #f9f8f6);
+  background-color: var(--bg-base);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -14,43 +14,203 @@
   font-size: 20px;
   font-weight: 400;
   line-height: 1.448;
-  color: var(--black, #2c2c2c);
-  margin-bottom: 12px;
+  color: var(--black);
+  margin-bottom: 4px;
   align-self: start;
   margin-left: 4px;
   letter-spacing: 0.06em;
-}
-
-/* フォームカード */
-.formCard {
-  background-color: var(--white, #fdfcfa);
-  border-radius: 8px;
-  padding: 28px;
   width: 100%;
   max-width: 450px;
-  margin: 0 auto;
+}
+
+/* サブタイトル */
+.subtitle {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.448;
+  color: var(--text-light);
+  margin-bottom: 20px;
+  margin-left: 4px;
+  letter-spacing: 0.02em;
+  width: 100%;
+  max-width: 450px;
+}
+
+/* ─── エラー表示 ─── */
+
+.errorCard {
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 16px;
+}
+
+.errorMessage {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.448;
+  color: var(--error-color);
+  margin-top: 4px;
+}
+
+/* ─── ソーシャルログインボタン ─── */
+
+.socialButtons {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  border: 0.5px solid var(--border-color, #e8e4df);
+  gap: 10px;
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 16px;
 }
 
-@media (min-width: 768px) {
-  .container {
-    padding: 0 24px;
-  }
-
-  .formCard {
-    max-width: 580px;
-    padding: 36px;
-  }
-}
-
-.contentsWrapper {
+/* Apple ボタン */
+.appleButton {
+  width: 100%;
+  height: 44px;
+  background: linear-gradient(
+    180deg,
+    var(--disabled-bg-light) 0%,
+    var(--disabled-bg) 60%,
+    var(--disabled-bg-dark) 100%
+  );
+  border: none;
+  border-radius: 10px;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: default;
+  transition: all 0.25s ease;
+  overflow: hidden;
 }
+
+.appleButtonActive {
+  background: var(--black);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.appleButtonActive:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.appleButtonActive:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.appleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Google ボタン */
+.googleButton {
+  width: 100%;
+  height: 44px;
+  background-color: var(--white);
+  border: 0.5px solid var(--border-color);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--black);
+  cursor: pointer;
+  transition: all 0.4s ease-out;
+}
+
+.googleButton:hover:not(:disabled) {
+  background-color: var(--hover-gray);
+  border-color: var(--primary-color);
+}
+
+.googleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ─── 区切り線 ─── */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 16px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.dividerText {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+/* ─── メールログインセクション（折りたたみ式） ─── */
+
+.emailToggleButton {
+  width: 100%;
+  max-width: 450px;
+  height: 44px;
+  background-color: transparent;
+  border: 1.5px dashed var(--border-color);
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+
+.emailToggleButton:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.emailFormCard {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 450px;
+  border: 0.5px solid var(--border-color);
+  animation: slideDown 0.25s ease-out forwards;
+  margin-bottom: 16px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── フォーム要素 ─── */
 
 .form {
   display: flex;
@@ -61,14 +221,15 @@
 .fieldGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .fieldLabel {
   font-family: var(--font-ui);
-  font-size: 16px;
-  font-weight: 400;
-  color: var(--black, #2c2c2c);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 8px;
+  display: block;
   letter-spacing: 0.04em;
 }
 
@@ -111,24 +272,13 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: var(--accent-color);
   font-family: var(--font-ui);
   font-size: 12px;
   cursor: pointer;
 }
 
-.errorMessage {
-  font-family: var(--font-ui);
-  font-size: 12px;
-  line-height: 1.448;
-  color: var(--error-color);
-  margin-top: 4px;
-}
-
-.buttonContainer {
-  display: flex;
-  justify-content: center;
-}
+/* ─── ボタン ─── */
 
 .button {
   height: 40px;
@@ -143,107 +293,43 @@
   letter-spacing: 0.04em;
 }
 
-.primaryButton {
-  background-color: var(--primary-color);
+.emailSubmitButton {
+  background: linear-gradient(180deg, #918f8a 0%, #706e69 60%, #5e5c58 100%);
   color: var(--white);
+  border: none;
 }
 
-.primaryButton:hover:not(:disabled) {
-  background-color: var(--primary-dark);
+.emailSubmitButton:hover:not(:disabled) {
+  background: linear-gradient(180deg, #868480 0%, #656360 60%, #535250 100%);
 }
 
-.primaryButton:disabled {
-  background-color: var(--light-gray);
+.emailSubmitButton:disabled {
+  background: var(--light-gray);
   cursor: not-allowed;
 }
 
-.otherActions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.googleButton {
-  width: 100%;
-  height: 40px;
-  background-color: var(--white);
-  border: 0.5px solid var(--border-color);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--black);
-  cursor: pointer;
-  transition: all 0.4s ease-out;
-}
-
-.googleButton:hover {
-  background-color: var(--hover-gray);
-  border-color: var(--primary-color);
-}
-
-.googleButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.googleIcon {
-  width: 20px;
-  height: 20px;
-}
-
-.appleButton {
-  width: 100%;
-  height: 40px;
-  background-color: var(--white);
-  border: 0.5px solid var(--border-color);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-ui);
-  font-size: 14px;
-  color: var(--black);
-  cursor: pointer;
-  transition: all 0.4s ease-out;
-}
-
-.appleButton:hover {
-  background-color: var(--hover-gray);
-  border-color: var(--primary-color);
-}
-
-.appleButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.appleIcon {
-  width: 20px;
-  height: 20px;
-}
-
+/* パスワードを忘れた場合リンク */
 .forgotPasswordLink {
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.448;
-  color: var(--black);
+  color: var(--accent-color);
   text-align: center;
-  text-decoration: underline;
-  text-decoration-color: var(--primary-color);
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 .forgotPasswordLink:hover {
-  opacity: 0.8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
+
+/* ─── 新規登録リンク ─── */
 
 .signupPrompt {
   text-align: center;
+  width: 100%;
+  max-width: 450px;
+  margin-top: 8px;
 }
 
 .signupPromptText {
@@ -256,6 +342,7 @@
 .signupLink {
   color: var(--black);
   text-decoration: underline;
+  font-weight: 600;
   text-decoration-color: var(--primary-color);
   text-underline-offset: 3px;
 }
@@ -264,12 +351,21 @@
   opacity: 0.8;
 }
 
+/* ─── レスポンシブ ─── */
+
 @media (min-width: 768px) {
   .container {
     padding: 0 20px;
   }
 
-  .formCard {
-    min-width: 342px;
+  .title,
+  .subtitle,
+  .socialButtons,
+  .divider,
+  .emailToggleButton,
+  .emailFormCard,
+  .signupPrompt,
+  .errorCard {
+    max-width: 580px;
   }
 }
