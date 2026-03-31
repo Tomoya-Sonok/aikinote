@@ -539,7 +539,7 @@
     "legendAttendance": "稽古参加",
     "legendPages": "ページ作成数",
     "futureDateError": "未来の日付では操作できません",
-    "monthlyLabel": "今月の稽古参加日数:",
+    "monthlyLabel": "{month}月の稽古参加日数:",
     "monthlyCount": "{count}日",
     "monthlyGoal": "{current} / {goal}日",
     "setGoal": "目標を設定",

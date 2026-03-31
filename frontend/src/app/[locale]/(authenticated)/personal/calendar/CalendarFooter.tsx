@@ -217,7 +217,12 @@ export function CalendarFooter({
     <div className={styles.footer}>
       <div className={styles.section}>
         <div className={styles.monthlyHeader}>
-          <span className={styles.monthlyLabel}>{t("monthlyLabel")}</span>
+          <span className={styles.monthlyLabel}>
+            {t("monthlyLabel", {
+              month: currentMonth.getMonth() + 1,
+              monthName: currentMonth.toLocaleString(locale, { month: "long" }),
+            })}
+          </span>
           <span
             className={`${styles.monthlyCount} ${goal && monthlyCount >= goal ? styles.goalAchieved : ""}`}
           >
