@@ -36,7 +36,7 @@ export function PushNotificationSetting({
   locale,
 }: PushNotificationSettingProps) {
   const t = useTranslations();
-  const tPremium = useTranslations("premiumModalCalendar");
+  const tPremium = useTranslations("premiumModalPushNotification");
   const { showToast } = useToast();
   const { isPremium, loading: subLoading } = useSubscription();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -455,7 +455,7 @@ export function PushNotificationSetting({
         <PremiumUpgradeModal
           isOpen={showUpgradeModal}
           onClose={handleDismissModal}
-          translationKey="premiumModalCalendar"
+          translationKey="premiumModalPushNotification"
         />
       )}
     </MinimalLayout>

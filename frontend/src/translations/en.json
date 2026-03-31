@@ -332,6 +332,15 @@
     "processing": "Processing...",
     "close": "Count from calendar"
   },
+  "premiumModalPushNotification": {
+    "badge": "PREMIUM",
+    "title": "Stay informed,\nstay connected.",
+    "description": "Customize your SNS notifications and set training reminders to build your practice habit.",
+    "upgradeMain": "Enable push notifications",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Not now"
+  },
   "premiumModalStats": {
     "badge": "PREMIUM",
     "title": "Reflect on your journey\nwith training data",

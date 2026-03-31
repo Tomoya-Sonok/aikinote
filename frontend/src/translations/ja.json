@@ -332,6 +332,15 @@
     "processing": "処理中...",
     "close": "カレンダーから数える"
   },
+  "premiumModalPushNotification": {
+    "badge": "PREMIUM",
+    "title": "知らせを受けとり、\nもっと便利に。",
+    "description": "各種SNS通知の設定や、稽古記録のリマインダー機能であなたの習慣化をお手伝いさせてください。",
+    "upgradeMain": "プッシュ通知を利用する",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "利用しない"
+  },
   "premiumModalStats": {
     "badge": "PREMIUM",
     "title": "稽古の積み重ねを\nデータで振り返ろう",
