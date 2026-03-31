@@ -70,6 +70,23 @@ export function CalendarFooter({
     }
   }, [goalInput, showToast, t]);
 
+  const handleClearGoal = useCallback(async () => {
+    try {
+      const res = await fetch("/api/training-goals", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goal: null }),
+        credentials: "include",
+      });
+      if (res.ok) {
+        setGoal(null);
+        setIsEditingGoal(false);
+      }
+    } catch {
+      // silent
+    }
+  }, []);
+
   const dots = goal
     ? Array.from({ length: goal }, (_, i) => i < monthlyCount)
     : monthlyCount > 0
@@ -79,23 +96,8 @@ export function CalendarFooter({
   return (
     <div className={styles.footer}>
       <div className={styles.section}>
-        <div className={styles.monthlyRow}>
+        <div className={styles.monthlyHeader}>
           <span className={styles.monthlyLabel}>{t("monthlyLabel")}</span>
-
-          {dots && (
-            <div className={styles.dots}>
-              {dots.map((filled, i) => {
-                const key = `dot-${filled ? "f" : "e"}-${i}`;
-                return (
-                  <span
-                    key={key}
-                    className={`${styles.dot} ${filled ? styles.dotFilled : styles.dotEmpty}`}
-                  />
-                );
-              })}
-            </div>
-          )}
-
           <span
             className={`${styles.monthlyCount} ${isPremium && goal && monthlyCount >= goal ? styles.goalAchieved : ""}`}
           >
@@ -103,20 +105,59 @@ export function CalendarFooter({
               ? t("monthlyGoal", { current: monthlyCount, goal })
               : t("monthlyCount", { count: monthlyCount })}
           </span>
-
-          {isPremium && !goal && !isEditingGoal && (
-            <button
-              type="button"
-              className={styles.goalLink}
-              onClick={() => {
-                setGoalInput("8");
-                setIsEditingGoal(true);
-              }}
-            >
-              {t("setGoal")} →
-            </button>
-          )}
         </div>
+
+        {dots && (
+          <div className={styles.dots}>
+            {dots.map((filled, i) => {
+              const key = `dot-${filled ? "f" : "e"}-${i}`;
+              return (
+                <span
+                  key={key}
+                  className={`${styles.dot} ${filled ? styles.dotFilled : styles.dotEmpty}`}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {isPremium && !isEditingGoal && (
+          <div className={styles.goalLinkRow}>
+            {goal ? (
+              <>
+                <button
+                  type="button"
+                  className={styles.goalLink}
+                  onClick={() => {
+                    setGoalInput(String(goal));
+                    setIsEditingGoal(true);
+                  }}
+                >
+                  {t("changeGoal")}
+                </button>
+                <span className={styles.goalLinkSeparator}>|</span>
+                <button
+                  type="button"
+                  className={styles.goalLink}
+                  onClick={handleClearGoal}
+                >
+                  {t("clearGoal")}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className={styles.goalLink}
+                onClick={() => {
+                  setGoalInput("8");
+                  setIsEditingGoal(true);
+                }}
+              >
+                {t("setGoal")} →
+              </button>
+            )}
+          </div>
+        )}
 
         {isEditingGoal && (
           <div className={styles.goalForm}>

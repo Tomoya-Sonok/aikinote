@@ -122,6 +122,8 @@
 
 .legend {
   margin-top: -8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-xs);
   color: var(--text-light);
 }

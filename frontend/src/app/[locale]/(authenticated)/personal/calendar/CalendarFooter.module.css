@@ -1,16 +1,19 @@
 .footer {
-  padding: 8px 20px 32px;
+  padding: 16px 20px;
+  margin: 12px 20px 32px;
+  background: var(--bg-white);
+  border-radius: 16px;
 }
 
 .section {
   padding: 12px 0;
 }
 
-.monthlyRow {
+.monthlyHeader {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .monthlyLabel {
@@ -24,6 +27,7 @@
   gap: 4px;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: 8px;
 }
 
 .dot {
@@ -44,12 +48,18 @@
   font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--black);
-  margin-left: auto;
+  white-space: nowrap;
 }
 
 .goalAchieved {
   color: var(--primary-dark);
   font-weight: 500;
+}
+
+.goalLinkRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
 }
 
 .goalLink {
@@ -59,13 +69,19 @@
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: auto;
   padding: 0;
+}
+
+.goalLinkSeparator {
+  font-size: var(--font-size-xs);
+  color: var(--border-color);
+  margin: 0 4px;
 }
 
 .goalForm {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
 }

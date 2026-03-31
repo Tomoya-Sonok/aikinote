@@ -527,9 +527,11 @@
     "legend": "○: Practice attendance　•: Pages created",
     "futureDateError": "Cannot perform actions on future dates",
     "monthlyLabel": "Training days this month:",
-    "monthlyCount": "{count} sessions",
-    "monthlyGoal": "{current} / {goal} sessions",
+    "monthlyCount": "{count} days",
+    "monthlyGoal": "{current} / {goal} days",
     "setGoal": "Set goal",
+    "changeGoal": "Change goal",
+    "clearGoal": "Clear goal",
     "goalPlaceholder": "Count",
     "goalSave": "Save",
     "goalSaved": "Goal saved"
