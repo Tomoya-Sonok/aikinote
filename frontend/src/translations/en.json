@@ -970,15 +970,17 @@
     "tableHeaderPro": "Premium",
     "categoryPersonal": "Personal",
     "categorySocial": "Social",
-    "categoryMobile": "iOS/Android App",
+    "categoryMobile": "Push Notifications (iOS/Android App Only)",
     "featureRecord": "Create, view & search training records",
     "featureCalendar": "Calendar & training day tracking",
+    "featureExam": "Exam preparation training day tracking",
     "featureStats": "Stats & analytics",
     "featureBrowseOnly": "Browse others' posts & records",
     "featureSearch": "Filter & search posts and records",
     "featurePost": "Post, reply & save favorites",
     "featurePublish": "One-tap training record publish",
     "featurePush": "Push notifications",
+    "featureReminder": "Reminders",
     "mobileNote": "*The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
   },
   "pushNotification": {

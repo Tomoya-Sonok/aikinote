@@ -27,6 +27,7 @@ const FEATURE_MATRIX = [
     features: [
       { nameKey: "featureRecord" as const, free: true, pro: true },
       { nameKey: "featureCalendar" as const, free: true, pro: true },
+      { nameKey: "featureExam" as const, free: false, pro: true },
       { nameKey: "featureStats" as const, free: false, pro: true },
     ],
   },
@@ -41,7 +42,10 @@ const FEATURE_MATRIX = [
   },
   {
     categoryKey: "categoryMobile" as const,
-    features: [{ nameKey: "featurePush" as const, free: false, pro: true }],
+    features: [
+      { nameKey: "featurePush" as const, free: false, pro: true },
+      { nameKey: "featureReminder" as const, free: false, pro: true },
+    ],
   },
 ];
 

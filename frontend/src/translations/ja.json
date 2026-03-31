@@ -972,15 +972,17 @@
     "tableHeaderPro": "Premium",
     "categoryPersonal": "ひとりで",
     "categorySocial": "みんなで",
-    "categoryMobile": "iOS/Androidアプリ版",
+    "categoryMobile": "プッシュ通知（iOS/Androidアプリ限定）",
     "featureRecord": "稽古記録の作成・閲覧・検索",
     "featureCalendar": "カレンダー・稽古日数管理",
+    "featureExam": "審査に必要な稽古日数算出",
     "featureStats": "統計データ",
     "featureBrowseOnly": "他の投稿・稽古記録の閲覧",
     "featureSearch": "投稿・稽古記録の絞り込み検索",
     "featurePost": "投稿・返信・お気に入り保存",
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "プッシュ通知",
+    "featureReminder": "リマインダー",
     "mobileNote": "*アプリ版は鋭意開発中です。リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせいたします。"
   },
   "pushNotification": {
