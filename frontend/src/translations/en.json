@@ -327,10 +327,10 @@
     "badge": "PREMIUM",
     "title": "Set clear goals\nfor your practice",
     "description": "Track your progress towards exams, set training reminders, and stay on top of your Aikido journey.",
-    "upgradeMain": "Unlock Exam Tracking",
+    "upgradeMain": "Track training days for your exam",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Just keep recording"
+    "close": "Count from calendar"
   },
   "premiumModalStats": {
     "badge": "PREMIUM",

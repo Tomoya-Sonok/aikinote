@@ -327,10 +327,10 @@
     "badge": "PREMIUM",
     "title": "稽古の目標を、\n明確にしよう",
     "description": "審査に向けた稽古日数の進捗管理や、稽古記録のリマインダー設定で、あなたの稽古をサポートします。",
-    "upgradeMain": "審査管理 を使う",
+    "upgradeMain": "審査に向けて稽古日数を管理",
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
-    "close": "記録だけ続ける"
+    "close": "カレンダーから数える"
   },
   "premiumModalStats": {
     "badge": "PREMIUM",
