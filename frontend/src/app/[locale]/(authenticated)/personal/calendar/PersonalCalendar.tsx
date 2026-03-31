@@ -1,6 +1,10 @@
 "use client";
 
-import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
+import {
+  BellRingingIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+} from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -413,7 +417,21 @@ export function PersonalCalendar() {
         </div>
       </div>
 
-      <p className={styles.legend}>{t("personalCalendar.legend")}</p>
+      <p className={styles.legend}>
+        {t("personalCalendar.legend")}
+        {reminderEnabled && reminders.length > 0 && (
+          <>
+            {"　"}
+            <BellRingingIcon
+              size={10}
+              weight="fill"
+              style={{ verticalAlign: "middle", opacity: 0.6 }}
+            />
+            {"："}
+            {t("personalCalendar.legendReminder")}
+          </>
+        )}
+      </p>
 
       <CalendarFooter
         dayStatusMap={dayStatusMap}
