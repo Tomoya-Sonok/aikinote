@@ -148,24 +148,6 @@
   color: var(--text-light);
 }
 
-.examPremiumLink {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.examPremiumText {
-  font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
-  color: var(--text-light);
-  opacity: 0.5;
-}
-
 .examForm {
   display: flex;
   flex-direction: column;

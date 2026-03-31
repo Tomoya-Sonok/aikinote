@@ -323,6 +323,15 @@
     "processing": "処理中...",
     "close": "今は閲覧だけでいい"
   },
+  "premiumModalCalendar": {
+    "badge": "PREMIUM",
+    "title": "稽古の目標を、\n明確にしよう",
+    "description": "審査に向けた稽古日数の進捗管理や、稽古記録のリマインダー設定で、あなたの稽古をサポートします。",
+    "upgradeMain": "審査管理 を使う",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "記録だけ続ける"
+  },
   "premiumModalStats": {
     "badge": "PREMIUM",
     "title": "稽古の積み重ねを\nデータで振り返ろう",

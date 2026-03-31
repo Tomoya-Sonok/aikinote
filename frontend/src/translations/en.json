@@ -323,6 +323,15 @@
     "processing": "Processing...",
     "close": "Just browsing for now"
   },
+  "premiumModalCalendar": {
+    "badge": "PREMIUM",
+    "title": "Set clear goals\nfor your practice",
+    "description": "Track your progress towards exams, set training reminders, and stay on top of your Aikido journey.",
+    "upgradeMain": "Unlock Exam Tracking",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Just keep recording"
+  },
   "premiumModalStats": {
     "badge": "PREMIUM",
     "title": "Reflect on your journey\nwith training data",
