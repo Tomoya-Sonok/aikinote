@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/contexts/ToastContext";
+import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import styles from "./CalendarFooter.module.css";
 
@@ -16,12 +17,22 @@ interface ReminderData {
   reminder_days: number[];
 }
 
+interface ExamGoalData {
+  exam_rank: string;
+  exam_date: string;
+  prev_exam_date: string | null;
+  target_attendance: number;
+}
+
 interface CalendarFooterProps {
   dayStatusMap: Record<string, DayStatus>;
   currentMonth: Date;
   locale: string;
   reminderEnabled: boolean;
   reminders: ReminderData[];
+  examGoal: ExamGoalData | null;
+  examAttendanceCount: number;
+  onExamGoalSaved: () => void;
 }
 
 const DAY_LABELS_JA = ["日", "月", "火", "水", "木", "金", "土"];
@@ -50,13 +61,22 @@ export function CalendarFooter({
   locale,
   reminderEnabled,
   reminders,
+  examGoal,
+  examAttendanceCount,
+  onExamGoalSaved,
 }: CalendarFooterProps) {
   const t = useTranslations("personalCalendar");
+  const currentLocale = useLocale();
   const { isPremium } = useSubscription();
   const { showToast } = useToast();
   const [goal, setGoal] = useState<number | null>(null);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState("");
+  const [isEditingExam, setIsEditingExam] = useState(false);
+  const [examRankInput, setExamRankInput] = useState("");
+  const [examDateInput, setExamDateInput] = useState("");
+  const [prevExamDateInput, setPrevExamDateInput] = useState("");
+  const [examTargetInput, setExamTargetInput] = useState("");
 
   // 今月の参加回数を計算
   const year = currentMonth.getFullYear();
@@ -117,6 +137,72 @@ export function CalendarFooter({
       // silent
     }
   }, []);
+
+  const handleSaveExamGoal = useCallback(async () => {
+    if (!examRankInput || !examDateInput || !examTargetInput) return;
+    const targetValue = Number.parseInt(examTargetInput, 10);
+    if (Number.isNaN(targetValue) || targetValue < 1) return;
+
+    try {
+      const res = await fetch("/api/exam-goals", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exam_rank: examRankInput,
+          exam_date: examDateInput,
+          prev_exam_date: prevExamDateInput || null,
+          target_attendance: targetValue,
+        }),
+        credentials: "include",
+      });
+      if (res.ok) {
+        setIsEditingExam(false);
+        showToast(t("examSaved"), "success");
+        onExamGoalSaved();
+      }
+    } catch {
+      // silent
+    }
+  }, [
+    examRankInput,
+    examDateInput,
+    prevExamDateInput,
+    examTargetInput,
+    showToast,
+    t,
+    onExamGoalSaved,
+  ]);
+
+  const handleClearExamGoal = useCallback(async () => {
+    try {
+      const res = await fetch("/api/exam-goals", {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setIsEditingExam(false);
+        onExamGoalSaved();
+      }
+    } catch {
+      // silent
+    }
+  }, [onExamGoalSaved]);
+
+  // 審査日までの残り日数
+  const examDaysLeft = examGoal
+    ? Math.ceil(
+        (new Date(examGoal.exam_date).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24),
+      )
+    : 0;
+
+  // 審査目標の達成度ドット列
+  const examDots = examGoal
+    ? Array.from(
+        { length: examGoal.target_attendance },
+        (_, i) => i < examAttendanceCount,
+      )
+    : null;
 
   const dots = goal
     ? Array.from({ length: goal }, (_, i) => i < monthlyCount)
@@ -244,6 +330,162 @@ export function CalendarFooter({
               {t("reminderChange")} →
             </button>
           </div>
+        )}
+      </div>
+
+      {/* 審査目標セクション */}
+      <div className={styles.examSection}>
+        {isPremium ? (
+          examGoal && !isEditingExam ? (
+            <>
+              <div className={styles.monthlyHeader}>
+                <span className={styles.monthlyLabel}>
+                  {t("examRankLabel", { rank: examGoal.exam_rank })}
+                </span>
+                <span className={styles.monthlyCount}>
+                  {t("examDaysLeft", { days: examDaysLeft })}
+                </span>
+              </div>
+              {examDots && (
+                <div className={styles.dots}>
+                  {examDots.map((filled, i) => {
+                    const key = `exam-dot-${filled ? "f" : "e"}-${i}`;
+                    return (
+                      <span
+                        key={key}
+                        className={`${styles.dot} ${filled ? styles.dotFilled : styles.dotEmpty}`}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+              <div className={styles.examProgressRow}>
+                <span className={styles.examProgressText}>
+                  {t("examProgress", {
+                    current: examAttendanceCount,
+                    goal: examGoal.target_attendance,
+                  })}
+                </span>
+              </div>
+              <div className={styles.goalLinkRow}>
+                <button
+                  type="button"
+                  className={styles.goalLink}
+                  onClick={() => {
+                    setExamRankInput(examGoal.exam_rank);
+                    setExamDateInput(examGoal.exam_date);
+                    setPrevExamDateInput(examGoal.prev_exam_date ?? "");
+                    setExamTargetInput(String(examGoal.target_attendance));
+                    setIsEditingExam(true);
+                  }}
+                >
+                  {t("examChange")}
+                </button>
+                <span className={styles.goalLinkSeparator}>|</span>
+                <button
+                  type="button"
+                  className={styles.goalLink}
+                  onClick={handleClearExamGoal}
+                >
+                  {t("examClear")}
+                </button>
+              </div>
+            </>
+          ) : isEditingExam ? (
+            <div className={styles.examForm}>
+              <label className={styles.examFormLabel}>
+                {t("examRank")}
+                <select
+                  value={examRankInput}
+                  onChange={(e) => setExamRankInput(e.target.value)}
+                  className={styles.examFormSelect}
+                >
+                  <option value="" />
+                  {AIKIDO_RANK_OPTIONS.map((rank) => (
+                    <option key={rank} value={rank}>
+                      {rank}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.examFormLabel}>
+                {t("examDate")}
+                <input
+                  type="date"
+                  value={examDateInput}
+                  onChange={(e) => setExamDateInput(e.target.value)}
+                  className={styles.examFormInput}
+                />
+              </label>
+              <label className={styles.examFormLabel}>
+                {t("prevExamDate")}
+                <input
+                  type="date"
+                  value={prevExamDateInput}
+                  onChange={(e) => setPrevExamDateInput(e.target.value)}
+                  className={styles.examFormInput}
+                />
+              </label>
+              <label className={styles.examFormLabel}>
+                {t("examTargetDays")}
+                <input
+                  type="number"
+                  min={1}
+                  value={examTargetInput}
+                  onChange={(e) => setExamTargetInput(e.target.value)}
+                  className={styles.examFormInput}
+                />
+              </label>
+              <div className={styles.examFormActions}>
+                <button
+                  type="button"
+                  className={styles.goalLink}
+                  onClick={() => setIsEditingExam(false)}
+                >
+                  {t("examClear")}
+                </button>
+                <button
+                  type="button"
+                  className={styles.goalSaveButton}
+                  onClick={handleSaveExamGoal}
+                >
+                  {t("goalSave")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.monthlyHeader}>
+              <span className={styles.monthlyLabel}>{t("examLabel")}</span>
+              <button
+                type="button"
+                className={styles.goalLink}
+                onClick={() => {
+                  setExamRankInput("");
+                  setExamDateInput("");
+                  setPrevExamDateInput("");
+                  setExamTargetInput("");
+                  setIsEditingExam(true);
+                }}
+              >
+                {t("examSetup")} →
+              </button>
+            </div>
+          )
+        ) : (
+          <button
+            type="button"
+            className={styles.examPremiumLink}
+            onClick={() => {
+              window.location.replace(
+                `/${currentLocale}/settings/subscription`,
+              );
+            }}
+          >
+            <span className={styles.examPremiumText}>
+              🔒 {t("examPremium")}
+            </span>
+            <span className={styles.goalLink}>Premium →</span>
+          </button>
         )}
       </div>
     </div>

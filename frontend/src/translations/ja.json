@@ -540,7 +540,21 @@
     "legendReminder": "リマインダー登録済み",
     "reminderLabel": "リマインダー:",
     "reminderSetup": "リマインダーを設定",
-    "reminderChange": "設定を変更"
+    "reminderChange": "設定を変更",
+    "examLabel": "審査目標:",
+    "examRankLabel": "{rank}審査:",
+    "examDaysLeft": "あと{days}日",
+    "examProgress": "{current} / {goal}日",
+    "examSetup": "審査目標を設定",
+    "examChange": "変更",
+    "examClear": "取消",
+    "examSaved": "審査目標を保存しました",
+    "examRank": "受験する段級位",
+    "examDate": "審査日",
+    "prevExamDate": "前回の審査日（任意）",
+    "examTargetDays": "必要稽古日数",
+    "examPremium": "Premium で審査管理",
+    "legendExam": "審査日"
   },
   "filter": {
     "clearFilters": "絞り込みをクリア",

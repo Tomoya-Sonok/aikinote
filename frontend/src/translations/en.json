@@ -538,7 +538,21 @@
     "legendReminder": "Reminder set",
     "reminderLabel": "Reminders:",
     "reminderSetup": "Set up reminders",
-    "reminderChange": "Edit settings"
+    "reminderChange": "Edit settings",
+    "examLabel": "Exam goal:",
+    "examRankLabel": "{rank} exam:",
+    "examDaysLeft": "{days} days left",
+    "examProgress": "{current} / {goal} days",
+    "examSetup": "Set exam goal",
+    "examChange": "Change",
+    "examClear": "Clear",
+    "examSaved": "Exam goal saved",
+    "examRank": "Target rank",
+    "examDate": "Exam date",
+    "prevExamDate": "Previous exam date (optional)",
+    "examTargetDays": "Required training days",
+    "examPremium": "Exam tracking with Premium",
+    "legendExam": "Exam day"
   },
   "filter": {
     "clearFilters": "Clear filters",

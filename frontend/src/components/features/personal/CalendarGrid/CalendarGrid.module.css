@@ -126,3 +126,13 @@
 .selected .pageDotPrimary {
   background: var(--white);
 }
+
+.examDay::after {
+  content: "\25C6";
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 6px;
+  color: var(--primary-color);
+  opacity: 0.6;
+}

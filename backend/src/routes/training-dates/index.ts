@@ -231,4 +231,66 @@ app.put("/goal", zValidator("json", updateGoalSchema), async (c) => {
   }
 });
 
+// GET /count — 期間内の出席日数をカウント
+app.get("/count", async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    const token = extractTokenFromHeader(authHeader);
+    const payload = await verifyToken(token, c.env);
+
+    const supabase = c.get("supabase");
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
+
+    const from = c.req.query("from");
+    const to = c.req.query("to");
+
+    if (!from || !to) {
+      return c.json(
+        { success: false, error: "from と to パラメータは必須です" },
+        400,
+      );
+    }
+
+    const { count, error } = await supabase
+      .from("training_dates")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", payload.userId)
+      .eq("is_attended", true)
+      .gte("training_date", from)
+      .lte("training_date", to);
+
+    if (error) {
+      console.error("出席日数カウントエラー:", error);
+      return c.json(
+        { success: false, error: "出席日数のカウントに失敗しました" },
+        500,
+      );
+    }
+
+    return c.json({
+      success: true,
+      data: { count: count ?? 0 },
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes("token") ||
+        error.message.includes("Authorization"))
+    ) {
+      return c.json({ success: false, error: "認証に失敗しました" }, 401);
+    }
+    console.error("出席日数カウントエラー:", error);
+
+    const errorResponse: ApiResponse<never> = {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "不明なエラーが発生しました",
+    };
+
+    return c.json(errorResponse, 500);
+  }
+});
+
 export default app;

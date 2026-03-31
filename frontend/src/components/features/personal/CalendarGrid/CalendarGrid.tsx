@@ -41,6 +41,7 @@ interface CalendarGridProps {
   getDateStatus?: (date: Date) => CalendarDayStatus | undefined;
   highlightedDaysOfWeek?: number[];
   onMonthChange?: (direction: "prev" | "next") => void;
+  examDate?: string;
 }
 
 const SWIPE_DEAD_ZONE = 5;
@@ -104,6 +105,7 @@ export function CalendarGrid({
   getDateStatus,
   highlightedDaysOfWeek,
   onMonthChange,
+  examDate,
 }: CalendarGridProps) {
   const today = useMemo(() => new Date(), []);
   const days = useMemo(() => buildCalendarDays(currentMonth), [currentMonth]);
@@ -245,6 +247,16 @@ export function CalendarGrid({
             isCurrentMonth &&
             highlightedDaysOfWeek !== undefined &&
             highlightedDaysOfWeek.includes(date.getDay());
+          const isExamDay = (() => {
+            if (!isCurrentMonth || !examDate) return false;
+            const parts = examDate.split("-");
+            if (parts.length !== 3) return false;
+            return (
+              date.getFullYear() === Number(parts[0]) &&
+              date.getMonth() + 1 === Number(parts[1]) &&
+              date.getDate() === Number(parts[2])
+            );
+          })();
           const dotCount = isCurrentMonth
             ? Math.min(status?.pageCount ?? 0, 3)
             : 0;
@@ -276,6 +288,7 @@ export function CalendarGrid({
             highlightSelectedDate && isSelected ? classNames?.selected : "",
             isInRange ? styles.rangeDay : "",
             isInRange ? classNames?.rangeDay : "",
+            isExamDay ? styles.examDay : "",
           ]
             .filter(Boolean)
             .join(" ");

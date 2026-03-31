@@ -154,6 +154,13 @@ export function PersonalCalendar() {
   const [reminders, setReminders] = useState<
     Array<{ reminder_time: string; reminder_days: number[] }>
   >([]);
+  const [examGoal, setExamGoal] = useState<{
+    exam_rank: string;
+    exam_date: string;
+    prev_exam_date: string | null;
+    target_attendance: number;
+  } | null>(null);
+  const [examAttendanceCount, setExamAttendanceCount] = useState(0);
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -258,6 +265,51 @@ export function PersonalCalendar() {
       })
       .catch(() => {});
   }, [user?.id]);
+
+  // 審査目標データ取得
+  const fetchExamGoal = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch("/api/exam-goals", { credentials: "include" });
+      if (!res.ok) {
+        setExamGoal(null);
+        setExamAttendanceCount(0);
+        return;
+      }
+      const json = await res.json();
+      if (json?.data) {
+        setExamGoal(json.data);
+        // 稽古日数カウント取得
+        const today = new Date();
+        const toDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+        const fromDate = json.data.prev_exam_date || undefined;
+        const params = new URLSearchParams({ to: toDate });
+        if (fromDate) params.set("from", fromDate);
+        const countRes = await fetch(
+          `/api/training-dates-count?${params.toString()}`,
+          { credentials: "include" },
+        );
+        if (countRes.ok) {
+          const countJson = await countRes.json();
+          setExamAttendanceCount(countJson?.data?.count ?? 0);
+        }
+      } else {
+        setExamGoal(null);
+        setExamAttendanceCount(0);
+      }
+    } catch {
+      setExamGoal(null);
+      setExamAttendanceCount(0);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    void fetchExamGoal();
+  }, [fetchExamGoal]);
+
+  const handleExamGoalSaved = useCallback(() => {
+    void fetchExamGoal();
+  }, [fetchExamGoal]);
 
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentMonth((prev) => {
@@ -407,6 +459,7 @@ export function PersonalCalendar() {
                   : undefined
               }
               onMonthChange={navigateMonth}
+              examDate={examGoal?.exam_date}
             />
           </div>
           {(loading || authLoading) && (
@@ -432,6 +485,21 @@ export function PersonalCalendar() {
             ：{t("personalCalendar.legendReminder")}
           </span>
         )}
+        {examGoal && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "2px",
+              marginLeft: "8px",
+              color: "var(--primary-color)",
+              opacity: 0.6,
+              fontSize: "var(--font-size-xs)",
+            }}
+          >
+            ◆：{t("personalCalendar.legendExam")}
+          </span>
+        )}
       </p>
 
       <CalendarFooter
@@ -440,6 +508,9 @@ export function PersonalCalendar() {
         locale={locale}
         reminderEnabled={reminderEnabled}
         reminders={reminders}
+        examGoal={examGoal}
+        examAttendanceCount={examAttendanceCount}
+        onExamGoalSaved={handleExamGoalSaved}
       />
 
       <CalendarActionModal
