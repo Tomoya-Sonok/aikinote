@@ -492,7 +492,6 @@ export function PersonalCalendar() {
               alignItems: "center",
               gap: "2px",
               marginLeft: "8px",
-              color: "var(--error-color)",
               fontSize: "var(--font-size-xs)",
             }}
           >
