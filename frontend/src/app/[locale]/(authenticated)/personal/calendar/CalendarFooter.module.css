@@ -127,6 +127,11 @@
   cursor: pointer;
 }
 
+.goalSaveButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* 審査目標セクション */
 .examSection {
   padding: 12px 0 0;

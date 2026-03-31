@@ -140,19 +140,24 @@ export function CalendarFooter({
 
   const handleSaveExamGoal = useCallback(async () => {
     if (!examRankInput || !examDateInput || !examTargetInput) return;
+    if (examRankInput !== "五級" && !prevExamDateInput) return;
     const targetValue = Number.parseInt(examTargetInput, 10);
     if (Number.isNaN(targetValue) || targetValue < 1) return;
+
+    const payload: Record<string, unknown> = {
+      exam_rank: examRankInput,
+      exam_date: examDateInput,
+      target_attendance: targetValue,
+    };
+    if (examRankInput !== "五級") {
+      payload.prev_exam_date = prevExamDateInput;
+    }
 
     try {
       const res = await fetch("/api/exam-goals", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exam_rank: examRankInput,
-          exam_date: examDateInput,
-          prev_exam_date: prevExamDateInput || null,
-          target_attendance: targetValue,
-        }),
+        body: JSON.stringify(payload),
         credentials: "include",
       });
       if (res.ok) {
@@ -397,7 +402,12 @@ export function CalendarFooter({
                 {t("examRank")}
                 <select
                   value={examRankInput}
-                  onChange={(e) => setExamRankInput(e.target.value)}
+                  onChange={(e) => {
+                    setExamRankInput(e.target.value);
+                    if (e.target.value === "五級") {
+                      setPrevExamDateInput("");
+                    }
+                  }}
                   className={styles.examFormSelect}
                 >
                   <option value="" />
@@ -417,15 +427,17 @@ export function CalendarFooter({
                   className={styles.examFormInput}
                 />
               </label>
-              <label className={styles.examFormLabel}>
-                {t("prevExamDate")}
-                <input
-                  type="date"
-                  value={prevExamDateInput}
-                  onChange={(e) => setPrevExamDateInput(e.target.value)}
-                  className={styles.examFormInput}
-                />
-              </label>
+              {examRankInput !== "五級" && (
+                <label className={styles.examFormLabel}>
+                  {t("prevExamDate")}
+                  <input
+                    type="date"
+                    value={prevExamDateInput}
+                    onChange={(e) => setPrevExamDateInput(e.target.value)}
+                    className={styles.examFormInput}
+                  />
+                </label>
+              )}
               <label className={styles.examFormLabel}>
                 {t("examTargetDays")}
                 <input
@@ -447,6 +459,12 @@ export function CalendarFooter({
                 <button
                   type="button"
                   className={styles.goalSaveButton}
+                  disabled={
+                    !examRankInput ||
+                    !examDateInput ||
+                    !examTargetInput ||
+                    (examRankInput !== "五級" && !prevExamDateInput)
+                  }
                   onClick={handleSaveExamGoal}
                 >
                   {t("goalSave")}
