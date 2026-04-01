@@ -17,6 +17,7 @@ import { FilterArea } from "@/components/features/personal/FilterArea/FilterArea
 import { TagFilterModal } from "@/components/features/personal/TagFilterModal/TagFilterModal";
 import { TrainingCard } from "@/components/features/personal/TrainingCard/TrainingCard";
 import { TrainingCardSkeleton } from "@/components/features/personal/TrainingCard/TrainingCardSkeleton";
+import { Tutorial } from "@/components/features/tutorial/Tutorial";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Skeleton } from "@/components/shared/Skeleton";
@@ -25,6 +26,7 @@ import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
 import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+import { useTutorialStore } from "@/stores/tutorialStore";
 import { type SortOrder } from "@/types/sortOrder";
 import styles from "./page.module.css";
 
@@ -33,6 +35,7 @@ export function PersonalPages() {
   const router = useRouter();
   const locale = useLocale();
   const { user } = useAuth();
+  const hasSeenTutorial = useTutorialStore((s) => s.hasSeenTutorial);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -330,6 +333,8 @@ export function PersonalPages() {
         selectedTags={selectedTags}
         onTagsConfirm={setSelectedTags}
       />
+
+      {!hasSeenTutorial && <Tutorial />}
     </div>
   );
 }
