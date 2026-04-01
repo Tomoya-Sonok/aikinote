@@ -9,6 +9,7 @@ import {
   useRef,
 } from "react";
 import { createPortal } from "react-dom";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { setReturnTo } from "@/lib/utils/returnTo";
 import styles from "./SignupPromptModal.module.css";
 
@@ -22,6 +23,12 @@ export function SignupPromptModal({ isOpen, onClose }: SignupPromptModalProps) {
   const locale = useLocale();
   const titleId = useId();
   const signupButtonRef = useRef<HTMLButtonElement>(null);
+  const { track } = useUmamiTrack();
+
+  const handleDismiss = useCallback(() => {
+    track("signup_prompt_modal_dismiss");
+    onClose();
+  }, [track, onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,20 +37,22 @@ export function SignupPromptModal({ isOpen, onClose }: SignupPromptModalProps) {
   }, [isOpen]);
 
   const handleSignup = useCallback(() => {
+    track("signup_prompt_modal_cta", { action: "signup" });
     setReturnTo(window.location.pathname + window.location.search);
     window.location.href = `/${locale}/signup`;
-  }, [locale]);
+  }, [locale, track]);
 
   const handleLogin = useCallback(() => {
+    track("signup_prompt_modal_cta", { action: "login" });
     setReturnTo(window.location.pathname + window.location.search);
     window.location.href = `/${locale}/login`;
-  }, [locale]);
+  }, [locale, track]);
 
   if (!isOpen) return null;
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
-      onClose();
+      handleDismiss();
     }
   };
 
@@ -85,7 +94,11 @@ export function SignupPromptModal({ isOpen, onClose }: SignupPromptModalProps) {
         >
           {t("login")}
         </button>
-        <button type="button" className={styles.closeButton} onClick={onClose}>
+        <button
+          type="button"
+          className={styles.closeButton}
+          onClick={handleDismiss}
+        >
           {t("close")}
         </button>
       </div>

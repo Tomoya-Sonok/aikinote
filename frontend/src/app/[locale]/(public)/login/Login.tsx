@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import {
   createSignInSchema,
   type SignInFormData,
@@ -27,6 +28,7 @@ export function Login({ locale, onSuccess }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const { track } = useUmamiTrack();
 
   const {
     signInWithCredentials,
@@ -49,6 +51,7 @@ export function Login({ locale, onSuccess }: LoginProps) {
   }, [showEmailForm]);
 
   const handleLoginSubmit = async (data: SignInFormData) => {
+    track("login_submit", { method: "email" });
     try {
       await signInWithCredentials(data);
       onSuccess?.();
@@ -58,6 +61,7 @@ export function Login({ locale, onSuccess }: LoginProps) {
   };
 
   const handleGoogleSignIn = async () => {
+    track("login_submit", { method: "google" });
     try {
       await signInWithGoogle();
       onSuccess?.();
@@ -67,6 +71,7 @@ export function Login({ locale, onSuccess }: LoginProps) {
   };
 
   const handleAppleSignIn = async () => {
+    track("login_submit", { method: "apple" });
     try {
       await signInWithApple();
       onSuccess?.();

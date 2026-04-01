@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import styles from "./PremiumUpgradeModal.module.css";
 
 interface PremiumUpgradeModalProps {
@@ -36,6 +37,22 @@ export function PremiumUpgradeModal({
   const titleId = useId();
   const upgradeButtonRef = useRef<HTMLButtonElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const { track } = useUmamiTrack();
+
+  const CONTEXT_MAP: Record<string, string> = {
+    premiumModal: "default",
+    premiumModalSearch: "search",
+    premiumModalBrowse: "browse",
+    premiumModalPushNotification: "push_notification",
+    premiumModalCalendar: "calendar",
+    premiumModalStats: "stats",
+  };
+  const context = CONTEXT_MAP[translationKey] ?? translationKey;
+
+  const handleDismiss = useCallback(() => {
+    track("premium_modal_dismiss", { context });
+    onClose();
+  }, [track, context, onClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,6 +61,7 @@ export function PremiumUpgradeModal({
   }, [isOpen]);
 
   const handleUpgrade = useCallback(async () => {
+    track("premium_modal_upgrade", { context });
     if (window.__AIKINOTE_NATIVE_APP__ && window.showNativePaywall) {
       setIsProcessing(true);
       try {
@@ -59,13 +77,13 @@ export function PremiumUpgradeModal({
     }
 
     window.location.href = `/${locale}/settings/subscription`;
-  }, [onClose, locale]);
+  }, [onClose, locale, track, context]);
 
   if (!isOpen) return null;
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape" && !isProcessing) {
-      onClose();
+      handleDismiss();
     }
   };
 
@@ -108,7 +126,7 @@ export function PremiumUpgradeModal({
         <button
           type="button"
           className={styles.closeButton}
-          onClick={onClose}
+          onClick={handleDismiss}
           disabled={isProcessing}
         >
           {t("close")}

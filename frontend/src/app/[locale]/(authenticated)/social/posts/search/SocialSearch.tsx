@@ -33,6 +33,7 @@ import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import styles from "./SocialSearch.module.css";
 import {
   type SearchResultsHandle,
@@ -133,6 +134,7 @@ export function SocialSearch() {
   const resultsRef = useRef<SearchResultsHandle>(null);
   const { isPremium, loading: subLoading } = useSubscription();
   const isFreeUser = !subLoading && !isPremium;
+  const { track } = useUmamiTrack();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // URLパラメータから検索条件を読み取り・復元（ブラウザバック/ハッシュタグリンク対応）
@@ -255,6 +257,7 @@ export function SocialSearch() {
         setShowUpgradeModal(true);
         return;
       }
+      track("social_search_keyword");
       triggerSearch(q, dojoName, rank);
       syncUrlParams({
         q: q.trim() || undefined,
@@ -265,6 +268,7 @@ export function SocialSearch() {
     },
     [
       isFreeUser,
+      track,
       triggerSearch,
       dojoName,
       rank,
@@ -298,6 +302,7 @@ export function SocialSearch() {
 
   const handleDojoStyleSelect = useCallback(
     (dojoStyle: DojoStyleOption) => {
+      track("social_search_filter_dojo");
       setDojoName(dojoStyle.dojo_name);
       setDojoStyleId(dojoStyle.id);
       const q = searchBarRef.current?.getQuery() ?? "";
@@ -309,7 +314,7 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [triggerSearch, rank, syncUrlParams, getPostTypeParam, postTypes],
+    [track, triggerSearch, rank, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleDojoStyleClear = useCallback(() => {
@@ -326,6 +331,7 @@ export function SocialSearch() {
 
   const handlePostTypeToggle = useCallback(
     (type: "post" | "training_record") => {
+      track("social_search_filter_post_type");
       const next = new Set(postTypes);
       if (next.has(type) && next.size > 1) {
         next.delete(type);
@@ -342,11 +348,20 @@ export function SocialSearch() {
         type: getPostTypeParam(next),
       });
     },
-    [postTypes, triggerSearch, dojoName, rank, syncUrlParams, getPostTypeParam],
+    [
+      track,
+      postTypes,
+      triggerSearch,
+      dojoName,
+      rank,
+      syncUrlParams,
+      getPostTypeParam,
+    ],
   );
 
   const handleRankChange = useCallback(
     (value: string) => {
+      track("social_search_filter_rank");
       setRank(value);
       const q = searchBarRef.current?.getQuery() ?? "";
       triggerSearch(q, dojoName, value);
@@ -357,7 +372,14 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [triggerSearch, dojoName, syncUrlParams, getPostTypeParam, postTypes],
+    [
+      track,
+      triggerSearch,
+      dojoName,
+      syncUrlParams,
+      getPostTypeParam,
+      postTypes,
+    ],
   );
 
   const handleBack = useCallback(() => {
@@ -366,6 +388,7 @@ export function SocialSearch() {
 
   const handleHistoryClick = useCallback(
     (historyQuery: string) => {
+      track("social_search_use_history");
       searchBarRef.current?.setQuery(historyQuery);
       triggerSearch(historyQuery, dojoName, rank);
       resultsRef.current?.addToHistory(historyQuery);
@@ -376,11 +399,20 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [triggerSearch, dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
+    [
+      track,
+      triggerSearch,
+      dojoName,
+      rank,
+      syncUrlParams,
+      getPostTypeParam,
+      postTypes,
+    ],
   );
 
   const handleTrendingClick = useCallback(
     (hashtagName: string) => {
+      track("social_search_use_trending");
       const searchQuery = `#${hashtagName}`;
       searchBarRef.current?.setQuery(searchQuery);
       resultsRef.current?.search(
@@ -397,10 +429,11 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
+    [track, dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleFilterToggle = useCallback(() => {
+    track("social_search_filter_section_toggle");
     if (showFilters && !isFreeUser) {
       setDojoName("");
       setDojoStyleId(null);
@@ -420,7 +453,7 @@ export function SocialSearch() {
       });
     }
     setShowFilters((prev) => !prev);
-  }, [isFreeUser, showFilters, triggerSearch, syncUrlParams]);
+  }, [track, isFreeUser, showFilters, triggerSearch, syncUrlParams]);
 
   const hasActiveFilters =
     dojoName.trim() !== "" || rank !== "" || postTypes.size < 2;

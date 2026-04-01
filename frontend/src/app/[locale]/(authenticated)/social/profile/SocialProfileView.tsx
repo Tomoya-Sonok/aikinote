@@ -18,6 +18,7 @@ import { Tooltip } from "@/components/shared/Tooltip";
 import { getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import styles from "./SocialProfile.module.css";
 
 type ProfileTab = "posts" | "training";
@@ -47,6 +48,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const { user: currentUser } = useAuth();
   const locale = useLocale();
   const t = useTranslations("socialPosts");
+  const { track } = useUmamiTrack();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [posts, setPosts] = useState<SocialFeedPostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,8 +105,9 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   }, [locale]);
 
   const handleEdit = useCallback(() => {
+    track("social_profile_start_edit_profile");
     window.location.href = `/${locale}/profile/edit?from=social`;
-  }, [locale]);
+  }, [locale, track]);
 
   const regularPosts = useMemo(
     () => posts.filter((p) => p.post_type !== "training_record"),

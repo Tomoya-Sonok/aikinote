@@ -8,6 +8,7 @@ import { HashtagText } from "@/components/shared/HashtagText/HashtagText";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { SocialMediaGrid } from "./SocialMediaGrid";
 import styles from "./SocialPostCard.module.css";
@@ -75,6 +76,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     const t = useTranslations("socialPosts");
     const locale = useLocale();
     const { showToast } = useToast();
+    const { track } = useUmamiTrack();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTruncated, setIsTruncated] = useState(false);
     const textRef = useRef<HTMLParagraphElement>(null);
@@ -96,6 +98,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     const handleShare = useCallback(
       async (e: React.MouseEvent) => {
         e.stopPropagation();
+        track("social_post_share");
         const url = `${window.location.origin}/${locale}/social/posts/${post.id}`;
         const shareData = {
           title: "AikiNote",
@@ -116,7 +119,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
           }
         }
       },
-      [locale, post.id, post.content, showToast, t],
+      [track, locale, post.id, post.content, showToast, t],
     );
 
     return (
