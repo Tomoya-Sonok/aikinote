@@ -71,13 +71,6 @@
 }
 
 .dojoAddRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-.dojoAddField {
-  flex: 1;
   position: relative;
 }
 

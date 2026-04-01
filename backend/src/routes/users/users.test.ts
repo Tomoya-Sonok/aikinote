@@ -447,6 +447,63 @@ describe("ユーザープロフィールAPI", () => {
       expect(responseData.error).toBe("プロフィールの更新に失敗しました");
     });
 
+    test.each(["public", "closed", "private"])(
+      "publicity_setting=%sの更新が200を返す",
+      async (setting) => {
+        // Arrange
+        const updateData = { publicity_setting: setting };
+
+        const updatedUserData = {
+          id: testUserId,
+          email: "test@example.com",
+          username: "テストユーザー",
+          profile_image_url: "https://example.com/profile.jpg",
+          dojo_style_name: "合気会",
+          training_start_date: "2020年頃",
+          publicity_setting: setting,
+        };
+
+        mockUpdateSingle.mockResolvedValue({
+          data: updatedUserData,
+          error: null,
+        });
+
+        // Act
+        const response = await app.request(`/api/users/${testUserId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${validToken}`,
+          },
+          body: JSON.stringify(updateData),
+        });
+
+        // Assert
+        expect(response.status).toBe(200);
+        const responseData = await response.json();
+        expect(responseData.success).toBe(true);
+        expect(responseData.data.publicity_setting).toBe(setting);
+      },
+    );
+
+    test("無効なpublicity_setting値は400エラーを返す", async () => {
+      // Arrange
+      const updateData = { publicity_setting: "invalid_value" };
+
+      // Act
+      const response = await app.request(`/api/users/${testUserId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${validToken}`,
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      // Assert
+      expect(response.status).toBe(400);
+    });
+
     test("空のリクエストボディの場合に200と変更なしメッセージを返す", async () => {
       // Arrange
       const updateData = {};

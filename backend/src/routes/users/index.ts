@@ -755,6 +755,14 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
       .single();
 
     if (updateError) {
+      console.error("プロフィール更新エラー:", {
+        userId,
+        updateData,
+        errorMessage: updateError.message,
+        errorCode: updateError.code,
+        errorDetails: updateError.details,
+        errorHint: updateError.hint,
+      });
       return c.json(
         {
           success: false,

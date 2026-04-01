@@ -141,17 +141,13 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
         publicity_setting: value,
       });
       if (!result.success) {
-        throw new Error(result.error || t("publicitySetting.saveFailed"));
+        throw new Error(t("publicitySetting.saveFailed"));
       }
+      showToast(t("publicitySetting.saved"), "success");
       router.push(`/${locale}/mypage`);
     } catch (error) {
       console.error("公開範囲設定更新エラー:", error);
-      showToast(
-        error instanceof Error
-          ? error.message
-          : t("publicitySetting.saveFailed"),
-        "error",
-      );
+      showToast(t("publicitySetting.saveFailed"), "error");
     } finally {
       setIsSaving(false);
     }
@@ -204,6 +200,20 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
                       </p>
                     )}
 
+                    <div className={styles.dojoAddRow}>
+                      <DojoStyleAutocomplete
+                        value={dojoSearchValue}
+                        onChange={setDojoSearchValue}
+                        onSelect={handleDojoSelect}
+                        placeholder={t("publicitySetting.addDojoPlaceholder")}
+                        selectedId={dojoSearchId}
+                        onClear={() => {
+                          setDojoSearchValue("");
+                          setDojoSearchId(null);
+                        }}
+                      />
+                    </div>
+
                     {selectedDojos.length > 0 && (
                       <div className={styles.selectedDojoList}>
                         {selectedDojos.map((dojo) => (
@@ -229,30 +239,6 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
                         ))}
                       </div>
                     )}
-
-                    <div className={styles.dojoAddRow}>
-                      <div className={styles.dojoAddField}>
-                        <DojoStyleAutocomplete
-                          value={dojoSearchValue}
-                          onChange={setDojoSearchValue}
-                          onSelect={handleDojoSelect}
-                          placeholder={t("publicitySetting.addDojoPlaceholder")}
-                          selectedId={dojoSearchId}
-                          onClear={() => {
-                            setDojoSearchValue("");
-                            setDojoSearchId(null);
-                          }}
-                        />
-                      </div>
-                      <Button
-                        variant="primary"
-                        size="small"
-                        onClick={handleSave}
-                        disabled={isSaving}
-                      >
-                        {t("publicitySetting.addButton")}
-                      </Button>
-                    </div>
                   </div>
                 )}
               </div>
