@@ -9,6 +9,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { getUserInfo, updateUserInfo } from "@/lib/api/client";
 import type { AgeRange, Gender } from "@/lib/constants/userProfile";
 import { useSurveyModal } from "@/lib/hooks/useSurveyModal";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 
 interface MyPageProps {
   initialUser: UserProfile;
@@ -19,6 +20,7 @@ export default function MyPage({ initialUser }: MyPageProps) {
   const [user, setUser] = useState<UserProfile>(initialUser);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
+  const { track } = useUmamiTrack();
 
   const fetchUserInfo = useCallback(async () => {
     setLoading(true);
@@ -52,6 +54,11 @@ export default function MyPage({ initialUser }: MyPageProps) {
     loading,
   });
 
+  const handleSurveyDismiss = () => {
+    track("mypage_survey_age_gender_dismiss");
+    dismissSurvey();
+  };
+
   const handleSurveySave = async (data: {
     ageRange: AgeRange | null;
     gender: Gender | null;
@@ -74,7 +81,7 @@ export default function MyPage({ initialUser }: MyPageProps) {
       <MyPageContent user={user} loading={loading} />
       <SurveyModal
         isOpen={isSurveyOpen}
-        onDismiss={dismissSurvey}
+        onDismiss={handleSurveyDismiss}
         onSave={handleSurveySave}
         initialAgeRange={user.age_range}
         initialGender={user.gender}

@@ -9,6 +9,7 @@ import { UserInfoCard } from "@/components/features/user-info/UserInfoCard/UserI
 import { UserInfoCardSkeleton } from "@/components/features/user-info/UserInfoCard/UserInfoCardSkeleton";
 import { MenuSection } from "@/components/shared/MenuSection/MenuSection";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import styles from "./MyPageContent.module.css";
 
 export interface UserProfile {
@@ -45,12 +46,15 @@ export const MyPageContent: FC<MyPageContentProps> = ({
   const locale = useLocale();
   const router = useRouter();
   const { signOutUser } = useAuth();
+  const { track } = useUmamiTrack();
 
   const handleEditUserInfo = () => {
+    track("mypage_start_edit_profile");
     router.push(`/${locale}/profile/edit`);
   };
 
   const handleLogout = async () => {
+    track("mypage_logout");
     await signOutUser();
   };
 
