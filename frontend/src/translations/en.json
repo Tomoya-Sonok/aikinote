@@ -709,7 +709,6 @@
     "bioPlaceholder": "Write a short bio",
     "publicitySetting": "Publicity Setting",
     "publicityPublic": "Public",
-    "publicityClosed": "Followers Only",
     "publicityPrivate": "Private",
     "profileUpdateSuccess": "Profile updated successfully",
     "profileUpdateFailed": "Failed to update profile",
@@ -898,6 +897,7 @@
     "addDojoPlaceholder": "Search and add a dojo...",
     "defaultDojo": "Primary dojo",
     "noDojoWarning": "No dojo registered. Please register your dojo in profile settings.",
+    "addButton": "Add",
     "saveButton": "Save",
     "saved": "Visibility updated",
     "saveFailed": "Failed to update visibility"
@@ -1017,5 +1017,79 @@
     "save": "Save",
     "saving": "Saving...",
     "saved": "Push notification settings saved"
+  },
+  "tutorial": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get Started",
+    "backAriaLabel": "Go to previous step",
+    "stepIndicatorAriaLabel": "Step {current} of {total}",
+    "welcome": {
+      "heading": "Welcome to AikiNote",
+      "catchphrase": "Never let a training\ninsight slip away.",
+      "description": "A digital training journal built for Aikido. Record and share your daily learnings.",
+      "pillPersonal": "Personal",
+      "pillSocial": "Social",
+      "pillMypage": "My Page"
+    },
+    "fontSize": {
+      "heading": "Choose your text size",
+      "description": "Pick a comfortable size. You can always change it later in Settings.",
+      "small": "S",
+      "medium": "M",
+      "large": "L",
+      "preview": "Preview",
+      "previewText": "Record what you learn in training and review it anytime."
+    },
+    "hitoride": {
+      "pill": "Personal",
+      "heading": "Record your training",
+      "description": "Jot down your learnings right after practice and review them anytime.",
+      "featureTagTitle": "Just pick technique tags",
+      "featureTagSub": "Ikkyo, Irimi-nage, Katate-dori...",
+      "featureMemoTitle": "Write your insights",
+      "featureMemoSub": "Freely note what you felt",
+      "featureSearchTitle": "Search with ease",
+      "featureSearchSub": "By tags, dates, or keywords",
+      "badgeCalendar": "Calendar",
+      "badgeStats": "Statistics"
+    },
+    "minnaDe": {
+      "pill": "Social",
+      "heading": "Connect beyond the dojo",
+      "description": "Share insights with other Aikido practitioners across styles and borders.",
+      "featurePostTitle": "Post & reply",
+      "featurePostSub": "Share insights and questions freely",
+      "featureFavTitle": "Save favorites",
+      "featureFavSub": "Bookmark posts to revisit later",
+      "safeDesignTitle": "A harmony-first, non-competitive SNS",
+      "safeDesignLine1": "Like counts are visible only to you.",
+      "safeDesignLine2": "No follower/following system.",
+      "safeDesignLine3": "A space focused on sharing learnings."
+    },
+    "myPage": {
+      "pill": "My Page",
+      "heading": "Make it yours",
+      "description": "Your profile and settings can be changed anytime.",
+      "featureProfileTitle": "Profile settings",
+      "featureProfileSub": "Dojo, rank, and self-introduction",
+      "featureSettingsTitle": "General settings",
+      "featureSettingsSub": "Text size, language, tag management",
+      "closedSpaceTitle": "Connect within your dojo",
+      "closedSpaceLine1": "Change your visibility settings and",
+      "closedSpaceLine2": "enjoy sharing your profile and posts",
+      "closedSpaceLine3": "in a private space with your dojo members."
+    },
+    "cta": {
+      "heading": "Let's get started",
+      "description": "Take your first step in the way that suits you best.",
+      "writeRecord": "Write a training record",
+      "writePost": "Share your first post",
+      "editProfile": "Enrich your profile",
+      "labelPersonal": "Personal",
+      "labelSocial": "Social",
+      "labelMypage": "My Page",
+      "later": "Maybe later"
+    }
   }
 }

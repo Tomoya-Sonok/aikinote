@@ -89,8 +89,8 @@
           "imageAlt": "AikiNoteのホーム画面"
         },
         {
-          "title": "合気道の技名タグを選ぶだけ",
-          "body": "「一教」「入身投げ」「片手取り」など、合気道の取り・受け・技名タグから選択。同じ名称を何度も入力する必要がなく、片手でカンタン操作。",
+          "title": "合気道のタグを選ぶだけ",
+          "body": "「一教」「入身投げ」「片手取り」など、合気道の取り・受け・技のタグから選択。同じ名称を何度も入力する必要がなく、片手でカンタン操作。",
           "imageAlt": "AikiNoteのタグ選択画面"
         },
         {
@@ -113,7 +113,7 @@
       "ctaLabel": "稽古記録をはじめる",
       "stats": {
         "title": "統計データ",
-        "body": "稽古参加日数・継続期間・作成ページ数を自動で集計。月別の推移グラフや、立技・坐技・技名ごとの練習傾向も円グラフで一目でわかります。次の審査に向けた稽古日数の把握にも。",
+        "body": "稽古参加日数・継続期間・作成ページ数を自動で集計。月別の推移グラフや、紐づけたタグの技ごとの練習傾向も円グラフで一目でわかります。次の審査に向けた稽古日数の把握にも。",
         "imageAlt": "AikiNoteの統計データ画面"
       },
       "calendar": {
@@ -709,9 +709,8 @@
     "profileEdit": "プロフィールを編集",
     "profileEditButton": "編集する",
     "bioPlaceholder": "自己紹介を入力してください",
-    "publicitySetting": "公開設定",
+    "publicitySetting": "公開範囲設定",
     "publicityPublic": "公開",
-    "publicityClosed": "フォロワーのみ",
     "publicityPrivate": "非公開",
     "profileUpdateSuccess": "プロフィールを更新しました",
     "profileUpdateFailed": "プロフィールの更新に失敗しました",
@@ -791,7 +790,7 @@
     "publicToggle": "他のユーザーに公開",
     "publicEnabled": "この稽古記録が他のユーザーに公開されました",
     "publicDisabled": "この稽古記録は他のユーザーは閲覧できません",
-    "publicToggleFailed": "公開設定の変更に失敗しました"
+    "publicToggleFailed": "公開範囲設定の変更に失敗しました"
   },
   "tagSelection": {
     "add": "追加"
@@ -897,9 +896,10 @@
     "private": "非公開",
     "privateDescription": "自分だけが閲覧できます。他のユーザーには公開しません。",
     "closedDojoDescription": "以下の道場に所属するユーザーにプロフィールや投稿が公開されます",
-    "addDojoPlaceholder": "道場名を入力して追加...",
+    "addDojoPlaceholder": "道場名を入力して選択してください",
     "defaultDojo": "所属道場",
     "noDojoWarning": "道場が未登録です。プロフィール編集から道場を登録してください。",
+    "addButton": "追加",
     "saveButton": "保存する",
     "saved": "公開範囲を更新しました",
     "saveFailed": "公開範囲の更新に失敗しました"
@@ -1019,5 +1019,79 @@
     "save": "保存する",
     "saving": "保存中...",
     "saved": "プッシュ通知設定を保存しました"
+  },
+  "tutorial": {
+    "skip": "スキップ",
+    "next": "次へ進む",
+    "start": "はじめる",
+    "backAriaLabel": "前のステップに戻る",
+    "stepIndicatorAriaLabel": "ステップ {current} / {total}",
+    "welcome": {
+      "heading": "AikiNoteへようこそ",
+      "catchphrase": "稽古の学びを、取りこぼさない。",
+      "description": "合気道に特化したデジタル稽古日誌で、日々の学びを記録・共有しましょう。",
+      "pillPersonal": "ひとりで",
+      "pillSocial": "みんなで",
+      "pillMypage": "マイページ"
+    },
+    "fontSize": {
+      "heading": "文字の大きさを選べます",
+      "description": "読みやすい大きさをお選びください。あとから設定で変更することもできます。",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "preview": "プレビュー",
+      "previewText": "稽古で学んだことを記録して、あとから手軽に振り返りましょう。"
+    },
+    "hitoride": {
+      "pill": "ひとりで",
+      "heading": "稽古の学びを記録する",
+      "description": "稽古後にサッと記録して、あとから手軽に振り返り。",
+      "featureTagTitle": "タグを選ぶだけ",
+      "featureTagSub": "一教、入身投げ、片手取り…",
+      "featureMemoTitle": "学びや気づきをメモ",
+      "featureMemoSub": "稽古で感じたことを自由に",
+      "featureSearchTitle": "あとから簡単に検索",
+      "featureSearchSub": "タグ・日付・フリーワードで",
+      "badgeCalendar": "カレンダー",
+      "badgeStats": "統計データ"
+    },
+    "minnaDe": {
+      "pill": "みんなで",
+      "heading": "道場を超えてつながる",
+      "description": "他の合気道家と学びや気づきを共有。流派や国境を超えた交流の場です。",
+      "featurePostTitle": "投稿・返信で交流",
+      "featurePostSub": "気づきや質問を気軽に共有",
+      "featureFavTitle": "お気に入りで記録",
+      "featureFavSub": "気になる投稿をあとで見返す",
+      "safeDesignTitle": "調和を重んじる非競争的なSNS",
+      "safeDesignLine1": "お気に入り数は本人だけに表示。",
+      "safeDesignLine2": "フォロー/フォロワーの概念もありません。",
+      "safeDesignLine3": "学びの共有に集中できる場です。"
+    },
+    "myPage": {
+      "pill": "マイページ",
+      "heading": "自分らしくカスタマイズ",
+      "description": "プロフィールや設定はいつでも自由に変更できます。",
+      "featureProfileTitle": "プロフィール設定",
+      "featureProfileSub": "所属道場・段級位・自己紹介",
+      "featureSettingsTitle": "各種設定",
+      "featureSettingsSub": "文字サイズ・言語・公開範囲など",
+      "closedSpaceTitle": "同じ道場内での交流にも",
+      "closedSpaceLine1": "公開範囲設定を変更すれば、",
+      "closedSpaceLine2": "所属道場の仲間だけの閉じた空間で",
+      "closedSpaceLine3": "プロフィールや投稿を公開して楽しめます。"
+    },
+    "cta": {
+      "heading": "さっそく始めましょう",
+      "description": "あなたに合った方法で最初の一歩を踏み出しましょう。",
+      "writeRecord": "稽古記録を書いてみる",
+      "writePost": "今の気持ちを投稿してみる",
+      "editProfile": "プロフィールを充実させる",
+      "labelPersonal": "ひとりで",
+      "labelSocial": "みんなで",
+      "labelMypage": "マイページ",
+      "later": "あとにする"
+    }
   }
 }

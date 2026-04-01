@@ -79,7 +79,7 @@ export function PageDetail() {
         );
       }
     } catch (error) {
-      console.error("公開設定変更エラー:", error);
+      console.error("公開範囲設定変更エラー:", error);
       showToast(t("pageDetail.publicToggleFailed"), "error");
     } finally {
       setTogglingPublic(false);
@@ -270,7 +270,7 @@ export function PageDetail() {
           </div>
         )}
 
-        {/* 公開設定 */}
+        {/* 公開範囲設定 */}
         <div className={styles.publicToggle}>
           <label className={styles.toggleLabel}>
             <span>{t("pageDetail.publicToggle")}</span>

@@ -250,6 +250,7 @@ export const createSocialPostSchema = z.object({
   }),
   source_page_id: z.string().uuid().optional(),
   tag_ids: z.array(z.string().uuid()).optional(),
+  from_tutorial: z.boolean().optional(),
 });
 
 export type CreateSocialPostInput = z.infer<typeof createSocialPostSchema>;

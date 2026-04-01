@@ -1,0 +1,612 @@
+/* ── Main container ── */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  background-color: var(--background-light);
+  z-index: var(--z-modal);
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 580px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--font-ui);
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 8px;
+  flex-shrink: 0;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: var(--text-light);
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.backButtonHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.backButtonVisible {
+  opacity: 0.5;
+}
+
+.dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dot {
+  height: 6px;
+  border-radius: 3px;
+  transition: all 0.35s ease;
+}
+
+.dotActive {
+  width: 20px;
+  background-color: var(--black);
+}
+
+.dotInactive {
+  width: 6px;
+  background-color: var(--disabled-bg-dark);
+}
+
+.skipButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  padding: 4px 8px;
+}
+
+.skipPlaceholder {
+  width: 60px;
+}
+
+/* ── Content area ── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.contentTransitioning {
+  opacity: 0;
+}
+
+.contentTransitionForward {
+  transform: translateX(24px);
+}
+
+.contentTransitionBackward {
+  transform: translateX(-24px);
+}
+
+.contentVisible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Footer ── */
+.footer {
+  padding: 12px 28px 28px;
+  flex-shrink: 0;
+}
+
+.nextButton {
+  width: 100%;
+  padding: 16px;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.nextButtonText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  color: var(--white);
+  font-weight: 600;
+}
+
+/* ── Shared: PillLabel ── */
+.pillLabel {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background: var(--white);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Shared: FeatureRow ── */
+.featureRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.featureRowIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--hover-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.featureRowTitle {
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-size-sm) - 1px);
+  color: var(--black);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.featureRowSub {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeInUp1 {
+  opacity: 0;
+  animation: fadeInUp 0.7s ease forwards 0.2s;
+}
+.fadeInUp2 {
+  opacity: 0;
+  animation: fadeInUp 0.7s ease forwards 0.4s;
+}
+.fadeInUp3 {
+  opacity: 0;
+  animation: fadeInUp 0.7s ease forwards 0.55s;
+}
+.fadeInUp4 {
+  opacity: 0;
+  animation: fadeInUp 0.7s ease forwards 0.65s;
+}
+.fadeInUp5 {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.8s;
+}
+.fadeInUp6 {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 1s;
+}
+
+/* Step-specific shorter delays */
+.fadeInUpA {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.2s;
+}
+.fadeInUpB {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.25s;
+}
+.fadeInUpC {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.3s;
+}
+.fadeInUpD {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.35s;
+}
+.fadeInUpE {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.4s;
+}
+.fadeInUpF {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.45s;
+}
+.fadeInUpG {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.5s;
+}
+.fadeInUpH {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards 0.55s;
+}
+.fadeInUpI {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards 0.7s;
+}
+
+/* ── Step layout helpers ── */
+.stepCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+.stepCenterNarrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 28px;
+  text-align: center;
+}
+
+.stepCenterCTA {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.heading {
+  font-family: var(--font-brand);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+}
+
+.headingLarge {
+  font-family: var(--font-brand);
+  font-size: calc(var(--font-size-2xl) + 4px);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.description {
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-size-sm) - 1px);
+  color: var(--text-light);
+  line-height: 1.8;
+  max-width: 320px;
+}
+
+.descriptionSpaced {
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-size-sm) - 1px);
+  color: var(--text-light);
+  line-height: 1.8;
+  max-width: 320px;
+  margin-bottom: 28px;
+}
+
+/* ── Step 1: Welcome ── */
+.welcomeLogo {
+  margin-bottom: 32px;
+}
+
+.divider {
+  width: 70px;
+  height: 1.5px;
+  background: var(--black);
+  border-radius: 1px;
+  margin-bottom: 24px;
+}
+
+.catchphrase {
+  font-family: var(--font-brand);
+  font-size: calc(var(--font-size-base) + 1px);
+  color: var(--black);
+  line-height: 1.9;
+  max-width: 320px;
+  letter-spacing: 2px;
+}
+
+.welcomeDescription {
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-size-sm) - 1px);
+  color: var(--text-light);
+  line-height: 1.8;
+  max-width: 300px;
+  margin-top: 20px;
+}
+
+.pillRow {
+  margin-top: 48px;
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Step 2: Font size ── */
+.fontSizeHeading {
+  font-family: var(--font-brand);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.fontSizeDescription {
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-size-sm) - 1px);
+  color: var(--text-light);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.fontSizeButtons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  width: 100%;
+  max-width: 300px;
+  justify-content: center;
+}
+
+.fontSizeButton {
+  flex: 1;
+  padding: 14px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border: 2px solid var(--border-color);
+}
+
+.fontSizeButtonActive {
+  background: var(--hover-gray);
+  border-color: var(--black);
+}
+
+.fontSizeChar {
+  font-family: var(--font-brand);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-light);
+}
+
+.fontSizeCharActive {
+  color: var(--black);
+}
+
+.fontSizeLabel {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-light);
+}
+
+.fontSizeLabelActive {
+  color: var(--black);
+}
+
+.previewCard {
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px 24px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.previewLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.previewText {
+  font-family: var(--font-ui);
+  color: var(--black);
+  line-height: 1.8;
+  text-align: left;
+  transition: font-size 0.3s ease;
+}
+
+/* ── Step 3/4/5: Feature steps ── */
+.featureStepPill {
+  margin-bottom: 14px;
+}
+
+.featureStepHeading {
+  font-family: var(--font-brand);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.featureRows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.badgeRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  background: var(--white);
+}
+
+.badgeText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--light-gray);
+}
+
+/* ── Step 4: Safe design card ── */
+.safeDesignCard {
+  margin-top: 18px;
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-width: 320px;
+  width: 100%;
+  text-align: left;
+}
+
+.safeDesignHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.safeDesignTitle {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.safeDesignText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.7;
+}
+
+/* ── Step 6: CTA ── */
+.ctaLogo {
+  margin-bottom: 20px;
+}
+
+.ctaHeading {
+  font-family: var(--font-brand);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.ctaDescription {
+  font-family: var(--font-ui);
+  font-size: calc(var(--font-size-sm) - 1px);
+  color: var(--text-light);
+  line-height: 1.8;
+  max-width: 320px;
+  margin-bottom: 32px;
+}
+
+.ctaButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.ctaButtonWrapper {
+  position: relative;
+}
+
+.ctaButtonPill {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  z-index: 1;
+}
+
+.ctaButton {
+  width: 100%;
+  padding: 18px 20px;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.ctaButtonText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.laterButton {
+  margin-top: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
