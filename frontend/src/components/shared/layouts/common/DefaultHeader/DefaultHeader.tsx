@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { NavigationDrawer } from "@/components/shared/NavigationDrawer";
 import type { UserSession } from "@/lib/auth";
 import { useTooltipVisibility } from "@/lib/hooks/useTooltipVisibility";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import styles from "./DefaultHeader.module.css";
 
 interface DefaultHeaderProps {
@@ -34,6 +35,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   const isTooltipVisible = showTooltip && shouldShowTooltip;
   const locale = useLocale();
   const t = useTranslations();
+  const { track } = useUmamiTrack();
 
   const handleSettingsClick = () => {
     hideTooltip();
@@ -45,36 +47,43 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   };
 
   const handleTextSizeClick = () => {
+    track("default_header_navigation_settings_font_size");
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/font-size`;
   };
 
   const handleEmailClick = () => {
+    track("default_header_navigation_settings_email");
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/email`;
   };
 
   const handleLanguageClick = () => {
+    track("default_header_navigation_settings_language");
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/language`;
   };
 
   const handleTagManagementClick = () => {
+    track("default_header_navigation_settings_tags");
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/tags`;
   };
 
   const handlePublicityClick = () => {
+    track("default_header_navigation_settings_publicity");
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/publicity`;
   };
 
   const handleSubscriptionClick = () => {
+    track("default_header_navigation_settings_subscription");
     setIsDrawerOpen(false);
     window.location.href = `/${locale}/settings/subscription`;
   };
 
   const handlePushNotificationClick = () => {
+    track("default_header_navigation_settings_push_notification");
     setIsDrawerOpen(false);
     location.replace(`/${locale}/settings/push-notification`);
   };
@@ -218,7 +227,10 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                   <Link
                     href={`/${locale}/profile/edit`}
                     className={styles.profileCardEditLink}
-                    onClick={() => setIsProfileCardOpen(false)}
+                    onClick={() => {
+                      track("default_header_start_edit_profile");
+                      setIsProfileCardOpen(false);
+                    }}
                   >
                     <PencilSimpleIcon size={14} weight="bold" />
                     {t("navigation.editProfile")}
