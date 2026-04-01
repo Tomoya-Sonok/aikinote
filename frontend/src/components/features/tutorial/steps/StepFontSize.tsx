@@ -22,10 +22,7 @@ export function StepFontSize({
 
   return (
     <div className={styles.stepCenter}>
-      <div className={`${styles.bigIconCircle} ${styles.fadeInUpA}`}>
-        <span className={styles.fontSizeIconText}>文</span>
-      </div>
-      <h2 className={`${styles.fontSizeHeading} ${styles.fadeInUpC}`}>
+      <h2 className={`${styles.fontSizeHeading} ${styles.fadeInUpA}`}>
         {t("heading")}
       </h2>
       <p className={`${styles.fontSizeDescription} ${styles.fadeInUpE}`}>

@@ -1,8 +1,10 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { ArrowLeft } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { useTutorialStore } from "@/stores/tutorialStore";
 import { useTutorialState } from "./hooks/useTutorialState";
 import { StepCTA } from "./steps/StepCTA";
@@ -17,6 +19,8 @@ export function Tutorial() {
   const t = useTranslations("tutorial");
   const setHasSeenTutorial = useTutorialStore((s) => s.setHasSeenTutorial);
 
+  const [mounted, setMounted] = useState(false);
+
   const {
     step,
     totalSteps,
@@ -29,6 +33,10 @@ export function Tutorial() {
     skipToEnd,
     handleFontSizeChange,
   } = useTutorialState();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleComplete = () => {
     setHasSeenTutorial(true);
@@ -53,6 +61,8 @@ export function Tutorial() {
     <StepMyPage key="myPage" />,
     <StepCTA key="cta" onComplete={handleComplete} />,
   ];
+
+  if (!mounted) return null;
 
   return createPortal(
     <div className={styles.overlay}>
@@ -113,7 +123,7 @@ export function Tutorial() {
               <span className={styles.nextButtonText}>
                 {step === 0 ? t("start") : t("next")}
               </span>
-              <ArrowRight size={16} weight="bold" color="var(--white)" />
+              <AikinoteRightArrow size={16} color="var(--white)" />
             </button>
           </div>
         )}

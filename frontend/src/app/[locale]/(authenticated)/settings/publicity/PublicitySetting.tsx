@@ -91,7 +91,7 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
           );
         }
       } catch (error) {
-        console.error("公開設定取得エラー:", error);
+        console.error("公開範囲設定取得エラー:", error);
       } finally {
         setIsLoading(false);
       }
@@ -145,7 +145,7 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
       }
       router.push(`/${locale}/mypage`);
     } catch (error) {
-      console.error("公開設定更新エラー:", error);
+      console.error("公開範囲設定更新エラー:", error);
       showToast(
         error instanceof Error
           ? error.message
@@ -250,7 +250,7 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
                         onClick={handleSave}
                         disabled={isSaving}
                       >
-                        {t("publicitySetting.saveButton")}
+                        {t("publicitySetting.addButton")}
                       </Button>
                     </div>
                   </div>

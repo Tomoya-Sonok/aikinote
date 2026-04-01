@@ -1,9 +1,4 @@
-import {
-  ChatCircle,
-  Heart,
-  ShieldCheck,
-  UsersThree,
-} from "@phosphor-icons/react";
+import { ChatDots, Chats, Heart, ShieldCheck } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { FeatureRow } from "../FeatureRow";
 import { PillLabel } from "../PillLabel";
@@ -14,11 +9,8 @@ export function StepMinnaDe() {
 
   return (
     <div className={styles.stepCenterNarrow}>
-      <div className={`${styles.bigIconCircle} ${styles.fadeInUpA}`}>
-        <UsersThree size={26} weight="light" />
-      </div>
-      <div className={`${styles.featureStepPill} ${styles.fadeInUpB}`}>
-        <PillLabel text={t("pill")} />
+      <div className={`${styles.featureStepPill} ${styles.fadeInUpA}`}>
+        <PillLabel text={t("pill")} icon={<Chats size={14} weight="light" />} />
       </div>
       <h2 className={`${styles.featureStepHeading} ${styles.fadeInUpD}`}>
         {t("heading")}
@@ -28,7 +20,7 @@ export function StepMinnaDe() {
       </p>
       <div className={`${styles.featureRows} ${styles.fadeInUpH}`}>
         <FeatureRow
-          icon={<ChatCircle size={16} weight="light" />}
+          icon={<ChatDots size={16} weight="light" />}
           title={t("featurePostTitle")}
           sub={t("featurePostSub")}
         />

@@ -1,4 +1,9 @@
-import { GearSix, User } from "@phosphor-icons/react";
+import {
+  EyeClosed,
+  GearSix,
+  IdentificationCard,
+  User,
+} from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { FeatureRow } from "../FeatureRow";
 import { PillLabel } from "../PillLabel";
@@ -9,11 +14,11 @@ export function StepMyPage() {
 
   return (
     <div className={styles.stepCenterNarrow}>
-      <div className={`${styles.bigIconCircle} ${styles.fadeInUpA}`}>
-        <User size={26} weight="light" />
-      </div>
-      <div className={`${styles.featureStepPill} ${styles.fadeInUpB}`}>
-        <PillLabel text={t("pill")} />
+      <div className={`${styles.featureStepPill} ${styles.fadeInUpA}`}>
+        <PillLabel
+          text={t("pill")}
+          icon={<IdentificationCard size={14} weight="light" />}
+        />
       </div>
       <h2 className={`${styles.featureStepHeading} ${styles.fadeInUpD}`}>
         {t("heading")}
@@ -32,6 +37,19 @@ export function StepMyPage() {
           title={t("featureSettingsTitle")}
           sub={t("featureSettingsSub")}
         />
+      </div>
+      <div className={`${styles.safeDesignCard} ${styles.fadeInUpI}`}>
+        <div className={styles.safeDesignHeader}>
+          <EyeClosed size={14} weight="light" color="var(--text-light)" />
+          <p className={styles.safeDesignTitle}>{t("closedSpaceTitle")}</p>
+        </div>
+        <p className={styles.safeDesignText}>
+          {t("closedSpaceLine1")}
+          <br />
+          {t("closedSpaceLine2")}
+          <br />
+          {t("closedSpaceLine3")}
+        </p>
       </div>
     </div>
   );

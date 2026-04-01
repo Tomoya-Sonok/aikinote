@@ -148,7 +148,9 @@
   font-size: var(--font-size-xs);
   color: var(--text-light);
   font-weight: 500;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ── Shared: FeatureRow ── */
@@ -186,18 +188,6 @@
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: var(--text-light);
-}
-
-/* ── Shared: Big icon circle ── */
-.bigIconCircle {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--hover-gray);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
 }
 
 /* ── Animations ── */
@@ -346,7 +336,7 @@
 }
 
 .divider {
-  width: 36px;
+  width: 70px;
   height: 1.5px;
   background: var(--black);
   border-radius: 1px;
@@ -378,13 +368,6 @@
 }
 
 /* ── Step 2: Font size ── */
-.fontSizeIconText {
-  font-size: 26px;
-  font-family: var(--font-brand);
-  color: var(--black);
-  font-weight: 600;
-}
-
 .fontSizeHeading {
   font-family: var(--font-brand);
   font-size: var(--font-size-2xl);
@@ -591,8 +574,8 @@
 
 .ctaButtonPill {
   position: absolute;
-  top: -11px;
-  right: 16px;
+  top: -18px;
+  left: 0;
   z-index: 1;
 }
 

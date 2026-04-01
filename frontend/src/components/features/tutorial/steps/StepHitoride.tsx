@@ -1,5 +1,5 @@
 import {
-  CalendarBlank,
+  CalendarDots,
   ChartBar,
   MagnifyingGlass,
   PencilSimple,
@@ -15,11 +15,11 @@ export function StepHitoride() {
 
   return (
     <div className={styles.stepCenterNarrow}>
-      <div className={`${styles.bigIconCircle} ${styles.fadeInUpA}`}>
-        <PencilSimple size={26} weight="light" />
-      </div>
-      <div className={`${styles.featureStepPill} ${styles.fadeInUpB}`}>
-        <PillLabel text={t("pill")} />
+      <div className={`${styles.featureStepPill} ${styles.fadeInUpA}`}>
+        <PillLabel
+          text={t("pill")}
+          icon={<PencilSimple size={14} weight="light" />}
+        />
       </div>
       <h2 className={`${styles.featureStepHeading} ${styles.fadeInUpD}`}>
         {t("heading")}
@@ -46,12 +46,12 @@ export function StepHitoride() {
       </div>
       <div className={`${styles.badgeRow} ${styles.fadeInUpI}`}>
         <div className={styles.badge}>
-          <CalendarBlank size={14} weight="light" color="var(--light-gray)" />
-          <span className={styles.badgeText}>{t("badgeCalendar")}</span>
-        </div>
-        <div className={styles.badge}>
           <ChartBar size={14} weight="light" color="var(--light-gray)" />
           <span className={styles.badgeText}>{t("badgeStats")}</span>
+        </div>
+        <div className={styles.badge}>
+          <CalendarDots size={14} weight="light" color="var(--light-gray)" />
+          <span className={styles.badgeText}>{t("badgeCalendar")}</span>
         </div>
       </div>
     </div>

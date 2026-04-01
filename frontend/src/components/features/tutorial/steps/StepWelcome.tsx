@@ -1,3 +1,4 @@
+import { Chats, IdentificationCard, PencilSimple } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { PillLabel } from "../PillLabel";
@@ -27,9 +28,18 @@ export function StepWelcome() {
         {t("description")}
       </p>
       <div className={`${styles.pillRow} ${styles.fadeInUp6}`}>
-        <PillLabel text={t("pillPersonal")} />
-        <PillLabel text={t("pillSocial")} />
-        <PillLabel text={t("pillMypage")} />
+        <PillLabel
+          text={t("pillPersonal")}
+          icon={<PencilSimple size={14} weight="light" />}
+        />
+        <PillLabel
+          text={t("pillSocial")}
+          icon={<Chats size={14} weight="light" />}
+        />
+        <PillLabel
+          text={t("pillMypage")}
+          icon={<IdentificationCard size={14} weight="light" />}
+        />
       </div>
     </div>
   );

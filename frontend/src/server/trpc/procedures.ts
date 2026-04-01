@@ -835,6 +835,7 @@ export const createSocialPostProcedure = authenticatedProcedure
       post_type: z.enum(["post", "training_record"]),
       source_page_id: z.string().uuid().optional(),
       tag_ids: z.array(z.string().uuid()).optional(),
+      from_tutorial: z.boolean().optional(),
     }),
   )
   .mutation(async ({ input, ctx }) => {

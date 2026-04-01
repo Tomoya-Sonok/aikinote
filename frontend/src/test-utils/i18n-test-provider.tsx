@@ -116,7 +116,7 @@ const testMessages = {
     publicToggle: "他のユーザーに公開",
     publicEnabled: "公開中",
     publicDisabled: "非公開",
-    publicToggleFailed: "公開設定の変更に失敗しました",
+    publicToggleFailed: "公開範囲設定の変更に失敗しました",
   },
   tagSelection: {
     add: "＋追加",

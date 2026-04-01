@@ -42,6 +42,7 @@ export function SocialPostCreate() {
 
   const initialMode =
     searchParams.get("mode") === "training" ? "training" : "post";
+  const fromTutorial = searchParams.get("fromTutorial") === "1";
   const [mode, setMode] = useState<CreateMode>(initialMode);
 
   // 投稿モード用
@@ -131,6 +132,7 @@ export function SocialPostCreate() {
         user_id: user.id,
         content: postContent.trim(),
         post_type: "post",
+        ...(fromTutorial && { from_tutorial: true }),
       });
 
       if (result.success && result.data) {
@@ -149,6 +151,7 @@ export function SocialPostCreate() {
     user?.id,
     postContent,
     isSubmitting,
+    fromTutorial,
     postAttachmentMgmt,
     showToast,
     tSocial,

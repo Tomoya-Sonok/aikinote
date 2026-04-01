@@ -1,12 +1,8 @@
-import {
-  ArrowRight,
-  ChatCircle,
-  PencilSimple,
-  User,
-} from "@phosphor-icons/react";
+import { Chats, IdentificationCard, PencilSimple } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
 import { PillLabel } from "../PillLabel";
 import styles from "../Tutorial.module.css";
 
@@ -31,19 +27,19 @@ export function StepCTA({ onComplete }: StepCTAProps) {
   const ctaItems = [
     {
       label: t("labelPersonal"),
-      icon: <PencilSimple size={18} weight="light" color="var(--white)" />,
+      pillIcon: <PencilSimple size={14} weight="light" />,
       text: t("writeRecord"),
       path: "/personal/pages/new",
     },
     {
       label: t("labelSocial"),
-      icon: <ChatCircle size={18} weight="light" color="var(--white)" />,
+      pillIcon: <Chats size={14} weight="light" />,
       text: t("writePost"),
-      path: "/social/posts/new",
+      path: "/social/posts/new?fromTutorial=1",
     },
     {
       label: t("labelMypage"),
-      icon: <User size={18} weight="light" color="var(--white)" />,
+      pillIcon: <IdentificationCard size={14} weight="light" />,
       text: t("editProfile"),
       path: "/profile/edit",
     },
@@ -69,16 +65,15 @@ export function StepCTA({ onComplete }: StepCTAProps) {
         {ctaItems.map((item) => (
           <div key={item.path} className={styles.ctaButtonWrapper}>
             <div className={styles.ctaButtonPill}>
-              <PillLabel text={item.label} />
+              <PillLabel text={item.label} icon={item.pillIcon} />
             </div>
             <button
               type="button"
               className={styles.ctaButton}
               onClick={() => handleCTA(item.path)}
             >
-              {item.icon}
               <span className={styles.ctaButtonText}>{item.text}</span>
-              <ArrowRight size={16} weight="bold" color="var(--white)" />
+              <AikinoteRightArrow size={16} color="var(--white)" />
             </button>
           </div>
         ))}

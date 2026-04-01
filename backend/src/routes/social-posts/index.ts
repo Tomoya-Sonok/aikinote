@@ -191,17 +191,37 @@ app.post("/", zValidator("json", createSocialPostSchema), async (c) => {
       return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
     }
 
-    // Premium チェック: Free ユーザーは投稿不可
+    // Premium チェック: Free ユーザーは原則投稿不可
     const premium = await isPremiumUser(supabase, payload.userId);
     if (!premium) {
-      return c.json(
-        {
-          success: false,
-          error: "投稿は Premium プランの機能です",
-          code: "PREMIUM_REQUIRED",
-        },
-        403,
-      );
+      // チュートリアル経由の初回投稿のみ許可
+      if (input.from_tutorial) {
+        const { count } = await supabase
+          .from("SocialPost")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", payload.userId)
+          .eq("is_deleted", false);
+
+        if ((count ?? 0) > 0) {
+          return c.json(
+            {
+              success: false,
+              error: "投稿は Premium プランの機能です",
+              code: "PREMIUM_REQUIRED",
+            },
+            403,
+          );
+        }
+      } else {
+        return c.json(
+          {
+            success: false,
+            error: "投稿は Premium プランの機能です",
+            code: "PREMIUM_REQUIRED",
+          },
+          403,
+        );
+      }
     }
 
     // レート制限チェック（60分以内に10件まで）

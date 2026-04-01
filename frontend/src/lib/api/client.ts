@@ -744,6 +744,7 @@ export interface CreateSocialPostPayload {
   post_type: "post" | "training_record";
   source_page_id?: string;
   tag_ids?: string[];
+  from_tutorial?: boolean;
 }
 
 export const createSocialPost = async (payload: CreateSocialPostPayload) => {

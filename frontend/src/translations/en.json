@@ -709,7 +709,6 @@
     "bioPlaceholder": "Write a short bio",
     "publicitySetting": "Publicity Setting",
     "publicityPublic": "Public",
-    "publicityClosed": "Followers Only",
     "publicityPrivate": "Private",
     "profileUpdateSuccess": "Profile updated successfully",
     "profileUpdateFailed": "Failed to update profile",
@@ -898,6 +897,7 @@
     "addDojoPlaceholder": "Search and add a dojo...",
     "defaultDojo": "Primary dojo",
     "noDojoWarning": "No dojo registered. Please register your dojo in profile settings.",
+    "addButton": "Add",
     "saveButton": "Save",
     "saved": "Visibility updated",
     "saveFailed": "Failed to update visibility"
@@ -1062,7 +1062,7 @@
       "featurePostSub": "Share insights and questions freely",
       "featureFavTitle": "Save favorites",
       "featureFavSub": "Bookmark posts to revisit later",
-      "safeDesignTitle": "Safe, non-competitive design",
+      "safeDesignTitle": "A harmony-first, non-competitive SNS",
       "safeDesignLine1": "Like counts are visible only to you.",
       "safeDesignLine2": "No follower/following system.",
       "safeDesignLine3": "A space focused on sharing learnings."
@@ -1074,14 +1074,18 @@
       "featureProfileTitle": "Profile settings",
       "featureProfileSub": "Dojo, rank, and self-introduction",
       "featureSettingsTitle": "General settings",
-      "featureSettingsSub": "Text size, language, tag management"
+      "featureSettingsSub": "Text size, language, tag management",
+      "closedSpaceTitle": "Connect within your dojo",
+      "closedSpaceLine1": "Change your visibility settings and",
+      "closedSpaceLine2": "enjoy sharing your profile and posts",
+      "closedSpaceLine3": "in a private space with your dojo members."
     },
     "cta": {
       "heading": "Let's get started",
       "description": "Take your first step in the way that suits you best.",
       "writeRecord": "Write a training record",
       "writePost": "Share your first post",
-      "editProfile": "Set up your profile",
+      "editProfile": "Enrich your profile",
       "labelPersonal": "Personal",
       "labelSocial": "Social",
       "labelMypage": "My Page",
