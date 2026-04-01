@@ -1019,5 +1019,75 @@
     "save": "保存する",
     "saving": "保存中...",
     "saved": "プッシュ通知設定を保存しました"
+  },
+  "tutorial": {
+    "skip": "スキップ",
+    "next": "次へ",
+    "start": "はじめる",
+    "backAriaLabel": "前のステップに戻る",
+    "stepIndicatorAriaLabel": "ステップ {current} / {total}",
+    "welcome": {
+      "heading": "AikiNoteへようこそ",
+      "catchphrase": "稽古の学びを、取りこぼさない。",
+      "description": "合気道に特化したデジタル稽古日誌で、日々の学びを記録・共有しましょう。",
+      "pillPersonal": "ひとりで",
+      "pillSocial": "みんなで",
+      "pillMypage": "マイページ"
+    },
+    "fontSize": {
+      "heading": "文字の大きさを選べます",
+      "description": "読みやすい大きさをお選びください。あとから設定で変更することもできます。",
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "preview": "プレビュー",
+      "previewText": "稽古で学んだことを記録して、あとから手軽に振り返りましょう。"
+    },
+    "hitoride": {
+      "pill": "ひとりで",
+      "heading": "稽古の学びを記録する",
+      "description": "稽古後にサッと記録して、あとから手軽に振り返り。",
+      "featureTagTitle": "技名タグを選ぶだけ",
+      "featureTagSub": "一教、入身投げ、片手取り…",
+      "featureMemoTitle": "学びや気づきをメモ",
+      "featureMemoSub": "稽古で感じたことを自由に",
+      "featureSearchTitle": "あとから簡単に検索",
+      "featureSearchSub": "タグ・日付・フリーワードで",
+      "badgeCalendar": "カレンダー",
+      "badgeStats": "統計データ"
+    },
+    "minnaDe": {
+      "pill": "みんなで",
+      "heading": "道場を超えてつながる",
+      "description": "他の合気道家と学びや気づきを共有。流派や国境を超えた交流の場です。",
+      "featurePostTitle": "投稿・返信で交流",
+      "featurePostSub": "気づきや質問を気軽に共有",
+      "featureFavTitle": "お気に入りで記録",
+      "featureFavSub": "気になる投稿をあとで見返す",
+      "safeDesignTitle": "安心の非競争設計",
+      "safeDesignLine1": "お気に入り数は本人だけに表示。",
+      "safeDesignLine2": "フォロー/フォロワーの概念もありません。",
+      "safeDesignLine3": "学びの共有に集中できる場です。"
+    },
+    "myPage": {
+      "pill": "マイページ",
+      "heading": "自分らしくカスタマイズ",
+      "description": "プロフィールや設定はいつでも自由に変更できます。",
+      "featureProfileTitle": "プロフィール設定",
+      "featureProfileSub": "所属道場・段級位・自己紹介",
+      "featureSettingsTitle": "各種設定",
+      "featureSettingsSub": "文字サイズ・言語・タグ管理"
+    },
+    "cta": {
+      "heading": "さっそく始めましょう",
+      "description": "あなたに合った方法で最初の一歩を踏み出しましょう。",
+      "writeRecord": "稽古記録を書いてみる",
+      "writePost": "今の気持ちを投稿してみる",
+      "editProfile": "まずプロフィールを充実させる",
+      "labelPersonal": "ひとりで",
+      "labelSocial": "みんなで",
+      "labelMypage": "マイページ",
+      "later": "あとにする"
+    }
   }
 }

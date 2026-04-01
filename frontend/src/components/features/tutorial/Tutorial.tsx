@@ -1,0 +1,124 @@
+"use client";
+
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
+import { createPortal } from "react-dom";
+import { useTutorialStore } from "@/stores/tutorialStore";
+import { useTutorialState } from "./hooks/useTutorialState";
+import { StepCTA } from "./steps/StepCTA";
+import { StepFontSize } from "./steps/StepFontSize";
+import { StepHitoride } from "./steps/StepHitoride";
+import { StepMinnaDe } from "./steps/StepMinnaDe";
+import { StepMyPage } from "./steps/StepMyPage";
+import { StepWelcome } from "./steps/StepWelcome";
+import styles from "./Tutorial.module.css";
+
+export function Tutorial() {
+  const t = useTranslations("tutorial");
+  const setHasSeenTutorial = useTutorialStore((s) => s.setHasSeenTutorial);
+
+  const {
+    step,
+    totalSteps,
+    transitioning,
+    direction,
+    isLastStep,
+    fontSize,
+    next,
+    prev,
+    skipToEnd,
+    handleFontSizeChange,
+  } = useTutorialState();
+
+  const handleComplete = () => {
+    setHasSeenTutorial(true);
+  };
+
+  const contentClassName = [
+    styles.content,
+    transitioning
+      ? `${styles.contentTransitioning} ${direction > 0 ? styles.contentTransitionForward : styles.contentTransitionBackward}`
+      : styles.contentVisible,
+  ].join(" ");
+
+  const steps = [
+    <StepWelcome key="welcome" />,
+    <StepFontSize
+      key="fontSize"
+      fontSize={fontSize}
+      onFontSizeChange={handleFontSizeChange}
+    />,
+    <StepHitoride key="hitoride" />,
+    <StepMinnaDe key="minnaDe" />,
+    <StepMyPage key="myPage" />,
+    <StepCTA key="cta" onComplete={handleComplete} />,
+  ];
+
+  return createPortal(
+    <div className={styles.overlay}>
+      <div className={styles.container}>
+        {/* Header */}
+        <div className={styles.header}>
+          <button
+            type="button"
+            className={`${styles.backButton} ${step > 0 ? styles.backButtonVisible : styles.backButtonHidden}`}
+            onClick={prev}
+            aria-label={t("backAriaLabel")}
+          >
+            <ArrowLeft size={20} weight="light" />
+          </button>
+
+          <nav
+            className={styles.dots}
+            aria-label={t("stepIndicatorAriaLabel", {
+              current: step + 1,
+              total: totalSteps,
+            })}
+          >
+            {[
+              "welcome",
+              "fontSize",
+              "hitoride",
+              "minnaDe",
+              "myPage",
+              "cta",
+            ].map((name, i) => (
+              <div
+                key={name}
+                className={`${styles.dot} ${i === step ? styles.dotActive : styles.dotInactive}`}
+              />
+            ))}
+          </nav>
+
+          {!isLastStep ? (
+            <button
+              type="button"
+              className={styles.skipButton}
+              onClick={skipToEnd}
+            >
+              {t("skip")}
+            </button>
+          ) : (
+            <div className={styles.skipPlaceholder} />
+          )}
+        </div>
+
+        {/* Content */}
+        <div className={contentClassName}>{steps[step]}</div>
+
+        {/* Footer */}
+        {!isLastStep && (
+          <div className={styles.footer}>
+            <button type="button" className={styles.nextButton} onClick={next}>
+              <span className={styles.nextButtonText}>
+                {step === 0 ? t("start") : t("next")}
+              </span>
+              <ArrowRight size={16} weight="bold" color="var(--white)" />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
