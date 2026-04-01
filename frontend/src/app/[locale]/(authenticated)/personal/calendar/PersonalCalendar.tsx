@@ -18,6 +18,7 @@ import {
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
@@ -139,6 +140,7 @@ export function PersonalCalendar() {
   const showToastRef = useRef(showToast);
   const tRef = useRef(t);
   const { user, loading: authLoading } = useAuth();
+  const { track } = useUmamiTrack();
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -398,6 +400,9 @@ export function PersonalCalendar() {
   const handleOpenCreatePage = () => {
     setIsActionModalOpen(false);
     if (selectedDateKey) {
+      track("start_create_page_from_calendar", {
+        selected_date: selectedDateKey,
+      });
       const returnUrl = `/${locale}/personal/calendar`;
       window.location.href = `/${locale}/personal/pages/new?date=${selectedDateKey}&returnUrl=${encodeURIComponent(returnUrl)}`;
     }

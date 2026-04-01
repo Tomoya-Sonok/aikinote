@@ -29,9 +29,13 @@ describe("fetchUserProfile", () => {
         username: "testuser",
         profile_image_url: "https://example.com/avatar.jpg",
         dojo_style_name: null,
+        dojo_style_id: "style-1",
         training_start_date: null,
         aikido_rank: "初段",
         full_name: "山田太郎",
+        publicity_setting: "public",
+        age_range: "30s",
+        gender: "male",
       },
     });
 
@@ -45,8 +49,12 @@ describe("fetchUserProfile", () => {
       username: "testuser",
       profile_image_url: "https://example.com/avatar.jpg",
       dojo_style_name: null,
+      dojo_style_id: "style-1",
       aikido_rank: "初段",
       full_name: "山田太郎",
+      publicity_setting: "public",
+      age_range: "30s",
+      gender: "male",
     });
   });
 

@@ -32,8 +32,12 @@ export async function fetchUserProfile(
       username: userData.username,
       profile_image_url: userData.profile_image_url || null,
       dojo_style_name: userData.dojo_style_name || null,
+      dojo_style_id: userData.dojo_style_id || null,
       aikido_rank: userData.aikido_rank || null,
       full_name: userData.full_name || null,
+      publicity_setting: userData.publicity_setting || null,
+      age_range: userData.age_range || null,
+      gender: userData.gender || null,
     };
   } catch (error) {
     console.error(

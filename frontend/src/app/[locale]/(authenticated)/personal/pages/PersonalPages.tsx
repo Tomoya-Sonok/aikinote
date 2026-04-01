@@ -26,6 +26,7 @@ import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
 import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useTutorialStore } from "@/stores/tutorialStore";
 import { type SortOrder } from "@/types/sortOrder";
 import styles from "./page.module.css";
@@ -35,6 +36,7 @@ export function PersonalPages() {
   const router = useRouter();
   const locale = useLocale();
   const { user } = useAuth();
+  const { track } = useUmamiTrack();
   const hasSeenTutorial = useTutorialStore((s) => s.hasSeenTutorial);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -313,7 +315,10 @@ export function PersonalPages() {
         )}
       </div>
 
-      <FloatingActionButton href={`/${locale}/personal/pages/new`} />
+      <FloatingActionButton
+        href={`/${locale}/personal/pages/new`}
+        onClick={() => track("start_create_page_from_top")}
+      />
 
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}

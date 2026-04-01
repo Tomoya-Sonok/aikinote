@@ -32,7 +32,7 @@ export const FloatingActionButton: FC<FloatingActionButtonProps> = ({
 
   if (href) {
     return (
-      <Link href={href} className={styles.fab}>
+      <Link href={href} className={styles.fab} onClick={onClick}>
         {content}
       </Link>
     );

@@ -21,6 +21,9 @@ export type UserSession = {
   dojo_style_id?: string | null;
   aikido_rank: string | null;
   full_name: string | null;
+  publicity_setting?: string | null;
+  age_range?: string | null;
+  gender?: string | null;
 };
 
 export async function signUp(credentials: SignUpCredentials) {
