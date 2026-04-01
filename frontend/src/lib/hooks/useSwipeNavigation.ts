@@ -21,6 +21,8 @@ interface UseSwipeNavigationOptions {
   onTabChange: (newTab: string) => boolean;
   /** スワイプの有効/無効（デフォルト: true） */
   enabled?: boolean;
+  /** このセレクタにマッチする要素内でのスワイプ開始を無視する */
+  excludeSelector?: string;
 }
 
 interface SwipeHandlers {
@@ -46,6 +48,7 @@ export function useSwipeNavigation({
   activeTab,
   onTabChange,
   enabled = true,
+  excludeSelector,
 }: UseSwipeNavigationOptions): UseSwipeNavigationReturn {
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerIdRef = useRef<number | null>(null);
@@ -96,6 +99,14 @@ export function useSwipeNavigation({
       if (!enabled) return;
       if (event.pointerType === "mouse" && event.button !== 0) return;
 
+      // 除外エリア内でのスワイプ開始は無視（例: 画像カルーセル）
+      if (
+        excludeSelector &&
+        (event.target as HTMLElement).closest?.(excludeSelector)
+      ) {
+        return;
+      }
+
       pointerIdRef.current = event.pointerId;
       startXRef.current = event.clientX;
       startYRef.current = event.clientY;
@@ -107,7 +118,7 @@ export function useSwipeNavigation({
         event.currentTarget.setPointerCapture?.(event.pointerId);
       }
     },
-    [enabled],
+    [enabled, excludeSelector],
   );
 
   const handlePointerMove = useCallback(

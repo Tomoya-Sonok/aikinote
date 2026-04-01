@@ -93,7 +93,7 @@ function ImageCarousel({ images }: { images: MediaItem[] }) {
   );
 
   return (
-    <div className={styles.carouselWrapper}>
+    <div className={styles.carouselWrapper} data-swipe-ignore>
       <div className={styles.carousel} ref={emblaRef}>
         <div className={styles.carouselContainer}>
           {images.map((image) => (

@@ -81,6 +81,7 @@ export function SocialPostsFeed() {
       activeTab,
       onTabChange: handleSwipeTabChange,
       enabled: !subLoading,
+      excludeSelector: "[data-swipe-ignore]",
     });
 
   // Intersection Observer で無限スクロール
