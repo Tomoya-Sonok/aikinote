@@ -103,7 +103,7 @@ export default function RootLayout({
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id="344d247e-0025-4d95-ba54-50e31ea42f22"
-          data-domains="www.aikinote.com"
+          data-domains="www.aikinote.com,aikinote.com"
         ></script>
       </head>
       <body suppressHydrationWarning>
