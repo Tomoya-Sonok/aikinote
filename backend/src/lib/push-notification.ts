@@ -19,9 +19,9 @@ interface ExpoPushMessage {
 function buildPushBody(type: string, actorUsername: string): string {
   switch (type) {
     case "favorite":
-      return `${actorUsername} があなたの投稿にいいねしました`;
+      return `${actorUsername} があなたの投稿をお気に入り登録しました`;
     case "favorite_reply":
-      return `${actorUsername} があなたの返信にいいねしました`;
+      return `${actorUsername} があなたの返信をお気に入り登録しました`;
     case "reply":
       return `${actorUsername} があなたの投稿に返信しました`;
     case "reply_to_thread":
