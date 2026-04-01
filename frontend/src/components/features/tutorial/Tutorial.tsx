@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useTutorialStore } from "@/stores/tutorialStore";
 import { useTutorialState } from "./hooks/useTutorialState";
 import { StepCTA } from "./steps/StepCTA";
@@ -18,6 +19,7 @@ import styles from "./Tutorial.module.css";
 export function Tutorial() {
   const t = useTranslations("tutorial");
   const setHasSeenTutorial = useTutorialStore((s) => s.setHasSeenTutorial);
+  const { track } = useUmamiTrack();
 
   const [mounted, setMounted] = useState(false);
 
@@ -37,6 +39,21 @@ export function Tutorial() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const SKIP_EVENT_NAMES = [
+    "tutorial_step1_skip",
+    "tutorial_step2_skip",
+    "tutorial_step3_skip",
+    "tutorial_step4_skip",
+    "tutorial_step5_skip",
+  ];
+
+  const handleSkip = () => {
+    if (step < SKIP_EVENT_NAMES.length) {
+      track(SKIP_EVENT_NAMES[step]);
+    }
+    skipToEnd();
+  };
 
   const handleComplete = () => {
     setHasSeenTutorial(true);
@@ -59,7 +76,7 @@ export function Tutorial() {
     <StepHitoride key="hitoride" />,
     <StepMinnaDe key="minnaDe" />,
     <StepMyPage key="myPage" />,
-    <StepCTA key="cta" onComplete={handleComplete} />,
+    <StepCTA key="cta" onComplete={handleComplete} fontSize={fontSize} />,
   ];
 
   if (!mounted) return null;
@@ -104,7 +121,7 @@ export function Tutorial() {
             <button
               type="button"
               className={styles.skipButton}
-              onClick={skipToEnd}
+              onClick={handleSkip}
             >
               {t("skip")}
             </button>

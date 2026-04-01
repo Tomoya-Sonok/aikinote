@@ -3,24 +3,34 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import type { FontSize } from "@/stores/fontSizeStore";
 import { PillLabel } from "../PillLabel";
 import styles from "../Tutorial.module.css";
 
 interface StepCTAProps {
   onComplete: () => void;
+  fontSize: FontSize;
 }
 
-export function StepCTA({ onComplete }: StepCTAProps) {
+export function StepCTA({ onComplete, fontSize }: StepCTAProps) {
   const t = useTranslations("tutorial.cta");
   const router = useRouter();
   const locale = useLocale();
+  const { track } = useUmamiTrack();
 
-  const handleCTA = (path: string) => {
+  const tutorialChangedFontSize = fontSize !== "medium";
+
+  const handleCTA = (path: string, eventName: string) => {
+    track(eventName, { tutorial_changed_font_size: tutorialChangedFontSize });
     onComplete();
     router.push(`/${locale}${path}`);
   };
 
   const handleLater = () => {
+    track("tutorial_step6_dismiss", {
+      tutorial_changed_font_size: tutorialChangedFontSize,
+    });
     onComplete();
   };
 
@@ -30,18 +40,21 @@ export function StepCTA({ onComplete }: StepCTAProps) {
       pillIcon: <PencilSimple size={14} weight="light" />,
       text: t("writeRecord"),
       path: "/personal/pages/new",
+      eventName: "tutorial_step6_cta_start_create_page",
     },
     {
       label: t("labelSocial"),
       pillIcon: <Chats size={14} weight="light" />,
       text: t("writePost"),
       path: "/social/posts/new?fromTutorial=1",
+      eventName: "tutorial_step6_cta_start_create_post",
     },
     {
       label: t("labelMypage"),
       pillIcon: <IdentificationCard size={14} weight="light" />,
       text: t("editProfile"),
       path: "/profile/edit",
+      eventName: "tutorial_step6_cta_start_update_profile",
     },
   ];
 
@@ -70,7 +83,7 @@ export function StepCTA({ onComplete }: StepCTAProps) {
             <button
               type="button"
               className={styles.ctaButton}
-              onClick={() => handleCTA(item.path)}
+              onClick={() => handleCTA(item.path, item.eventName)}
             >
               <span className={styles.ctaButtonText}>{item.text}</span>
               <AikinoteRightArrow size={16} color="var(--white)" />
