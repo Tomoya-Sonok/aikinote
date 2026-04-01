@@ -9,6 +9,7 @@ interface CtaButtonProps {
   href: string;
   external?: boolean;
   onClick?: () => void;
+  trackEvent?: string;
   className?: string;
   children: ReactNode;
 }
@@ -19,6 +20,7 @@ export const CtaButton: FC<CtaButtonProps> = ({
   href,
   external = false,
   onClick,
+  trackEvent,
   className,
   children,
 }) => {
@@ -56,6 +58,7 @@ export const CtaButton: FC<CtaButtonProps> = ({
         rel="noreferrer"
         className={buttonClass}
         onClick={onClick}
+        data-umami-event={trackEvent}
       >
         {content}
       </a>
@@ -63,7 +66,12 @@ export const CtaButton: FC<CtaButtonProps> = ({
   }
 
   return (
-    <Link href={href} className={buttonClass} onClick={onClick}>
+    <Link
+      href={href}
+      className={buttonClass}
+      onClick={onClick}
+      data-umami-event={trackEvent}
+    >
       {content}
     </Link>
   );

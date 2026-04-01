@@ -98,7 +98,11 @@ export async function Steps({ locale, signupHref }: StepsProps) {
       </ol>
 
       <div className={styles.ctaWrapper}>
-        <CtaButton variant="primary" href={signupHref}>
+        <CtaButton
+          variant="primary"
+          href={signupHref}
+          trackEvent={`landing_page_3steps_cta${locale === "en" ? "_en" : ""}`}
+        >
           {t("solutionRecording.ctaLabel")}
         </CtaButton>
       </div>

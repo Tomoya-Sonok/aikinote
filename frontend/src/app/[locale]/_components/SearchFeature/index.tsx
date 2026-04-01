@@ -67,7 +67,11 @@ export async function SearchFeature({
       </ScrollFadeIn>
 
       <div className={styles.ctaWrapper}>
-        <CtaButton variant="primary" href={signupHref}>
+        <CtaButton
+          variant="primary"
+          href={signupHref}
+          trackEvent={`landing_page_search_feature_cta${locale === "en" ? "_en" : ""}`}
+        >
           {t("solutionSearch.ctaLabel")}
         </CtaButton>
       </div>

@@ -150,7 +150,11 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
 
       {/* CTA */}
       <div className={styles.ctaWrapper}>
-        <CtaButton variant="primary" href={signupHref}>
+        <CtaButton
+          variant="primary"
+          href={signupHref}
+          trackEvent={`landing_page_sns_community_cta${locale === "en" ? "_en" : ""}`}
+        >
           {t("snsCommunity.ctaLabel")}
         </CtaButton>
       </div>
