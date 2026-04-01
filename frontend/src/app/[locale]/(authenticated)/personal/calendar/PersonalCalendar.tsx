@@ -354,6 +354,7 @@ export function PersonalCalendar() {
       return;
     }
 
+    track("calendar_toggle_attendance");
     setIsProcessing(true);
     try {
       if (isSelectedDateAttended) {

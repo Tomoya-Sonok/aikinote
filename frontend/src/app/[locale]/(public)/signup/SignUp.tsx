@@ -10,6 +10,7 @@ import { EmailVerificationWaitingForm } from "@/components/features/auth/EmailVe
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
 import {
   createEmailPasswordSchema,
@@ -33,6 +34,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
   const passwordId = useId();
   const t = useTranslations();
   const resolvedLocale = locale ?? "ja";
+  const { track } = useUmamiTrack();
 
   const [emailPasswordData, setEmailPasswordData] = useState<{
     email: string;
@@ -81,6 +83,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
       return;
     }
 
+    track("signup_submit", { method: "email" });
     try {
       const result = await signUp({
         email: emailPasswordData.email,
@@ -102,6 +105,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
 
   const handleGoogleSignUp = async () => {
     if (!agreed) return;
+    track("signup_submit", { method: "google" });
     try {
       await signInWithGoogle();
     } catch (err) {
@@ -111,6 +115,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
 
   const handleAppleSignUp = async () => {
     if (!agreed) return;
+    track("signup_submit", { method: "apple" });
     try {
       await signInWithApple();
     } catch (err) {
