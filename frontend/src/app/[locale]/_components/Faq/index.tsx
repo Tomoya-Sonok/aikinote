@@ -72,7 +72,11 @@ export async function Faq({ locale, signupHref }: FaqProps) {
         <CtaButton variant="secondary" external href={CONTACT_FORM_URL}>
           {t("cta.contact")}
         </CtaButton>
-        <CtaButton variant="primary" href={signupHref}>
+        <CtaButton
+          variant="primary"
+          href={signupHref}
+          trackEvent={`landing_page_faq_cta${locale === "en" ? "_en" : ""}`}
+        >
           {t("faq.ctaLabel")}
         </CtaButton>
       </div>

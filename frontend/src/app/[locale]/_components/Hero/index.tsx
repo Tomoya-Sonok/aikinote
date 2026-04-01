@@ -42,7 +42,11 @@ export async function Hero({ locale, signupHref }: HeroProps) {
                 </Fragment>
               ))}
             </p>
-            <CtaButton variant="primary" href={signupHref}>
+            <CtaButton
+              variant="primary"
+              href={signupHref}
+              trackEvent={`landing_page_hero_cta${locale === "en" ? "_en" : ""}`}
+            >
               {t("hero.ctaLabel")}
             </CtaButton>
           </div>

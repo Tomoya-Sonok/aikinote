@@ -119,7 +119,11 @@ export async function NewFeature({ locale, signupHref }: NewFeatureProps) {
       </div>
 
       <div className={styles.ctaWrapper}>
-        <CtaButton variant="primary" href={signupHref}>
+        <CtaButton
+          variant="primary"
+          href={signupHref}
+          trackEvent={`landing_page_new_feature_cta${locale === "en" ? "_en" : ""}`}
+        >
           {t("newFeature.ctaLabel")}
         </CtaButton>
       </div>
