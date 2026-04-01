@@ -4,10 +4,7 @@ import {
   CaretDownIcon,
   CaretUpIcon,
   CheckFatIcon,
-  ClockCounterClockwiseIcon,
   FunnelIcon,
-  TrendUpIcon,
-  XIcon,
 } from "@phosphor-icons/react";
 import { useLocale, useTranslations } from "next-intl";
 import {
@@ -21,13 +18,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { SocialPostCard } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
 import {
   DojoStyleAutocomplete,
   type DojoStyleOption,
 } from "@/components/shared/DojoStyleAutocomplete/DojoStyleAutocomplete";
-import { Loader } from "@/components/shared/Loader/Loader";
 import {
   SocialHeader,
   SocialLayout,
@@ -37,12 +32,12 @@ import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
-import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
-import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
 import { useSubscription } from "@/lib/hooks/useSubscription";
-import { useTrendingHashtags } from "@/lib/hooks/useTrendingHashtags";
 import styles from "./SocialSearch.module.css";
+import {
+  type SearchResultsHandle,
+  SocialSearchResults,
+} from "./SocialSearchResults";
 
 interface SearchBarHandle {
   setQuery: (value: string) => void;
@@ -135,13 +130,7 @@ export function SocialSearch() {
   );
   const [showFilters, setShowFilters] = useState(true);
   const isInitializedRef = useRef(false);
-  const { results, isLoading, search, updateResult } = useSocialSearch(
-    user?.id,
-  );
-  const { handleToggleFavorite } = useSocialFavorite();
-  const { history, addToHistory, removeFromHistory, clearHistory } =
-    useSearchHistory();
-  const { trending, isLoading: trendingLoading } = useTrendingHashtags();
+  const resultsRef = useRef<SearchResultsHandle>(null);
   const { isPremium, loading: subLoading } = useSubscription();
   const isFreeUser = !subLoading && !isPremium;
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -172,19 +161,19 @@ export function SocialSearch() {
       const searchQuery = `#${hashtagParam}`;
       searchBarRef.current?.setQuery(searchQuery);
       if (!isFreeUser) {
-        search(
+        resultsRef.current?.search(
           searchQuery,
           dojoParam || undefined,
           rankParam || undefined,
           hashtagParam,
           validType,
         );
-        addToHistory(searchQuery);
+        resultsRef.current?.addToHistory(searchQuery);
       }
     } else if (qParam) {
       searchBarRef.current?.setQuery(qParam);
       if (!isFreeUser) {
-        search(
+        resultsRef.current?.search(
           qParam,
           dojoParam || undefined,
           rankParam || undefined,
@@ -193,7 +182,7 @@ export function SocialSearch() {
         );
       }
     } else if ((dojoParam || rankParam || validType) && !isFreeUser) {
-      search(
+      resultsRef.current?.search(
         "",
         dojoParam || undefined,
         rankParam || undefined,
@@ -233,7 +222,10 @@ export function SocialSearch() {
           url.searchParams.set(key, value);
         }
       }
-      window.history.replaceState(null, "", url.toString());
+      // Next.js 16 は window.history.replaceState をパッチして ACTION_RESTORE を
+      // ディスパッチし、ルーターレベルの再レンダリングを引き起こす。
+      // プロトタイプの元メソッドを直接呼ぶことでパッチをバイパスする。
+      History.prototype.replaceState.call(history, null, "", url.toString());
     },
     [],
   );
@@ -246,9 +238,15 @@ export function SocialSearch() {
       types?: Set<"post" | "training_record">,
     ) => {
       const pt = getPostTypeParam(types ?? postTypes);
-      search(q, d || undefined, r || undefined, undefined, pt);
+      resultsRef.current?.search(
+        q,
+        d || undefined,
+        r || undefined,
+        undefined,
+        pt,
+      );
     },
-    [search, postTypes, getPostTypeParam],
+    [postTypes, getPostTypeParam],
   );
 
   const handleSearchBarSearch = useCallback(
@@ -283,10 +281,10 @@ export function SocialSearch() {
         return;
       }
       if (q.trim()) {
-        addToHistory(q.trim());
+        resultsRef.current?.addToHistory(q.trim());
       }
     },
-    [isFreeUser, addToHistory],
+    [isFreeUser],
   );
 
   const handleQueryActiveChange = useCallback((active: boolean) => {
@@ -362,33 +360,15 @@ export function SocialSearch() {
     [triggerSearch, dojoName, syncUrlParams, getPostTypeParam, postTypes],
   );
 
-  const handleFavoriteToggle = useCallback(
-    (postId: string) => {
-      handleToggleFavorite(postId, results, updateResult);
-    },
-    [handleToggleFavorite, results, updateResult],
-  );
-
-  const handlePostClick = useCallback(
-    (postId: string) => {
-      window.location.href = `/${locale}/social/posts/${postId}`;
-    },
-    [locale],
-  );
-
   const handleBack = useCallback(() => {
     window.location.replace(`/${locale}/social/posts`);
   }, [locale]);
 
   const handleHistoryClick = useCallback(
     (historyQuery: string) => {
-      if (isFreeUser) {
-        setShowUpgradeModal(true);
-        return;
-      }
       searchBarRef.current?.setQuery(historyQuery);
       triggerSearch(historyQuery, dojoName, rank);
-      addToHistory(historyQuery);
+      resultsRef.current?.addToHistory(historyQuery);
       syncUrlParams({
         q: historyQuery.trim() || undefined,
         dojo: dojoName || undefined,
@@ -396,33 +376,20 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [
-      isFreeUser,
-      triggerSearch,
-      dojoName,
-      rank,
-      addToHistory,
-      syncUrlParams,
-      getPostTypeParam,
-      postTypes,
-    ],
+    [triggerSearch, dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleTrendingClick = useCallback(
     (hashtagName: string) => {
-      if (isFreeUser) {
-        setShowUpgradeModal(true);
-        return;
-      }
       const searchQuery = `#${hashtagName}`;
       searchBarRef.current?.setQuery(searchQuery);
-      search(
+      resultsRef.current?.search(
         searchQuery,
         dojoName || undefined,
         rank || undefined,
         hashtagName,
       );
-      addToHistory(searchQuery);
+      resultsRef.current?.addToHistory(searchQuery);
       syncUrlParams({
         hashtag: hashtagName,
         dojo: dojoName || undefined,
@@ -430,16 +397,7 @@ export function SocialSearch() {
         type: getPostTypeParam(postTypes),
       });
     },
-    [
-      isFreeUser,
-      search,
-      dojoName,
-      rank,
-      addToHistory,
-      syncUrlParams,
-      getPostTypeParam,
-      postTypes,
-    ],
+    [dojoName, rank, syncUrlParams, getPostTypeParam, postTypes],
   );
 
   const handleFilterToggle = useCallback(() => {
@@ -467,7 +425,6 @@ export function SocialSearch() {
   const hasActiveFilters =
     dojoName.trim() !== "" || rank !== "" || postTypes.size < 2;
   const isSearchActive = isQueryActive || hasActiveFilters;
-  const showEmptyState = !isSearchActive && results.length === 0 && !isLoading;
 
   // SocialHeader の center / right を useMemo で安定化
   // 結果到着時の親再レンダリングで SocialHeader（memo化済み）の再描画を防止
@@ -609,117 +566,16 @@ export function SocialSearch() {
         </div>
       </div>
 
-      <div className={styles.results}>
-        {results.length === 0 && isLoading ? (
-          <Loader centered size="large" />
-        ) : showEmptyState ? (
-          <>
-            {/* 検索履歴 */}
-            {history.length > 0 && (
-              <div className={styles.historySection}>
-                <div className={styles.historyHeader}>
-                  <span className={styles.sectionTitle}>
-                    {t("recentSearches")}
-                  </span>
-                  <Button
-                    className={styles.clearAllButton}
-                    onClick={clearHistory}
-                  >
-                    {t("clearAll")}
-                  </Button>
-                </div>
-                <div className={styles.historyList}>
-                  {history.map((item) => (
-                    // biome-ignore lint/a11y/useSemanticElements: Using div with role="button" because <button> causes hydration error with nested Button components
-                    <div
-                      key={item}
-                      className={styles.historyItem}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleHistoryClick(item)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleHistoryClick(item);
-                        }
-                      }}
-                    >
-                      <ClockCounterClockwiseIcon
-                        size={18}
-                        className={styles.historyIcon}
-                      />
-                      <span className={styles.historyText}>{item}</span>
-                      <Button
-                        className={styles.historyDeleteButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeFromHistory(item);
-                        }}
-                        aria-label={t("deleteHistoryItem")}
-                      >
-                        <XIcon size={16} />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* トレンドハッシュタグ */}
-            {!trendingLoading && trending.length > 0 && (
-              <div
-                className={
-                  history.length > 0
-                    ? styles.trendingSection
-                    : styles.trendingSectionNoBorder
-                }
-              >
-                <div className={styles.historyHeader}>
-                  <span className={styles.sectionTitle}>
-                    {t("trendingHashtags")}
-                  </span>
-                </div>
-                <div className={styles.trendingList}>
-                  {trending.map((tag) => (
-                    // biome-ignore lint/a11y/useSemanticElements: Using div with role="button" for consistent styling with history items
-                    <div
-                      key={tag.name}
-                      className={styles.trendingItem}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleTrendingClick(tag.name)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleTrendingClick(tag.name);
-                        }
-                      }}
-                    >
-                      <TrendUpIcon size={18} className={styles.trendingIcon} />
-                      <span className={styles.trendingName}>#{tag.name}</span>
-                      <span className={styles.trendingCount}>
-                        {t("postsCount", { count: tag.count })}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        ) : isSearchActive && results.length === 0 ? (
-          <p className={styles.empty}>{t("searchEmpty")}</p>
-        ) : (
-          results.map((post) => (
-            <SocialPostCard
-              key={post.id}
-              post={post}
-              currentUserId={user?.id ?? ""}
-              onFavoriteToggle={handleFavoriteToggle}
-              onClick={handlePostClick}
-            />
-          ))
-        )}
-      </div>
+      <SocialSearchResults
+        ref={resultsRef}
+        userId={user?.id}
+        isFreeUser={isFreeUser}
+        locale={locale}
+        isSearchActive={isSearchActive}
+        onHistoryClick={handleHistoryClick}
+        onTrendingClick={handleTrendingClick}
+        onPremiumAction={() => setShowUpgradeModal(true)}
+      />
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
