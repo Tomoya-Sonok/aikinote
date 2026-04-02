@@ -388,7 +388,7 @@ export function SocialSearch() {
 
   const handleHistoryClick = useCallback(
     (historyQuery: string) => {
-      track("social_search_use_history");
+      track("social_search_use_history", { keyword: historyQuery });
       searchBarRef.current?.setQuery(historyQuery);
       triggerSearch(historyQuery, dojoName, rank);
       resultsRef.current?.addToHistory(historyQuery);

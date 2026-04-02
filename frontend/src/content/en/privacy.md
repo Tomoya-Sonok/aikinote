@@ -1,6 +1,6 @@
 # AikiNote Privacy Policy
 
-Last updated: March 20, 2026
+Last updated: April 2, 2026
 
 AikiNote ("the Service") values the protection of users' personal information. This Privacy Policy sets forth how we handle personal information in the Service.
 
@@ -18,7 +18,7 @@ The Service collects the following information.
 
 - **Access logs**: IP address, browser type, access date and time
 - **Cookie information**: used for session management and authentication
-- **Usage data**: page views, feature usage frequency, etc. (collected as non-personally-identifiable statistical data through the privacy-focused analytics tool "Umami")
+- **Usage data**: page views, feature usage frequency, search keywords used within the service, etc. (collected as non-personally-identifiable statistical data through the analytics tool "Umami". Search keywords are used solely for trend analysis to improve our service and are not used to identify individuals)
 
 ## 2. Purpose of Use
 
@@ -29,7 +29,7 @@ The collected information is used for the following purposes:
 3. Providing user support
 4. Sending notices regarding the Service
 5. Preventing unauthorized activities and ensuring security
-6. Creating statistical data (in a form that does not identify individuals)
+6. Creation of statistical data and analysis of search trends and usage patterns (in a non-personally-identifiable manner, for the purpose of service improvement)
 
 ## 3. Sharing and Disclosure
 
