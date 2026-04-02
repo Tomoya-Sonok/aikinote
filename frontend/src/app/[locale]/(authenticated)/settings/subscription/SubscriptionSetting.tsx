@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { createCheckoutSession, createPortalSession } from "@/lib/api/client";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./page.module.css";
 import { SubscriptionLayout } from "./SubscriptionLayout";
 
@@ -55,6 +56,7 @@ interface SubscriptionSettingProps {
 
 export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
   const t = useTranslations("subscriptionPage");
+  const router = useRouter();
   const {
     loading: subLoading,
     isPremium,
@@ -112,10 +114,10 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
       const result = await window.showNativePaywall();
       if (result.success) {
         refetch();
-        window.location.href = `/${locale}/settings/subscription?success=1`;
+        router.push("/settings/subscription?success=1");
       }
     }
-  }, [refetch, locale]);
+  }, [refetch, router]);
 
   const handleManageSubscription = useCallback(async () => {
     if (isNativeApp && window.showNativeCustomerCenter) {

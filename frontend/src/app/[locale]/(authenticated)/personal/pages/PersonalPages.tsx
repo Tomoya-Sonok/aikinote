@@ -10,7 +10,6 @@ import {
   SortDescendingIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FilterArea } from "@/components/features/personal/FilterArea/FilterArea";
@@ -27,6 +26,7 @@ import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
 import { useTrainingPagesData } from "@/lib/hooks/useTrainingPagesData";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import { useTutorialStore } from "@/stores/tutorialStore";
 import { type SortOrder } from "@/types/sortOrder";
 import styles from "./page.module.css";
@@ -117,9 +117,9 @@ export function PersonalPages() {
 
   const handleEditTraining = useCallback(
     (id: string) => {
-      window.location.href = `/${locale}/personal/pages/${id}/edit`;
+      router.push(`/personal/pages/${id}/edit`);
     },
-    [locale],
+    [router],
   );
 
   const handleConfirmDelete = useCallback(async () => {
@@ -135,9 +135,9 @@ export function PersonalPages() {
 
   const handleViewTraining = useCallback(
     (id: string) => {
-      router.push(`/${locale}/personal/pages/${id}`);
+      router.push(`/personal/pages/${id}`);
     },
-    [router, locale],
+    [router],
   );
 
   const SortIcon =

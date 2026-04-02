@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./CalendarFooter.module.css";
 import type { ReminderData } from "./types";
 
@@ -36,6 +37,7 @@ export function ReminderSection({
   locale,
 }: ReminderSectionProps) {
   const t = useTranslations("personalCalendar");
+  const router = useRouter();
 
   return (
     <div className={styles.section}>
@@ -50,7 +52,7 @@ export function ReminderSection({
             type="button"
             className={styles.goalLink}
             onClick={() => {
-              location.replace(`/${locale}/settings/push-notification`);
+              router.replace("/settings/push-notification");
             }}
           >
             {t("reminderSetup")} →
@@ -63,7 +65,7 @@ export function ReminderSection({
             type="button"
             className={styles.goalLink}
             onClick={() => {
-              location.replace(`/${locale}/settings/push-notification`);
+              router.replace("/settings/push-notification");
             }}
           >
             {t("reminderChange")} →

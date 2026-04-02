@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   type KeyboardEvent,
   useCallback,
@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./PremiumUpgradeModal.module.css";
 
 interface PremiumUpgradeModalProps {
@@ -33,7 +34,7 @@ export function PremiumUpgradeModal({
   translationKey = "premiumModal",
 }: PremiumUpgradeModalProps) {
   const t = useTranslations(translationKey);
-  const locale = useLocale();
+  const router = useRouter();
   const titleId = useId();
   const upgradeButtonRef = useRef<HTMLButtonElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -76,8 +77,8 @@ export function PremiumUpgradeModal({
       return;
     }
 
-    window.location.href = `/${locale}/settings/subscription`;
-  }, [onClose, locale, track, context]);
+    router.push("/settings/subscription");
+  }, [onClose, router, track, context]);
 
   if (!isOpen) return null;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   type KeyboardEvent,
   useCallback,
@@ -10,6 +10,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import { setReturnTo } from "@/lib/utils/returnTo";
 import styles from "./SignupPromptModal.module.css";
 
@@ -20,7 +21,7 @@ interface SignupPromptModalProps {
 
 export function SignupPromptModal({ isOpen, onClose }: SignupPromptModalProps) {
   const t = useTranslations("signupPromptModal");
-  const locale = useLocale();
+  const router = useRouter();
   const titleId = useId();
   const signupButtonRef = useRef<HTMLButtonElement>(null);
   const { track } = useUmamiTrack();
@@ -39,14 +40,14 @@ export function SignupPromptModal({ isOpen, onClose }: SignupPromptModalProps) {
   const handleSignup = useCallback(() => {
     track("signup_prompt_modal_cta", { action: "signup" });
     setReturnTo(window.location.pathname + window.location.search);
-    window.location.href = `/${locale}/signup`;
-  }, [locale, track]);
+    router.push("/signup");
+  }, [router, track]);
 
   const handleLogin = useCallback(() => {
     track("signup_prompt_modal_cta", { action: "login" });
     setReturnTo(window.location.pathname + window.location.search);
-    window.location.href = `/${locale}/login`;
-  }, [locale, track]);
+    router.push("/login");
+  }, [router, track]);
 
   if (!isOpen) return null;
 

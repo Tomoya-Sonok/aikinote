@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
@@ -13,13 +13,14 @@ import { useToast } from "@/contexts/ToastContext";
 import { getSocialPost, updateSocialPost } from "@/lib/api/client";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./SocialPostEdit.module.css";
 
 const MAX_CONTENT_LENGTH = 2000;
 
 export function SocialPostEdit() {
-  const locale = useLocale();
   const t = useTranslations("socialPosts");
+  const router = useRouter();
   const tCommon = useTranslations();
   const { showToast } = useToast();
   const params = useParams();
@@ -95,27 +96,27 @@ export function SocialPostEdit() {
       await attachmentMgmt.saveNewAttachments(postId);
 
       isNavigatingRef.current = true;
-      window.location.replace(`/${locale}/social/posts/${postId}`);
+      router.replace(`/social/posts/${postId}`);
     } catch {
       showToast(t("editFailed"), "error");
     } finally {
       setIsSaving(false);
     }
-  }, [content, isSaving, postId, showToast, t, locale, attachmentMgmt]);
+  }, [content, isSaving, postId, showToast, t, router, attachmentMgmt]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
       isNavigatingRef.current = true;
-      window.location.replace(`/${locale}/social/posts/${postId}`);
+      router.replace(`/social/posts/${postId}`);
     }
-  }, [hasUnsavedChanges, locale, postId]);
+  }, [hasUnsavedChanges, router, postId]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
-    window.location.replace(`/${locale}/social/posts/${postId}`);
-  }, [locale, postId]);
+    router.replace(`/social/posts/${postId}`);
+  }, [router, postId]);
 
   if (loading) {
     return (

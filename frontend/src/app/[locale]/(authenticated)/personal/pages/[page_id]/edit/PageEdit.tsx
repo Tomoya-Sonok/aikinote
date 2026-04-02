@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
@@ -19,16 +19,17 @@ import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./PageEdit.module.css";
 
 export function PageEdit() {
   const { user } = useAuth();
-  const locale = useLocale();
   const t = useTranslations();
   const { showToast } = useToast();
   const params = useParams();
   const pageId = params.page_id as string;
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const {
     loading: pageLoading,
@@ -145,7 +146,7 @@ export function PageEdit() {
         await attachmentMgmt.saveNewAttachments(pageId);
 
         isNavigatingRef.current = true;
-        window.location.replace(`/${locale}/personal/pages/${pageId}`);
+        router.replace(`/personal/pages/${pageId}`);
       } else {
         throw new Error(
           "error" in response ? response.error : "更新に失敗しました",
@@ -170,21 +171,21 @@ export function PageEdit() {
     tagManagement.selectedWaza,
     showToast,
     t,
-    locale,
+    router,
   ]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
-      window.location.replace(`/${locale}/personal/pages/${pageId}`);
+      router.replace(`/personal/pages/${pageId}`);
     }
-  }, [hasUnsavedChanges, locale, pageId]);
+  }, [hasUnsavedChanges, router, pageId]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
-    window.location.replace(`/${locale}/personal/pages/${pageId}`);
-  }, [locale, pageId]);
+    router.replace(`/personal/pages/${pageId}`);
+  }, [router, pageId]);
 
   if (pageLoading || !initialized) {
     return (

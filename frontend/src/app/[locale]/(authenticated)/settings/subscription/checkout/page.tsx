@@ -4,6 +4,7 @@ import { Purchases } from "@revenuecat/purchases-js";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useRouter } from "@/lib/i18n/routing";
 
 const REVENUECAT_API_KEY = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY ?? "";
 
@@ -14,6 +15,7 @@ const REVENUECAT_API_KEY = process.env.NEXT_PUBLIC_REVENUECAT_API_KEY ?? "";
  */
 export default function CheckoutPage() {
   const { user, isInitializing } = useAuth();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const pkgIdentifier = searchParams.get("pkg");
   const [status, setStatus] = useState<"loading" | "error" | "cancelled">(
@@ -50,7 +52,7 @@ export default function CheckoutPage() {
 
         // 購入成功 → サブスクリプション設定ページに戻る
         if (customerInfo) {
-          window.location.href = `/${window.location.pathname.split("/")[1]}/settings/subscription?success=1`;
+          router.push("/settings/subscription?success=1");
         }
       } catch (error: unknown) {
         const err = error as { userCancelled?: boolean; message?: string };
@@ -69,7 +71,7 @@ export default function CheckoutPage() {
     };
 
     run();
-  }, [isInitializing, user?.id, pkgIdentifier]);
+  }, [isInitializing, user?.id, pkgIdentifier, router]);
 
   if (status === "error") {
     return (

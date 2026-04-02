@@ -1,7 +1,7 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
@@ -14,12 +14,12 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+import { useRouter } from "@/lib/i18n/routing";
 import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./page.module.css";
 
 export function PageDetail() {
   const t = useTranslations();
-  const locale = useLocale();
   const router = useRouter();
   const params = useParams();
   const { user } = useAuth();
@@ -38,7 +38,7 @@ export function PageDetail() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const handleBackToList = () => {
-    router.push(`/${locale}/personal/pages`);
+    router.push("/personal/pages");
   };
 
   const handleTogglePublic = async () => {
@@ -88,7 +88,7 @@ export function PageDetail() {
 
   const handleEdit = () => {
     if (!pageData) return;
-    window.location.href = `/${locale}/personal/pages/${pageId}/edit`;
+    router.push(`/personal/pages/${pageId}/edit`);
   };
 
   const handleDelete = () => {
@@ -123,7 +123,7 @@ export function PageDetail() {
 
       if (response.success) {
         setDeleteDialogOpen(false);
-        router.push(`/${locale}/personal/pages`);
+        router.push("/personal/pages");
       } else {
         throw new Error(response.error || t("pageDetail.deleteFailed"));
       }

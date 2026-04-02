@@ -9,13 +9,21 @@ interface ProfileImageProps {
   alt?: string;
   size?: "small" | "medium" | "large";
   className?: string;
+  priority?: boolean;
 }
+
+const SIZES_MAP = {
+  small: "40px",
+  medium: "60px",
+  large: "120px",
+} as const;
 
 export const ProfileImage: FC<ProfileImageProps> = ({
   src,
   alt,
   size = "medium",
   className = "",
+  priority = false,
 }) => {
   const t = useTranslations();
   const defaultAlt = alt || t("components.profileImage");
@@ -28,7 +36,8 @@ export const ProfileImage: FC<ProfileImageProps> = ({
           alt={defaultAlt}
           fill
           className={styles.image}
-          sizes="120px"
+          sizes={SIZES_MAP[size]}
+          priority={priority}
         />
       ) : (
         <UserIcon

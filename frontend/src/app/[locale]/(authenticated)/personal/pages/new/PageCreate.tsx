@@ -2,7 +2,7 @@
 
 import { ClipboardText } from "@phosphor-icons/react";
 import { useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
@@ -22,19 +22,19 @@ import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
+import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./PageCreate.module.css";
 
 export function PageCreate() {
   const { user } = useAuth();
-  const locale = useLocale();
   const t = useTranslations();
   const { showToast } = useToast();
   const searchParams = useSearchParams();
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  const returnUrl =
-    searchParams.get("returnUrl") || `/${locale}/personal/pages`;
+  const returnUrl = searchParams.get("returnUrl") || "/personal/pages";
   const dateParam = searchParams.get("date");
 
   const [title, setTitle] = useState("");
@@ -127,7 +127,7 @@ export function PageCreate() {
         }
 
         isNavigatingRef.current = true;
-        window.location.replace(returnUrl);
+        router.replace(returnUrl);
       } else {
         throw new Error(
           ("error" in result && result.error) || "作成に失敗しました",
@@ -152,21 +152,22 @@ export function PageCreate() {
     t,
     returnUrl,
     dateParam,
+    router,
   ]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
-      window.location.replace(returnUrl);
+      router.replace(returnUrl);
     }
-  }, [hasUnsavedChanges, returnUrl]);
+  }, [hasUnsavedChanges, returnUrl, router]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
     isNavigatingRef.current = true;
-    window.location.replace(returnUrl);
-  }, [returnUrl]);
+    router.replace(returnUrl);
+  }, [returnUrl, router]);
 
   const isDisabled = isSubmitting || !title.trim() || !content.trim();
 

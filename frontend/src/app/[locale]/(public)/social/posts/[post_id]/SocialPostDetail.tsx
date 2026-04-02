@@ -46,6 +46,7 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./SocialPostDetail.module.css";
@@ -114,6 +115,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const { user, isInitializing } = useAuth();
   const { isPremium, loading: subLoading } = useSubscription();
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("socialPosts");
 
   const { showToast } = useToast();
@@ -174,9 +176,9 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     ) {
       window.history.back();
     } else {
-      window.location.replace(`/${locale}/social/posts`);
+      router.replace("/social/posts");
     }
-  }, [locale]);
+  }, [router]);
 
   const handleFavoriteToggle = useCallback(async () => {
     if (isFreeUser) {
@@ -226,14 +228,14 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     setIsDeleting(true);
     try {
       await deleteSocialPost(postId);
-      window.location.replace(`/${locale}/social/posts`);
+      router.replace("/social/posts");
     } catch {
       showToast(t("deleteFailed"), "error");
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
-  }, [postId, locale, showToast, t]);
+  }, [postId, router, showToast, t]);
 
   const handleReplySubmit = useCallback(
     async (content: string) => {
@@ -398,8 +400,8 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleStartEdit = useCallback(() => {
     setShowMenu(false);
-    window.location.href = `/${locale}/social/posts/${postId}/edit`;
-  }, [locale, postId]);
+    router.push(`/social/posts/${postId}/edit`);
+  }, [router, postId]);
 
   const handleShare = useCallback(async () => {
     if (!detail) return;
