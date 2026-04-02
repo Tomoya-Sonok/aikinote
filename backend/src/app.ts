@@ -26,7 +26,7 @@ import usersRoute from "./routes/users/index.js";
 import revenuecatWebhookRoute from "./routes/webhooks/revenuecat.js";
 import stripeWebhookRoute from "./routes/webhooks/stripe.js";
 
-type AppBindings = {
+export type AppBindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_ANON_KEY?: string;
@@ -34,8 +34,9 @@ type AppBindings = {
   NEXT_PUBLIC_APP_URL?: string;
 };
 
-type AppVariables = {
+export type AppVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 type ResolveOptions = AppBindings & { preferAnon?: boolean };

@@ -1,7 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import {
   getNotifications,
   getUnreadNotificationCount,
@@ -12,6 +11,7 @@ import {
   getNotificationsSchema,
   markNotificationsReadSchema,
 } from "../../lib/validation.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type NotificationsBindings = {
   JWT_SECRET?: string;
@@ -19,6 +19,7 @@ type NotificationsBindings = {
 
 type NotificationsVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 const app = new Hono<{
@@ -27,106 +28,85 @@ const app = new Hono<{
 }>();
 
 // GET / — 通知一覧
-app.get("/", zValidator("query", getNotificationsSchema), async (c) => {
-  try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+app.get(
+  "/",
+  authMiddleware,
+  zValidator("query", getNotificationsSchema),
+  async (c) => {
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
-    const { limit, offset } = c.req.valid("query");
+    try {
+      const { limit, offset } = c.req.valid("query");
 
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
+      const notifications = await getNotifications(
+        supabase,
+        userId,
+        limit,
+        offset,
+      );
 
-    const notifications = await getNotifications(
-      supabase,
-      payload.userId,
-      limit,
-      offset,
-    );
+      // 投稿プレビューをバッチ取得（N+1 解消）
+      const postIds = [
+        ...new Set(
+          // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+          notifications
+            .filter((n: any) => n.post_id)
+            .map((n: any) => n.post_id as string),
+        ),
+      ];
 
-    // 投稿プレビューをバッチ取得（N+1 解消）
-    const postIds = [
-      ...new Set(
-        // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
-        notifications
-          .filter((n: any) => n.post_id)
-          .map((n: any) => n.post_id as string),
-      ),
-    ];
+      const postPreviewMap = new Map<string, string>();
+      if (postIds.length > 0) {
+        const { data: posts } = await supabase
+          .from("SocialPost")
+          .select("id, content")
+          .in("id", postIds);
 
-    const postPreviewMap = new Map<string, string>();
-    if (postIds.length > 0) {
-      const { data: posts } = await supabase
-        .from("SocialPost")
-        .select("id, content")
-        .in("id", postIds);
-
-      for (const post of posts ?? []) {
-        if (post.content) {
-          postPreviewMap.set(
-            post.id,
-            post.content.length > 50
-              ? `${post.content.substring(0, 50)}...`
-              : post.content,
-          );
+        for (const post of posts ?? []) {
+          if (post.content) {
+            postPreviewMap.set(
+              post.id,
+              post.content.length > 50
+                ? `${post.content.substring(0, 50)}...`
+                : post.content,
+            );
+          }
         }
       }
-    }
 
-    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
-    const enriched = notifications.map((notification: any) => ({
-      ...notification,
-      actor: notification.User ?? null,
-      post_preview: postPreviewMap.get(notification.post_id) ?? null,
-      User: undefined,
-    }));
+      // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+      const enriched = notifications.map((notification: any) => ({
+        ...notification,
+        actor: notification.User ?? null,
+        post_preview: postPreviewMap.get(notification.post_id) ?? null,
+        User: undefined,
+      }));
 
-    return c.json({
-      success: true,
-      data: enriched,
-    });
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
+      return c.json({
+        success: true,
+        data: enriched,
+      });
+    } catch (error) {
+      console.error("通知一覧取得エラー:", error);
+      return c.json({ success: false, error: "通知の取得に失敗しました" }, 500);
     }
-    console.error("通知一覧取得エラー:", error);
-    return c.json({ success: false, error: "通知の取得に失敗しました" }, 500);
-  }
-});
+  },
+);
 
 // GET /unread-count — 未読通知数
-app.get("/unread-count", async (c) => {
+app.get("/unread-count", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
-
-    const count = await getUnreadNotificationCount(supabase, payload.userId);
+    const count = await getUnreadNotificationCount(supabase, userId);
 
     return c.json({
       success: true,
       data: { count },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("未読通知数取得エラー:", error);
     return c.json(
       { success: false, error: "未読通知数の取得に失敗しました" },
@@ -136,34 +116,18 @@ app.get("/unread-count", async (c) => {
 });
 
 // GET /unread-post-ids — 未読通知がある投稿IDリスト
-app.get("/unread-post-ids", async (c) => {
+app.get("/unread-post-ids", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
-
-    const postIds = await getUnreadNotificationPostIds(
-      supabase,
-      payload.userId,
-    );
+    const postIds = await getUnreadNotificationPostIds(supabase, userId);
 
     return c.json({
       success: true,
       data: { post_ids: postIds },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("未読通知投稿ID取得エラー:", error);
     return c.json(
       { success: false, error: "未読通知投稿IDの取得に失敗しました" },
@@ -175,23 +139,18 @@ app.get("/unread-post-ids", async (c) => {
 // PATCH /read — 既読化
 app.patch(
   "/read",
+  authMiddleware,
   zValidator("json", markNotificationsReadSchema),
   async (c) => {
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
+
     try {
-      const authHeader = c.req.header("Authorization");
-      const token = extractTokenFromHeader(authHeader);
-      const payload = await verifyToken(token, c.env);
-
       const { notification_ids, mark_all, post_id } = c.req.valid("json");
-
-      const supabase = c.get("supabase");
-      if (!supabase) {
-        return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-      }
 
       await markNotificationsRead(
         supabase,
-        payload.userId,
+        userId,
         notification_ids,
         mark_all,
         post_id,
@@ -202,13 +161,6 @@ app.patch(
         message: "通知を既読にしました",
       });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        (error.message.includes("token") ||
-          error.message.includes("Authorization"))
-      ) {
-        return c.json({ success: false, error: "認証に失敗しました" }, 401);
-      }
       console.error("通知既読化エラー:", error);
       return c.json(
         { success: false, error: "通知の既読化に失敗しました" },

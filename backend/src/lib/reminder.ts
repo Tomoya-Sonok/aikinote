@@ -1,6 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-
-const EXPO_PUSH_API = "https://exp.host/--/api/v2/push/send";
+import { batchIn } from "./batch-query.js";
+import {
+  type ExpoPushMessage,
+  sendExpoPushMessages,
+} from "./push-notification.js";
 
 interface ReminderEnv {
   SUPABASE_URL?: string;
@@ -13,14 +16,6 @@ interface PracticeReminder {
   reminder_time: string; // "HH:MM:SS" (TIME型)
   reminder_days: number[]; // 0=日, 1=月, ..., 6=土
   timezone: string;
-}
-
-interface ExpoPushMessage {
-  to: string;
-  title: string;
-  body: string;
-  channelId: string;
-  sound: "default";
 }
 
 /**
@@ -73,22 +68,27 @@ function getNowInTimezone(timezone: string): {
 }
 
 /**
- * リマインダーの時刻が現在の5分枠にマッチするか判定する。
+ * 5分枠の開始・終了時刻文字列を生成する。
  */
-function isReminderTimeMatching(
-  reminderTime: string,
-  currentHours: number,
-  currentMinutes: number,
-): boolean {
-  // reminder_time は "HH:MM:SS" または "HH:MM" 形式
-  const parts = reminderTime.split(":");
-  const reminderHours = Number(parts[0]);
-  const reminderMinutes = Number(parts[1]);
+function buildTimeSlot(
+  hours: number,
+  minutes: number,
+): {
+  slotStart: string;
+  slotEnd: string;
+} {
+  const roundedMin = roundToFiveMinSlot(minutes);
+  const slotStart = `${String(hours).padStart(2, "0")}:${String(roundedMin).padStart(2, "0")}:00`;
 
-  return (
-    reminderHours === currentHours &&
-    roundToFiveMinSlot(reminderMinutes) === roundToFiveMinSlot(currentMinutes)
-  );
+  let endHours = hours;
+  let endMin = roundedMin + 5;
+  if (endMin >= 60) {
+    endMin = 0;
+    endHours = (endHours + 1) % 24;
+  }
+  const slotEnd = `${String(endHours).padStart(2, "0")}:${String(endMin).padStart(2, "0")}:00`;
+
+  return { slotStart, slotEnd };
 }
 
 /**
@@ -110,27 +110,18 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
   });
 
   try {
-    // 1. reminder_enabled = true のユーザーIDを取得
-    const { data: enabledPrefs, error: prefError } = await supabase
-      .from("UserNotificationPreference")
-      .select("user_id")
-      .eq("reminder_enabled", true);
+    // 1. Asia/Tokyo の現在時刻から5分枠を計算し、DB側で時刻フィルタリング
+    const nowTokyo = getNowInTimezone("Asia/Tokyo");
+    const { slotStart, slotEnd } = buildTimeSlot(
+      nowTokyo.hours,
+      nowTokyo.minutes,
+    );
 
-    if (prefError) {
-      console.error("[Reminder] 通知設定の取得エラー:", prefError);
-      return;
-    }
-    if (!enabledPrefs || enabledPrefs.length === 0) {
-      return;
-    }
-
-    const enabledUserIds = enabledPrefs.map((p) => p.user_id);
-
-    // 2. 該当ユーザーの UserPracticeReminder レコードを取得
     const { data: reminders, error: reminderError } = await supabase
       .from("UserPracticeReminder")
       .select("id, user_id, reminder_time, reminder_days, timezone")
-      .in("user_id", enabledUserIds);
+      .gte("reminder_time", slotStart)
+      .lt("reminder_time", slotEnd);
 
     if (reminderError) {
       console.error("[Reminder] リマインダー取得エラー:", reminderError);
@@ -140,7 +131,7 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
       return;
     }
 
-    // 3-5. 各リマインダーの条件をチェックし、送信対象ユーザーを収集（重複排除）
+    // 2. 曜日マッチング + タイムゾーン再検証で送信対象ユーザーを特定
     const targetUserIds = new Set<string>();
 
     for (const reminder of reminders as PracticeReminder[]) {
@@ -158,12 +149,19 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
           continue;
         }
 
-        // 時刻マッチング（5分枠）
-        if (!isReminderTimeMatching(reminder.reminder_time, hours, minutes)) {
-          continue;
+        // 非 Asia/Tokyo ユーザーの場合、そのタイムゾーンで時刻を再検証
+        if (reminder.timezone !== "Asia/Tokyo") {
+          const parts = reminder.reminder_time.split(":");
+          const reminderHours = Number(parts[0]);
+          const reminderMinutes = Number(parts[1]);
+          if (
+            reminderHours !== hours ||
+            roundToFiveMinSlot(reminderMinutes) !== roundToFiveMinSlot(minutes)
+          ) {
+            continue;
+          }
         }
 
-        // 条件に合致 → 送信対象に追加
         targetUserIds.add(reminder.user_id);
       } catch (err) {
         console.error(
@@ -177,21 +175,42 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
       return;
     }
 
-    // 6. 送信対象ユーザーのプッシュトークンを取得
-    const { data: tokens, error: tokenError } = await supabase
-      .from("UserPushToken")
-      .select("user_id, expo_push_token")
-      .in("user_id", Array.from(targetUserIds));
+    // 3. reminder_enabled = true のユーザーのみに絞り込み（バッチ対応）
+    const candidateIds = Array.from(targetUserIds);
+    const enabledUsers = await batchIn(async (ids) => {
+      const { data } = await supabase
+        .from("UserNotificationPreference")
+        .select("user_id")
+        .eq("reminder_enabled", true)
+        .in("user_id", ids);
+      return data ?? [];
+    }, candidateIds);
 
-    if (tokenError) {
-      console.error("[Reminder] プッシュトークン取得エラー:", tokenError);
+    const enabledUserIds = new Set(enabledUsers.map((u) => u.user_id));
+    const finalUserIds = candidateIds.filter((id) => enabledUserIds.has(id));
+
+    if (finalUserIds.length === 0) {
       return;
     }
-    if (!tokens || tokens.length === 0) {
+
+    // 4. 送信対象ユーザーのプッシュトークンを取得（バッチ対応）
+    const tokens = await batchIn(async (ids) => {
+      const { data, error } = await supabase
+        .from("UserPushToken")
+        .select("user_id, expo_push_token")
+        .in("user_id", ids);
+      if (error) {
+        console.error("[Reminder] プッシュトークン取得エラー:", error);
+        return [];
+      }
+      return data ?? [];
+    }, finalUserIds);
+
+    if (tokens.length === 0) {
       return;
     }
 
-    // 7. Expo Push API に送信
+    // 5. Expo Push API に送信
     const messages: ExpoPushMessage[] = tokens.map((t) => ({
       to: t.expo_push_token,
       title: "AikiNote",
@@ -200,21 +219,10 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
       sound: "default" as const,
     }));
 
-    const response = await fetch(EXPO_PUSH_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(messages),
-    });
-
-    if (!response.ok) {
-      console.error(
-        "[Reminder] Expo Push API エラー:",
-        response.status,
-        await response.text(),
-      );
-    } else {
+    const success = await sendExpoPushMessages(messages);
+    if (success) {
       console.log(
-        `[Reminder] ${targetUserIds.size} ユーザー、${messages.length} デバイスに送信完了`,
+        `[Reminder] ${finalUserIds.length} ユーザー、${messages.length} デバイスに送信完了`,
       );
     }
   } catch (err) {
@@ -272,24 +280,24 @@ async function processStreakNotifications(
   monday.setDate(monday.getDate() - 5);
   const mondayStr = jstFormatter.format(monday);
 
-  // 3. 今週に稽古参加があるユーザーを取得
-  const { data: attendedRecords, error: attendError } = await supabase
-    .from("TrainingDate")
-    .select("user_id")
-    .in("user_id", userIds)
-    .eq("is_attended", true)
-    .gte("training_date", mondayStr)
-    .lte("training_date", todayStr);
-
-  if (attendError) {
-    console.error("[Streak] 稽古参加データ取得エラー:", attendError);
-    return;
-  }
+  // 3. 今週に稽古参加があるユーザーを取得（バッチ対応）
+  const attendedRecords = await batchIn(async (ids) => {
+    const { data, error } = await supabase
+      .from("TrainingDate")
+      .select("user_id")
+      .in("user_id", ids)
+      .eq("is_attended", true)
+      .gte("training_date", mondayStr)
+      .lte("training_date", todayStr);
+    if (error) {
+      console.error("[Streak] 稽古参加データ取得エラー:", error);
+      return [];
+    }
+    return data ?? [];
+  }, userIds);
 
   // 今週参加済みのユーザーIDセット
-  const attendedUserIds = new Set(
-    (attendedRecords ?? []).map((r) => r.user_id),
-  );
+  const attendedUserIds = new Set(attendedRecords.map((r) => r.user_id));
 
   // 4. 今週参加がないユーザーを特定
   const targetUserIds = userIds.filter((id) => !attendedUserIds.has(id));
@@ -297,13 +305,17 @@ async function processStreakNotifications(
     return;
   }
 
-  // 5. プッシュトークンを取得して送信
-  const { data: tokens, error: tokenError } = await supabase
-    .from("UserPushToken")
-    .select("expo_push_token")
-    .in("user_id", targetUserIds);
+  // 5. プッシュトークンを取得して送信（バッチ対応）
+  const tokens = await batchIn(async (ids) => {
+    const { data, error } = await supabase
+      .from("UserPushToken")
+      .select("expo_push_token")
+      .in("user_id", ids);
+    if (error) return [];
+    return data ?? [];
+  }, targetUserIds);
 
-  if (tokenError || !tokens || tokens.length === 0) {
+  if (tokens.length === 0) {
     return;
   }
 
@@ -315,19 +327,8 @@ async function processStreakNotifications(
     sound: "default" as const,
   }));
 
-  const response = await fetch(EXPO_PUSH_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(messages),
-  });
-
-  if (!response.ok) {
-    console.error(
-      "[Streak] Expo Push API エラー:",
-      response.status,
-      await response.text(),
-    );
-  } else {
+  const success = await sendExpoPushMessages(messages);
+  if (success) {
     console.log(
       `[Streak] ${targetUserIds.length} ユーザーにストリーク途切れ通知を送信`,
     );

@@ -14,6 +14,7 @@ import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
 import { useTrendingHashtags } from "@/lib/hooks/useTrendingHashtags";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./SocialSearch.module.css";
 
 export interface SearchResultsHandle {
@@ -30,7 +31,6 @@ export interface SearchResultsHandle {
 interface SocialSearchResultsProps {
   userId: string | undefined;
   isFreeUser: boolean;
-  locale: string;
   isSearchActive: boolean;
   onHistoryClick: (query: string) => void;
   onTrendingClick: (hashtagName: string) => void;
@@ -44,7 +44,6 @@ export const SocialSearchResults = forwardRef<
   {
     userId,
     isFreeUser,
-    locale,
     isSearchActive,
     onHistoryClick,
     onTrendingClick,
@@ -53,6 +52,7 @@ export const SocialSearchResults = forwardRef<
   ref,
 ) {
   const t = useTranslations("socialPosts");
+  const router = useRouter();
   const { results, isLoading, search, updateResult } = useSocialSearch(userId);
   const { handleToggleFavorite } = useSocialFavorite();
   const { history, addToHistory, removeFromHistory, clearHistory } =
@@ -77,9 +77,9 @@ export const SocialSearchResults = forwardRef<
 
   const handlePostClick = useCallback(
     (postId: string) => {
-      window.location.href = `/${locale}/social/posts/${postId}`;
+      router.push(`/social/posts/${postId}`);
     },
-    [locale],
+    [router],
   );
 
   const handleHistoryItemClick = useCallback(

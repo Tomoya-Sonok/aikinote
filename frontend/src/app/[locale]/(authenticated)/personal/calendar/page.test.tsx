@@ -8,8 +8,14 @@ import {
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useRouter } from "@/lib/i18n/routing";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { PersonalCalendar } from "./PersonalCalendar";
+
+const mockPush = vi.fn();
+vi.mock("@/lib/i18n/routing", () => ({
+  useRouter: vi.fn(() => ({ push: mockPush, replace: vi.fn() })),
+}));
 
 vi.mock("@/lib/hooks/useAuth", () => ({
   useAuth: vi.fn(),
@@ -267,10 +273,12 @@ describe("カレンダー画面", () => {
 
     // Assert
     await waitFor(() => {
-      expect(window.location.href).toContain(
-        `/personal/pages/new?date=${expectedDate}`,
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining(`/personal/pages/new?date=${expectedDate}`),
       );
-      expect(window.location.href).toContain("returnUrl=");
+      expect(mockPush).toHaveBeenCalledWith(
+        expect.stringContaining("returnUrl="),
+      );
     });
   });
 });

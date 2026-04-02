@@ -6,7 +6,7 @@ import {
   CheckFatIcon,
   FunnelIcon,
 } from "@phosphor-icons/react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   type ChangeEvent,
   forwardRef,
@@ -34,6 +34,7 @@ import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./SocialSearch.module.css";
 import {
   type SearchResultsHandle,
@@ -119,7 +120,7 @@ const SocialSearchBar = memo(
 
 export function SocialSearch() {
   const { user } = useAuth();
-  const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("socialPosts");
   const searchBarRef = useRef<SearchBarHandle>(null);
   const [isQueryActive, setIsQueryActive] = useState(false);
@@ -383,8 +384,8 @@ export function SocialSearch() {
   );
 
   const handleBack = useCallback(() => {
-    window.location.replace(`/${locale}/social/posts`);
-  }, [locale]);
+    router.replace("/social/posts");
+  }, [router]);
 
   const handleHistoryClick = useCallback(
     (historyQuery: string) => {
@@ -603,7 +604,6 @@ export function SocialSearch() {
         ref={resultsRef}
         userId={user?.id}
         isFreeUser={isFreeUser}
-        locale={locale}
         isSearchActive={isSearchActive}
         onHistoryClick={handleHistoryClick}
         onTrendingClick={handleTrendingClick}

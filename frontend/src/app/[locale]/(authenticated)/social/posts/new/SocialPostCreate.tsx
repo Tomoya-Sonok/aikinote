@@ -2,7 +2,7 @@
 
 import { ClipboardText } from "@phosphor-icons/react";
 import { useSearchParams } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
@@ -23,6 +23,7 @@ import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
+import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import styles from "./SocialPostCreate.module.css";
 
@@ -32,8 +33,8 @@ const MAX_POST_CONTENT_LENGTH = 2000;
 
 export function SocialPostCreate() {
   const { user } = useAuth();
-  const locale = useLocale();
   const t = useTranslations();
+  const router = useRouter();
   const tSocial = useTranslations("socialPosts");
   const { showToast } = useToast();
   const searchParams = useSearchParams();
@@ -141,7 +142,7 @@ export function SocialPostCreate() {
       }
 
       isNavigatingRef.current = true;
-      window.location.replace(`/${locale}/social/posts`);
+      router.replace("/social/posts");
     } catch {
       showToast(tSocial("createFailed"), "error");
     } finally {
@@ -155,7 +156,7 @@ export function SocialPostCreate() {
     postAttachmentMgmt,
     showToast,
     tSocial,
-    locale,
+    router,
   ]);
 
   // 稽古記録モード送信
@@ -191,7 +192,7 @@ export function SocialPostCreate() {
         }
 
         isNavigatingRef.current = true;
-        window.location.replace(`/${locale}/social/posts`);
+        router.replace("/social/posts");
       } else {
         throw new Error(
           ("error" in result && result.error) || tSocial("createFailed"),
@@ -213,7 +214,7 @@ export function SocialPostCreate() {
     trainingAttachmentMgmt,
     showToast,
     tSocial,
-    locale,
+    router,
   ]);
 
   const handleSubmit = () => {
@@ -230,14 +231,14 @@ export function SocialPostCreate() {
       setIsBackConfirmOpen(true);
     } else {
       isNavigatingRef.current = true;
-      window.location.replace(`/${locale}/social/posts`);
+      router.replace("/social/posts");
     }
-  }, [hasUnsavedChanges, locale]);
+  }, [hasUnsavedChanges, router]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
-    window.location.replace(`/${locale}/social/posts`);
-  }, [locale]);
+    router.replace("/social/posts");
+  }, [router]);
 
   const isDisabled =
     isSubmitting ||

@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type DojoStyleBindings = {
   SUPABASE_URL?: string;
@@ -11,6 +11,7 @@ type DojoStyleBindings = {
 
 type DojoStyleVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 const app = new Hono<{
@@ -141,11 +142,9 @@ app.get("/search", async (c) => {
 });
 
 // 道場新規登録API（認証必須）
-app.post("/", async (c) => {
+app.post("/", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+    const userId = c.get("userId");
 
     let body: unknown;
     try {
@@ -173,16 +172,7 @@ app.post("/", async (c) => {
 
     const { dojo_name, dojo_name_kana } = parsed.data;
 
-    const supabase = resolveSupabaseClient(c);
-    if (!supabase) {
-      return c.json(
-        {
-          success: false,
-          error: "サーバー設定が不正です",
-        },
-        500,
-      );
-    }
+    const supabase = c.get("supabase")!;
 
     // 既存の完全一致チェック
     const { data: existing, error: searchError } = await supabase
@@ -217,7 +207,7 @@ app.post("/", async (c) => {
         dojo_name,
         dojo_name_kana: dojo_name_kana || null,
         is_approved: false,
-        created_by_user_id: payload.userId,
+        created_by_user_id: userId,
       })
       .select("id, dojo_name, is_approved")
       .single();
@@ -260,22 +250,7 @@ app.post("/", async (c) => {
       },
       201,
     );
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization header") ||
-        error.message.includes("Invalid authorization"))
-    ) {
-      return c.json(
-        {
-          success: false,
-          error: "認証に失敗しました",
-        },
-        401,
-      );
-    }
-
+  } catch (_error) {
     return c.json(
       {
         success: false,

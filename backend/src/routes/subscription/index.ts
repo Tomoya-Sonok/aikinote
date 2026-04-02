@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import Stripe from "stripe";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import {
   getSubscriptionStatus,
   isPremiumUser,
@@ -9,6 +8,7 @@ import {
   upsertSubscriptionFromWebhook,
 } from "../../lib/subscription.js";
 import type { ApiResponse } from "../../lib/validation.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type SubscriptionBindings = {
   JWT_SECRET?: string;
@@ -19,6 +19,7 @@ type SubscriptionBindings = {
 
 type SubscriptionVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 const app = new Hono<{
@@ -36,18 +37,12 @@ const getEnv = (
 };
 
 // GET /api/subscription/status — サブスクリプション状態取得
-app.get("/status", async (c) => {
+app.get("/status", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
-
-    const status = await getSubscriptionStatus(supabase, payload.userId);
+    const status = await getSubscriptionStatus(supabase, userId);
 
     const response: ApiResponse<SubscriptionStatusResponse> = {
       success: true,
@@ -57,13 +52,6 @@ app.get("/status", async (c) => {
 
     return c.json(response, 200);
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("サブスクリプション状態取得エラー:", error);
     return c.json(
       { success: false, error: "サブスクリプション状態の取得に失敗しました" },
@@ -73,11 +61,10 @@ app.get("/status", async (c) => {
 });
 
 // POST /api/subscription/checkout — Stripe Checkout Session 作成
-app.post("/checkout", async (c) => {
+app.post("/checkout", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
     const stripeKey = getEnv(c.env, "STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -87,13 +74,8 @@ app.post("/checkout", async (c) => {
       );
     }
 
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
-
     // 二重課金防止: 既に Premium の場合は Checkout を作成しない
-    const premium = await isPremiumUser(supabase, payload.userId);
+    const premium = await isPremiumUser(supabase, userId);
     if (premium) {
       return c.json(
         {
@@ -119,7 +101,7 @@ app.post("/checkout", async (c) => {
     const { data: user } = await supabase
       .from("User")
       .select("email")
-      .eq("id", payload.userId)
+      .eq("id", userId)
       .single();
 
     const stripe = new Stripe(stripeKey);
@@ -140,7 +122,7 @@ app.post("/checkout", async (c) => {
       } else {
         const customer = await stripe.customers.create({
           email: user.email,
-          metadata: { supabase_user_id: payload.userId },
+          metadata: { supabase_user_id: userId },
         });
         customerId = customer.id;
       }
@@ -154,11 +136,11 @@ app.post("/checkout", async (c) => {
       success_url: `${appUrl}/${locale}/settings/subscription?success=1`,
       cancel_url: `${appUrl}/${locale}/settings/subscription`,
       metadata: {
-        supabase_user_id: payload.userId,
+        supabase_user_id: userId,
       },
       subscription_data: {
         metadata: {
-          supabase_user_id: payload.userId,
+          supabase_user_id: userId,
         },
       },
     });
@@ -168,13 +150,6 @@ app.post("/checkout", async (c) => {
       data: { url: session.url },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("Checkout Session 作成エラー:", error);
     return c.json(
       {
@@ -190,11 +165,10 @@ app.post("/checkout", async (c) => {
 });
 
 // POST /api/subscription/portal — Stripe Customer Portal セッション作成
-app.post("/portal", async (c) => {
+app.post("/portal", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
     const stripeKey = getEnv(c.env, "STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -204,11 +178,6 @@ app.post("/portal", async (c) => {
       );
     }
 
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
-
     const body = await c.req.json().catch(() => ({}));
     const locale: string = (body as { locale?: string })?.locale ?? "ja";
 
@@ -216,7 +185,7 @@ app.post("/portal", async (c) => {
     const { data: user } = await supabase
       .from("User")
       .select("email")
-      .eq("id", payload.userId)
+      .eq("id", userId)
       .single();
 
     if (!user?.email) {
@@ -254,13 +223,6 @@ app.post("/portal", async (c) => {
       data: { url: portalSession.url },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("Customer Portal セッション作成エラー:", error);
     return c.json(
       {
@@ -276,11 +238,10 @@ app.post("/portal", async (c) => {
 });
 
 // POST /api/subscription/sync — Stripe の実際の状態と DB を同期
-app.post("/sync", async (c) => {
+app.post("/sync", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
     const stripeKey = getEnv(c.env, "STRIPE_SECRET_KEY");
     if (!stripeKey) {
@@ -290,15 +251,10 @@ app.post("/sync", async (c) => {
       );
     }
 
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
-
     const { data: user } = await supabase
       .from("User")
       .select("email")
-      .eq("id", payload.userId)
+      .eq("id", userId)
       .single();
 
     if (!user?.email) {
@@ -317,10 +273,7 @@ app.post("/sync", async (c) => {
     if (customers.data.length === 0) {
       // Stripe に顧客がいない → DB の現在の値を信頼して返す
       // （手動 Premium 付与など、Stripe を経由しないケースに対応）
-      const currentStatus = await getSubscriptionStatus(
-        supabase,
-        payload.userId,
-      );
+      const currentStatus = await getSubscriptionStatus(supabase, userId);
       return c.json({
         success: true,
         data: { tier: currentStatus.tier, status: currentStatus.status },
@@ -339,7 +292,7 @@ app.post("/sync", async (c) => {
     if (subscriptions.data.length === 0) {
       // アクティブなサブスクリプションなし → Free に戻す
       await upsertSubscriptionFromWebhook(supabase, {
-        userId: payload.userId,
+        userId,
         revenuecatCustomerId: customerId,
         tier: "free",
         status: "expired",
@@ -391,7 +344,7 @@ app.post("/sync", async (c) => {
     });
 
     await upsertSubscriptionFromWebhook(supabase, {
-      userId: payload.userId,
+      userId,
       revenuecatCustomerId: customerId,
       tier: "premium",
       status: "active",
@@ -407,13 +360,6 @@ app.post("/sync", async (c) => {
       data: { tier: "premium", status: "active" },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("サブスクリプション同期エラー:", error);
     return c.json(
       {

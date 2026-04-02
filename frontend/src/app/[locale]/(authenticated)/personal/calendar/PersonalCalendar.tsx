@@ -19,13 +19,11 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
-type DayStatus = {
-  isAttended: boolean;
-  pageCount: number;
-};
+import type { DayStatus } from "./types";
 
 const formatDateKey = (date: Date): string => {
   const year = date.getFullYear();
@@ -136,6 +134,7 @@ function CalendarActionModal({
 export function PersonalCalendar() {
   const locale = useLocale();
   const t = useTranslations();
+  const router = useRouter();
   const { showToast } = useToast();
   const showToastRef = useRef(showToast);
   const tRef = useRef(t);
@@ -163,6 +162,7 @@ export function PersonalCalendar() {
     target_attendance: number;
   } | null>(null);
   const [examAttendanceCount, setExamAttendanceCount] = useState(0);
+  const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null);
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -247,28 +247,12 @@ export function PersonalCalendar() {
     void fetchMonthData();
   }, [fetchMonthData]);
 
-  // リマインダーデータ取得
-  useEffect(() => {
-    if (!user?.id) return;
-    fetch("/api/notification-preferences", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.data) {
-          setReminderEnabled(data.data.preferences?.reminder_enabled ?? false);
-          setReminders(
-            (data.data.reminders ?? []).map(
-              (r: { reminder_time: string; reminder_days: number[] }) => ({
-                reminder_time: r.reminder_time,
-                reminder_days: r.reminder_days,
-              }),
-            ),
-          );
-        }
-      })
-      .catch(() => {});
-  }, [user?.id]);
+  const handleGoalChanged = useCallback(
+    (goal: number | null) => setMonthlyGoal(goal),
+    [],
+  );
 
-  // 審査目標データ取得
+  // 審査目標データ取得（handleExamGoalSaved から再呼び出しされるため個別に定義）
   const fetchExamGoal = useCallback(async () => {
     if (!user?.id) return;
     try {
@@ -281,7 +265,6 @@ export function PersonalCalendar() {
       const json = await res.json();
       if (json?.data) {
         setExamGoal(json.data);
-        // 稽古日数カウント取得（前回審査日 < x < 次回審査日）
         const params = new URLSearchParams({ to: json.data.exam_date });
         if (json.data.prev_exam_date) {
           params.set("from", json.data.prev_exam_date);
@@ -304,9 +287,44 @@ export function PersonalCalendar() {
     }
   }, [user?.id]);
 
+  // 月間目標・リマインダー・審査目標を並列フェッチ
   useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchSideData = async () => {
+      const [goalResult, reminderResult] = await Promise.allSettled([
+        fetch("/api/training-goals", { credentials: "include" }).then((r) =>
+          r.ok ? r.json() : null,
+        ),
+        fetch("/api/notification-preferences", {
+          credentials: "include",
+        }).then((r) => (r.ok ? r.json() : null)),
+      ]);
+
+      if (
+        goalResult.status === "fulfilled" &&
+        goalResult.value?.data?.goal != null
+      ) {
+        setMonthlyGoal(goalResult.value.data.goal);
+      }
+
+      if (reminderResult.status === "fulfilled" && reminderResult.value?.data) {
+        const data = reminderResult.value.data;
+        setReminderEnabled(data.preferences?.reminder_enabled ?? false);
+        setReminders(
+          (data.reminders ?? []).map(
+            (r: { reminder_time: string; reminder_days: number[] }) => ({
+              reminder_time: r.reminder_time,
+              reminder_days: r.reminder_days,
+            }),
+          ),
+        );
+      }
+    };
+
+    void fetchSideData();
     void fetchExamGoal();
-  }, [fetchExamGoal]);
+  }, [user?.id, fetchExamGoal]);
 
   const handleExamGoalSaved = useCallback(() => {
     void fetchExamGoal();
@@ -404,8 +422,10 @@ export function PersonalCalendar() {
       track("start_create_page_from_calendar", {
         selected_date: selectedDateKey,
       });
-      const returnUrl = `/${locale}/personal/calendar`;
-      window.location.href = `/${locale}/personal/pages/new?date=${selectedDateKey}&returnUrl=${encodeURIComponent(returnUrl)}`;
+      const returnUrl = "/personal/calendar";
+      router.push(
+        `/personal/pages/new?date=${selectedDateKey}&returnUrl=${encodeURIComponent(returnUrl)}`,
+      );
     }
   };
 
@@ -507,6 +527,8 @@ export function PersonalCalendar() {
         examGoal={examGoal}
         examAttendanceCount={examAttendanceCount}
         onExamGoalSaved={handleExamGoalSaved}
+        monthlyGoal={monthlyGoal}
+        onGoalChanged={handleGoalChanged}
       />
 
       <CalendarActionModal

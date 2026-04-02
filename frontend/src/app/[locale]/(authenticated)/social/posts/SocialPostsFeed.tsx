@@ -23,6 +23,7 @@ import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./page.module.css";
 
 const VALID_TABS: SocialTab[] = ["all", "training", "favorites"];
@@ -37,6 +38,7 @@ const parseTabParam = (param: string | null): SocialTab => {
 export function SocialPostsFeed() {
   const { user } = useAuth();
   const locale = useLocale();
+  const router = useRouter();
   const tPremium = useTranslations("premiumModalBrowse");
   const t = useTranslations("socialPosts");
   const searchParams = useSearchParams();
@@ -118,9 +120,9 @@ export function SocialPostsFeed() {
 
   const handlePostClick = useCallback(
     (postId: string) => {
-      window.location.href = `/${locale}/social/posts/${postId}`;
+      router.push(`/social/posts/${postId}`);
     },
-    [locale],
+    [router],
   );
 
   const handleTabChange = useCallback(

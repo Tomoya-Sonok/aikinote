@@ -1,7 +1,7 @@
 "use client";
 
 import { InfoIcon } from "@phosphor-icons/react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProfileCard } from "@/components/features/social/ProfileCard/ProfileCard";
 import {
@@ -19,6 +19,7 @@ import { getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import styles from "./SocialProfile.module.css";
 
 type ProfileTab = "posts" | "training";
@@ -46,7 +47,7 @@ interface SocialProfileViewProps {
 
 export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const { user: currentUser } = useAuth();
-  const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations("socialPosts");
   const { track } = useUmamiTrack();
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -95,19 +96,19 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
 
   const handlePostClick = useCallback(
     (postId: string) => {
-      window.location.href = `/${locale}/social/posts/${postId}`;
+      router.push(`/social/posts/${postId}`);
     },
-    [locale],
+    [router],
   );
 
   const handleBack = useCallback(() => {
-    window.location.replace(`/${locale}/social/posts`);
-  }, [locale]);
+    router.replace("/social/posts");
+  }, [router]);
 
   const handleEdit = useCallback(() => {
     track("social_profile_start_edit_profile");
-    window.location.href = `/${locale}/profile/edit?from=social`;
-  }, [locale, track]);
+    router.push("/profile/edit?from=social");
+  }, [router, track]);
 
   const regularPosts = useMemo(
     () => posts.filter((p) => p.post_type !== "training_record"),

@@ -25,7 +25,7 @@ type HonoUserInfo = {
   full_name?: string | null;
 };
 
-const buildApiUrl = (path: string) => {
+export const buildApiUrl = (path: string) => {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${HONO_API_BASE_URL}${normalizedPath}`;
 };
@@ -47,7 +47,7 @@ const createBackendAuthTokenFromUser = (user: User | null) => {
   );
 };
 
-const createBackendAuthToken = async () => {
+export const createBackendAuthToken = async () => {
   const supabase = await getServerSupabase();
   const {
     data: { user },

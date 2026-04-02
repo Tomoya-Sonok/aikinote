@@ -1,15 +1,19 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { deletePage, getPage, getTags, updatePage } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useRouter } from "@/lib/i18n/routing";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { PageDetail } from "./PageDetail";
 
 // モック設定
 vi.mock("next/navigation", () => ({
   useParams: vi.fn(),
+}));
+
+vi.mock("@/lib/i18n/routing", () => ({
   useRouter: vi.fn(),
 }));
 
@@ -217,7 +221,7 @@ describe("ページ詳細画面", () => {
         });
 
         await waitFor(() => {
-          expect(mockPush).toHaveBeenCalledWith("/ja/personal/pages");
+          expect(mockPush).toHaveBeenCalledWith("/personal/pages");
         });
       });
     });
@@ -242,7 +246,7 @@ describe("ページ詳細画面", () => {
       await userEvent.click(editButton);
 
       // Assert
-      expect(window.location.href).toContain(
+      expect(mockPush).toHaveBeenCalledWith(
         "/personal/pages/test-page-id/edit",
       );
     });

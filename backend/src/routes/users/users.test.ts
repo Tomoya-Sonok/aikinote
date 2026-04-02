@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { generateToken } from "../../lib/jwt.js";
@@ -8,27 +9,29 @@ const mockSingle = vi.fn();
 const mockUpdateSingle = vi.fn();
 const mockMaybeSingle = vi.fn();
 
-// モジュールのモック
-vi.mock("@supabase/supabase-js", () => ({
-  createClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: mockSingle,
-          neq: vi.fn(() => ({
-            maybeSingle: mockMaybeSingle,
-          })),
+const mockSupabase = {
+  from: vi.fn(() => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        single: mockSingle,
+        neq: vi.fn(() => ({
+          maybeSingle: mockMaybeSingle,
         })),
       })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: mockUpdateSingle,
-          })),
+    })),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        select: vi.fn(() => ({
+          single: mockUpdateSingle,
         })),
       })),
     })),
   })),
+} as unknown as SupabaseClient;
+
+// モジュールのモック
+vi.mock("@supabase/supabase-js", () => ({
+  createClient: vi.fn(() => mockSupabase),
 }));
 
 // 環境変数の設定
@@ -44,6 +47,11 @@ describe("ユーザープロフィールAPI", () => {
 
   beforeEach(async () => {
     app = new Hono();
+    // authMiddleware が c.get("supabase") を参照するため、事前にセットする
+    app.use("*", async (c, next) => {
+      c.set("supabase" as never, mockSupabase);
+      await next();
+    });
     app.route("/api/users", usersRoute);
 
     // 有効なJWTトークンを生成
@@ -108,7 +116,7 @@ describe("ユーザープロフィールAPI", () => {
       expect(response.status).toBe(401);
       const responseData = await response.json();
       expect(responseData.success).toBe(false);
-      expect(responseData.error).toBe("認証に失敗しました");
+      expect(responseData.error).toBe("認証エラー");
     });
 
     test("無効なJWTトークンの場合は401エラーを返す", async () => {
@@ -127,7 +135,7 @@ describe("ユーザープロフィールAPI", () => {
       expect(response.status).toBe(401);
       const responseData = await response.json();
       expect(responseData.success).toBe(false);
-      expect(responseData.error).toBe("認証に失敗しました");
+      expect(responseData.error).toBe("認証エラー");
     });
 
     test("他のユーザーのプロフィールを取得しようとすると403エラーを返す", async () => {
@@ -365,7 +373,7 @@ describe("ユーザープロフィールAPI", () => {
       expect(response.status).toBe(401);
       const responseData = await response.json();
       expect(responseData.success).toBe(false);
-      expect(responseData.error).toBe("認証に失敗しました");
+      expect(responseData.error).toBe("認証エラー");
     });
 
     test("他のユーザーのプロフィールを更新しようとすると403エラーを返す", async () => {

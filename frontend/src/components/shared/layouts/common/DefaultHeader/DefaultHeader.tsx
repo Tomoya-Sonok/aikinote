@@ -46,46 +46,8 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     setIsDrawerOpen(false);
   };
 
-  const handleTextSizeClick = () => {
-    track("default_header_navigation_settings_font_size");
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/font-size`;
-  };
-
-  const handleEmailClick = () => {
-    track("default_header_navigation_settings_email");
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/email`;
-  };
-
-  const handleLanguageClick = () => {
-    track("default_header_navigation_settings_language");
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/language`;
-  };
-
-  const handleTagManagementClick = () => {
-    track("default_header_navigation_settings_tags");
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/tags`;
-  };
-
-  const handlePublicityClick = () => {
-    track("default_header_navigation_settings_publicity");
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/publicity`;
-  };
-
-  const handleSubscriptionClick = () => {
-    track("default_header_navigation_settings_subscription");
-    setIsDrawerOpen(false);
-    window.location.href = `/${locale}/settings/subscription`;
-  };
-
-  const handlePushNotificationClick = () => {
-    track("default_header_navigation_settings_push_notification");
-    setIsDrawerOpen(false);
-    location.replace(`/${locale}/settings/push-notification`);
+  const handleDrawerItemClick = (trackEvent: string) => {
+    track(trackEvent);
   };
 
   useEffect(() => {
@@ -166,7 +128,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                   width={40}
                   height={40}
                   className={styles.avatarImage}
-                  unoptimized
+                  sizes="40px"
                 />
               ) : (
                 <UserIcon
@@ -195,7 +157,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
                       width={48}
                       height={48}
                       className={styles.profileCardAvatar}
-                      unoptimized
+                      sizes="48px"
                     />
                   ) : (
                     <UserIcon
@@ -273,13 +235,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
       <NavigationDrawer
         isOpen={isDrawerOpen}
         onClose={handleCloseDrawer}
-        onEmailClick={handleEmailClick}
-        onTextSizeClick={handleTextSizeClick}
-        onLanguageClick={handleLanguageClick}
-        onTagManagementClick={handleTagManagementClick}
-        onPublicityClick={handlePublicityClick}
-        onSubscriptionClick={handleSubscriptionClick}
-        onPushNotificationClick={handlePushNotificationClick}
+        onItemClick={handleDrawerItemClick}
       />
     </header>
   );

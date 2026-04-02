@@ -2,7 +2,6 @@ import { zValidator } from "@hono/zod-validator";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { z } from "zod";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import {
   deleteTrainingDateAttendance,
   getTrainingDatesByMonth,
@@ -17,6 +16,7 @@ import {
   type TrainingDateResponse,
   upsertTrainingDateSchema,
 } from "../../lib/validation.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type TrainingDatesBindings = {
   JWT_SECRET?: string;
@@ -24,6 +24,7 @@ type TrainingDatesBindings = {
 
 type TrainingDatesVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 const app = new Hono<{
@@ -124,21 +125,15 @@ app.delete("/", zValidator("query", deleteTrainingDateSchema), async (c) => {
 });
 
 // GET /goal — 月間稽古目標を取得
-app.get("/goal", async (c) => {
+app.get("/goal", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
     const { data, error } = await supabase
       .from("User")
       .select("monthly_training_goal")
-      .eq("id", payload.userId)
+      .eq("id", userId)
       .single();
 
     if (error) {
@@ -158,13 +153,6 @@ app.get("/goal", async (c) => {
 
     return c.json(response, 200);
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("月間稽古目標の取得エラー:", error);
 
     const errorResponse: ApiResponse<never> = {
@@ -178,70 +166,56 @@ app.get("/goal", async (c) => {
 });
 
 // PUT /goal — 月間稽古目標を設定
-app.put("/goal", zValidator("json", updateGoalSchema), async (c) => {
-  try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+app.put(
+  "/goal",
+  authMiddleware,
+  zValidator("json", updateGoalSchema),
+  async (c) => {
+    try {
+      const userId = c.get("userId");
+      const supabase = c.get("supabase")!;
 
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
+      const { goal } = c.req.valid("json");
 
-    const { goal } = c.req.valid("json");
+      const { error } = await supabase
+        .from("User")
+        .update({ monthly_training_goal: goal })
+        .eq("id", userId);
 
-    const { error } = await supabase
-      .from("User")
-      .update({ monthly_training_goal: goal })
-      .eq("id", payload.userId);
+      if (error) {
+        console.error("月間稽古目標の更新エラー:", error);
+        return c.json(
+          { success: false, error: "月間稽古目標の更新に失敗しました" },
+          500,
+        );
+      }
 
-    if (error) {
+      const response: ApiResponse<MonthlyTrainingGoalResponse> = {
+        success: true,
+        data: { goal },
+        message: "月間稽古目標を更新しました",
+      };
+
+      return c.json(response, 200);
+    } catch (error) {
       console.error("月間稽古目標の更新エラー:", error);
-      return c.json(
-        { success: false, error: "月間稽古目標の更新に失敗しました" },
-        500,
-      );
+
+      const errorResponse: ApiResponse<never> = {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "不明なエラーが発生しました",
+      };
+
+      return c.json(errorResponse, 500);
     }
-
-    const response: ApiResponse<MonthlyTrainingGoalResponse> = {
-      success: true,
-      data: { goal },
-      message: "月間稽古目標を更新しました",
-    };
-
-    return c.json(response, 200);
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
-    console.error("月間稽古目標の更新エラー:", error);
-
-    const errorResponse: ApiResponse<never> = {
-      success: false,
-      error:
-        error instanceof Error ? error.message : "不明なエラーが発生しました",
-    };
-
-    return c.json(errorResponse, 500);
-  }
-});
+  },
+);
 
 // GET /count — 期間内の出席日数をカウント
-app.get("/count", async (c) => {
+app.get("/count", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
 
     const from = c.req.query("from");
     const to = c.req.query("to");
@@ -254,7 +228,7 @@ app.get("/count", async (c) => {
     let query = supabase
       .from("TrainingDate")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", payload.userId)
+      .eq("user_id", userId)
       .eq("is_attended", true)
       .lt("training_date", to);
 
@@ -277,13 +251,6 @@ app.get("/count", async (c) => {
       data: { count: count ?? 0 },
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("出席日数カウントエラー:", error);
 
     const errorResponse: ApiResponse<never> = {

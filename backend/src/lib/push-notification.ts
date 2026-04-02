@@ -8,12 +8,50 @@ interface PushPayload {
   postId?: string | null;
 }
 
-interface ExpoPushMessage {
+export interface ExpoPushMessage {
   to: string;
   title: string;
   body: string;
   data?: Record<string, string>;
+  channelId?: string;
   sound: "default";
+}
+
+/**
+ * Expo Push API にメッセージをバッチ送信する共通関数。
+ * Expo 推奨のバッチサイズ（100件）で分割して送信する。
+ */
+export async function sendExpoPushMessages(
+  messages: ExpoPushMessage[],
+): Promise<boolean> {
+  if (messages.length === 0) return true;
+
+  const EXPO_BATCH = 100;
+  let allSuccess = true;
+
+  for (let i = 0; i < messages.length; i += EXPO_BATCH) {
+    const batch = messages.slice(i, i + EXPO_BATCH);
+    try {
+      const response = await fetch(EXPO_PUSH_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(batch),
+      });
+      if (!response.ok) {
+        console.error(
+          "[Push] Expo Push API エラー:",
+          response.status,
+          await response.text(),
+        );
+        allSuccess = false;
+      }
+    } catch (err) {
+      console.error("[Push] Expo Push API ネットワークエラー:", err);
+      allSuccess = false;
+    }
+  }
+
+  return allSuccess;
 }
 
 function buildPushBody(type: string, actorUsername: string): string {
@@ -104,20 +142,7 @@ export async function sendPushToUser(
       ...(payload.postId ? { data: { postId: payload.postId } } : {}),
     }));
 
-    // Expo Push API に送信
-    const response = await fetch(EXPO_PUSH_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(messages),
-    });
-
-    if (!response.ok) {
-      console.error(
-        "[Push] Expo Push API エラー:",
-        response.status,
-        await response.text(),
-      );
-    }
+    await sendExpoPushMessages(messages);
   } catch (err) {
     console.error("[Push] プッシュ送信エラー:", err);
   }
@@ -161,19 +186,7 @@ export async function sendPushToUsers(
       ...(payload.postId ? { data: { postId: payload.postId } } : {}),
     }));
 
-    const response = await fetch(EXPO_PUSH_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(messages),
-    });
-
-    if (!response.ok) {
-      console.error(
-        "[Push] Expo Push API エラー:",
-        response.status,
-        await response.text(),
-      );
-    }
+    await sendExpoPushMessages(messages);
   } catch (err) {
     console.error("[Push] プッシュ一括送信エラー:", err);
   }

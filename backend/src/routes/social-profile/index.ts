@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
 import { getSocialProfile } from "../../lib/supabase.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type ProfileBindings = {
   JWT_SECRET?: string;
@@ -9,6 +9,7 @@ type ProfileBindings = {
 
 type ProfileVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 const app = new Hono<{
@@ -17,24 +18,18 @@ const app = new Hono<{
 }>();
 
 // GET /:userId — ソーシャルプロフィール取得
-app.get("/:userId", async (c) => {
+app.get("/:userId", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
     const targetUserId = c.req.param("userId");
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
 
     // viewer の dojo_style_id を取得
     const { data: viewer } = await supabase
       .from("User")
       .select("dojo_style_id")
-      .eq("id", payload.userId)
+      .eq("id", userId)
       .single();
 
     const viewerDojoStyleId = viewer?.dojo_style_id ?? null;
@@ -42,7 +37,7 @@ app.get("/:userId", async (c) => {
     const profile = await getSocialProfile(
       supabase,
       targetUserId,
-      payload.userId,
+      userId,
       viewerDojoStyleId,
     );
 
@@ -55,13 +50,6 @@ app.get("/:userId", async (c) => {
       data: profile,
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization"))
-    ) {
-      return c.json({ success: false, error: "認証に失敗しました" }, 401);
-    }
     console.error("プロフィール取得エラー:", error);
     return c.json(
       { success: false, error: "プロフィールの取得に失敗しました" },

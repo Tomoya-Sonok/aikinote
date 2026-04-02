@@ -12,29 +12,17 @@ import styles from "./NavigationDrawer.module.css";
 interface NavigationDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onEmailClick: () => void;
-  onTextSizeClick: () => void;
-  onLanguageClick: () => void;
-  onTagManagementClick: () => void;
-  onPublicityClick: () => void;
-  onSubscriptionClick?: () => void;
-  onPushNotificationClick: () => void;
+  onItemClick?: (trackEvent: string) => void;
 }
 
 export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   isOpen,
   onClose,
-  onEmailClick,
-  onTextSizeClick,
-  onLanguageClick,
-  onTagManagementClick,
-  onPublicityClick,
-  onSubscriptionClick,
-  onPushNotificationClick,
+  onItemClick,
 }) => {
   const t = useTranslations();
   const { isPremium, loading } = useSubscription();
-  // ESCキーでドロワーを閉じる
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -44,7 +32,6 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
-      // スクロールを無効化
       document.body.style.overflow = "hidden";
     }
 
@@ -56,9 +43,13 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
 
   if (!isOpen) return null;
 
+  const handleClick = (trackEvent: string) => {
+    onClose();
+    onItemClick?.(trackEvent);
+  };
+
   return (
     <>
-      {/* オーバーレイ */}
       <button
         type="button"
         className={styles.overlay}
@@ -66,7 +57,6 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
         onClick={onClose}
       />
 
-      {/* ドロワー本体 */}
       <div className={`${styles.drawer} ${isOpen ? styles.open : ""}`}>
         <div className={styles.header}>
           <h2 className={styles.title}>{t("navigation.settings")}</h2>
@@ -82,28 +72,63 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
 
         <div className={styles.content}>
           <div className={styles.menu}>
-            {onSubscriptionClick && (
-              <SettingItem onClick={onSubscriptionClick}>
-                {t("navigation.subscription")}
-                {!loading && <PlanBadge isPremium={isPremium} />}
-              </SettingItem>
-            )}
-            <SettingItem onClick={onPublicityClick}>
+            <SettingItem
+              href="/settings/subscription"
+              onClick={() =>
+                handleClick("default_header_navigation_settings_subscription")
+              }
+            >
+              {t("navigation.subscription")}
+              {!loading && <PlanBadge isPremium={isPremium} />}
+            </SettingItem>
+            <SettingItem
+              href="/settings/publicity"
+              onClick={() =>
+                handleClick("default_header_navigation_settings_publicity")
+              }
+            >
               {t("navigation.publicity")}
             </SettingItem>
-            <SettingItem onClick={onTagManagementClick}>
+            <SettingItem
+              href="/settings/tags"
+              onClick={() =>
+                handleClick("default_header_navigation_settings_tags")
+              }
+            >
               {t("navigation.tagManagement")}
             </SettingItem>
-            <SettingItem onClick={onEmailClick}>
+            <SettingItem
+              href="/settings/email"
+              onClick={() =>
+                handleClick("default_header_navigation_settings_email")
+              }
+            >
               {t("navigation.email")}
             </SettingItem>
-            <SettingItem onClick={onTextSizeClick}>
+            <SettingItem
+              href="/settings/font-size"
+              onClick={() =>
+                handleClick("default_header_navigation_settings_font_size")
+              }
+            >
               {t("navigation.fontSize")}
             </SettingItem>
-            <SettingItem onClick={onLanguageClick}>
+            <SettingItem
+              href="/settings/language"
+              onClick={() =>
+                handleClick("default_header_navigation_settings_language")
+              }
+            >
               {t("navigation.language")}
             </SettingItem>
-            <SettingItem onClick={onPushNotificationClick}>
+            <SettingItem
+              href="/settings/push-notification"
+              onClick={() =>
+                handleClick(
+                  "default_header_navigation_settings_push_notification",
+                )
+              }
+            >
               {t("navigation.pushNotification")}
             </SettingItem>
           </div>
