@@ -4,7 +4,9 @@ import { XIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect } from "react";
+import { PlanBadge } from "@/components/features/setting/SettingsMenu/PlanBadge";
 import { SettingItem } from "@/components/shared/SettingItem/SettingItem";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import styles from "./NavigationDrawer.module.css";
 
 interface NavigationDrawerProps {
@@ -31,6 +33,7 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
   onPushNotificationClick,
 }) => {
   const t = useTranslations();
+  const { isPremium, loading } = useSubscription();
   // ESCキーでドロワーを閉じる
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -82,6 +85,7 @@ export const NavigationDrawer: FC<NavigationDrawerProps> = ({
             {onSubscriptionClick && (
               <SettingItem onClick={onSubscriptionClick}>
                 {t("navigation.subscription")}
+                {!loading && <PlanBadge isPremium={isPremium} />}
               </SettingItem>
             )}
             <SettingItem onClick={onPublicityClick}>

@@ -1,0 +1,28 @@
+.free,
+.premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: baseline;
+  margin-left: 16px;
+}
+
+.free {
+  color: var(--black);
+  background: transparent;
+  border: 1px solid var(--border-color);
+}
+
+.premium {
+  color: var(--accent-color);
+  background: var(--black);
+  border: 1px solid var(--black);
+}
