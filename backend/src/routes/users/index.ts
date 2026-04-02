@@ -3,7 +3,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type UserBindings = {
   SUPABASE_URL?: string;
@@ -19,6 +19,7 @@ type UserBindings = {
 
 type UserVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 const app = new Hono<{ Bindings: UserBindings; Variables: UserVariables }>();
@@ -556,17 +557,13 @@ app.get("/check-username", async (c) => {
 });
 
 // ユーザープロフィール取得API
-app.get("/:userId", async (c) => {
+app.get("/:userId", authMiddleware, async (c) => {
   try {
     const userId = c.req.param("userId");
-    const authHeader = c.req.header("Authorization");
-
-    // JWT認証
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
+    const authenticatedUserId = c.get("userId");
 
     // 本人のプロフィールのみ取得可能
-    if (payload.userId !== userId) {
+    if (authenticatedUserId !== userId) {
       return c.json(
         {
           success: false,
@@ -576,17 +573,7 @@ app.get("/:userId", async (c) => {
       );
     }
 
-    const supabase = resolveSupabaseClient(c);
-
-    if (!supabase) {
-      return c.json(
-        {
-          success: false,
-          error: "サーバー設定が不正です",
-        },
-        500,
-      );
-    }
+    const supabase = c.get("supabase")!;
 
     // Supabaseからユーザー情報を取得
     const { data: userData, error } = await supabase
@@ -621,21 +608,6 @@ app.get("/:userId", async (c) => {
       message: "ユーザー情報を取得しました",
     });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization header") ||
-        error.message.includes("Invalid authorization"))
-    ) {
-      return c.json(
-        {
-          success: false,
-          error: "認証に失敗しました",
-        },
-        401,
-      );
-    }
-
     return c.json(
       {
         success: false,
@@ -647,93 +619,116 @@ app.get("/:userId", async (c) => {
 });
 
 // ユーザープロフィール更新API
-app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
-  try {
-    const userId = c.req.param("userId");
-    const authHeader = c.req.header("Authorization");
-    const updateData = c.req.valid("json");
+app.put(
+  "/:userId",
+  authMiddleware,
+  zValidator("json", updateProfileSchema),
+  async (c) => {
+    try {
+      const userId = c.req.param("userId");
+      const authenticatedUserId = c.get("userId");
+      const updateData = c.req.valid("json");
 
-    // JWT認証
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    // 本人のプロフィールのみ更新可能
-    if (payload.userId !== userId) {
-      return c.json(
-        {
-          success: false,
-          error: "他のユーザーのプロフィールは更新できません",
-        },
-        403,
-      );
-    }
-
-    // ユーザー名のバリデーション（簡易版）
-    if (updateData.username && updateData.username.length > 20) {
-      return c.json(
-        {
-          success: false,
-          error: "ユーザー名は20文字以内で入力してください",
-        },
-        400,
-      );
-    }
-
-    const supabase = resolveSupabaseClient(c);
-
-    if (!supabase) {
-      return c.json(
-        {
-          success: false,
-          error: "サーバー設定が不正です",
-        },
-        500,
-      );
-    }
-
-    // ユーザー名の重複チェック（自分以外）
-    if (updateData.username) {
-      const { data: existingUser, error: checkError } = await supabase
-        .from("User")
-        .select("id")
-        .eq("username", updateData.username)
-        .neq("id", userId)
-        .maybeSingle();
-
-      if (checkError) {
+      // 本人のプロフィールのみ更新可能
+      if (authenticatedUserId !== userId) {
         return c.json(
           {
             success: false,
-            error: "ユーザー名の確認に失敗しました",
+            error: "他のユーザーのプロフィールは更新できません",
           },
-          500,
+          403,
         );
       }
 
-      if (existingUser) {
+      // ユーザー名のバリデーション（簡易版）
+      if (updateData.username && updateData.username.length > 20) {
         return c.json(
           {
             success: false,
-            error: "このユーザー名は既に使用されています",
+            error: "ユーザー名は20文字以内で入力してください",
           },
           400,
         );
       }
-    }
 
-    // 更新データが空の場合はupdateをスキップして現在のデータを返す
-    if (Object.keys(updateData).length === 0) {
-      const { data: currentUser, error: fetchError } = await supabase
+      const supabase = c.get("supabase")!;
+
+      // ユーザー名の重複チェック（自分以外）
+      if (updateData.username) {
+        const { data: existingUser, error: checkError } = await supabase
+          .from("User")
+          .select("id")
+          .eq("username", updateData.username)
+          .neq("id", userId)
+          .maybeSingle();
+
+        if (checkError) {
+          return c.json(
+            {
+              success: false,
+              error: "ユーザー名の確認に失敗しました",
+            },
+            500,
+          );
+        }
+
+        if (existingUser) {
+          return c.json(
+            {
+              success: false,
+              error: "このユーザー名は既に使用されています",
+            },
+            400,
+          );
+        }
+      }
+
+      // 更新データが空の場合はupdateをスキップして現在のデータを返す
+      if (Object.keys(updateData).length === 0) {
+        const { data: currentUser, error: fetchError } = await supabase
+          .from("User")
+          .select(USER_PROFILE_COLUMNS)
+          .eq("id", userId)
+          .single();
+
+        if (fetchError || !currentUser) {
+          return c.json(
+            {
+              success: false,
+              error: "ユーザー情報の取得に失敗しました",
+            },
+            500,
+          );
+        }
+
+        return c.json({
+          success: true,
+          data: currentUser,
+          message: "変更はありません",
+        });
+      }
+
+      // Supabaseでユーザー情報を更新
+      const { data: updatedUser, error: updateError } = await supabase
         .from("User")
-        .select(USER_PROFILE_COLUMNS)
+        .update(updateData)
         .eq("id", userId)
+        .select(USER_PROFILE_COLUMNS)
         .single();
 
-      if (fetchError || !currentUser) {
+      if (updateError) {
+        console.error("プロフィール更新エラー:", {
+          userId,
+          updateData,
+          errorMessage: updateError.message,
+          errorCode: updateError.code,
+          errorDetails: updateError.details,
+          errorHint: updateError.hint,
+        });
         return c.json(
           {
             success: false,
-            error: "ユーザー情報の取得に失敗しました",
+            error: "プロフィールの更新に失敗しました",
           },
           500,
         );
@@ -741,84 +736,31 @@ app.put("/:userId", zValidator("json", updateProfileSchema), async (c) => {
 
       return c.json({
         success: true,
-        data: currentUser,
-        message: "変更はありません",
+        data: updatedUser,
+        message: "プロフィールを更新しました",
       });
-    }
-
-    // Supabaseでユーザー情報を更新
-    const { data: updatedUser, error: updateError } = await supabase
-      .from("User")
-      .update(updateData)
-      .eq("id", userId)
-      .select(USER_PROFILE_COLUMNS)
-      .single();
-
-    if (updateError) {
-      console.error("プロフィール更新エラー:", {
-        userId,
-        updateData,
-        errorMessage: updateError.message,
-        errorCode: updateError.code,
-        errorDetails: updateError.details,
-        errorHint: updateError.hint,
-      });
+    } catch (error) {
       return c.json(
         {
           success: false,
-          error: "プロフィールの更新に失敗しました",
+          error: "サーバーエラーが発生しました",
         },
         500,
       );
     }
-
-    return c.json({
-      success: true,
-      data: updatedUser,
-      message: "プロフィールを更新しました",
-    });
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes("token") ||
-        error.message.includes("Authorization header") ||
-        error.message.includes("Invalid authorization"))
-    ) {
-      return c.json(
-        {
-          success: false,
-          error: "認証に失敗しました",
-        },
-        401,
-      );
-    }
-
-    return c.json(
-      {
-        success: false,
-        error: "サーバーエラーが発生しました",
-      },
-      500,
-    );
-  }
-});
+  },
+);
 
 // GET /:userId/publicity-dojos — 公開対象道場一覧の取得
-app.get("/:userId/publicity-dojos", async (c) => {
+app.get("/:userId/publicity-dojos", authMiddleware, async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
+    const authenticatedUserId = c.get("userId");
     const userId = c.req.param("userId");
-    if (payload.userId !== userId) {
+    if (authenticatedUserId !== userId) {
       return c.json({ success: false, error: "認証エラー" }, 403);
     }
 
-    const supabase = resolveSupabaseClient(c);
-    if (!supabase) {
-      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-    }
+    const supabase = c.get("supabase")!;
 
     const { data, error } = await supabase
       .from("UserPublicityDojo")
@@ -854,23 +796,18 @@ const updatePublicityDojosSchema = z.object({
 
 app.put(
   "/:userId/publicity-dojos",
+  authMiddleware,
   zValidator("json", updatePublicityDojosSchema),
   async (c) => {
     try {
-      const authHeader = c.req.header("Authorization");
-      const token = extractTokenFromHeader(authHeader);
-      const payload = await verifyToken(token, c.env);
-
+      const authenticatedUserId = c.get("userId");
       const userId = c.req.param("userId");
-      if (payload.userId !== userId) {
+      if (authenticatedUserId !== userId) {
         return c.json({ success: false, error: "認証エラー" }, 403);
       }
 
       const { dojo_style_ids } = c.req.valid("json");
-      const supabase = resolveSupabaseClient(c);
-      if (!supabase) {
-        return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
-      }
+      const supabase = c.get("supabase")!;
 
       // 既存レコードを削除
       await supabase.from("UserPublicityDojo").delete().eq("user_id", userId);

@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
-import { extractTokenFromHeader, verifyToken } from "../../lib/jwt.js";
-import { isPremiumUser } from "../../lib/subscription.js";
+import { authMiddleware, premiumMiddleware } from "../../middleware/auth.js";
 
 type NotificationPreferencesBindings = {
   JWT_SECRET?: string;
@@ -9,6 +8,7 @@ type NotificationPreferencesBindings = {
 
 type NotificationPreferencesVariables = {
   supabase: SupabaseClient | null;
+  userId: string;
 };
 
 /**
@@ -32,22 +32,16 @@ const app = new Hono<{
 }>();
 
 // GET / — 通知設定 + リマインダー一覧を取得
-app.get("/", async (c) => {
+app.get("/", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ error: "Supabase クライアント未初期化" }, 500);
-    }
-
     // 通知設定を取得
     const { data: preferences, error: prefError } = await supabase
       .from("UserNotificationPreference")
       .select("*")
-      .eq("user_id", payload.userId)
+      .eq("user_id", userId)
       .maybeSingle();
 
     if (prefError) {
@@ -59,7 +53,7 @@ app.get("/", async (c) => {
     const { data: reminders, error: reminderError } = await supabase
       .from("UserPracticeReminder")
       .select("*")
-      .eq("user_id", payload.userId)
+      .eq("user_id", userId)
       .order("created_at", { ascending: true });
 
     if (reminderError) {
@@ -85,27 +79,16 @@ app.get("/", async (c) => {
     });
   } catch (err) {
     console.error("通知設定取得エラー:", err);
-    return c.json({ error: "認証エラー" }, 401);
+    return c.json({ error: "通知設定の取得に失敗しました" }, 500);
   }
 });
 
 // PUT / — ソーシャル通知 ON/OFF + リマインダー ON/OFF を更新
-app.put("/", async (c) => {
+app.put("/", authMiddleware, premiumMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ error: "Supabase クライアント未初期化" }, 500);
-    }
-
-    const premium = await isPremiumUser(supabase, payload.userId);
-    if (!premium) {
-      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
-    }
-
     const body = await c.req.json<{
       notify_favorite?: boolean;
       notify_reply?: boolean;
@@ -116,7 +99,7 @@ app.put("/", async (c) => {
 
     const { error } = await supabase.from("UserNotificationPreference").upsert(
       {
-        user_id: payload.userId,
+        user_id: userId,
         notify_favorite: body.notify_favorite ?? true,
         notify_reply: body.notify_reply ?? true,
         notify_reply_to_thread: body.notify_reply_to_thread ?? true,
@@ -135,27 +118,16 @@ app.put("/", async (c) => {
     return c.json({ success: true });
   } catch (err) {
     console.error("通知設定更新エラー:", err);
-    return c.json({ error: "認証エラー" }, 401);
+    return c.json({ error: "通知設定の更新に失敗しました" }, 500);
   }
 });
 
 // POST /reminders — リマインダー追加（最大5件チェック）
-app.post("/reminders", async (c) => {
+app.post("/reminders", authMiddleware, premiumMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ error: "Supabase クライアント未初期化" }, 500);
-    }
-
-    const premium = await isPremiumUser(supabase, payload.userId);
-    if (!premium) {
-      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
-    }
-
     const body = await c.req.json<{
       reminder_time?: string;
       reminder_days?: number[];
@@ -166,7 +138,7 @@ app.post("/reminders", async (c) => {
     const { count, error: countError } = await supabase
       .from("UserPracticeReminder")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", payload.userId);
+      .eq("user_id", userId);
 
     if (countError) {
       console.error("リマインダー件数取得エラー:", countError);
@@ -180,7 +152,7 @@ app.post("/reminders", async (c) => {
     const { data, error } = await supabase
       .from("UserPracticeReminder")
       .insert({
-        user_id: payload.userId,
+        user_id: userId,
         reminder_time: roundToFiveMinutes(body.reminder_time ?? "21:00"),
         reminder_days: body.reminder_days ?? [],
         timezone: body.timezone ?? "Asia/Tokyo",
@@ -196,27 +168,16 @@ app.post("/reminders", async (c) => {
     return c.json({ success: true, data });
   } catch (err) {
     console.error("リマインダー追加エラー:", err);
-    return c.json({ error: "認証エラー" }, 401);
+    return c.json({ error: "リマインダーの追加に失敗しました" }, 500);
   }
 });
 
 // PUT /reminders/:id — リマインダー更新
-app.put("/reminders/:id", async (c) => {
+app.put("/reminders/:id", authMiddleware, premiumMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ error: "Supabase クライアント未初期化" }, 500);
-    }
-
-    const premium = await isPremiumUser(supabase, payload.userId);
-    if (!premium) {
-      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
-    }
-
     const reminderId = c.req.param("id");
 
     // user_id の一致チェック
@@ -230,7 +191,7 @@ app.put("/reminders/:id", async (c) => {
       return c.json({ error: "リマインダーが見つかりません" }, 404);
     }
 
-    if (existing.user_id !== payload.userId) {
+    if (existing.user_id !== userId) {
       return c.json({ error: "権限がありません" }, 403);
     }
 
@@ -262,27 +223,16 @@ app.put("/reminders/:id", async (c) => {
     return c.json({ success: true, data });
   } catch (err) {
     console.error("リマインダー更新エラー:", err);
-    return c.json({ error: "認証エラー" }, 401);
+    return c.json({ error: "リマインダーの更新に失敗しました" }, 500);
   }
 });
 
 // DELETE /reminders/:id — リマインダー削除
-app.delete("/reminders/:id", async (c) => {
+app.delete("/reminders/:id", authMiddleware, premiumMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase")!;
+
   try {
-    const authHeader = c.req.header("Authorization");
-    const token = extractTokenFromHeader(authHeader);
-    const payload = await verifyToken(token, c.env);
-
-    const supabase = c.get("supabase");
-    if (!supabase) {
-      return c.json({ error: "Supabase クライアント未初期化" }, 500);
-    }
-
-    const premium = await isPremiumUser(supabase, payload.userId);
-    if (!premium) {
-      return c.json({ success: false, error: "Premium プランが必要です" }, 403);
-    }
-
     const reminderId = c.req.param("id");
 
     // user_id の一致チェック
@@ -296,7 +246,7 @@ app.delete("/reminders/:id", async (c) => {
       return c.json({ error: "リマインダーが見つかりません" }, 404);
     }
 
-    if (existing.user_id !== payload.userId) {
+    if (existing.user_id !== userId) {
       return c.json({ error: "権限がありません" }, 403);
     }
 
@@ -313,7 +263,7 @@ app.delete("/reminders/:id", async (c) => {
     return c.json({ success: true });
   } catch (err) {
     console.error("リマインダー削除エラー:", err);
-    return c.json({ error: "認証エラー" }, 401);
+    return c.json({ error: "リマインダーの削除に失敗しました" }, 500);
   }
 });
 

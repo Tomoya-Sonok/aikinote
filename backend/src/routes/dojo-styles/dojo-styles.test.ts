@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { generateToken } from "../../lib/jwt.js";
@@ -9,24 +10,26 @@ const mockMaybeSingle = vi.fn();
 
 const mockLimit = vi.fn();
 
-vi.mock("@supabase/supabase-js", () => ({
-  createClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn((..._args: unknown[]) => ({
-          maybeSingle: mockMaybeSingle,
-          or: vi.fn((..._args2: unknown[]) => ({
-            limit: mockLimit,
-          })),
-        })),
-      })),
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: mockInsert,
+const mockSupabase = {
+  from: vi.fn(() => ({
+    select: vi.fn(() => ({
+      eq: vi.fn((..._args: unknown[]) => ({
+        maybeSingle: mockMaybeSingle,
+        or: vi.fn((..._args2: unknown[]) => ({
+          limit: mockLimit,
         })),
       })),
     })),
+    insert: vi.fn(() => ({
+      select: vi.fn(() => ({
+        single: mockInsert,
+      })),
+    })),
   })),
+} as unknown as SupabaseClient;
+
+vi.mock("@supabase/supabase-js", () => ({
+  createClient: vi.fn(() => mockSupabase),
 }));
 
 // 環境変数の設定
@@ -36,6 +39,11 @@ vi.stubEnv("JWT_SECRET", "test-jwt-secret");
 
 const createTestApp = () => {
   const app = new Hono();
+  // authMiddleware が c.get("supabase") を参照するため、事前にセットする
+  app.use("*", async (c, next) => {
+    c.set("supabase" as never, mockSupabase);
+    await next();
+  });
   app.route("/api/dojo-styles", dojoStylesRoute);
   return app;
 };

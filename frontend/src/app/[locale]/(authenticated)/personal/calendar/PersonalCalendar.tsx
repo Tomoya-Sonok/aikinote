@@ -22,10 +22,7 @@ import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
-type DayStatus = {
-  isAttended: boolean;
-  pageCount: number;
-};
+import type { DayStatus } from "./types";
 
 const formatDateKey = (date: Date): string => {
   const year = date.getFullYear();
@@ -163,6 +160,7 @@ export function PersonalCalendar() {
     target_attendance: number;
   } | null>(null);
   const [examAttendanceCount, setExamAttendanceCount] = useState(0);
+  const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null);
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -246,6 +244,23 @@ export function PersonalCalendar() {
   useEffect(() => {
     void fetchMonthData();
   }, [fetchMonthData]);
+
+  // 月間稽古目標取得
+  useEffect(() => {
+    fetch("/api/training-goals", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.data?.goal != null) {
+          setMonthlyGoal(data.data.goal);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleGoalChanged = useCallback(
+    (goal: number | null) => setMonthlyGoal(goal),
+    [],
+  );
 
   // リマインダーデータ取得
   useEffect(() => {
@@ -507,6 +522,8 @@ export function PersonalCalendar() {
         examGoal={examGoal}
         examAttendanceCount={examAttendanceCount}
         onExamGoalSaved={handleExamGoalSaved}
+        monthlyGoal={monthlyGoal}
+        onGoalChanged={handleGoalChanged}
       />
 
       <CalendarActionModal
