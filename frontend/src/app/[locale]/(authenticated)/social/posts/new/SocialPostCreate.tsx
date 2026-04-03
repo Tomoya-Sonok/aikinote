@@ -8,11 +8,13 @@ import { AttachmentUpload } from "@/components/features/personal/AttachmentUploa
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
+import { InitialTagLanguageDialog } from "@/components/shared/InitialTagLanguageDialog/InitialTagLanguageDialog";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { TitleTemplateModal } from "@/components/shared/TitleTemplateModal/TitleTemplateModal";
+import type { TagLanguage } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
 import {
   createPage,
@@ -61,11 +63,36 @@ export function SocialPostCreate() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isTagLanguageDialogOpen, setIsTagLanguageDialogOpen] = useState(false);
+  const [isInitializingTags, setIsInitializingTags] = useState(false);
 
   const tagManagement = useTagManagement({
-    shouldCreateInitialTags: true,
     enabled: mode === "training",
   });
+
+  // 初期タグ言語選択ダイアログ
+  useEffect(() => {
+    if (
+      mode === "training" &&
+      tagManagement.needsInitialTags &&
+      !tagManagement.loading
+    ) {
+      setIsTagLanguageDialogOpen(true);
+    }
+  }, [mode, tagManagement.needsInitialTags, tagManagement.loading]);
+
+  const handleTagLanguageConfirm = useCallback(
+    async (language: TagLanguage) => {
+      setIsInitializingTags(true);
+      try {
+        await tagManagement.initializeTags(language);
+        setIsTagLanguageDialogOpen(false);
+      } finally {
+        setIsInitializingTags(false);
+      }
+    },
+    [tagManagement],
+  );
 
   // 稽古記録モード切り替え時にタイトルへフォーカス
   useEffect(() => {
@@ -474,6 +501,12 @@ export function SocialPostCreate() {
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onInsert={(value) => setTrainingTitle(value)}
+      />
+
+      <InitialTagLanguageDialog
+        isOpen={isTagLanguageDialogOpen}
+        onConfirm={handleTagLanguageConfirm}
+        isProcessing={isInitializingTags}
       />
     </div>
   );

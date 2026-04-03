@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 import {
   createInternalServerErrorResponse,
@@ -163,8 +162,6 @@ export async function POST(request: Request) {
             : "認証メールの送信に失敗しました。しばらくしてからもう一度お試しください。",
         );
       }
-
-      await initializeUserTagsIfNeeded(createdUserId);
 
       return createSuccessResponse(insertedUser, {
         message: "ユーザー登録が完了しました。認証メールを確認してください。",

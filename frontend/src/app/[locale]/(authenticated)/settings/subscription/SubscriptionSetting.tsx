@@ -151,7 +151,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
 
   return (
     <SubscriptionLayout
-      headerTitle="プラン"
+      headerTitle={t("title")}
       backHref={`/${locale}/personal/pages`}
     >
       <div className={styles.container}>

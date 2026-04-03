@@ -510,9 +510,15 @@ export const removeTrainingDateAttendance = async ({
 };
 
 // 初期タグ作成API関数
-export const initializeUserTags = async (userId: string) => {
+export const initializeUserTags = async (
+  userId: string,
+  language: "ja" | "en" = "ja",
+) => {
   try {
-    const response = await trpcClient.tags.initializeForUser.mutate({ userId });
+    const response = await trpcClient.tags.initializeForUser.mutate({
+      userId,
+      language,
+    });
     invalidateQueryCacheByPrefixes([
       "tags:getList",
       "pages:getList",

@@ -247,50 +247,6 @@ const sendVerificationEmail = async (
   }
 };
 
-const initializeUserTagsIfNeeded = async (
-  supabase: SupabaseClient,
-  userId: string,
-) => {
-  const { count, error: countError } = await supabase
-    .from("UserTag")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId);
-
-  if (countError) {
-    console.error("初期タグ確認エラー:", countError);
-    return;
-  }
-
-  if (count && count > 0) {
-    return;
-  }
-
-  const { data: templates, error: templatesError } = await supabase
-    .from("DefaultTagTemplate")
-    .select("*")
-    .order("category", { ascending: true })
-    .order("name", { ascending: true });
-
-  if (templatesError || !templates) {
-    console.error("初期タグ取得エラー:", templatesError);
-    return;
-  }
-
-  const userTags = templates.map((template) => ({
-    user_id: userId,
-    category: template.category,
-    name: template.name,
-  }));
-
-  const { error: insertError } = await supabase
-    .from("UserTag")
-    .insert(userTags);
-
-  if (insertError) {
-    console.error("初期タグ作成エラー:", insertError);
-  }
-};
-
 // ユーザー作成API
 app.post("/", async (c) => {
   let body: unknown;
@@ -495,8 +451,6 @@ app.post("/", async (c) => {
         500,
       );
     }
-
-    await initializeUserTagsIfNeeded(supabase, createdUserId);
 
     return c.json({
       success: true,

@@ -1,5 +1,5 @@
 import { PostgrestError } from "@supabase/supabase-js";
-import { INITIAL_USER_TAGS } from "@/constants/tags";
+import { INITIAL_USER_TAGS, type TagLanguage } from "@/constants/tags";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 export type UserTag = {
@@ -31,14 +31,17 @@ export async function getUserTagCount(userId: string): Promise<{
 /**
  * 定数定義からUserTagテーブルに初期タグを一括挿入する
  */
-export async function createInitialUserTags(userId: string): Promise<{
+export async function createInitialUserTags(
+  userId: string,
+  language: TagLanguage = "ja",
+): Promise<{
   data: UserTag[] | null;
   error: PostgrestError | null;
 }> {
   const supabase = getServiceRoleSupabase();
 
-  // 定数定義をUserTag形式に変換
-  const userTags = INITIAL_USER_TAGS.map((tag, index) => ({
+  // 選択された言語のタグ定義をUserTag形式に変換
+  const userTags = INITIAL_USER_TAGS[language].map((tag, index) => ({
     user_id: userId,
     category: tag.category,
     name: tag.name,
@@ -58,7 +61,10 @@ export async function createInitialUserTags(userId: string): Promise<{
  * 初回ログイン時の初期タグ作成処理
  * ユーザーのタグが存在しない場合のみ実行
  */
-export async function initializeUserTagsIfNeeded(userId: string): Promise<{
+export async function initializeUserTagsIfNeeded(
+  userId: string,
+  language: TagLanguage = "ja",
+): Promise<{
   success: boolean;
   data?: UserTag[];
   error?: PostgrestError | null;
@@ -81,7 +87,7 @@ export async function initializeUserTagsIfNeeded(userId: string): Promise<{
     }
 
     // 初期タグを作成
-    const { data, error } = await createInitialUserTags(userId);
+    const { data, error } = await createInitialUserTags(userId, language);
 
     if (error) {
       return { success: false, error };

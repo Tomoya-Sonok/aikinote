@@ -242,7 +242,7 @@
     "tagNameTooLong": "Tag name must be 20 characters or less",
     "titleTooLong": "Title must be 35 characters or less",
     "contentTooLong": "Content must be 3000 characters or less",
-    "tagNameInvalid": "Tag name can only contain alphanumeric characters",
+    "tagNameInvalid": "Tag name can only contain alphanumeric characters, hyphens, and spaces",
     "invalidCategory": "Invalid category",
     "loginRequired": "Login required",
     "tagAdded": "Tag added",
@@ -277,7 +277,7 @@
     "fontSize": "Font Size",
     "language": "Language / 言語",
     "tagManagement": "Tags",
-    "publicity": "Privacy",
+    "publicity": "Publicity",
     "pushNotification": "Push Notifications",
     "subscription": "Subscription",
     "close": "Close settings",
@@ -885,7 +885,7 @@
     }
   },
   "publicitySetting": {
-    "title": "Visibility",
+    "title": "Publicity",
     "description": "Choose who can see your profile and posts.",
     "public": "Public",
     "publicDescription": "Visible to all AikiNote users",
@@ -899,7 +899,7 @@
     "noDojoWarning": "No dojo registered. Please register your dojo in profile settings.",
     "addButton": "Add",
     "saveButton": "Save",
-    "saved": "Visibility updated",
+    "saved": "Publicity updated",
     "saveFailed": "Failed to update visibility"
   },
   "mypageContent": {
@@ -932,6 +932,10 @@
     "agreeToTerms": "By registering, you agree to the {terms} and {privacy}",
     "agreeCheckbox": "I agree to the above"
   },
+  "initialTagDialog": {
+    "title": "Select the language for initial tags",
+    "confirm": "Start recording your practice!"
+  },
   "surveyModal": {
     "title": "Quick Survey",
     "description": "To provide a personalized experience, please share the following if you'd like. Everything is optional. You can change your answers anytime from the profile edit screen.",
@@ -945,6 +949,7 @@
     "saveFailed": "Failed to save survey"
   },
   "subscriptionPage": {
+    "title": "Subscription",
     "subtitle": "Change anytime. Even after canceling, you can continue using Premium features until the next billing date.",
     "monthly": "Monthly",
     "yearly": "Yearly",

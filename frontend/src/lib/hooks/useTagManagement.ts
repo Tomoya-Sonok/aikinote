@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { TagLanguage } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
 import {
   type CreateTagPayload,
@@ -12,8 +13,6 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 
 interface UseTagManagementOptions {
-  /** タグが0件の場合に初期タグを自動作成するか */
-  shouldCreateInitialTags?: boolean;
   /** フックを有効にするか（ページ遷移後に有効化する用途） */
   enabled?: boolean;
 }
@@ -36,12 +35,14 @@ export interface UseTagManagementReturn {
   setShowNewTagInput: (value: string | null) => void;
   handleSubmitNewTag: (category: string) => void;
   handleCancelNewTag: () => void;
+  needsInitialTags: boolean;
+  initializeTags: (language: TagLanguage) => Promise<void>;
 }
 
 export function useTagManagement(
   options: UseTagManagementOptions = {},
 ): UseTagManagementReturn {
-  const { shouldCreateInitialTags = false, enabled = true } = options;
+  const { enabled = true } = options;
   const { user } = useAuth();
   const t = useTranslations();
   const { showToast } = useToast();
@@ -50,7 +51,7 @@ export function useTagManagement(
     { id: string; name: string; category: string; user_id: string }[]
   >([]);
   const [loading, setLoading] = useState(false);
-  const initialTagsCreatedRef = useRef(false);
+  const [needsInitialTags, setNeedsInitialTags] = useState(false);
 
   // 選択状態
   const [selectedTori, setSelectedTori] = useState<string[]>([]);
@@ -68,21 +69,10 @@ export function useTagManagement(
       const response = await getTags(user.id);
       if (response.success && response.data) {
         setAllTags(response.data);
-        if (
-          shouldCreateInitialTags &&
-          response.data.length === 0 &&
-          !initialTagsCreatedRef.current
-        ) {
-          try {
-            initialTagsCreatedRef.current = true;
-            await initializeUserTags(user.id);
-            const updated = await getTags(user.id);
-            if (updated.success && updated.data) {
-              setAllTags(updated.data);
-            }
-          } catch {
-            initialTagsCreatedRef.current = false;
-          }
+        if (response.data.length === 0) {
+          setNeedsInitialTags(true);
+        } else {
+          setNeedsInitialTags(false);
         }
       }
     } catch {
@@ -90,11 +80,28 @@ export function useTagManagement(
     } finally {
       setLoading(false);
     }
-  }, [user?.id, enabled, shouldCreateInitialTags]);
+  }, [user?.id, enabled]);
 
   useEffect(() => {
     fetchTags();
   }, [fetchTags]);
+
+  const initializeTags = useCallback(
+    async (language: TagLanguage) => {
+      if (!user?.id) return;
+      try {
+        await initializeUserTags(user.id, language);
+        const updated = await getTags(user.id);
+        if (updated.success && updated.data) {
+          setAllTags(updated.data);
+          setNeedsInitialTags(false);
+        }
+      } catch {
+        showToast(t("pageModal.tagAddFailed"), "error");
+      }
+    },
+    [user?.id, showToast, t],
+  );
 
   // タグをカテゴリ別に分類（useMemoで同期的に導出）
   const toriTags = useMemo(
@@ -164,7 +171,7 @@ export function useTagManagement(
         showToast(t("pageModal.tagNameTooLong"), "error");
         return;
       }
-      if (!/^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９]+$/.test(trimmed)) {
+      if (!/^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９\- ]+$/.test(trimmed)) {
         showToast(t("pageModal.tagNameInvalid"), "error");
         return;
       }
@@ -206,5 +213,7 @@ export function useTagManagement(
     setShowNewTagInput,
     handleSubmitNewTag,
     handleCancelNewTag,
+    needsInitialTags,
+    initializeTags,
   };
 }

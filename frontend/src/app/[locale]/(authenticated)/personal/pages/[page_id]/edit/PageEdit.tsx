@@ -46,7 +46,7 @@ export function PageEdit() {
   const [initialized, setInitialized] = useState(false);
 
   // タグ管理
-  const tagManagement = useTagManagement({ shouldCreateInitialTags: false });
+  const tagManagement = useTagManagement();
 
   // 添付管理
   const attachmentMgmt = useAttachmentManagement("page");

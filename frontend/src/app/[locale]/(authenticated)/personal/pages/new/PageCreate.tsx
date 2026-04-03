@@ -7,11 +7,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
+import { InitialTagLanguageDialog } from "@/components/shared/InitialTagLanguageDialog/InitialTagLanguageDialog";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { TitleTemplateModal } from "@/components/shared/TitleTemplateModal/TitleTemplateModal";
+import type { TagLanguage } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
 import {
   type CreatePagePayload,
@@ -43,8 +45,10 @@ export function PageCreate() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isTagLanguageDialogOpen, setIsTagLanguageDialogOpen] = useState(false);
+  const [isInitializingTags, setIsInitializingTags] = useState(false);
 
-  const tagManagement = useTagManagement({ shouldCreateInitialTags: true });
+  const tagManagement = useTagManagement();
   const attachmentMgmt = useAttachmentManagement("page");
 
   // タイトルプレースホルダー
@@ -54,6 +58,26 @@ export function PageCreate() {
   const titlePlaceholder = t("pageCreate.titlePlaceholder", {
     date: formatToLocalDateString(placeholderDateIso),
   });
+
+  // 初期タグ言語選択ダイアログ
+  useEffect(() => {
+    if (tagManagement.needsInitialTags && !tagManagement.loading) {
+      setIsTagLanguageDialogOpen(true);
+    }
+  }, [tagManagement.needsInitialTags, tagManagement.loading]);
+
+  const handleTagLanguageConfirm = useCallback(
+    async (language: TagLanguage) => {
+      setIsInitializingTags(true);
+      try {
+        await tagManagement.initializeTags(language);
+        setIsTagLanguageDialogOpen(false);
+      } finally {
+        setIsInitializingTags(false);
+      }
+    },
+    [tagManagement],
+  );
 
   // 自動フォーカス
   useEffect(() => {
@@ -310,6 +334,12 @@ export function PageCreate() {
         onClose={() => setIsTemplateModalOpen(false)}
         onInsert={(value) => setTitle(value)}
         dateOverride={dateParam || undefined}
+      />
+
+      <InitialTagLanguageDialog
+        isOpen={isTagLanguageDialogOpen}
+        onConfirm={handleTagLanguageConfirm}
+        isProcessing={isInitializingTags}
       />
     </div>
   );

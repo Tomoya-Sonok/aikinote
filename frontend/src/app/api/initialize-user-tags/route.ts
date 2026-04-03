@@ -3,7 +3,7 @@ import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 
 export async function POST(req: NextRequest) {
   try {
-    const { user_id } = await req.json();
+    const { user_id, language } = await req.json();
 
     if (!user_id) {
       return NextResponse.json(
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await initializeUserTagsIfNeeded(user_id);
+    const result = await initializeUserTagsIfNeeded(user_id, language || "ja");
 
     if (!result.success) {
       return NextResponse.json(

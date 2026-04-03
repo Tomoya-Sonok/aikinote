@@ -621,10 +621,14 @@ export const initializeUserTagsProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().min(1),
+      language: z.enum(["ja", "en"]).default("ja"),
     }),
   )
   .mutation(async ({ input }) => {
-    const result = await initializeUserTagsIfNeeded(input.userId);
+    const result = await initializeUserTagsIfNeeded(
+      input.userId,
+      input.language,
+    );
     if (!result.success) {
       throw new Error("初期タグの作成に失敗しました");
     }

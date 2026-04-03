@@ -33,7 +33,8 @@ const testMessages = {
     add: "追加",
     tagNameRequired: "タグ名を入力してください",
     tagNameTooLong: "タグ名は20文字以内で入力してください",
-    tagNameInvalid: "タグ名は全角・半角英数字のみ使用可能です",
+    tagNameInvalid:
+      "タグ名は全角・半角英数字・ハイフン・スペースのみ使用可能です",
     invalidCategory: "無効なカテゴリです",
     loginRequired: "ログインが必要です",
     tagAdded: "タグが追加されました",

@@ -265,7 +265,7 @@ export function TagManagement({ locale }: TagManagementProps) {
       return;
     }
 
-    if (!/^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９]+$/.test(inputValue)) {
+    if (!/^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９\- ]+$/.test(inputValue)) {
       showToast(t("pageModal.tagNameInvalid"), "error");
       return;
     }

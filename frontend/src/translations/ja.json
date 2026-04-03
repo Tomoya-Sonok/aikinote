@@ -242,7 +242,7 @@
     "tagNameTooLong": "タグ名は20文字以内で入力してください",
     "titleTooLong": "タイトルは35文字以内で入力してください",
     "contentTooLong": "内容は3000文字以内で入力してください",
-    "tagNameInvalid": "タグ名は全角・半角英数字のみ使用可能です",
+    "tagNameInvalid": "タグ名は全角・半角英数字・ハイフン・スペースのみ使用可能です",
     "invalidCategory": "無効なカテゴリです",
     "loginRequired": "ログインが必要です",
     "tagAdded": "タグが追加されました",
@@ -934,6 +934,10 @@
     "agreeToTerms": "{terms} および {privacy} に同意の上、登録してください",
     "agreeCheckbox": "上記に同意する"
   },
+  "initialTagDialog": {
+    "title": "初期タグの言語を選択してください",
+    "confirm": "タグを使って稽古記録！"
+  },
   "surveyModal": {
     "title": "アンケート回答のお願い",
     "description": "あなたに合った体験をお届けするために、よろしければ教えてください。すべて任意です。回答はプロフィール編集画面からいつでも変更できます。",
@@ -947,6 +951,7 @@
     "saveFailed": "回答の保存に失敗しました"
   },
   "subscriptionPage": {
+    "title": "プラン",
     "subtitle": "いつでも変更可能、キャンセルしても次回決済日までは引き続きプレミアム機能をご利用いただけます。",
     "monthly": "月額",
     "yearly": "年額",

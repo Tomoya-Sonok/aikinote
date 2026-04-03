@@ -1,4 +1,3 @@
-import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 export type SignUpCredentials = {
@@ -62,12 +61,6 @@ export async function signUp(credentials: SignUpCredentials) {
       const { error } = await supabase.auth.admin.deleteUser(authData.user.id);
       if (error) return { data: null, error };
       return { data: null, error: profileError };
-    }
-
-    try {
-      await initializeUserTagsIfNeeded(authData.user.id);
-    } catch (error) {
-      console.error("初期タグ作成エラー:", error);
     }
   }
 

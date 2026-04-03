@@ -1,4 +1,3 @@
-import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 const MAX_OAUTH_AVATAR_BYTES = 1 * 1024 * 1024; // 1MB
@@ -131,8 +130,6 @@ export async function ensureOAuthUser(
       console.error("ユーザー作成エラー:", insertError);
       return;
     }
-
-    await initializeUserTagsIfNeeded(user.id);
   } catch (error) {
     console.error("ユーザー作成処理でエラー:", error);
   }
