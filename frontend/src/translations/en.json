@@ -1100,5 +1100,12 @@
       "labelMypage": "My Page",
       "later": "Maybe later"
     }
+  },
+  "imageCropModal": {
+    "title": "Adjust image display size",
+    "zoomLabel": "Zoom",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "processing": "Processing..."
   }
 }

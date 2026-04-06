@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { getCurrentUser, getUserInfo } from "@/lib/server/auth";
 import { ProfileEdit } from "./ProfileEdit";
@@ -64,11 +63,11 @@ export default async function ProfileEditPage({
       : `/${locale}/mypage`;
 
   return (
-    <MinimalLayout backHref={backHref} headerTitle={t("title")}>
-      <ProfileEdit
-        user={profile}
-        from={from === "social" ? "social" : undefined}
-      />
-    </MinimalLayout>
+    <ProfileEdit
+      user={profile}
+      from={from === "social" ? "social" : undefined}
+      backHref={backHref}
+      headerTitle={t("title")}
+    />
   );
 }
