@@ -40,6 +40,15 @@
   object-fit: cover;
 }
 
+/* 横長画像: 全体を表示し、余白は黒背景 */
+.containerLandscape {
+  background-color: var(--black);
+}
+
+.imageLandscape {
+  object-fit: contain;
+}
+
 .fallback {
   display: flex;
   align-items: center;

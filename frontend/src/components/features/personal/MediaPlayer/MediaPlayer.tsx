@@ -42,6 +42,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   const [portraitStyle, setPortraitStyle] = useState<
     CSSProperties | undefined
   >();
+  const [isLandscape, setIsLandscape] = useState(false);
 
   const handleImageLoad = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -52,12 +53,15 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
           aspectRatio: `${naturalWidth} / ${naturalHeight}`,
         });
       }
+      if (naturalWidth > naturalHeight) {
+        setIsLandscape(true);
+      }
       onImageLoad?.(naturalWidth, naturalHeight);
     },
     [fillParent, onImageLoad],
   );
 
-  const containerClass = `${styles.container} ${fillParent ? styles.fillParent : ""}`;
+  const containerClass = `${styles.container} ${fillParent ? styles.fillParent : ""} ${isLandscape ? styles.containerLandscape : ""}`;
   const aspectClass = `${styles.aspectRatio} ${fillParent ? styles.fillParentAspect : ""}`;
   if (type === "youtube") {
     const videoId = extractYouTubeVideoId(url);
@@ -112,7 +116,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
           src={url}
           alt={alt}
           fill
-          className={styles.image}
+          className={`${styles.image} ${isLandscape ? styles.imageLandscape : ""}`}
           sizes="(max-width: 580px) 100vw, 580px"
           onLoad={handleImageLoad}
         />
