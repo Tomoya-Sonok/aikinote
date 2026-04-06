@@ -97,8 +97,8 @@ importers:
         specifier: ^1.3.6
         version: 1.3.6(@types/react-dom@18.3.7)(@types/react@18.3.24)(react-dom@19.2.3)(react@19.2.3)
       '@react-email/render':
-        specifier: ^1.1.0
-        version: 1.4.0(react-dom@19.2.3)(react@19.2.3)
+        specifier: ^2.0.5
+        version: 2.0.5(react-dom@19.2.3)(react@19.2.3)
       '@revenuecat/purchases-js':
         specifier: ^1.29.1
         version: 1.29.1
@@ -179,7 +179,7 @@ importers:
         version: 4.0.1
       resend:
         specifier: ^6.0.3
-        version: 6.1.0(@react-email/render@1.4.0)
+        version: 6.1.0(@react-email/render@2.0.5)
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -2788,18 +2788,17 @@ packages:
       react: 19.2.3
     dev: false
 
-  /@react-email/render@1.4.0(react-dom@19.2.3)(react@19.2.3):
-    resolution: {integrity: sha512-ZtJ3noggIvW1ZAryoui95KJENKdCzLmN5F7hyZY1F/17B1vwzuxHB7YkuCg0QqHjDivc5axqYEYdIOw4JIQdUw==}
-    engines: {node: '>=18.0.0'}
+  /@react-email/render@2.0.5(react-dom@19.2.3)(react@19.2.3):
+    resolution: {integrity: sha512-oAsSpY/vYt9ReDcRQDBLxENwCNAklkE6bvP5Kl9ZlmVr/RZpfhloJp8xc/OZki/YF2nisRRX50aEy8P9v3R5GA==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
       react-dom: ^18.0 || ^19.0 || ^19.0.0-rc
     dependencies:
       html-to-text: 9.0.5
-      prettier: 3.7.4
+      prettier: 3.8.1
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
-      react-promise-suspense: 0.3.4
     dev: false
 
   /@reduxjs/toolkit@2.11.2(react-redux@9.2.0)(react@19.2.3):
@@ -4384,7 +4383,7 @@ packages:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.19.13)(happy-dom@18.0.1)(jsdom@27.0.0)
+      vitest: 3.2.4(@types/node@22.19.13)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(tsx@4.20.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -5831,10 +5830,6 @@ packages:
 
   /extend@3.0.2:
     resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
-    dev: false
-
-  /fast-deep-equal@2.0.1:
-    resolution: {integrity: sha512-bCK/2Z4zLidyB4ReuIsvALH6w31YfAQDmXMqMx6FyfHqvBxtjC0eRumeSu4Bs3XtXwpyIywtSTrVT99BxY1f9w==}
     dev: false
 
   /fast-deep-equal@3.1.3:
@@ -7741,8 +7736,8 @@ packages:
     engines: {node: '>= 0.8.0'}
     dev: false
 
-  /prettier@3.7.4:
-    resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
+  /prettier@3.8.1:
+    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
     engines: {node: '>=14'}
     hasBin: true
     dev: false
@@ -7852,12 +7847,6 @@ packages:
       vfile: 6.0.3
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /react-promise-suspense@0.3.4:
-    resolution: {integrity: sha512-I42jl7L3Ze6kZaq+7zXWSunBa3b1on5yfvUW6Eo/3fFOj6dZ5Bqmcd264nJbTK/gn1HjjILAjSwnZbV4RpSaNQ==}
-    dependencies:
-      fast-deep-equal: 2.0.1
     dev: false
 
   /react-redux@9.2.0(@types/react@18.3.24)(react@19.2.3)(redux@5.0.1):
@@ -8023,7 +8012,7 @@ packages:
     resolution: {integrity: sha512-K/BG6eIky/SBpzfHZv/dd+9JBFiS4SWV7FIujVyJRux6e45+73RaUHXLmIR1f7WOMaQ0U1km6qwklRQxpJJY0w==}
     dev: false
 
-  /resend@6.1.0(@react-email/render@1.4.0):
+  /resend@6.1.0(@react-email/render@2.0.5):
     resolution: {integrity: sha512-H0cJI2pcLk5/dGwyvZUHu+O7X/q6arvc40EWm+pRPuy+PSWojH5utZtmDBUZ2L0+gVwYZiWs6y2lw6GQA1z1rg==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -8032,7 +8021,7 @@ packages:
       '@react-email/render':
         optional: true
     dependencies:
-      '@react-email/render': 1.4.0(react-dom@19.2.3)(react@19.2.3)
+      '@react-email/render': 2.0.5(react-dom@19.2.3)(react@19.2.3)
     dev: false
 
   /resolve-from@4.0.0:
