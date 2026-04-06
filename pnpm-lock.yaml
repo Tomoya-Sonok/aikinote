@@ -86,7 +86,7 @@ importers:
         version: 3.892.0
       '@hono/zod-validator':
         specifier: ^0.7.2
-        version: 0.7.2(hono@4.9.7)(zod@4.1.8)
+        version: 0.7.2(hono@4.12.11)(zod@4.1.8)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.62.0)
@@ -139,8 +139,8 @@ importers:
         specifier: 16.0.10
         version: 16.0.10(@typescript-eslint/parser@8.49.0)(eslint@9.39.4)(typescript@5.9.2)
       hono:
-        specifier: ^4.9.7
-        version: 4.9.7
+        specifier: ^4.12.11
+        version: 4.12.11
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
@@ -1936,13 +1936,13 @@ packages:
       zod: 3.25.76
     dev: false
 
-  /@hono/zod-validator@0.7.2(hono@4.9.7)(zod@4.1.8):
+  /@hono/zod-validator@0.7.2(hono@4.12.11)(zod@4.1.8):
     resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.25.0 || ^4.0.0
     dependencies:
-      hono: 4.9.7
+      hono: 4.12.11
       zod: 4.1.8
     dev: false
 
@@ -4384,7 +4384,7 @@ packages:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.19.13)(happy-dom@18.0.1)(jsdom@27.0.0)
+      vitest: 3.2.4(@types/node@22.19.13)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(tsx@4.20.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -6165,11 +6165,6 @@ packages:
 
   /hono@4.12.11:
     resolution: {integrity: sha512-r4xbIa3mGGGoH9nN4A14DOg2wx7y2oQyJEb5O57C/xzETG/qx4c7CVDQ5WMeKHZ7ORk2W0hZ/sQKXTav3cmYBA==}
-    engines: {node: '>=16.9.0'}
-    dev: false
-
-  /hono@4.9.7:
-    resolution: {integrity: sha512-t4Te6ERzIaC48W3x4hJmBwgNlLhmiEdEE5ViYb02ffw4ignHNHa5IBtPjmbKstmtKa8X6C35iWwK4HaqvrzG9w==}
     engines: {node: '>=16.9.0'}
     dev: false
 
