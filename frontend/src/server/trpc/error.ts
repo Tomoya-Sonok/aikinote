@@ -1,5 +1,4 @@
 import type { TRPC_ERROR_CODE_KEY } from "@trpc/server";
-import type { AxiosError } from "axios";
 import type { StatusCodes } from "http-status-codes";
 
 export function mapTRPCErrorCodeKeyFromStatusCode(
@@ -19,12 +18,4 @@ export function mapTRPCErrorCodeKeyFromStatusCode(
     default:
       return "INTERNAL_SERVER_ERROR";
   }
-}
-
-export function mapAxiosErrorToTRPCError(label: string, err: AxiosError) {
-  return {
-    code: mapTRPCErrorCodeKeyFromStatusCode(err.response?.status || 500),
-    message: `${err.response?.statusText || "Internal Server Error"}: ${label}`,
-    cause: err,
-  };
 }

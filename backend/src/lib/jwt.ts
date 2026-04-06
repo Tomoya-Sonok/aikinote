@@ -57,7 +57,7 @@ export async function verifyToken(
   const secret = getSecret(env);
 
   try {
-    const result = await verify(token, secret);
+    const result = await verify(token, secret, "HS256");
     return result as unknown as JWTPayload;
   } catch (_error) {
     throw new Error("Invalid or expired token");
