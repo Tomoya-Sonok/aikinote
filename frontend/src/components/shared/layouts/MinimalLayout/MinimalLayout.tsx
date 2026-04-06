@@ -13,6 +13,8 @@ interface MinimalLayoutProps {
   backHref?: string;
   /** true にすると router.back() を使わず常に backHref に遷移する */
   forceBackHref?: boolean;
+  /** 指定すると戻るボタンのデフォルト遷移を上書きする */
+  onBackClick?: () => void;
 }
 
 export function MinimalLayout({
@@ -21,10 +23,16 @@ export function MinimalLayout({
   headerTitle,
   backHref = "/",
   forceBackHref = false,
+  onBackClick,
 }: MinimalLayoutProps) {
   const router = useRouter();
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
+
+    if (onBackClick) {
+      onBackClick();
+      return;
+    }
 
     if (forceBackHref || window.history.length <= 1) {
       router.push(backHref);

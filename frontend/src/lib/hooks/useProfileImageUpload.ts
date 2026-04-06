@@ -1,13 +1,73 @@
 "use client";
 
 import { type ChangeEvent, useCallback, useRef, useState } from "react";
+import type { CropResult } from "@/components/shared/ImageCropModal/ImageCropModal";
 import { compressImage } from "@/lib/utils/compressImage";
 
 export function useProfileImageUpload() {
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
+  const rawImageUrlRef = useRef<string | null>(null);
 
+  const handleImageSelect = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      // 古い rawImageUrl のクリーンアップ
+      if (rawImageUrlRef.current) {
+        URL.revokeObjectURL(rawImageUrlRef.current);
+      }
+
+      const url = URL.createObjectURL(file);
+      rawImageUrlRef.current = url;
+      setRawImageUrl(url);
+    },
+    [],
+  );
+
+  const handleCropComplete = useCallback(async (result: CropResult) => {
+    const croppedFile = new File([result.blob], "cropped-profile.jpg", {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
+
+    const compressedFile = await compressImage(croppedFile, {
+      maxWidth: 512,
+      maxHeight: 512,
+      quality: 0.85,
+      outputType: "image/jpeg",
+      maxFileSize: 1024 * 1024,
+    });
+
+    setProfileImageFile(compressedFile);
+
+    // 古いプレビューURLのクリーンアップ
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+    }
+    previewUrlRef.current = result.previewUrl;
+    setPreviewUrl(result.previewUrl);
+
+    // rawImageUrl のクリーンアップ
+    if (rawImageUrlRef.current) {
+      URL.revokeObjectURL(rawImageUrlRef.current);
+      rawImageUrlRef.current = null;
+    }
+    setRawImageUrl(null);
+  }, []);
+
+  const handleCropCancel = useCallback(() => {
+    if (rawImageUrlRef.current) {
+      URL.revokeObjectURL(rawImageUrlRef.current);
+      rawImageUrlRef.current = null;
+    }
+    setRawImageUrl(null);
+  }, []);
+
+  // 既存互換: profile-image-upload.tsx が使用中
   const handleImageChange = useCallback(
     async (event: ChangeEvent<HTMLInputElement>, onError?: () => void) => {
       const file = event.target.files?.[0];
@@ -23,7 +83,6 @@ export function useProfileImageUpload() {
         });
         setProfileImageFile(compressedFile);
 
-        // 古いプレビューURLをクリーンアップ
         if (previewUrlRef.current) {
           URL.revokeObjectURL(previewUrlRef.current);
         }
@@ -115,11 +174,19 @@ export function useProfileImageUpload() {
       URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = null;
     }
+    if (rawImageUrlRef.current) {
+      URL.revokeObjectURL(rawImageUrlRef.current);
+      rawImageUrlRef.current = null;
+    }
   }, []);
 
   return {
     profileImageFile,
     previewUrl,
+    rawImageUrl,
+    handleImageSelect,
+    handleCropComplete,
+    handleCropCancel,
     handleImageChange,
     handleDeleteImage,
     uploadImageToS3,

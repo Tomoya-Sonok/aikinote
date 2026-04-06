@@ -1102,5 +1102,12 @@
       "labelMypage": "マイページ",
       "later": "あとにする"
     }
+  },
+  "imageCropModal": {
+    "title": "画像の表示サイズ調整",
+    "zoomLabel": "拡大",
+    "confirm": "確定",
+    "cancel": "キャンセル",
+    "processing": "処理中..."
   }
 }

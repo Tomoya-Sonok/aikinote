@@ -13,16 +13,20 @@ import {
   useCallback,
   useEffect,
   useId,
+  useRef,
   useState,
 } from "react";
 import { ZodError } from "zod";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { Button } from "@/components/shared/Button/Button";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import {
   DojoStyleAutocomplete,
   type DojoStyleOption,
 } from "@/components/shared/DojoStyleAutocomplete/DojoStyleAutocomplete";
+import { ImageCropModal } from "@/components/shared/ImageCropModal/ImageCropModal";
 import { Loader } from "@/components/shared/Loader/Loader";
+import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { PillSelect } from "@/components/shared/PillSelect/PillSelect";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { SelectInput } from "@/components/shared/SelectInput/SelectInput";
@@ -39,6 +43,7 @@ import {
 import { AIKIDO_RANK_OPTIONS } from "@/lib/constants/aikidoRank";
 import { AGE_RANGE_OPTIONS, GENDER_OPTIONS } from "@/lib/constants/userProfile";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
@@ -46,11 +51,15 @@ import styles from "./ProfileEdit.module.css";
 interface ProfileEditProps {
   user: UserProfile;
   from?: "social";
+  backHref: string;
+  headerTitle: string;
 }
 
 export const ProfileEdit: FC<ProfileEditProps> = ({
   user: initialUser,
   from,
+  backHref,
+  headerTitle,
 }) => {
   const t = useTranslations();
   const router = useRouter();
@@ -77,14 +86,41 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
   const {
     profileImageFile,
     previewUrl,
-    handleImageChange,
+    rawImageUrl,
+    handleImageSelect,
+    handleCropComplete,
+    handleCropCancel,
     handleDeleteImage: handleDeleteImageHook,
     uploadImageToS3,
     cleanup: cleanupImagePreview,
   } = useProfileImageUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [dojoStyleError, setDojoStyleError] = useState<string | null>(null);
+  const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
+
+  // 未保存データの保護
+  const hasUnsavedChanges = useCallback(() => {
+    return (
+      formData.full_name !== (user.full_name || "") ||
+      formData.username !== user.username ||
+      formData.dojo_name !== (user.dojo_style_name || "") ||
+      formData.aikido_rank !== (user.aikido_rank || "") ||
+      formData.bio !== (user.bio || "") ||
+      formData.age_range !== (user.age_range || "") ||
+      formData.gender !== (user.gender || "") ||
+      !!profileImageFile
+    );
+  }, [formData, user, profileImageFile]);
+
+  const isNavigatingRef = useRef(false);
+  useBeforeUnload(
+    useCallback(
+      () => !isNavigatingRef.current && hasUnsavedChanges(),
+      [hasUnsavedChanges],
+    ),
+  );
 
   const handleSave = async () => {
     try {
@@ -141,6 +177,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
 
       await refreshUser();
 
+      isNavigatingRef.current = true;
       if (from === "social") {
         router.push(`/${locale}/social/profile/${user.id}`);
       } else {
@@ -157,14 +194,28 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
     }
   };
 
-  const handleCancel = () => {
+  const navigateBack = useCallback(() => {
+    isNavigatingRef.current = true;
     cleanupImagePreview();
     if (from === "social") {
       router.push(`/${locale}/social/profile/${user.id}`);
     } else {
       router.push(`/${locale}/mypage`);
     }
-  };
+  }, [cleanupImagePreview, from, locale, router, user.id]);
+
+  const handleBack = useCallback(() => {
+    if (hasUnsavedChanges()) {
+      setIsBackConfirmOpen(true);
+    } else {
+      navigateBack();
+    }
+  }, [hasUnsavedChanges, navigateBack]);
+
+  const handleConfirmBack = useCallback(() => {
+    setIsBackConfirmOpen(false);
+    navigateBack();
+  }, [navigateBack]);
 
   const fetchUserInfo = useCallback(async () => {
     try {
@@ -287,10 +338,12 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
     }));
   };
 
-  const onImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    await handleImageChange(event, () => {
-      showToast(t("userInfoEdit.communicationFailed"), "error");
-    });
+  const onImageSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    handleImageSelect(event);
+    // 同じファイルを再選択可能にするためリセット
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleDeleteImage = () => {
@@ -315,14 +368,20 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
 
   if (loading) {
     return (
-      <div className={styles.content}>
-        <Loader size="large" centered text={t("userInfoEdit.loading")} />
-      </div>
+      <MinimalLayout backHref={backHref} headerTitle={headerTitle}>
+        <div className={styles.content}>
+          <Loader size="large" centered text={t("userInfoEdit.loading")} />
+        </div>
+      </MinimalLayout>
     );
   }
 
   return (
-    <>
+    <MinimalLayout
+      backHref={backHref}
+      headerTitle={headerTitle}
+      onBackClick={handleBack}
+    >
       <div className={styles.content}>
         <p className={styles.sectionSubtitle}>{t("userInfoEdit.profile")}</p>
         {/* プロフィール画像 */}
@@ -331,9 +390,10 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
             <ProfileImage src={currentImageUrl} size="medium" />
             <div className={styles.editIcon}>
               <input
+                ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={onImageChange}
+                onChange={onImageSelect}
                 className={styles.fileInput}
               />
               <ImagesSquareIcon size={16} weight="light" color="var(--black)" />
@@ -499,7 +559,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
         </div>
       </div>
       <div className={styles.actions}>
-        <Button variant="cancel" onClick={handleCancel}>
+        <Button variant="cancel" onClick={handleBack}>
           {t("userInfoEdit.cancel")}
         </Button>
         <Button
@@ -510,6 +570,23 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
           {t("userInfoEdit.save")}
         </Button>
       </div>
-    </>
+
+      <ImageCropModal
+        isOpen={!!rawImageUrl}
+        imageUrl={rawImageUrl}
+        onConfirm={handleCropComplete}
+        onCancel={handleCropCancel}
+      />
+
+      <ConfirmDialog
+        isOpen={isBackConfirmOpen}
+        title={t("pageModal.closeConfirmTitle")}
+        message={t("pageModal.closeConfirmMessage")}
+        confirmLabel={t("pageModal.closeConfirmAction")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={handleConfirmBack}
+        onCancel={() => setIsBackConfirmOpen(false)}
+      />
+    </MinimalLayout>
   );
 };
