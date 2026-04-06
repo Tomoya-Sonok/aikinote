@@ -166,6 +166,10 @@
         "mobileApp": {
           "question": "Is there no smartphone app?",
           "answer": "Currently, you can access it directly from a web browser. Adding it to your smartphone's home screen lets you use it like an app. iOS and Android apps are also currently in development. We will notify you at your registered email address once they are released."
+        },
+        "differentStyles": {
+          "question": "Won't there be clashes of opinions between people from different styles or instructors?",
+          "answer": "Rest assured. On AikiNote, you can limit who sees your posts to just your dojo members, so you can start casually within your trusted circle. Also, like counts are only visible to the author, and there's no concept of follower counts, making it a design that discourages competition over numbers. Of course, reading training logs and insights from different styles can also offer perspectives and discoveries you wouldn't have found on your own. Please feel free to use AikiNote as a place to broaden your Aikido learning."
         }
       }
     },

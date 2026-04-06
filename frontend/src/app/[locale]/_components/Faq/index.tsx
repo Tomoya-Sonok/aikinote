@@ -4,7 +4,13 @@ import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
 import { CtaButton } from "../CtaButton";
 import styles from "./Faq.module.css";
 
-const FAQ_KEYS = ["security", "easeOfUse", "languages", "mobileApp"] as const;
+const FAQ_KEYS = [
+  "security",
+  "differentStyles",
+  "easeOfUse",
+  "languages",
+  "mobileApp",
+] as const;
 
 const CONTACT_FORM_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog";
