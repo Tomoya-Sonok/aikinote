@@ -87,6 +87,44 @@
   filter: invert(1);
 }
 
+/* ── リーガルリンク区切り線（SP のみ）── */
+
+.legalSeparator {
+  width: 100%;
+  height: 1px;
+  background: var(--lp-cta-signup-text);
+  opacity: 0.3;
+  margin: 10px 0;
+}
+
+/* ── リーガルリンク ── */
+
+.legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legalLink {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--lp-cta-signup-text);
+  opacity: 0.6;
+  text-decoration: none;
+  letter-spacing: 1px;
+}
+
+.legalLink:hover {
+  opacity: 1;
+}
+
+.legalLink:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+
 /* ── PC (min-width: 768px) ── */
 
 @media (min-width: 768px) {
@@ -106,6 +144,19 @@
 
   .links {
     width: auto;
+    justify-content: flex-end;
+  }
+
+  .legalSeparator {
+    display: none;
+  }
+
+  .inner {
+    flex-wrap: wrap;
+  }
+
+  .legal {
+    width: 100%;
     justify-content: flex-end;
   }
 }

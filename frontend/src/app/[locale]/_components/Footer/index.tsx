@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import styles from "./Footer.module.css";
 
@@ -69,6 +70,20 @@ export async function Footer({ locale }: FooterProps) {
               />
             </a>
           </div>
+        </div>
+
+        <div className={styles.legalSeparator} />
+
+        <div className={styles.legal}>
+          <Link href={`/${locale}/terms`} className={styles.legalLink}>
+            {t("terms")}
+          </Link>
+          <Link href={`/${locale}/privacy`} className={styles.legalLink}>
+            {t("privacy")}
+          </Link>
+          <Link href={`/${locale}/tokushoho`} className={styles.legalLink}>
+            {t("tokushoho")}
+          </Link>
         </div>
       </div>
     </footer>
