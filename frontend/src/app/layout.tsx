@@ -52,6 +52,9 @@ export const metadata: Metadata = {
       "x-default": "/",
     },
   },
+  verification: {
+    google: "lJSJzbsvC9niACrdNQRB-C2m2AWjmCZHnrPPtlbHEtY",
+  },
   manifest: "/manifest.json",
   themeColor: "#2C2C2C",
   appleWebApp: {
