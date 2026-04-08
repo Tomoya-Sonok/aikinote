@@ -2269,13 +2269,12 @@ export const getNotifications = async (
   return data ?? [];
 };
 
-export const checkRateLimit = async (
+export const getCountInWindow = async (
   supabaseClient: SupabaseClient,
   userId: string,
   table: "SocialPost" | "SocialReply",
   windowMinutes: number,
-  maxCount: number,
-): Promise<boolean> => {
+): Promise<number> => {
   const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
   const { count, error } = await supabaseClient
     .from(table)
@@ -2284,9 +2283,25 @@ export const checkRateLimit = async (
     .gte("created_at", since);
   if (error) {
     console.error("Rate limit check error:", error);
-    return false; // fail open
+    return 0;
   }
-  return (count ?? 0) >= maxCount;
+  return count ?? 0;
+};
+
+export const checkRateLimit = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  table: "SocialPost" | "SocialReply",
+  windowMinutes: number,
+  maxCount: number,
+): Promise<boolean> => {
+  const count = await getCountInWindow(
+    supabaseClient,
+    userId,
+    table,
+    windowMinutes,
+  );
+  return count >= maxCount;
 };
 
 export const markNotificationsRead = async (

@@ -313,13 +313,11 @@
   "premiumModalBrowse": {
     "badge": "PREMIUM",
     "title": "Connect deeper\nwith the community",
-    "description": "Unlock all features — posting, replying, favorites, and search — to engage more with fellow aikidoka.",
+    "description": "Unlock unlimited posting, search, and all Premium features to connect even deeper with fellow aikidoka.",
     "upgradeMain": "Cherish the connection",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Just browsing for now",
-    "feedBottomTitle": "See more posts",
-    "feedBottomButton": "Upgrade to Premium"
+    "close": "Just browsing for now"
   },
   "premiumModalSearch": {
     "badge": "PREMIUM",
@@ -356,6 +354,15 @@
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
     "close": "Just keep recording"
+  },
+  "premiumModalDailyLimit": {
+    "badge": "PREMIUM",
+    "title": "You've reached today's\npost/reply limit",
+    "description": "Free plan allows up to 5 posts and 5 replies per day. Upgrade to Premium for unlimited interaction.",
+    "upgradeMain": "Unlock unlimited posting",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Come back tomorrow"
   },
   "auth": {
     "login": "Login",
@@ -692,6 +699,8 @@
     "submitting": "Posting...",
     "createSuccess": "Post created successfully",
     "createFailed": "Failed to create post",
+    "postRateLimited": "You're posting too frequently. Please wait a moment and try again.",
+    "replyRateLimited": "You're replying too frequently. Please wait a moment and try again.",
     "back": "Back",
     "search": "Search",
     "profile": "Profile",
@@ -989,9 +998,10 @@
     "featureCalendar": "Calendar & training day tracking",
     "featureExam": "Exam preparation training day tracking",
     "featureStats": "Stats & analytics",
-    "featureBrowseOnly": "Browse others' posts & records",
+    "featureBrowse": "Browse posts & training records",
+    "featurePostLimit": "Post & reply (5/day)",
+    "featureFavorite": "Save favorites",
     "featureSearch": "Filter & search posts and records",
-    "featurePost": "Post, reply & save favorites",
     "featurePublish": "One-tap training record publish",
     "featurePush": "Push notifications",
     "featureReminder": "Reminders",

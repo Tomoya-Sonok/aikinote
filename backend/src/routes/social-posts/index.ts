@@ -16,6 +16,7 @@ import {
   createSocialPostTags,
   createSocialReply,
   enrichSocialPosts,
+  getCountInWindow,
   getSocialFeed,
   getSocialPostById,
   getSocialPostWithDetails,
@@ -129,23 +130,9 @@ app.get(
       // バッチクエリでエンリッチ（N+1 解消）
       const enrichedPosts = await enrichSocialPosts(supabase, posts, user_id);
 
-      // Free ユーザー: 初回ページ(offset=0)は全件返却、loadMore(offset>0)はブロック
-      const premium = await isPremiumUser(supabase, user_id);
-
-      if (!premium && offset > 0) {
-        return c.json({
-          success: true,
-          data: [],
-          is_preview: true,
-          premium_required: true,
-        });
-      }
-
       return c.json({
         success: true,
         data: enrichedPosts,
-        is_preview: !premium,
-        premium_required: !premium,
       });
     } catch (error) {
       console.error("フィード取得エラー:", error);
@@ -156,6 +143,46 @@ app.get(
     }
   },
 );
+
+// GET /daily-limits — Free ユーザーの日次投稿・返信使用量を取得
+app.get("/daily-limits", authMiddleware, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
+
+    const premium = await isPremiumUser(supabase, userId);
+    if (premium) {
+      return c.json({
+        success: true,
+        data: {
+          posts: { used: 0, limit: -1 },
+          replies: { used: 0, limit: -1 },
+          is_premium: true,
+        },
+      });
+    }
+
+    const [postsUsed, repliesUsed] = await Promise.all([
+      getCountInWindow(supabase, userId, "SocialPost", 1440),
+      getCountInWindow(supabase, userId, "SocialReply", 1440),
+    ]);
+
+    return c.json({
+      success: true,
+      data: {
+        posts: { used: postsUsed, limit: 5 },
+        replies: { used: repliesUsed, limit: 5 },
+        is_premium: false,
+      },
+    });
+  } catch (error) {
+    console.error("日次制限取得エラー:", error);
+    return c.json(
+      { success: false, error: "日次制限の取得に失敗しました" },
+      500,
+    );
+  }
+});
 
 // POST / — 投稿作成
 app.post(
@@ -173,35 +200,24 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Premium チェック: Free ユーザーは原則投稿不可
+      // Free ユーザー: 1日5件まで投稿可能
       const premium = await isPremiumUser(supabase, userId);
       if (!premium) {
-        // チュートリアル経由の初回投稿のみ許可
-        if (input.from_tutorial) {
-          const { count } = await supabase
-            .from("SocialPost")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", userId)
-            .eq("is_deleted", false);
-
-          if ((count ?? 0) > 0) {
-            return c.json(
-              {
-                success: false,
-                error: "投稿は Premium プランの機能です",
-                code: "PREMIUM_REQUIRED",
-              },
-              403,
-            );
-          }
-        } else {
+        const dailyLimited = await checkRateLimit(
+          supabase,
+          userId,
+          "SocialPost",
+          1440,
+          5,
+        );
+        if (dailyLimited) {
           return c.json(
             {
               success: false,
-              error: "投稿は Premium プランの機能です",
-              code: "PREMIUM_REQUIRED",
+              error: "1日の投稿上限（5件）に達しました",
+              code: "DAILY_LIMIT_REACHED",
             },
-            403,
+            429,
           );
         }
       }
@@ -524,17 +540,26 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Premium チェック: Free ユーザーは返信不可
+      // Free ユーザー: 1日5件まで返信可能
       const premiumForReply = await isPremiumUser(supabase, userId);
       if (!premiumForReply) {
-        return c.json(
-          {
-            success: false,
-            error: "返信は Premium プランの機能です",
-            code: "PREMIUM_REQUIRED",
-          },
-          403,
+        const dailyLimited = await checkRateLimit(
+          supabase,
+          userId,
+          "SocialReply",
+          1440,
+          5,
         );
+        if (dailyLimited) {
+          return c.json(
+            {
+              success: false,
+              error: "1日の返信上限（5件）に達しました",
+              code: "DAILY_LIMIT_REACHED",
+            },
+            429,
+          );
+        }
       }
 
       // レート制限チェック（60分以内に20件まで）

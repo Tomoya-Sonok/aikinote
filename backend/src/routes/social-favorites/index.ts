@@ -10,7 +10,7 @@ import {
   toggleReplyFavorite,
   toggleSocialFavorite,
 } from "../../lib/supabase.js";
-import { authMiddleware, premiumMiddleware } from "../../middleware/auth.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type FavoritesBindings = {
   JWT_SECRET?: string;
@@ -27,7 +27,7 @@ const app = new Hono<{
 }>();
 
 // POST /:postId — お気に入りトグル
-app.post("/:postId", authMiddleware, premiumMiddleware, async (c) => {
+app.post("/:postId", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const supabase = c.get("supabase")!;
 
@@ -82,7 +82,7 @@ app.post("/:postId", authMiddleware, premiumMiddleware, async (c) => {
 });
 
 // POST /reply/:replyId — 返信お気に入りトグル
-app.post("/reply/:replyId", authMiddleware, premiumMiddleware, async (c) => {
+app.post("/reply/:replyId", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const supabase = c.get("supabase")!;
 

@@ -831,6 +831,20 @@ export const getPublicSocialPostByIdProcedure = publicProcedure
     );
   });
 
+export const getDailyLimitsProcedure = authenticatedProcedure.query(
+  async ({ ctx }) => {
+    return callHonoApi<
+      ApiResponse<{
+        posts: { used: number; limit: number };
+        replies: { used: number; limit: number };
+        is_premium: boolean;
+      }>
+    >("/api/social/posts/daily-limits", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
+    });
+  },
+);
+
 export const createSocialPostProcedure = authenticatedProcedure
   .input(
     z.object({

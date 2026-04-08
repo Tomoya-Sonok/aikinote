@@ -32,6 +32,13 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+export const isRateLimitError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    return error.message.includes("頻度");
+  }
+  return false;
+};
+
 type QueryCacheEntry = {
   expiresAt: number;
   value: unknown;
@@ -53,6 +60,7 @@ const CACHE_TTL_MS = {
   socialProfile: 30_000,
   notifications: 30_000,
   titleTemplates: 60_000,
+  dailyLimits: 15_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -741,6 +749,35 @@ export const getPublicSocialPost = async (postId: string) => {
     );
   } catch (error) {
     throw new Error(getErrorMessage(error, "投稿の取得に失敗しました"));
+  }
+};
+
+export interface DailyLimitsData {
+  posts: { used: number; limit: number };
+  replies: { used: number; limit: number };
+  is_premium: boolean;
+}
+
+const DEFAULT_DAILY_LIMITS: DailyLimitsData = {
+  posts: { used: 0, limit: 5 },
+  replies: { used: 0, limit: 5 },
+  is_premium: false,
+};
+
+export const getDailyLimits = async (): Promise<DailyLimitsData> => {
+  try {
+    const result = await cachedQuery(
+      "dailyLimits",
+      {},
+      CACHE_TTL_MS.dailyLimits,
+      () => trpcClient.socialPosts.getDailyLimits.query(),
+    );
+    if (result?.success && result.data) {
+      return result.data as DailyLimitsData;
+    }
+    return DEFAULT_DAILY_LIMITS;
+  } catch {
+    return DEFAULT_DAILY_LIMITS;
   }
 };
 

@@ -313,13 +313,11 @@
   "premiumModalBrowse": {
     "badge": "PREMIUM",
     "title": "もっと深く、\nみんなとつながろう",
-    "description": "投稿・返信・お気に入り・検索など、全ての機能を使って、仲間との交流を深めませんか？",
+    "description": "投稿数の制限解除・検索など、すべての Premium 機能で仲間との交流をさらに深めませんか？",
     "upgradeMain": "結びを大切にする",
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
-    "close": "今は閲覧だけでいい",
-    "feedBottomTitle": "もっと多くの投稿を見るには",
-    "feedBottomButton": "Premium にアップグレード"
+    "close": "今は閲覧だけでいい"
   },
   "premiumModalSearch": {
     "badge": "PREMIUM",
@@ -356,6 +354,15 @@
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
     "close": "記録だけ続ける"
+  },
+  "premiumModalDailyLimit": {
+    "badge": "PREMIUM",
+    "title": "今日の投稿・返信の\n上限に達しました",
+    "description": "Freeプランでは1日5件まで投稿・返信できます。Premiumにアップグレードすると、制限なく交流できます。",
+    "upgradeMain": "制限なく交流する",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "明日また来る"
   },
   "auth": {
     "login": "ログイン",
@@ -694,6 +701,8 @@
     "submitting": "投稿中...",
     "createSuccess": "投稿を作成しました",
     "createFailed": "投稿の作成に失敗しました",
+    "postRateLimited": "投稿頻度が高いため、しばらく時間が経ってからにしてください",
+    "replyRateLimited": "返信頻度が高いため、しばらく時間が経ってからにしてください",
     "back": "戻る",
     "search": "検索",
     "profile": "プロフィール",
@@ -991,9 +1000,10 @@
     "featureCalendar": "カレンダー・稽古日数管理",
     "featureExam": "審査に必要な稽古日数算出",
     "featureStats": "統計データ",
-    "featureBrowseOnly": "他の投稿・稽古記録の閲覧",
+    "featureBrowse": "投稿・稽古記録の閲覧",
+    "featurePostLimit": "投稿・返信（1日5件まで）",
+    "featureFavorite": "お気に入り保存",
     "featureSearch": "投稿・稽古記録の絞り込み検索",
-    "featurePost": "投稿・返信・お気に入り保存",
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "プッシュ通知",
     "featureReminder": "リマインダー",
