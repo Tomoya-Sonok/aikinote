@@ -1,0 +1,83 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 140px);
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: calc(100dvh - 140px);
+}
+
+.emptyText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--aikinote-text-light);
+  margin: 0;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.loadingMore {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Skeleton */
+.skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skeletonAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+.skeletonContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonLine {
+  height: 14px;
+  width: 80%;
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.skeletonLineShort {
+  height: 12px;
+  width: 40%;
+  background: var(--border-color);
+  border-radius: 4px;
+}

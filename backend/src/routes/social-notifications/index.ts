@@ -37,13 +37,14 @@ app.get(
     const supabase = c.get("supabase")!;
 
     try {
-      const { limit, offset } = c.req.valid("query");
+      const { limit, offset, type } = c.req.valid("query");
 
       const notifications = await getNotifications(
         supabase,
         userId,
         limit,
         offset,
+        type,
       );
 
       // 投稿プレビューをバッチ取得（N+1 解消）
@@ -75,13 +76,50 @@ app.get(
         }
       }
 
+      // 返信の削除状態をバッチ取得
+      const replyIds = [
+        ...new Set(
+          // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+          notifications
+            .filter((n: any) => n.reply_id)
+            .map((n: any) => n.reply_id as string),
+        ),
+      ];
+
+      const replyStatusMap = new Map<
+        string,
+        { is_deleted: boolean; updated_at: string }
+      >();
+      if (replyIds.length > 0) {
+        const { data: replies } = await supabase
+          .from("SocialReply")
+          .select("id, is_deleted, updated_at")
+          .in("id", replyIds);
+
+        for (const reply of replies ?? []) {
+          replyStatusMap.set(reply.id, {
+            is_deleted: reply.is_deleted,
+            updated_at: reply.updated_at,
+          });
+        }
+      }
+
       // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
-      const enriched = notifications.map((notification: any) => ({
-        ...notification,
-        actor: notification.User ?? null,
-        post_preview: postPreviewMap.get(notification.post_id) ?? null,
-        User: undefined,
-      }));
+      const enriched = notifications.map((notification: any) => {
+        const replyStatus = notification.reply_id
+          ? replyStatusMap.get(notification.reply_id)
+          : null;
+        return {
+          ...notification,
+          actor: notification.User ?? null,
+          post_preview: postPreviewMap.get(notification.post_id) ?? null,
+          reply_is_deleted: replyStatus?.is_deleted ?? null,
+          reply_deleted_at: replyStatus?.is_deleted
+            ? (replyStatus.updated_at ?? null)
+            : null,
+          User: undefined,
+        };
+      });
 
       return c.json({
         success: true,

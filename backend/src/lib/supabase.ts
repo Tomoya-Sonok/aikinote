@@ -1798,7 +1798,9 @@ export const getSocialPostWithDetails = async (
       .from("SocialReply")
       .select("*, User(id, username, profile_image_url)")
       .eq("post_id", postId)
-      .eq("is_deleted", false)
+      .or(
+        `is_deleted.eq.false,updated_at.gte.${new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()}`,
+      )
       .order("created_at", { ascending: true }),
     supabaseClient
       .from("SocialFavorite")
@@ -1948,7 +1950,9 @@ export const getSocialPostWithDetailsPublic = async (
         .from("SocialReply")
         .select("*, User(id, username, profile_image_url)")
         .eq("post_id", postId)
-        .eq("is_deleted", false)
+        .or(
+          `is_deleted.eq.false,updated_at.gte.${new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()}`,
+        )
         .order("created_at", { ascending: true }),
     ]);
 
@@ -2252,8 +2256,9 @@ export const getNotifications = async (
   userId: string,
   limit: number,
   offset: number,
+  typeFilter?: "reply" | "favorite",
 ): Promise<NotificationRow[]> => {
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("Notification")
     .select(
       "*, User!Notification_actor_user_id_fkey(id, username, profile_image_url)",
@@ -2262,6 +2267,14 @@ export const getNotifications = async (
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
+  if (typeFilter === "reply") {
+    query = query.in("type", ["reply", "reply_to_thread"]);
+  } else if (typeFilter === "favorite") {
+    query = query.in("type", ["favorite", "favorite_reply"]);
+  }
+
+  const { data, error } = await query;
+
   if (error) {
     throw new Error(`通知の取得に失敗しました: ${error.message}`);
   }
@@ -2269,13 +2282,12 @@ export const getNotifications = async (
   return data ?? [];
 };
 
-export const checkRateLimit = async (
+export const getCountInWindow = async (
   supabaseClient: SupabaseClient,
   userId: string,
-  table: "SocialPost" | "SocialReply",
+  table: "SocialPost" | "SocialReply" | "SocialFavorite",
   windowMinutes: number,
-  maxCount: number,
-): Promise<boolean> => {
+): Promise<number> => {
   const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
   const { count, error } = await supabaseClient
     .from(table)
@@ -2284,9 +2296,25 @@ export const checkRateLimit = async (
     .gte("created_at", since);
   if (error) {
     console.error("Rate limit check error:", error);
-    return false; // fail open
+    return 0;
   }
-  return (count ?? 0) >= maxCount;
+  return count ?? 0;
+};
+
+export const checkRateLimit = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+  table: "SocialPost" | "SocialReply" | "SocialFavorite",
+  windowMinutes: number,
+  maxCount: number,
+): Promise<boolean> => {
+  const count = await getCountInWindow(
+    supabaseClient,
+    userId,
+    table,
+    windowMinutes,
+  );
+  return count >= maxCount;
 };
 
 export const markNotificationsRead = async (

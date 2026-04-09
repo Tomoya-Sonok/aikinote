@@ -17,10 +17,11 @@ import { FloatingActionButton } from "@/components/shared/FloatingActionButton/F
 import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
+import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
-import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
 import { useRouter } from "@/lib/i18n/routing";
@@ -39,7 +40,6 @@ export function SocialPostsFeed() {
   const { user } = useAuth();
   const locale = useLocale();
   const router = useRouter();
-  const tPremium = useTranslations("premiumModalBrowse");
   const t = useTranslations("socialPosts");
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<SocialTab>(() =>
@@ -47,34 +47,37 @@ export function SocialPostsFeed() {
   );
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
     useSocialFeed(user?.id, activeTab);
+  const { showToast } = useToast();
   const { handleToggleFavorite } = useSocialFavorite();
-  const { isPremium, loading: subLoading } = useSubscription();
+  const { canPost, isPremium, loading: dailyLimitsLoading } = useDailyLimits();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalKey, setUpgradeModalKey] =
     useState<string>("premiumModalBrowse");
 
-  const isFreeUser = !subLoading && !isPremium;
+  const updateTab = useCallback((tab: SocialTab) => {
+    setActiveTab(tab);
+    const url = new URL(window.location.href);
+    if (tab === "all") {
+      url.searchParams.delete("tab");
+    } else {
+      url.searchParams.set("tab", tab);
+    }
+    window.history.replaceState(null, "", url.toString());
+  }, []);
 
   const handleSwipeTabChange = useCallback(
     (newTab: string): boolean => {
-      if (isFreeUser && newTab === "favorites") {
+      if (newTab === "favorites" && !isPremium) {
+        setUpgradeModalKey("premiumModalBrowse");
         setShowUpgradeModal(true);
         return false;
       }
-      const tab = newTab as SocialTab;
-      setActiveTab(tab);
-      const url = new URL(window.location.href);
-      if (tab === "all") {
-        url.searchParams.delete("tab");
-      } else {
-        url.searchParams.set("tab", tab);
-      }
-      window.history.replaceState(null, "", url.toString());
+      updateTab(newTab as SocialTab);
       return true;
     },
-    [isFreeUser],
+    [updateTab, isPremium],
   );
 
   const { containerRef, handlers, swipeProgress, isDragging } =
@@ -82,7 +85,7 @@ export function SocialPostsFeed() {
       tabs: VALID_TABS,
       activeTab,
       onTabChange: handleSwipeTabChange,
-      enabled: !subLoading,
+      enabled: !dailyLimitsLoading,
       excludeSelector: "[data-swipe-ignore]",
     });
 
@@ -91,6 +94,7 @@ export function SocialPostsFeed() {
   loadMoreRef.current = loadMore;
 
   useEffect(() => {
+    if (isLoading) return;
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
 
@@ -105,17 +109,15 @@ export function SocialPostsFeed() {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore]);
+  }, [hasMore, isLoadingMore, isLoading]);
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
-      if (isFreeUser) {
-        setShowUpgradeModal(true);
-        return;
-      }
-      handleToggleFavorite(postId, posts, updatePost);
+      handleToggleFavorite(postId, posts, updatePost, () => {
+        showToast(t("favoriteDailyLimitReached"), "error");
+      });
     },
-    [isFreeUser, handleToggleFavorite, posts, updatePost],
+    [handleToggleFavorite, posts, updatePost, showToast, t],
   );
 
   const handlePostClick = useCallback(
@@ -123,24 +125,6 @@ export function SocialPostsFeed() {
       router.push(`/social/posts/${postId}`);
     },
     [router],
-  );
-
-  const handleTabChange = useCallback(
-    (tab: SocialTab) => {
-      if (isFreeUser && tab === "favorites") {
-        setShowUpgradeModal(true);
-        return;
-      }
-      setActiveTab(tab);
-      const url = new URL(window.location.href);
-      if (tab === "all") {
-        url.searchParams.delete("tab");
-      } else {
-        url.searchParams.set("tab", tab);
-      }
-      window.history.replaceState(null, "", url.toString());
-    },
-    [isFreeUser],
   );
 
   const emptyKey =
@@ -155,7 +139,7 @@ export function SocialPostsFeed() {
       <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
       <SocialTabBar
         activeTab={activeTab}
-        onTabChange={handleTabChange}
+        onTabChange={(tab) => handleSwipeTabChange(tab)}
         swipeProgress={isDragging ? swipeProgress : 0}
       />
 
@@ -178,42 +162,25 @@ export function SocialPostsFeed() {
                 hasUnreadReplies={unreadReplyPostIds.has(post.id)}
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
-                isFreeUser={isFreeUser}
-                onPremiumAction={() => setShowUpgradeModal(true)}
               />
             ))}
 
-            {isFreeUser ? (
-              <div className={styles.feedBottomCta}>
-                <p className={styles.feedBottomCtaTitle}>
-                  {tPremium("feedBottomTitle")}
-                </p>
-                <button
-                  type="button"
-                  className={styles.feedBottomCtaButton}
-                  onClick={() => setShowUpgradeModal(true)}
-                >
-                  {tPremium("feedBottomButton")}
-                </button>
-              </div>
-            ) : (
-              <div ref={sentinelRef} className={styles.sentinel}>
-                {isLoadingMore && <Loader size="large" centered />}
-                {!hasMore && posts.length > 0 && (
-                  <p className={styles.noMore}>{t("noMorePosts")}</p>
-                )}
-              </div>
-            )}
+            <div ref={sentinelRef} className={styles.sentinel}>
+              {isLoadingMore && <Loader size="large" centered />}
+              {!hasMore && posts.length > 0 && (
+                <p className={styles.noMore}>{t("noMorePosts")}</p>
+              )}
+            </div>
           </>
         )}
       </div>
 
       <FloatingActionButton
-        href={isPremium ? `/${locale}/social/posts/new` : undefined}
+        href={canPost ? `/${locale}/social/posts/new` : undefined}
         onClick={
-          isFreeUser
+          !canPost
             ? () => {
-                setUpgradeModalKey("premiumModal");
+                setUpgradeModalKey("premiumModalDailyLimit");
                 setShowUpgradeModal(true);
               }
             : undefined

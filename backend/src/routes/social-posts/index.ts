@@ -16,6 +16,7 @@ import {
   createSocialPostTags,
   createSocialReply,
   enrichSocialPosts,
+  getCountInWindow,
   getSocialFeed,
   getSocialPostById,
   getSocialPostWithDetails,
@@ -129,23 +130,9 @@ app.get(
       // バッチクエリでエンリッチ（N+1 解消）
       const enrichedPosts = await enrichSocialPosts(supabase, posts, user_id);
 
-      // Free ユーザー: 初回ページ(offset=0)は全件返却、loadMore(offset>0)はブロック
-      const premium = await isPremiumUser(supabase, user_id);
-
-      if (!premium && offset > 0) {
-        return c.json({
-          success: true,
-          data: [],
-          is_preview: true,
-          premium_required: true,
-        });
-      }
-
       return c.json({
         success: true,
         data: enrichedPosts,
-        is_preview: !premium,
-        premium_required: !premium,
       });
     } catch (error) {
       console.error("フィード取得エラー:", error);
@@ -156,6 +143,49 @@ app.get(
     }
   },
 );
+
+// GET /daily-limits — Free ユーザーの日次投稿・返信使用量を取得
+app.get("/daily-limits", authMiddleware, async (c) => {
+  try {
+    const userId = c.get("userId");
+    const supabase = c.get("supabase")!;
+
+    const premium = await isPremiumUser(supabase, userId);
+    if (premium) {
+      return c.json({
+        success: true,
+        data: {
+          posts: { used: 0, limit: -1 },
+          replies: { used: 0, limit: -1 },
+          favorites: { used: 0, limit: -1 },
+          is_premium: true,
+        },
+      });
+    }
+
+    const [postsUsed, repliesUsed, favoritesUsed] = await Promise.all([
+      getCountInWindow(supabase, userId, "SocialPost", 1440),
+      getCountInWindow(supabase, userId, "SocialReply", 1440),
+      getCountInWindow(supabase, userId, "SocialFavorite", 1440),
+    ]);
+
+    return c.json({
+      success: true,
+      data: {
+        posts: { used: postsUsed, limit: 3 },
+        replies: { used: repliesUsed, limit: 3 },
+        favorites: { used: favoritesUsed, limit: 5 },
+        is_premium: false,
+      },
+    });
+  } catch (error) {
+    console.error("日次制限取得エラー:", error);
+    return c.json(
+      { success: false, error: "日次制限の取得に失敗しました" },
+      500,
+    );
+  }
+});
 
 // POST / — 投稿作成
 app.post(
@@ -173,35 +203,24 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Premium チェック: Free ユーザーは原則投稿不可
+      // Free ユーザー: 1日3件まで投稿可能
       const premium = await isPremiumUser(supabase, userId);
       if (!premium) {
-        // チュートリアル経由の初回投稿のみ許可
-        if (input.from_tutorial) {
-          const { count } = await supabase
-            .from("SocialPost")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", userId)
-            .eq("is_deleted", false);
-
-          if ((count ?? 0) > 0) {
-            return c.json(
-              {
-                success: false,
-                error: "投稿は Premium プランの機能です",
-                code: "PREMIUM_REQUIRED",
-              },
-              403,
-            );
-          }
-        } else {
+        const dailyLimited = await checkRateLimit(
+          supabase,
+          userId,
+          "SocialPost",
+          1440,
+          3,
+        );
+        if (dailyLimited) {
           return c.json(
             {
               success: false,
-              error: "投稿は Premium プランの機能です",
-              code: "PREMIUM_REQUIRED",
+              error: "1日の投稿上限（3件）に達しました",
+              code: "DAILY_LIMIT_REACHED",
             },
-            403,
+            429,
           );
         }
       }
@@ -224,15 +243,11 @@ app.post(
         );
       }
 
-      // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
       const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
-        return c.json(
-          {
-            success: false,
-            error: "不適切な表現が含まれています。内容を修正してください。",
-          },
-          400,
+        console.warn(
+          `[NGワード検出] 投稿作成 userId=${input.user_id} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
@@ -280,6 +295,10 @@ app.post(
           success: true,
           data: post,
           message: "投稿を作成しました",
+          ...(ngResult.found && {
+            warning:
+              "不適切な表現が含まれている可能性があります。内容を修正してください。",
+          }),
         },
         201,
       );
@@ -425,17 +444,15 @@ app.put(
         );
       }
 
-      // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
+      let ngWarning = false;
       if (input.content) {
         const ngResult = await containsNgWord(input.content, supabase);
         if (ngResult.found) {
-          return c.json(
-            {
-              success: false,
-              error: "不適切な表現が含まれています。内容を修正してください。",
-            },
-            400,
+          console.warn(
+            `[NGワード検出] 投稿更新 userId=${userId} postId=${postId} matchedWord="${ngResult.matchedWord}"`,
           );
+          ngWarning = true;
         }
       }
 
@@ -467,6 +484,10 @@ app.put(
         success: true,
         data: post,
         message: "投稿を更新しました",
+        ...(ngWarning && {
+          warning:
+            "不適切な表現が含まれている可能性があります。内容を修正してください。",
+        }),
       });
     } catch (error) {
       console.error("投稿更新エラー:", error);
@@ -524,17 +545,26 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Premium チェック: Free ユーザーは返信不可
+      // Free ユーザー: 1日3件まで返信可能
       const premiumForReply = await isPremiumUser(supabase, userId);
       if (!premiumForReply) {
-        return c.json(
-          {
-            success: false,
-            error: "返信は Premium プランの機能です",
-            code: "PREMIUM_REQUIRED",
-          },
-          403,
+        const dailyLimited = await checkRateLimit(
+          supabase,
+          userId,
+          "SocialReply",
+          1440,
+          3,
         );
+        if (dailyLimited) {
+          return c.json(
+            {
+              success: false,
+              error: "1日の返信上限（3件）に達しました",
+              code: "DAILY_LIMIT_REACHED",
+            },
+            429,
+          );
+        }
       }
 
       // レート制限チェック（60分以内に20件まで）
@@ -575,14 +605,11 @@ app.post(
       }
 
       // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
       const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
-        return c.json(
-          {
-            success: false,
-            error: "不適切な表現が含まれています。内容を修正してください。",
-          },
-          400,
+        console.warn(
+          `[NGワード検出] 返信作成 userId=${userId} postId=${postId} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
@@ -641,6 +668,10 @@ app.post(
           success: true,
           data: reply,
           message: "返信を作成しました",
+          ...(ngResult.found && {
+            warning:
+              "不適切な表現が含まれている可能性があります。内容を修正してください。",
+          }),
         },
         201,
       );
@@ -679,15 +710,11 @@ app.put(
         );
       }
 
-      // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
       const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
-        return c.json(
-          {
-            success: false,
-            error: "不適切な表現が含まれています。内容を修正してください。",
-          },
-          400,
+        console.warn(
+          `[NGワード検出] 返信更新 userId=${userId} replyId=${replyId} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
@@ -699,6 +726,10 @@ app.put(
         success: true,
         data: reply,
         message: "返信を更新しました",
+        ...(ngResult.found && {
+          warning:
+            "不適切な表現が含まれている可能性があります。内容を修正してください。",
+        }),
       });
     } catch (error) {
       console.error("返信更新エラー:", error);

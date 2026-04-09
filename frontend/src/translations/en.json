@@ -313,13 +313,11 @@
   "premiumModalBrowse": {
     "badge": "PREMIUM",
     "title": "Connect deeper\nwith the community",
-    "description": "Unlock all features — posting, replying, favorites, and search — to engage more with fellow aikidoka.",
+    "description": "Remove daily limits, save favorites, search posts — unlock all Premium features to connect deeper with fellow aikidoka.",
     "upgradeMain": "Cherish the connection",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Just browsing for now",
-    "feedBottomTitle": "See more posts",
-    "feedBottomButton": "Upgrade to Premium"
+    "close": "Not now"
   },
   "premiumModalSearch": {
     "badge": "PREMIUM",
@@ -328,7 +326,7 @@
     "upgradeMain": "Try Search",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Just browsing for now"
+    "close": "I'll find it myself"
   },
   "premiumModalCalendar": {
     "badge": "PREMIUM",
@@ -356,6 +354,15 @@
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
     "close": "Just keep recording"
+  },
+  "premiumModalDailyLimit": {
+    "badge": "PREMIUM",
+    "title": "You've reached today's\npost/reply limit",
+    "description": "Free plan allows up to 3 posts and 3 replies per day. Upgrade to Premium for no daily limits.",
+    "upgradeMain": "Interact more",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Come back tomorrow"
   },
   "auth": {
     "login": "Login",
@@ -673,6 +680,7 @@
     "showLess": "Show less",
     "reply": "Reply",
     "favorite": "Favorite",
+    "favoriteDailyLimitReached": "You've reached today's favorite limit",
     "share": "Share",
     "createPost": "Post",
     "createModalTitle": "New",
@@ -692,6 +700,8 @@
     "submitting": "Posting...",
     "createSuccess": "Post created successfully",
     "createFailed": "Failed to create post",
+    "postRateLimited": "You're posting too frequently. Please wait a moment and try again.",
+    "replyRateLimited": "You're replying too frequently. Please wait a moment and try again.",
     "back": "Back",
     "search": "Search",
     "profile": "Profile",
@@ -770,6 +780,13 @@
     "notificationFavoriteReply": "{name} favorited your reply",
     "notificationReply": "{name} replied to your post",
     "notificationReplyToThread": "{name} replied to the thread",
+    "notificationReplyDeleted": "{name} deleted their reply",
+    "notifications": "Notifications",
+    "notificationsTitle": "Notifications",
+    "notificationTabAll": "All",
+    "notificationTabReply": "Replies",
+    "notificationTabFavorite": "Favorites",
+    "notificationsEmpty": "No notifications",
     "recentSearches": "Recent searches",
     "clearAll": "Clear all",
     "trendingHashtags": "Trending",
@@ -968,8 +985,8 @@
     "premiumYearlyPrice": "¥3,800",
     "perMonth": "/ mo",
     "perYear": "/ yr",
-    "freeDescription": "Create, view & search training records",
-    "premiumDescription": "Stats, Social features & push notifications*",
+    "freeDescription": "Only basic features for Personal & Social\n(with some limits)",
+    "premiumDescription": "Unlock all Personal & Social features",
     "currentBadge": "Current",
     "recommendedBadge": "Recommended",
     "startPremium": "Start Premium",
@@ -989,11 +1006,12 @@
     "featureCalendar": "Calendar & training day tracking",
     "featureExam": "Exam preparation training day tracking",
     "featureStats": "Stats & analytics",
-    "featureBrowseOnly": "Browse others' posts & records",
-    "featureSearch": "Filter & search posts and records",
-    "featurePost": "Post, reply & save favorites",
+    "featureBrowse": "Browse posts & training records",
+    "featurePostLimit": "Post, reply & favorite\n(daily limits apply)",
+    "featureFavorite": "Save & browse favorites",
+    "featureSearch": "Advanced search & filtering",
     "featurePublish": "One-tap training record publish",
-    "featurePush": "Push notifications",
+    "featurePush": "Notifications for replies and favorites",
     "featureReminder": "Reminders",
     "mobileNote": "*The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
   },

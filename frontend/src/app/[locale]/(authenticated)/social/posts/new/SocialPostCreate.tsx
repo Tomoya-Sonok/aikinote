@@ -19,11 +19,13 @@ import { useToast } from "@/contexts/ToastContext";
 import {
   createPage,
   createSocialPost,
+  isRateLimitError,
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
+import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
@@ -43,9 +45,10 @@ export function SocialPostCreate() {
   const modeGroupId = useId();
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  const { incrementPostCount } = useDailyLimits();
+
   const initialMode =
     searchParams.get("mode") === "training" ? "training" : "post";
-  const fromTutorial = searchParams.get("fromTutorial") === "1";
   const [mode, setMode] = useState<CreateMode>(initialMode);
 
   // 投稿モード用
@@ -160,18 +163,25 @@ export function SocialPostCreate() {
         user_id: user.id,
         content: postContent.trim(),
         post_type: "post",
-        ...(fromTutorial && { from_tutorial: true }),
       });
 
       if (result.success && result.data) {
+        incrementPostCount();
         const postId = (result.data as { id: string }).id;
         await postAttachmentMgmt.saveNewAttachments(postId);
       }
 
+      if (result.success && result.warning) {
+        showToast(result.warning, "error");
+      }
+
       isNavigatingRef.current = true;
       router.replace("/social/posts");
-    } catch {
-      showToast(tSocial("createFailed"), "error");
+    } catch (error) {
+      showToast(
+        tSocial(isRateLimitError(error) ? "postRateLimited" : "createFailed"),
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -179,7 +189,7 @@ export function SocialPostCreate() {
     user?.id,
     postContent,
     isSubmitting,
-    fromTutorial,
+    incrementPostCount,
     postAttachmentMgmt,
     showToast,
     tSocial,

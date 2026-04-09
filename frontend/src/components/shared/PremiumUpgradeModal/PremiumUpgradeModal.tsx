@@ -47,6 +47,7 @@ export function PremiumUpgradeModal({
     premiumModalPushNotification: "push_notification",
     premiumModalCalendar: "calendar",
     premiumModalStats: "stats",
+    premiumModalDailyLimit: "daily_limit",
   };
   const context = CONTEXT_MAP[translationKey] ?? translationKey;
 

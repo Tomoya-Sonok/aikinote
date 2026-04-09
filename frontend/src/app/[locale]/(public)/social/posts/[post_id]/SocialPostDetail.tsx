@@ -17,6 +17,7 @@ const ReportModal = dynamic(
   { ssr: false },
 );
 
+import { DeletedReplyItem } from "@/components/features/social/DeletedReplyItem/DeletedReplyItem";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/SocialReplyForm";
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
@@ -37,6 +38,8 @@ import {
   deleteSocialReply,
   getPublicSocialPost,
   getSocialPost,
+  isDailyLimitError,
+  isRateLimitError,
   markNotificationsRead,
   reportPost,
   reportReply,
@@ -45,10 +48,11 @@ import {
   updateSocialReply,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
+import { isWithinDeleteDisplayWindow } from "@/lib/utils/notificationUtils";
 import styles from "./SocialPostDetail.module.css";
 
 interface SocialReplyData {
@@ -113,7 +117,7 @@ interface SocialPostDetailProps {
 
 export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const { user, isInitializing } = useAuth();
-  const { isPremium, loading: subLoading } = useSubscription();
+  const { canReply, incrementReplyCount } = useDailyLimits();
   const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("socialPosts");
@@ -127,10 +131,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeModalKey, setUpgradeModalKey] =
+    useState<string>("premiumModalBrowse");
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isAuthenticated = !!user;
-  const isFreeUser = isAuthenticated && !subLoading && !isPremium;
 
   useEffect(() => {
     if (isInitializing) return;
@@ -181,10 +186,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   }, [router]);
 
   const handleFavoriteToggle = useCallback(async () => {
-    if (isFreeUser) {
-      setShowUpgradeModal(true);
-      return;
-    }
     if (!isAuthenticated) {
       setShowSignupPrompt(true);
       return;
@@ -211,7 +212,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
     try {
       await toggleFavorite(postId);
-    } catch {
+    } catch (error) {
       setDetail((prev) =>
         prev
           ? {
@@ -221,8 +222,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             }
           : null,
       );
+      if (isDailyLimitError(error)) {
+        showToast(t("favoriteDailyLimitReached"), "error");
+      }
     }
-  }, [detail, postId, isAuthenticated, isFreeUser]);
+  }, [detail, postId, isAuthenticated, showToast, t]);
 
   const handleDelete = useCallback(async () => {
     setIsDeleting(true);
@@ -241,20 +245,27 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     async (content: string) => {
       if (!user?.id) return;
       try {
-        await createSocialReply({
+        const replyResult = await createSocialReply({
           postId,
           user_id: user.id,
           content,
         });
+        if (replyResult.success && replyResult.warning) {
+          showToast(replyResult.warning, "error");
+        }
+        incrementReplyCount();
         const result = await getSocialPost(postId);
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);
         }
-      } catch {
-        showToast(t("replySendFailed"), "error");
+      } catch (error) {
+        showToast(
+          t(isRateLimitError(error) ? "replyRateLimited" : "replySendFailed"),
+          "error",
+        );
       }
     },
-    [postId, user?.id, showToast, t],
+    [postId, user?.id, showToast, t, incrementReplyCount],
   );
 
   const handleReportSubmit = useCallback(
@@ -314,7 +325,14 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const handleReplyEdit = useCallback(
     async (replyId: string, newContent: string) => {
       try {
-        await updateSocialReply({ postId, replyId, content: newContent });
+        const editResult = await updateSocialReply({
+          postId,
+          replyId,
+          content: newContent,
+        });
+        if (editResult.success && editResult.warning) {
+          showToast(editResult.warning, "error");
+        }
         const result = await getSocialPost(postId);
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);
@@ -343,10 +361,6 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleReplyFavoriteToggle = useCallback(
     (replyId: string) => {
-      if (isFreeUser) {
-        setShowUpgradeModal(true);
-        return;
-      }
       if (!detail) return;
 
       const targetReply = detail.replies.find((r) => r.id === replyId);
@@ -375,7 +389,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           : null,
       );
 
-      toggleReplyFavorite(replyId).catch(() => {
+      toggleReplyFavorite(replyId).catch((error) => {
         // エラー時ロールバック
         setDetail((prev) =>
           prev
@@ -393,9 +407,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               }
             : null,
         );
+        if (isDailyLimitError(error)) {
+          showToast(t("favoriteDailyLimitReached"), "error");
+        }
       });
     },
-    [detail, isFreeUser],
+    [detail, showToast, t],
   );
 
   const handleStartEdit = useCallback(() => {
@@ -430,7 +447,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     setShowSignupPrompt(true);
   }, []);
 
-  if (isLoading || isInitializing || (isAuthenticated && subLoading)) {
+  if (isLoading || isInitializing) {
     return (
       <ChatLayout>
         <Loader centered size="large" />
@@ -451,7 +468,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const isOwner = user?.id === detail.post.user_id;
 
   const footer =
-    isAuthenticated && !isFreeUser ? (
+    isAuthenticated && canReply ? (
       <SocialReplyForm onSubmit={handleReplySubmit} />
     ) : (
       <div className={styles.dummyReplyForm}>
@@ -460,8 +477,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             type="button"
             className={styles.dummyReplyInput}
             onClick={
-              isFreeUser
-                ? () => setShowUpgradeModal(true)
+              isAuthenticated
+                ? () => {
+                    setUpgradeModalKey("premiumModalDailyLimit");
+                    setShowUpgradeModal(true);
+                  }
                 : handleSignupPromptOpen
             }
           >
@@ -530,7 +550,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
       <div className={styles.postContent}>
         <div className={styles.authorHeader}>
-          {isAuthenticated && !isFreeUser ? (
+          {isAuthenticated ? (
             <a
               href={`/${locale}/social/profile/${detail.author.id}`}
               className={styles.authorLink}
@@ -544,11 +564,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             <button
               type="button"
               className={styles.authorButton}
-              onClick={
-                isFreeUser
-                  ? () => setShowUpgradeModal(true)
-                  : handleSignupPromptOpen
-              }
+              onClick={handleSignupPromptOpen}
             >
               <ProfileImage
                 src={detail.author.profile_image_url}
@@ -557,7 +573,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             </button>
           )}
           <div className={styles.authorInfo}>
-            {isAuthenticated && !isFreeUser ? (
+            {isAuthenticated ? (
               <a
                 href={`/${locale}/social/profile/${detail.author.id}`}
                 className={styles.authorNameLink}
@@ -568,11 +584,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               <button
                 type="button"
                 className={styles.authorNameButton}
-                onClick={
-                  isFreeUser
-                    ? () => setShowUpgradeModal(true)
-                    : handleSignupPromptOpen
-                }
+                onClick={handleSignupPromptOpen}
               >
                 {detail.author.username}
               </button>
@@ -644,24 +656,26 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
       <div className={styles.replies}>
         {detail.replies
-          .filter((r) => !r.is_deleted)
-          .map((reply) => (
-            <SocialReplyItem
-              key={reply.id}
-              reply={reply}
-              currentUserId={user?.id ?? ""}
-              isAuthenticated={isAuthenticated}
-              onReport={handleReplyReport}
-              onEdit={handleReplyEdit}
-              onDelete={handleReplyDelete}
-              onFavoriteToggle={handleReplyFavoriteToggle}
-              onUnauthenticatedAction={
-                isFreeUser
-                  ? () => setShowUpgradeModal(true)
-                  : handleSignupPromptOpen
-              }
-            />
-          ))}
+          .filter(
+            (r) => !r.is_deleted || isWithinDeleteDisplayWindow(r.updated_at),
+          )
+          .map((reply) =>
+            reply.is_deleted ? (
+              <DeletedReplyItem key={reply.id} reply={reply} />
+            ) : (
+              <SocialReplyItem
+                key={reply.id}
+                reply={reply}
+                currentUserId={user?.id ?? ""}
+                isAuthenticated={isAuthenticated}
+                onReport={handleReplyReport}
+                onEdit={handleReplyEdit}
+                onDelete={handleReplyDelete}
+                onFavoriteToggle={handleReplyFavoriteToggle}
+                onUnauthenticatedAction={handleSignupPromptOpen}
+              />
+            ),
+          )}
       </div>
 
       <ConfirmDialog
@@ -689,8 +703,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
       <PremiumUpgradeModal
         isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        translationKey="premiumModalBrowse"
+        onClose={() => {
+          setShowUpgradeModal(false);
+          setUpgradeModalKey("premiumModalBrowse");
+        }}
+        translationKey={upgradeModalKey}
       />
     </ChatLayout>
   );

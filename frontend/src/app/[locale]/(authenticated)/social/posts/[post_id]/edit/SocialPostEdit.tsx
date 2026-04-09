@@ -87,13 +87,17 @@ export function SocialPostEdit() {
     if (!content.trim() || isSaving) return;
     setIsSaving(true);
     try {
-      await updateSocialPost({
+      const result = await updateSocialPost({
         postId,
         content: content.trim(),
       });
 
       // 新規追加された添付を保存
       await attachmentMgmt.saveNewAttachments(postId);
+
+      if (result.success && result.warning) {
+        showToast(result.warning, "error");
+      }
 
       isNavigatingRef.current = true;
       router.replace(`/social/posts/${postId}`);

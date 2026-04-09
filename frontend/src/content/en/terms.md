@@ -1,6 +1,6 @@
 # AikiNote Terms of Service
 
-Last updated: March 30, 2026
+Last updated: April 9, 2026
 
 These Terms of Service ("Terms") set forth the conditions for using AikiNote ("the Service"). By using the Service, you agree to these Terms.
 
@@ -35,8 +35,11 @@ Users shall not engage in the following activities when using the Service:
 7. Impersonating other users
 8. Activities that directly or indirectly provide benefits to antisocial forces
 9. Posting inappropriate images or videos unrelated to training (including content that infringes on others' privacy, violates public order and morals, or infringes on third-party rights)
-10. Recording, capturing, or publishing another user's training footage or personal information without their consent
-11. Other activities deemed inappropriate by the Operator
+10. Defamation, insults, threats, harassment, or bullying directed at other users
+11. Discriminatory expressions or hate speech based on race, ethnicity, nationality, gender, age, disability, religion, sexual orientation, or other attributes
+12. Posting obscene content, excessively violent content, or other content that may cause discomfort to other users
+13. Recording, capturing, or publishing another user's training footage or personal information without their consent
+14. Other activities deemed inappropriate by the Operator
 
 ## Article 5 (Suspension of Service)
 
@@ -72,6 +75,8 @@ Users shall not engage in the following activities when using the Service:
 2. The Service is provided on a fundamentally free-of-charge basis. The Operator shall not be liable for any damage arising from the Service to users, except in cases of willful misconduct or gross negligence on the part of the Operator.
 3. The Operator shall not be liable for any damage to users caused by communication failures, system failures, loss of data, unauthorized access by third parties, or other causes beyond the Operator's reasonable control, except in cases of willful misconduct or gross negligence on the part of the Operator.
 4. The Service is an application intended for recording Aikido training. However, the Operator assumes no responsibility whatsoever for any injuries, accidents, or other physical harm resulting from practicing techniques, training content, or exercise methods described in the Service. Users should exercise their own judgment and take appropriate safety precautions when engaging in training or practice.
+5. Content posted by users on the Service (including text, images, and videos) is published under the sole responsibility of the posting user. The Operator assumes no responsibility for the accuracy, legality, or morality of such content.
+6. Any disputes, conflicts, or damages arising between users shall be resolved between the parties involved. The Operator has no obligation to mediate, arbitrate, or otherwise intervene. However, the Operator may take measures such as usage restrictions if it discovers activities that violate these Terms.
 
 ## Article 9 (Changes to Service Content)
 

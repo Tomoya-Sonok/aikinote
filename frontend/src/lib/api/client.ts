@@ -32,6 +32,20 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
   return fallback;
 };
 
+export const isRateLimitError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    return error.message.includes("頻度");
+  }
+  return false;
+};
+
+export const isDailyLimitError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    return error.cause === "DAILY_LIMIT_REACHED";
+  }
+  return false;
+};
+
 type QueryCacheEntry = {
   expiresAt: number;
   value: unknown;
@@ -47,12 +61,13 @@ const CACHE_TTL_MS = {
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
   subscription: 30_000,
-  socialFeed: 60_000,
+  socialFeed: 30_000,
   socialPost: 60_000,
   socialSearch: 60_000,
   socialProfile: 30_000,
-  notifications: 30_000,
+  notifications: 15_000,
   titleTemplates: 60_000,
+  dailyLimits: 15_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -744,6 +759,37 @@ export const getPublicSocialPost = async (postId: string) => {
   }
 };
 
+export interface DailyLimitsData {
+  posts: { used: number; limit: number };
+  replies: { used: number; limit: number };
+  favorites: { used: number; limit: number };
+  is_premium: boolean;
+}
+
+const DEFAULT_DAILY_LIMITS: DailyLimitsData = {
+  posts: { used: 0, limit: 3 },
+  replies: { used: 0, limit: 3 },
+  favorites: { used: 0, limit: 5 },
+  is_premium: false,
+};
+
+export const getDailyLimits = async (): Promise<DailyLimitsData> => {
+  try {
+    const result = await cachedQuery(
+      "dailyLimits",
+      {},
+      CACHE_TTL_MS.dailyLimits,
+      () => trpcClient.socialPosts.getDailyLimits.query(),
+    );
+    if (result?.success && result.data) {
+      return result.data as DailyLimitsData;
+    }
+    return DEFAULT_DAILY_LIMITS;
+  } catch {
+    return DEFAULT_DAILY_LIMITS;
+  }
+};
+
 export interface CreateSocialPostPayload {
   user_id: string;
   content: string;
@@ -849,7 +895,10 @@ export const toggleFavorite = async (postId: string) => {
     ]);
     return response;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+    const msg = getErrorMessage(error, "お気に入りの更新に失敗しました");
+    const err = new Error(msg);
+    if (msg.includes("上限")) err.cause = "DAILY_LIMIT_REACHED";
+    throw err;
   }
 };
 
@@ -861,7 +910,10 @@ export const toggleReplyFavorite = async (replyId: string) => {
     invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
     return response;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+    const msg = getErrorMessage(error, "お気に入りの更新に失敗しました");
+    const err = new Error(msg);
+    if (msg.includes("上限")) err.cause = "DAILY_LIMIT_REACHED";
+    throw err;
   }
 };
 
@@ -952,6 +1004,7 @@ export const getSocialProfile = async (userId: string) => {
 export interface GetNotificationsParams {
   limit?: number;
   offset?: number;
+  type?: "reply" | "favorite";
 }
 
 export const getNotifications = async (params: GetNotificationsParams = {}) => {

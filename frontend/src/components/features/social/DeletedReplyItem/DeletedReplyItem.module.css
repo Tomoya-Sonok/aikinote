@@ -1,0 +1,38 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.avatar {
+  flex-shrink: 0;
+}
+
+.avatarFaded {
+  opacity: 0.5;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  color: var(--aikinote-text-light);
+  font-style: italic;
+}
+
+.timestamp {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--aikinote-text-light);
+  margin-top: 2px;
+  display: block;
+}

@@ -13,6 +13,7 @@ import {
   deletePageProcedure,
   deleteTagProcedure,
   deleteTitleTemplateProcedure,
+  getDailyLimitsProcedure,
   getNotificationsProcedure,
   getPageProcedure,
   getPagesProcedure,
@@ -107,6 +108,7 @@ export const appRouter = createTRPCRouter({
     remove: removeSocialPostProcedure,
     toggleFavorite: toggleFavoriteProcedure,
     report: reportPostProcedure,
+    getDailyLimits: getDailyLimitsProcedure,
   }),
   socialReplies: createTRPCRouter({
     create: createSocialReplyProcedure,

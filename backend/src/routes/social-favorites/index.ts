@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Hono } from "hono";
 import { sendPushToUser } from "../../lib/push-notification.js";
+import { isPremiumUser } from "../../lib/subscription.js";
 import {
+  checkRateLimit,
   createNotification,
   deleteNotificationByFavorite,
   deleteNotificationByReplyFavorite,
@@ -10,7 +12,7 @@ import {
   toggleReplyFavorite,
   toggleSocialFavorite,
 } from "../../lib/supabase.js";
-import { authMiddleware, premiumMiddleware } from "../../middleware/auth.js";
+import { authMiddleware } from "../../middleware/auth.js";
 
 type FavoritesBindings = {
   JWT_SECRET?: string;
@@ -27,7 +29,7 @@ const app = new Hono<{
 }>();
 
 // POST /:postId — お気に入りトグル
-app.post("/:postId", authMiddleware, premiumMiddleware, async (c) => {
+app.post("/:postId", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const supabase = c.get("supabase")!;
 
@@ -38,6 +40,38 @@ app.post("/:postId", authMiddleware, premiumMiddleware, async (c) => {
     const post = await getSocialPostById(supabase, postId);
     if (!post) {
       return c.json({ success: false, error: "投稿が見つかりません" }, 404);
+    }
+
+    // Free ユーザー: 1日5件までお気に入り登録可能（解除は制限なし）
+    const existingFav = await supabase
+      .from("SocialFavorite")
+      .select("id")
+      .eq("post_id", postId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    const isCurrentlyFavorited = !!existingFav.data;
+
+    if (!isCurrentlyFavorited) {
+      const premium = await isPremiumUser(supabase, userId);
+      if (!premium) {
+        const dailyLimited = await checkRateLimit(
+          supabase,
+          userId,
+          "SocialFavorite",
+          1440,
+          5,
+        );
+        if (dailyLimited) {
+          return c.json(
+            {
+              success: false,
+              error: "1日のお気に入り上限（5件）に達しました",
+              code: "DAILY_LIMIT_REACHED",
+            },
+            429,
+          );
+        }
+      }
     }
 
     const result = await toggleSocialFavorite(supabase, postId, userId);
@@ -82,7 +116,7 @@ app.post("/:postId", authMiddleware, premiumMiddleware, async (c) => {
 });
 
 // POST /reply/:replyId — 返信お気に入りトグル
-app.post("/reply/:replyId", authMiddleware, premiumMiddleware, async (c) => {
+app.post("/reply/:replyId", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const supabase = c.get("supabase")!;
 
@@ -93,6 +127,38 @@ app.post("/reply/:replyId", authMiddleware, premiumMiddleware, async (c) => {
     const reply = await getSocialReplyById(supabase, replyId);
     if (!reply) {
       return c.json({ success: false, error: "返信が見つかりません" }, 404);
+    }
+
+    // Free ユーザー: 1日5件までお気に入り登録可能（解除は制限なし）
+    const existingFav = await supabase
+      .from("SocialFavorite")
+      .select("id")
+      .eq("reply_id", replyId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    const isCurrentlyFavorited = !!existingFav.data;
+
+    if (!isCurrentlyFavorited) {
+      const premium = await isPremiumUser(supabase, userId);
+      if (!premium) {
+        const dailyLimited = await checkRateLimit(
+          supabase,
+          userId,
+          "SocialFavorite",
+          1440,
+          5,
+        );
+        if (dailyLimited) {
+          return c.json(
+            {
+              success: false,
+              error: "1日のお気に入り上限（5件）に達しました",
+              code: "DAILY_LIMIT_REACHED",
+            },
+            429,
+          );
+        }
+      }
     }
 
     const result = await toggleReplyFavorite(supabase, replyId, userId);
