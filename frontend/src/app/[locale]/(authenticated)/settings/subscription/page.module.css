@@ -166,6 +166,7 @@
   color: var(--text-light);
   margin: 0;
   line-height: 1.5;
+  white-space: pre-line;
 }
 
 .planDescriptionPremium {
@@ -318,6 +319,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--black);
+  white-space: pre-line;
 }
 
 .featureCheck {
