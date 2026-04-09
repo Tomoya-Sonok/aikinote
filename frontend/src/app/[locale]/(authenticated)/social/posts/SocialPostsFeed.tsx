@@ -24,7 +24,7 @@ import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
 import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
-import { useRouter } from "@/lib/i18n/routing";
+import { Link, useRouter } from "@/lib/i18n/routing";
 import styles from "./page.module.css";
 
 const VALID_TABS: SocialTab[] = ["all", "training", "favorites"];
@@ -154,6 +154,24 @@ export function SocialPostsFeed() {
           <p className={styles.emptyMessage}>{t(emptyKey)}</p>
         ) : (
           <>
+            <Link
+              href="/social/posts/new?from_minnade_promote_free_users_post_banner=1"
+              className={styles.promoteBanner}
+            >
+              <img
+                src={
+                  locale === "en"
+                    ? "/images/banner/en_minnade_promote_free_users_post.png"
+                    : "/images/banner/minnade_promote_free_users_post.png"
+                }
+                alt={
+                  locale === "en"
+                    ? "Free for everyone! Start posting"
+                    : "無料（Freeプラン）でも投稿できます"
+                }
+                className={styles.promoteBannerImage}
+              />
+            </Link>
             {posts.map((post: SocialFeedPostData) => (
               <SocialPostCard
                 key={post.id}

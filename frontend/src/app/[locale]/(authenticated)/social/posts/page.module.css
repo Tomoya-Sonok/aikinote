@@ -17,6 +17,19 @@
   -webkit-user-select: none;
 }
 
+.promoteBanner {
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.promoteBannerImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .emptyMessage {
   text-align: center;
   padding: 60px 20px;
