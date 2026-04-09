@@ -241,11 +241,14 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     async (content: string) => {
       if (!user?.id) return;
       try {
-        await createSocialReply({
+        const replyResult = await createSocialReply({
           postId,
           user_id: user.id,
           content,
         });
+        if (replyResult.success && replyResult.warning) {
+          showToast(replyResult.warning, "error");
+        }
         incrementReplyCount();
         const result = await getSocialPost(postId);
         if (result.success && result.data) {
@@ -318,7 +321,14 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const handleReplyEdit = useCallback(
     async (replyId: string, newContent: string) => {
       try {
-        await updateSocialReply({ postId, replyId, content: newContent });
+        const editResult = await updateSocialReply({
+          postId,
+          replyId,
+          content: newContent,
+        });
+        if (editResult.success && editResult.warning) {
+          showToast(editResult.warning, "error");
+        }
         const result = await getSocialPost(postId);
         if (result.success && result.data) {
           setDetail(result.data as PostDetailData);

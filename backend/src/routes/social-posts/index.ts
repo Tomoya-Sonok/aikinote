@@ -240,15 +240,11 @@ app.post(
         );
       }
 
-      // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
       const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
-        return c.json(
-          {
-            success: false,
-            error: "不適切な表現が含まれています。内容を修正してください。",
-          },
-          400,
+        console.warn(
+          `[NGワード検出] 投稿作成 userId=${input.user_id} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
@@ -296,6 +292,10 @@ app.post(
           success: true,
           data: post,
           message: "投稿を作成しました",
+          ...(ngResult.found && {
+            warning:
+              "不適切な表現が含まれている可能性があります。内容を修正してください。",
+          }),
         },
         201,
       );
@@ -441,17 +441,15 @@ app.put(
         );
       }
 
-      // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
+      let ngWarning = false;
       if (input.content) {
         const ngResult = await containsNgWord(input.content, supabase);
         if (ngResult.found) {
-          return c.json(
-            {
-              success: false,
-              error: "不適切な表現が含まれています。内容を修正してください。",
-            },
-            400,
+          console.warn(
+            `[NGワード検出] 投稿更新 userId=${userId} postId=${postId} matchedWord="${ngResult.matchedWord}"`,
           );
+          ngWarning = true;
         }
       }
 
@@ -483,6 +481,10 @@ app.put(
         success: true,
         data: post,
         message: "投稿を更新しました",
+        ...(ngWarning && {
+          warning:
+            "不適切な表現が含まれている可能性があります。内容を修正してください。",
+        }),
       });
     } catch (error) {
       console.error("投稿更新エラー:", error);
@@ -600,14 +602,11 @@ app.post(
       }
 
       // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
       const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
-        return c.json(
-          {
-            success: false,
-            error: "不適切な表現が含まれています。内容を修正してください。",
-          },
-          400,
+        console.warn(
+          `[NGワード検出] 返信作成 userId=${userId} postId=${postId} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
@@ -666,6 +665,10 @@ app.post(
           success: true,
           data: reply,
           message: "返信を作成しました",
+          ...(ngResult.found && {
+            warning:
+              "不適切な表現が含まれている可能性があります。内容を修正してください。",
+          }),
         },
         201,
       );
@@ -704,15 +707,11 @@ app.put(
         );
       }
 
-      // NGワードチェック
+      // NGワードチェック（ブロックせず警告のみ）
       const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
-        return c.json(
-          {
-            success: false,
-            error: "不適切な表現が含まれています。内容を修正してください。",
-          },
-          400,
+        console.warn(
+          `[NGワード検出] 返信更新 userId=${userId} replyId=${replyId} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
@@ -724,6 +723,10 @@ app.put(
         success: true,
         data: reply,
         message: "返信を更新しました",
+        ...(ngResult.found && {
+          warning:
+            "不適切な表現が含まれている可能性があります。内容を修正してください。",
+        }),
       });
     } catch (error) {
       console.error("返信更新エラー:", error);

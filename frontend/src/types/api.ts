@@ -19,6 +19,7 @@ export interface ApiSuccessResponse<T = unknown> extends BaseApiResponse {
   success: true;
   data: T;
   message?: string;
+  warning?: string;
 }
 
 /**

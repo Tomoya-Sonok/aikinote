@@ -47,13 +47,13 @@ export function normalizeText(text: string): string {
 export async function containsNgWord(
   text: string,
   supabase: SupabaseClient,
-): Promise<{ found: boolean }> {
+): Promise<{ found: boolean; matchedWord?: string }> {
   const words = await loadNgWords(supabase);
   const normalized = normalizeText(text);
 
   for (const word of words) {
     if (normalized.includes(word)) {
-      return { found: true };
+      return { found: true, matchedWord: word };
     }
   }
 

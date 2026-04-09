@@ -171,6 +171,10 @@ export function SocialPostCreate() {
         await postAttachmentMgmt.saveNewAttachments(postId);
       }
 
+      if (result.success && result.warning) {
+        showToast(result.warning, "error");
+      }
+
       isNavigatingRef.current = true;
       router.replace("/social/posts");
     } catch (error) {
