@@ -985,7 +985,7 @@
     "premiumYearlyPrice": "¥3,800",
     "perMonth": "/ mo",
     "perYear": "/ yr",
-    "freeDescription": "Basic features for Personal & Social\n(some limits)",
+    "freeDescription": "Only basic features for Personal & Social\n(with some limits)",
     "premiumDescription": "Unlock all Personal & Social features",
     "currentBadge": "Current",
     "recommendedBadge": "Recommended",
@@ -1011,7 +1011,7 @@
     "featureFavorite": "Save & browse favorites",
     "featureSearch": "Advanced search & filtering",
     "featurePublish": "One-tap training record publish",
-    "featurePush": "Push notifications",
+    "featurePush": "Notifications for replies and favorites",
     "featureReminder": "Reminders",
     "mobileNote": "*The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
   },

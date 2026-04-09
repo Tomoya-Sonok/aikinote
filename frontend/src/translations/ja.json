@@ -987,7 +987,7 @@
     "premiumYearlyPrice": "¥3,800",
     "perMonth": "/ 月",
     "perYear": "/ 年",
-    "freeDescription": "ひとりで・みんなでの基本的な機能\n（一部制限有り）",
+    "freeDescription": "ひとりで・みんなでの基本的な機能のみ\n（一部制限有り）",
     "premiumDescription": "ひとりで・みんなでの全ての機能を解放",
     "currentBadge": "現在",
     "recommendedBadge": "おすすめ",
@@ -1013,8 +1013,8 @@
     "featureFavorite": "お気に入り保存および閲覧",
     "featureSearch": "高度な絞り込み検索",
     "featurePublish": "稽古記録の1タップ公開",
-    "featurePush": "プッシュ通知",
-    "featureReminder": "リマインダー",
+    "featurePush": "返信やお気に入りの通知",
+    "featureReminder": "リマインダー登録・通知",
     "mobileNote": "*アプリ版は鋭意開発中です。リリース時期が分かり次第、ご登録いただいたメールアドレス宛てにお知らせいたします。"
   },
   "pushNotification": {
