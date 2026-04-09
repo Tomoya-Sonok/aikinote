@@ -87,6 +87,7 @@ export function SocialPostsFeed() {
   loadMoreRef.current = loadMore;
 
   useEffect(() => {
+    if (isLoading) return;
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
 
@@ -101,7 +102,7 @@ export function SocialPostsFeed() {
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore]);
+  }, [hasMore, isLoadingMore, isLoading]);
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
