@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
-import { toggleFavorite } from "@/lib/api/client";
+import { isDailyLimitError, toggleFavorite } from "@/lib/api/client";
 
 interface UseSocialFavoriteResult {
   handleToggleFavorite: (
@@ -52,11 +52,7 @@ export function useSocialFavorite(): UseSocialFavoriteResult {
           favorite_count: prevCount,
         }));
 
-        if (
-          onDailyLimitReached &&
-          error instanceof Error &&
-          error.message.includes("上限")
-        ) {
+        if (onDailyLimitReached && isDailyLimitError(error)) {
           onDailyLimitReached();
         }
       }

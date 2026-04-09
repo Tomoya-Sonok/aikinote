@@ -10,6 +10,7 @@ import { forwardRef, useCallback, useImperativeHandle } from "react";
 import { SocialPostCard } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
+import { useToast } from "@/contexts/ToastContext";
 import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
@@ -53,6 +54,7 @@ export const SocialSearchResults = forwardRef<
 ) {
   const t = useTranslations("socialPosts");
   const router = useRouter();
+  const { showToast } = useToast();
   const { results, isLoading, search, updateResult } = useSocialSearch(userId);
   const { handleToggleFavorite } = useSocialFavorite();
   const { history, addToHistory, removeFromHistory, clearHistory } =
@@ -70,9 +72,11 @@ export const SocialSearchResults = forwardRef<
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
-      handleToggleFavorite(postId, results, updateResult);
+      handleToggleFavorite(postId, results, updateResult, () => {
+        showToast(t("favoriteDailyLimitReached"), "error");
+      });
     },
-    [handleToggleFavorite, results, updateResult],
+    [handleToggleFavorite, results, updateResult, showToast, t],
   );
 
   const handlePostClick = useCallback(

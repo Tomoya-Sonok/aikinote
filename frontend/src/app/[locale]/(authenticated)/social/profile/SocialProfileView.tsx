@@ -15,6 +15,7 @@ import {
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
 import { Tooltip } from "@/components/shared/Tooltip";
+import { useToast } from "@/contexts/ToastContext";
 import { getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
@@ -49,6 +50,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const { user: currentUser } = useAuth();
   const router = useRouter();
   const t = useTranslations("socialPosts");
+  const { showToast } = useToast();
   const { track } = useUmamiTrack();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [posts, setPosts] = useState<SocialFeedPostData[]>([]);
@@ -89,9 +91,11 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
-      handleToggleFavorite(postId, posts, updatePost);
+      handleToggleFavorite(postId, posts, updatePost, () => {
+        showToast(t("favoriteDailyLimitReached"), "error");
+      });
     },
-    [handleToggleFavorite, posts, updatePost],
+    [handleToggleFavorite, posts, updatePost, showToast, t],
   );
 
   const handlePostClick = useCallback(

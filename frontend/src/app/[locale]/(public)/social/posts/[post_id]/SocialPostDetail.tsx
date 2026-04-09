@@ -38,6 +38,7 @@ import {
   deleteSocialReply,
   getPublicSocialPost,
   getSocialPost,
+  isDailyLimitError,
   isRateLimitError,
   markNotificationsRead,
   reportPost,
@@ -221,7 +222,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             }
           : null,
       );
-      if (error instanceof Error && error.message.includes("上限")) {
+      if (isDailyLimitError(error)) {
         showToast(t("favoriteDailyLimitReached"), "error");
       }
     }
@@ -388,7 +389,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           : null,
       );
 
-      toggleReplyFavorite(replyId).catch(() => {
+      toggleReplyFavorite(replyId).catch((error) => {
         // エラー時ロールバック
         setDetail((prev) =>
           prev
@@ -406,9 +407,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               }
             : null,
         );
+        if (isDailyLimitError(error)) {
+          showToast(t("favoriteDailyLimitReached"), "error");
+        }
       });
     },
-    [detail],
+    [detail, showToast, t],
   );
 
   const handleStartEdit = useCallback(() => {

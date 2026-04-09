@@ -39,6 +39,13 @@ export const isRateLimitError = (error: unknown): boolean => {
   return false;
 };
 
+export const isDailyLimitError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    return error.cause === "DAILY_LIMIT_REACHED";
+  }
+  return false;
+};
+
 type QueryCacheEntry = {
   expiresAt: number;
   value: unknown;
@@ -888,7 +895,10 @@ export const toggleFavorite = async (postId: string) => {
     ]);
     return response;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+    const msg = getErrorMessage(error, "お気に入りの更新に失敗しました");
+    const err = new Error(msg);
+    if (msg.includes("上限")) err.cause = "DAILY_LIMIT_REACHED";
+    throw err;
   }
 };
 
@@ -900,7 +910,10 @@ export const toggleReplyFavorite = async (replyId: string) => {
     invalidateQueryCacheByPrefixes(["socialPosts:getById"]);
     return response;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "お気に入りの更新に失敗しました"));
+    const msg = getErrorMessage(error, "お気に入りの更新に失敗しました");
+    const err = new Error(msg);
+    if (msg.includes("上限")) err.cause = "DAILY_LIMIT_REACHED";
+    throw err;
   }
 };
 
