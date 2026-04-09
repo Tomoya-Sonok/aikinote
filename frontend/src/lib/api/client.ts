@@ -989,6 +989,7 @@ export const getSocialProfile = async (userId: string) => {
 export interface GetNotificationsParams {
   limit?: number;
   offset?: number;
+  type?: "reply" | "favorite";
 }
 
 export const getNotifications = async (params: GetNotificationsParams = {}) => {

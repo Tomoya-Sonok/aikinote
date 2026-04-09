@@ -17,6 +17,7 @@ const ReportModal = dynamic(
   { ssr: false },
 );
 
+import { DeletedReplyItem } from "@/components/features/social/DeletedReplyItem/DeletedReplyItem";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/SocialReplyForm";
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
@@ -50,6 +51,7 @@ import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
+import { isWithinDeleteDisplayWindow } from "@/lib/utils/notificationUtils";
 import styles from "./SocialPostDetail.module.css";
 
 interface SocialReplyData {
@@ -637,20 +639,26 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
       <div className={styles.replies}>
         {detail.replies
-          .filter((r) => !r.is_deleted)
-          .map((reply) => (
-            <SocialReplyItem
-              key={reply.id}
-              reply={reply}
-              currentUserId={user?.id ?? ""}
-              isAuthenticated={isAuthenticated}
-              onReport={handleReplyReport}
-              onEdit={handleReplyEdit}
-              onDelete={handleReplyDelete}
-              onFavoriteToggle={handleReplyFavoriteToggle}
-              onUnauthenticatedAction={handleSignupPromptOpen}
-            />
-          ))}
+          .filter(
+            (r) => !r.is_deleted || isWithinDeleteDisplayWindow(r.updated_at),
+          )
+          .map((reply) =>
+            reply.is_deleted ? (
+              <DeletedReplyItem key={reply.id} reply={reply} />
+            ) : (
+              <SocialReplyItem
+                key={reply.id}
+                reply={reply}
+                currentUserId={user?.id ?? ""}
+                isAuthenticated={isAuthenticated}
+                onReport={handleReplyReport}
+                onEdit={handleReplyEdit}
+                onDelete={handleReplyDelete}
+                onFavoriteToggle={handleReplyFavoriteToggle}
+                onUnauthenticatedAction={handleSignupPromptOpen}
+              />
+            ),
+          )}
       </div>
 
       <ConfirmDialog

@@ -759,6 +759,8 @@ type NotificationItem = {
     profile_image_url: string | null;
   } | null;
   post_preview: string | null;
+  reply_is_deleted: boolean | null;
+  reply_deleted_at: string | null;
 };
 
 type SocialProfileData = {
@@ -1116,12 +1118,14 @@ export const getNotificationsProcedure = authenticatedProcedure
     z.object({
       limit: z.number().int().positive().optional(),
       offset: z.number().int().min(0).optional(),
+      type: z.enum(["reply", "favorite"]).optional(),
     }),
   )
   .query(async ({ input, ctx }) => {
     const params = new URLSearchParams();
     if (input.limit) params.set("limit", String(input.limit));
     if (input.offset) params.set("offset", String(input.offset));
+    if (input.type) params.set("type", input.type);
 
     const queryString = params.toString();
     const path = queryString

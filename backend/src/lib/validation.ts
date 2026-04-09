@@ -370,6 +370,7 @@ export const getNotificationsSchema = z.object({
     .default("0")
     .transform((val) => parseInt(val, 10))
     .pipe(z.number().int().min(0)),
+  type: z.enum(["reply", "favorite"]).optional(),
 });
 
 export type GetNotificationsInput = z.infer<typeof getNotificationsSchema>;

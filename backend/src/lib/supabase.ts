@@ -1798,7 +1798,9 @@ export const getSocialPostWithDetails = async (
       .from("SocialReply")
       .select("*, User(id, username, profile_image_url)")
       .eq("post_id", postId)
-      .eq("is_deleted", false)
+      .or(
+        `is_deleted.eq.false,updated_at.gte.${new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()}`,
+      )
       .order("created_at", { ascending: true }),
     supabaseClient
       .from("SocialFavorite")
@@ -1948,7 +1950,9 @@ export const getSocialPostWithDetailsPublic = async (
         .from("SocialReply")
         .select("*, User(id, username, profile_image_url)")
         .eq("post_id", postId)
-        .eq("is_deleted", false)
+        .or(
+          `is_deleted.eq.false,updated_at.gte.${new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()}`,
+        )
         .order("created_at", { ascending: true }),
     ]);
 
@@ -2252,8 +2256,9 @@ export const getNotifications = async (
   userId: string,
   limit: number,
   offset: number,
+  typeFilter?: "reply" | "favorite",
 ): Promise<NotificationRow[]> => {
-  const { data, error } = await supabaseClient
+  let query = supabaseClient
     .from("Notification")
     .select(
       "*, User!Notification_actor_user_id_fkey(id, username, profile_image_url)",
@@ -2261,6 +2266,14 @@ export const getNotifications = async (
     .eq("recipient_user_id", userId)
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
+
+  if (typeFilter === "reply") {
+    query = query.in("type", ["reply", "reply_to_thread"]);
+  } else if (typeFilter === "favorite") {
+    query = query.in("type", ["favorite", "favorite_reply"]);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(`通知の取得に失敗しました: ${error.message}`);
