@@ -357,9 +357,9 @@
   },
   "premiumModalDailyLimit": {
     "badge": "PREMIUM",
-    "title": "今日の投稿・返信の\n上限に達しました",
-    "description": "Freeプランでは1日5件まで投稿・返信できます。Premiumにアップグレードすると、制限なく交流できます。",
-    "upgradeMain": "制限なく交流する",
+    "title": "本日の投稿・返信数の\n上限に達しました",
+    "description": "Freeプランでは1日3件まで投稿・返信できます。Premiumにアップグレードすると、日ごとの回数制限はありません。",
+    "upgradeMain": "もっと交流する",
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
     "close": "明日また来る"
@@ -682,6 +682,7 @@
     "showLess": "閉じる",
     "reply": "返信",
     "favorite": "お気に入り",
+    "favoriteDailyLimitReached": "本日のお気に入り登録の上限に達しました",
     "share": "共有",
     "createPost": "投稿する",
     "createModalTitle": "新規作成",

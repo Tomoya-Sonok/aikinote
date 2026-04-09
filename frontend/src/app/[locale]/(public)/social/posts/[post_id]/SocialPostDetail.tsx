@@ -211,7 +211,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
     try {
       await toggleFavorite(postId);
-    } catch {
+    } catch (error) {
       setDetail((prev) =>
         prev
           ? {
@@ -221,8 +221,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
             }
           : null,
       );
+      if (error instanceof Error && error.message.includes("上限")) {
+        showToast(t("favoriteDailyLimitReached"), "error");
+      }
     }
-  }, [detail, postId, isAuthenticated]);
+  }, [detail, postId, isAuthenticated, showToast, t]);
 
   const handleDelete = useCallback(async () => {
     setIsDeleting(true);

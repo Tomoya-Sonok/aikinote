@@ -12,6 +12,7 @@ interface UseSocialFavoriteResult {
       postId: string,
       updater: (post: SocialFeedPostData) => SocialFeedPostData,
     ) => void,
+    onDailyLimitReached?: () => void,
   ) => Promise<void>;
 }
 
@@ -24,6 +25,7 @@ export function useSocialFavorite(): UseSocialFavoriteResult {
         postId: string,
         updater: (post: SocialFeedPostData) => SocialFeedPostData,
       ) => void,
+      onDailyLimitReached?: () => void,
     ) => {
       const post = posts.find((p) => p.id === postId);
       if (!post) return;
@@ -42,13 +44,21 @@ export function useSocialFavorite(): UseSocialFavoriteResult {
 
       try {
         await toggleFavorite(postId);
-      } catch {
+      } catch (error) {
         // ロールバック
         updatePost(postId, (p) => ({
           ...p,
           is_favorited: wasFavorited,
           favorite_count: prevCount,
         }));
+
+        if (
+          onDailyLimitReached &&
+          error instanceof Error &&
+          error.message.includes("上限")
+        ) {
+          onDailyLimitReached();
+        }
       }
     },
     [],

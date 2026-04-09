@@ -358,8 +358,8 @@
   "premiumModalDailyLimit": {
     "badge": "PREMIUM",
     "title": "You've reached today's\npost/reply limit",
-    "description": "Free plan allows up to 5 posts and 5 replies per day. Upgrade to Premium for unlimited interaction.",
-    "upgradeMain": "Unlock unlimited posting",
+    "description": "Free plan allows up to 3 posts and 3 replies per day. Upgrade to Premium for no daily limits.",
+    "upgradeMain": "Interact more",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
     "close": "Come back tomorrow"
@@ -680,6 +680,7 @@
     "showLess": "Show less",
     "reply": "Reply",
     "favorite": "Favorite",
+    "favoriteDailyLimitReached": "You've reached today's favorite limit",
     "share": "Share",
     "createPost": "Post",
     "createModalTitle": "New",

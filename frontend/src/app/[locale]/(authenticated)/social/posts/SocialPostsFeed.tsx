@@ -17,6 +17,7 @@ import { FloatingActionButton } from "@/components/shared/FloatingActionButton/F
 import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
+import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
@@ -46,6 +47,7 @@ export function SocialPostsFeed() {
   );
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
     useSocialFeed(user?.id, activeTab);
+  const { showToast } = useToast();
   const { handleToggleFavorite } = useSocialFavorite();
   const { canPost, isPremium, loading: dailyLimitsLoading } = useDailyLimits();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
@@ -111,9 +113,11 @@ export function SocialPostsFeed() {
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
-      handleToggleFavorite(postId, posts, updatePost);
+      handleToggleFavorite(postId, posts, updatePost, () => {
+        showToast(t("favoriteDailyLimitReached"), "error");
+      });
     },
-    [handleToggleFavorite, posts, updatePost],
+    [handleToggleFavorite, posts, updatePost, showToast, t],
   );
 
   const handlePostClick = useCallback(
