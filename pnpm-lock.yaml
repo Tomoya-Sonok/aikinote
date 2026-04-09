@@ -16,10 +16,10 @@ importers:
     dependencies:
       '@hono/node-server':
         specifier: ^1.14.1
-        version: 1.19.3(hono@4.12.11)
+        version: 1.19.3(hono@4.12.12)
       '@hono/zod-validator':
         specifier: ^0.7.2
-        version: 0.7.2(hono@4.12.11)(zod@3.25.76)
+        version: 0.7.2(hono@4.12.12)(zod@3.25.76)
       '@supabase/supabase-js':
         specifier: ^2.49.4
         version: 2.57.4
@@ -30,8 +30,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       hono:
-        specifier: ^4.12.11
-        version: 4.12.11
+        specifier: ^4.12.12
+        version: 4.12.12
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -86,7 +86,7 @@ importers:
         version: 3.892.0
       '@hono/zod-validator':
         specifier: ^0.7.2
-        version: 0.7.2(hono@4.9.7)(zod@4.1.8)
+        version: 0.7.2(hono@4.12.12)(zod@4.1.8)
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.62.0)
@@ -139,8 +139,8 @@ importers:
         specifier: 16.0.10
         version: 16.0.10(@typescript-eslint/parser@8.49.0)(eslint@9.39.4)(typescript@5.9.2)
       hono:
-        specifier: ^4.9.7
-        version: 4.9.7
+        specifier: ^4.12.12
+        version: 4.12.12
       http-status-codes:
         specifier: ^2.3.0
         version: 2.3.0
@@ -176,7 +176,7 @@ importers:
         version: 10.1.0(@types/react@18.3.24)(react@19.2.3)
       recharts:
         specifier: ^3.8.0
-        version: 3.8.0(@types/react@18.3.24)(react-dom@19.2.3)(react-is@19.2.4)(react@19.2.3)(redux@5.0.1)
+        version: 3.8.0(@types/react@18.3.24)(react-dom@19.2.3)(react-is@19.2.5)(react@19.2.3)(redux@5.0.1)
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
@@ -240,7 +240,7 @@ importers:
         version: 18.0.1
       jsdom:
         specifier: ^27.0.0
-        version: 27.0.0(postcss@8.5.8)
+        version: 27.0.0(postcss@8.5.9)
       storybook:
         specifier: ^9.1.14
         version: 9.1.20(@testing-library/dom@10.4.1)(vite@7.1.5)
@@ -1287,13 +1287,13 @@ packages:
       '@csstools/css-tokenizer': 3.0.4
     dev: true
 
-  /@csstools/css-syntax-patches-for-csstree@1.0.14(postcss@8.5.8):
+  /@csstools/css-syntax-patches-for-csstree@1.0.14(postcss@8.5.9):
     resolution: {integrity: sha512-zSlIxa20WvMojjpCSy8WrNpcZ61RqfTfX3XTaOeVlGJrt/8HF3YbzgFZa01yTbT4GWQLwfTcC3EB8i3XnB647Q==}
     engines: {node: '>=18'}
     peerDependencies:
       postcss: ^8.4
     dependencies:
-      postcss: 8.5.8
+      postcss: 8.5.9
     dev: true
 
   /@csstools/css-tokenizer@3.0.4:
@@ -1920,32 +1920,32 @@ packages:
       tslib: 2.8.1
     dev: false
 
-  /@hono/node-server@1.19.3(hono@4.12.11):
+  /@hono/node-server@1.19.3(hono@4.12.12):
     resolution: {integrity: sha512-Fjyxfux0rMPXMSob79OmddfpK5ArJa2xLkLCV+zamHkbeXQtSNKOi0keiBKyHZ/hCRKjigjmKGp4AJnDFq8PUw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
     dependencies:
-      hono: 4.12.11
+      hono: 4.12.12
     dev: false
 
-  /@hono/zod-validator@0.7.2(hono@4.12.11)(zod@3.25.76):
+  /@hono/zod-validator@0.7.2(hono@4.12.12)(zod@3.25.76):
     resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.25.0 || ^4.0.0
     dependencies:
-      hono: 4.12.11
+      hono: 4.12.12
       zod: 3.25.76
     dev: false
 
-  /@hono/zod-validator@0.7.2(hono@4.9.7)(zod@4.1.8):
+  /@hono/zod-validator@0.7.2(hono@4.12.12)(zod@4.1.8):
     resolution: {integrity: sha512-ub5eL/NeZ4eLZawu78JpW/J+dugDAYhwqUIdp9KYScI6PZECij4Hx4UsrthlEUutqDDhPwRI0MscUfNkvn/mqQ==}
     peerDependencies:
       hono: '>=3.9.0'
       zod: ^3.25.0 || ^4.0.0
     dependencies:
-      hono: 4.9.7
+      hono: 4.12.12
       zod: 4.1.8
     dev: false
 
@@ -4387,7 +4387,7 @@ packages:
       std-env: 3.9.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.2.4(@types/node@22.19.13)(happy-dom@18.0.1)(jsdom@27.0.0)
+      vitest: 3.2.4(@types/node@22.19.13)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(tsx@4.20.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -4921,12 +4921,12 @@ packages:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
     dev: true
 
-  /cssstyle@5.3.0(postcss@8.5.8):
+  /cssstyle@5.3.0(postcss@8.5.9):
     resolution: {integrity: sha512-RveJPnk3m7aarYQ2bJ6iw+Urh55S6FzUiqtBq+TihnTDP4cI8y/TYDqGOyqgnG1J1a6BxJXZsV9JFSTulm9Z7g==}
     engines: {node: '>=20'}
     dependencies:
       '@asamuzakjp/css-color': 4.0.4
-      '@csstools/css-syntax-patches-for-csstree': 1.0.14(postcss@8.5.8)
+      '@csstools/css-syntax-patches-for-csstree': 1.0.14(postcss@8.5.9)
       css-tree: 3.1.0
     transitivePeerDependencies:
       - postcss
@@ -6166,13 +6166,8 @@ packages:
       hermes-estree: 0.25.1
     dev: false
 
-  /hono@4.12.11:
-    resolution: {integrity: sha512-r4xbIa3mGGGoH9nN4A14DOg2wx7y2oQyJEb5O57C/xzETG/qx4c7CVDQ5WMeKHZ7ORk2W0hZ/sQKXTav3cmYBA==}
-    engines: {node: '>=16.9.0'}
-    dev: false
-
-  /hono@4.9.7:
-    resolution: {integrity: sha512-t4Te6ERzIaC48W3x4hJmBwgNlLhmiEdEE5ViYb02ffw4ignHNHa5IBtPjmbKstmtKa8X6C35iWwK4HaqvrzG9w==}
+  /hono@4.12.12:
+    resolution: {integrity: sha512-p1JfQMKaceuCbpJKAPKVqyqviZdS0eUxH9v82oWo1kb9xjQ5wA6iP3FNVAPDFlz5/p7d45lO+BpSk1tuSZMF4Q==}
     engines: {node: '>=16.9.0'}
     dev: false
 
@@ -6628,7 +6623,7 @@ packages:
       argparse: 2.0.1
     dev: false
 
-  /jsdom@27.0.0(postcss@8.5.8):
+  /jsdom@27.0.0(postcss@8.5.9):
     resolution: {integrity: sha512-lIHeR1qlIRrIN5VMccd8tI2Sgw6ieYXSVktcSHaNe3Z5nE/tcPQYQWOq00wxMvYOsz+73eAkNenVvmPC6bba9A==}
     engines: {node: '>=20'}
     peerDependencies:
@@ -6638,7 +6633,7 @@ packages:
         optional: true
     dependencies:
       '@asamuzakjp/dom-selector': 6.5.4
-      cssstyle: 5.3.0(postcss@8.5.8)
+      cssstyle: 5.3.0(postcss@8.5.9)
       data-urls: 6.0.0
       decimal.js: 10.6.0
       html-encoding-sniffer: 4.0.0
@@ -7734,8 +7729,8 @@ packages:
       source-map-js: 1.2.1
     dev: true
 
-  /postcss@8.5.8:
-    resolution: {integrity: sha512-OW/rX8O/jXnm82Ey1k44pObPtdblfiuWnrd8X7GJ7emImCOstunGbXUpp7HdBrFQX6rJzn3sPT397Wp5aCwCHg==}
+  /postcss@8.5.9:
+    resolution: {integrity: sha512-7a70Nsot+EMX9fFU3064K/kdHWZqGVY+BADLyXc8Dfv+mTLLVl6JzJpPaCZ2kQL9gIJvKXSLMHhqdRRjwQeFtw==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
       nanoid: 3.3.11
@@ -7846,8 +7841,8 @@ packages:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
     dev: true
 
-  /react-is@19.2.4:
-    resolution: {integrity: sha512-W+EWGn2v0ApPKgKKCy/7s7WHXkboGcsrXE+2joLyVxkbyVQfO3MUEaUQDHoSmb8TFFrSKYa9mw64WZHNHSDzYA==}
+  /react-is@19.2.5:
+    resolution: {integrity: sha512-Dn0t8IQhCmeIT3wu+Apm1/YVsJXsGWi6k4sPdnBIdqMVtHtv0IGi6dcpNpNkNac0zB2uUAqNX3MHzN8c+z2rwQ==}
     dev: false
 
   /react-markdown@10.1.0(@types/react@18.3.24)(react@19.2.3):
@@ -7918,7 +7913,7 @@ packages:
       tslib: 2.8.1
     dev: true
 
-  /recharts@3.8.0(@types/react@18.3.24)(react-dom@19.2.3)(react-is@19.2.4)(react@19.2.3)(redux@5.0.1):
+  /recharts@3.8.0(@types/react@18.3.24)(react-dom@19.2.3)(react-is@19.2.5)(react@19.2.3)(redux@5.0.1):
     resolution: {integrity: sha512-Z/m38DX3L73ExO4Tpc9/iZWHmHnlzWG4njQbxsF5aSjwqmHNDDIm0rdEBArkwsBvR8U6EirlEHiQNYWCVh9sGQ==}
     engines: {node: '>=18'}
     peerDependencies:
@@ -7934,7 +7929,7 @@ packages:
       immer: 10.2.0
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
-      react-is: 19.2.4
+      react-is: 19.2.5
       react-redux: 9.2.0(@types/react@18.3.24)(react@19.2.3)(redux@5.0.1)
       reselect: 5.1.1
       tiny-invariant: 1.3.3
@@ -9269,7 +9264,7 @@ packages:
       debug: 4.4.3
       expect-type: 1.2.2
       happy-dom: 18.0.1
-      jsdom: 27.0.0(postcss@8.5.8)
+      jsdom: 27.0.0(postcss@8.5.9)
       magic-string: 0.30.19
       pathe: 2.0.3
       picomatch: 4.0.3
