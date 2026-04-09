@@ -157,21 +157,24 @@ app.get("/daily-limits", authMiddleware, async (c) => {
         data: {
           posts: { used: 0, limit: -1 },
           replies: { used: 0, limit: -1 },
+          favorites: { used: 0, limit: -1 },
           is_premium: true,
         },
       });
     }
 
-    const [postsUsed, repliesUsed] = await Promise.all([
+    const [postsUsed, repliesUsed, favoritesUsed] = await Promise.all([
       getCountInWindow(supabase, userId, "SocialPost", 1440),
       getCountInWindow(supabase, userId, "SocialReply", 1440),
+      getCountInWindow(supabase, userId, "SocialFavorite", 1440),
     ]);
 
     return c.json({
       success: true,
       data: {
-        posts: { used: postsUsed, limit: 5 },
-        replies: { used: repliesUsed, limit: 5 },
+        posts: { used: postsUsed, limit: 3 },
+        replies: { used: repliesUsed, limit: 3 },
+        favorites: { used: favoritesUsed, limit: 5 },
         is_premium: false,
       },
     });
@@ -200,7 +203,7 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Free ユーザー: 1日5件まで投稿可能
+      // Free ユーザー: 1日3件まで投稿可能
       const premium = await isPremiumUser(supabase, userId);
       if (!premium) {
         const dailyLimited = await checkRateLimit(
@@ -208,13 +211,13 @@ app.post(
           userId,
           "SocialPost",
           1440,
-          5,
+          3,
         );
         if (dailyLimited) {
           return c.json(
             {
               success: false,
-              error: "1日の投稿上限（5件）に達しました",
+              error: "1日の投稿上限（3件）に達しました",
               code: "DAILY_LIMIT_REACHED",
             },
             429,
@@ -542,7 +545,7 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Free ユーザー: 1日5件まで返信可能
+      // Free ユーザー: 1日3件まで返信可能
       const premiumForReply = await isPremiumUser(supabase, userId);
       if (!premiumForReply) {
         const dailyLimited = await checkRateLimit(
@@ -550,13 +553,13 @@ app.post(
           userId,
           "SocialReply",
           1440,
-          5,
+          3,
         );
         if (dailyLimited) {
           return c.json(
             {
               success: false,
-              error: "1日の返信上限（5件）に達しました",
+              error: "1日の返信上限（3件）に達しました",
               code: "DAILY_LIMIT_REACHED",
             },
             429,

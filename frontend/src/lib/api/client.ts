@@ -755,12 +755,14 @@ export const getPublicSocialPost = async (postId: string) => {
 export interface DailyLimitsData {
   posts: { used: number; limit: number };
   replies: { used: number; limit: number };
+  favorites: { used: number; limit: number };
   is_premium: boolean;
 }
 
 const DEFAULT_DAILY_LIMITS: DailyLimitsData = {
-  posts: { used: 0, limit: 5 },
-  replies: { used: 0, limit: 5 },
+  posts: { used: 0, limit: 3 },
+  replies: { used: 0, limit: 3 },
+  favorites: { used: 0, limit: 5 },
   is_premium: false,
 };
 

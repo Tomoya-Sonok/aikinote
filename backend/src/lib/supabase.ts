@@ -2285,7 +2285,7 @@ export const getNotifications = async (
 export const getCountInWindow = async (
   supabaseClient: SupabaseClient,
   userId: string,
-  table: "SocialPost" | "SocialReply",
+  table: "SocialPost" | "SocialReply" | "SocialFavorite",
   windowMinutes: number,
 ): Promise<number> => {
   const since = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
@@ -2304,7 +2304,7 @@ export const getCountInWindow = async (
 export const checkRateLimit = async (
   supabaseClient: SupabaseClient,
   userId: string,
-  table: "SocialPost" | "SocialReply",
+  table: "SocialPost" | "SocialReply" | "SocialFavorite",
   windowMinutes: number,
   maxCount: number,
 ): Promise<boolean> => {

@@ -5,7 +5,8 @@ import { type DailyLimitsData, getDailyLimits } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 
-const FREE_DAILY_LIMIT = 5;
+const FREE_DAILY_LIMIT = 3;
+const FREE_DAILY_FAVORITE_LIMIT = 5;
 
 export function useDailyLimits() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export function useDailyLimits() {
       setLimits({
         posts: { used: 0, limit: -1 },
         replies: { used: 0, limit: -1 },
+        favorites: { used: 0, limit: -1 },
         is_premium: true,
       });
       setLoading(false);
@@ -34,6 +36,7 @@ export function useDailyLimits() {
       setLimits({
         posts: { used: 0, limit: FREE_DAILY_LIMIT },
         replies: { used: 0, limit: FREE_DAILY_LIMIT },
+        favorites: { used: 0, limit: FREE_DAILY_FAVORITE_LIMIT },
         is_premium: false,
       });
     } finally {
@@ -64,21 +67,42 @@ export function useDailyLimits() {
     );
   }, []);
 
+  const incrementFavoriteCount = useCallback(() => {
+    setLimits((prev) =>
+      prev
+        ? {
+            ...prev,
+            favorites: {
+              ...prev.favorites,
+              used: prev.favorites.used + 1,
+            },
+          }
+        : prev,
+    );
+  }, []);
+
   const postsRemaining = isPremium
     ? Number.POSITIVE_INFINITY
     : Math.max(0, FREE_DAILY_LIMIT - (limits?.posts.used ?? 0));
   const repliesRemaining = isPremium
     ? Number.POSITIVE_INFINITY
     : Math.max(0, FREE_DAILY_LIMIT - (limits?.replies.used ?? 0));
+  const favoritesRemaining = isPremium
+    ? Number.POSITIVE_INFINITY
+    : Math.max(0, FREE_DAILY_FAVORITE_LIMIT - (limits?.favorites.used ?? 0));
 
   return {
     canPost: isPremium || postsRemaining > 0,
     canReply: isPremium || repliesRemaining > 0,
+    canFavorite: isPremium || favoritesRemaining > 0,
     postsRemaining,
     repliesRemaining,
+    favoritesRemaining,
+    isPremium: isPremium ?? false,
     loading: loading || subLoading,
     incrementPostCount,
     incrementReplyCount,
+    incrementFavoriteCount,
     refetch: fetchLimits,
   };
 }

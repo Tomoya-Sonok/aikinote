@@ -47,7 +47,7 @@ export function SocialPostsFeed() {
   const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
     useSocialFeed(user?.id, activeTab);
   const { handleToggleFavorite } = useSocialFavorite();
-  const { canPost, loading: dailyLimitsLoading } = useDailyLimits();
+  const { canPost, isPremium, loading: dailyLimitsLoading } = useDailyLimits();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -67,10 +67,15 @@ export function SocialPostsFeed() {
 
   const handleSwipeTabChange = useCallback(
     (newTab: string): boolean => {
+      if (newTab === "favorites" && !isPremium) {
+        setUpgradeModalKey("premiumModalBrowse");
+        setShowUpgradeModal(true);
+        return false;
+      }
       updateTab(newTab as SocialTab);
       return true;
     },
-    [updateTab],
+    [updateTab, isPremium],
   );
 
   const { containerRef, handlers, swipeProgress, isDragging } =
@@ -130,7 +135,7 @@ export function SocialPostsFeed() {
       <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
       <SocialTabBar
         activeTab={activeTab}
-        onTabChange={updateTab}
+        onTabChange={(tab) => handleSwipeTabChange(tab)}
         swipeProgress={isDragging ? swipeProgress : 0}
       />
 
