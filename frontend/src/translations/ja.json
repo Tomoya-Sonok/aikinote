@@ -313,11 +313,11 @@
   "premiumModalBrowse": {
     "badge": "PREMIUM",
     "title": "もっと深く、\nみんなとつながろう",
-    "description": "投稿数の制限解除・検索など、すべての Premium 機能で仲間との交流をさらに深めませんか？",
+    "description": "日ごとの回数制限解除やお気に入り保存・投稿検索など、Premiumで解放される全機能で仲間との交流をさらに深めませんか？",
     "upgradeMain": "結びを大切にする",
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
-    "close": "今は閲覧だけでいい"
+    "close": "今はまだいい"
   },
   "premiumModalSearch": {
     "badge": "PREMIUM",
@@ -326,7 +326,7 @@
     "upgradeMain": "検索機能を使ってみる",
     "upgradeSub": "月額 ¥380",
     "processing": "処理中...",
-    "close": "今は閲覧だけでいい"
+    "close": "自分で探すからいい"
   },
   "premiumModalCalendar": {
     "badge": "PREMIUM",
@@ -987,8 +987,8 @@
     "premiumYearlyPrice": "¥3,800",
     "perMonth": "/ 月",
     "perYear": "/ 年",
-    "freeDescription": "稽古記録の作成・閲覧・検索",
-    "premiumDescription": "統計データ・みんなで機能・プッシュ通知*",
+    "freeDescription": "ひとりで・みんなでの基本的な機能（一部制限有り）",
+    "premiumDescription": "ひとりで・みんなでの全ての機能を解放",
     "currentBadge": "現在",
     "recommendedBadge": "おすすめ",
     "startPremium": "Premium を始める",
@@ -1009,9 +1009,9 @@
     "featureExam": "審査に必要な稽古日数算出",
     "featureStats": "統計データ",
     "featureBrowse": "投稿・稽古記録の閲覧",
-    "featurePostLimit": "投稿・返信（1日5件まで）",
-    "featureFavorite": "お気に入り保存",
-    "featureSearch": "投稿・稽古記録の絞り込み検索",
+    "featurePostLimit": "投稿・返信・お気に入り\n（日ごとの回数制限有り）",
+    "featureFavorite": "お気に入り保存および閲覧",
+    "featureSearch": "高度な絞り込み検索",
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "プッシュ通知",
     "featureReminder": "リマインダー",

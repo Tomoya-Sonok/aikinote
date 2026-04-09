@@ -313,11 +313,11 @@
   "premiumModalBrowse": {
     "badge": "PREMIUM",
     "title": "Connect deeper\nwith the community",
-    "description": "Unlock unlimited posting, search, and all Premium features to connect even deeper with fellow aikidoka.",
+    "description": "Remove daily limits, save favorites, search posts — unlock all Premium features to connect deeper with fellow aikidoka.",
     "upgradeMain": "Cherish the connection",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Just browsing for now"
+    "close": "Not now"
   },
   "premiumModalSearch": {
     "badge": "PREMIUM",
@@ -326,7 +326,7 @@
     "upgradeMain": "Try Search",
     "upgradeSub": "¥380 / month",
     "processing": "Processing...",
-    "close": "Just browsing for now"
+    "close": "I'll find it myself"
   },
   "premiumModalCalendar": {
     "badge": "PREMIUM",
@@ -985,8 +985,8 @@
     "premiumYearlyPrice": "¥3,800",
     "perMonth": "/ mo",
     "perYear": "/ yr",
-    "freeDescription": "Create, view & search training records",
-    "premiumDescription": "Stats, Social features & push notifications*",
+    "freeDescription": "Basic features for Personal & Social (some limits)",
+    "premiumDescription": "Unlock all Personal & Social features",
     "currentBadge": "Current",
     "recommendedBadge": "Recommended",
     "startPremium": "Start Premium",
@@ -1007,9 +1007,9 @@
     "featureExam": "Exam preparation training day tracking",
     "featureStats": "Stats & analytics",
     "featureBrowse": "Browse posts & training records",
-    "featurePostLimit": "Post & reply (5/day)",
-    "featureFavorite": "Save favorites",
-    "featureSearch": "Filter & search posts and records",
+    "featurePostLimit": "Post, reply & favorite\n(daily limits apply)",
+    "featureFavorite": "Save & browse favorites",
+    "featureSearch": "Advanced search & filtering",
     "featurePublish": "One-tap training record publish",
     "featurePush": "Push notifications",
     "featureReminder": "Reminders",

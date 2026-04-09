@@ -37,7 +37,7 @@ const FEATURE_MATRIX = [
     features: [
       { nameKey: "featureBrowse" as const, free: true, pro: true },
       { nameKey: "featurePostLimit" as const, free: true, pro: true },
-      { nameKey: "featureFavorite" as const, free: true, pro: true },
+      { nameKey: "featureFavorite" as const, free: false, pro: true },
       { nameKey: "featureSearch" as const, free: false, pro: true },
       { nameKey: "featurePublish" as const, free: false, pro: true },
     ],
