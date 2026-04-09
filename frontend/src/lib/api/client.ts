@@ -54,11 +54,11 @@ const CACHE_TTL_MS = {
   trainingDatesMonth: 30_000,
   trainingStats: 60_000,
   subscription: 30_000,
-  socialFeed: 60_000,
+  socialFeed: 30_000,
   socialPost: 60_000,
   socialSearch: 60_000,
   socialProfile: 30_000,
-  notifications: 30_000,
+  notifications: 15_000,
   titleTemplates: 60_000,
   dailyLimits: 15_000,
 } as const;
