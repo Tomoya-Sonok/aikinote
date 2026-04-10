@@ -7,7 +7,6 @@ import {
   useEffect,
   useId,
   useRef,
-  useState,
 } from "react";
 import { createPortal } from "react-dom";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
@@ -21,13 +20,6 @@ interface PremiumUpgradeModalProps {
   translationKey?: string;
 }
 
-declare global {
-  interface Window {
-    __AIKINOTE_NATIVE_APP__?: boolean;
-    showNativePaywall?: () => Promise<{ success: boolean; isPremium: boolean }>;
-  }
-}
-
 export function PremiumUpgradeModal({
   isOpen,
   onClose,
@@ -37,7 +29,6 @@ export function PremiumUpgradeModal({
   const router = useRouter();
   const titleId = useId();
   const upgradeButtonRef = useRef<HTMLButtonElement>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   const { track } = useUmamiTrack();
 
   const CONTEXT_MAP: Record<string, string> = {
@@ -62,29 +53,15 @@ export function PremiumUpgradeModal({
     }
   }, [isOpen]);
 
-  const handleUpgrade = useCallback(async () => {
+  const handleUpgrade = useCallback(() => {
     track("premium_modal_upgrade", { context });
-    if (window.__AIKINOTE_NATIVE_APP__ && window.showNativePaywall) {
-      setIsProcessing(true);
-      try {
-        const result = await window.showNativePaywall();
-        if (result.success) {
-          onClose();
-          window.location.reload();
-        }
-      } finally {
-        setIsProcessing(false);
-      }
-      return;
-    }
-
     router.push("/settings/subscription");
-  }, [onClose, router, track, context]);
+  }, [router, track, context]);
 
   if (!isOpen) return null;
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape" && !isProcessing) {
+    if (event.key === "Escape") {
       handleDismiss();
     }
   };
@@ -112,24 +89,14 @@ export function PremiumUpgradeModal({
           type="button"
           className={styles.upgradeButton}
           onClick={handleUpgrade}
-          disabled={isProcessing}
         >
-          {isProcessing ? (
-            t("processing")
-          ) : (
-            <>
-              <span className={styles.upgradeButtonMain}>
-                {t("upgradeMain")}
-              </span>
-              <span className={styles.upgradeButtonSub}>{t("upgradeSub")}</span>
-            </>
-          )}
+          <span className={styles.upgradeButtonMain}>{t("upgradeMain")}</span>
+          <span className={styles.upgradeButtonSub}>{t("upgradeSub")}</span>
         </button>
         <button
           type="button"
           className={styles.closeButton}
           onClick={handleDismiss}
-          disabled={isProcessing}
         >
           {t("close")}
         </button>
