@@ -23,6 +23,7 @@ import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
 import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
 import { Link, useRouter } from "@/lib/i18n/routing";
 import styles from "./page.module.css";
@@ -49,6 +50,7 @@ export function SocialPostsFeed() {
     useSocialFeed(user?.id, activeTab);
   const { showToast } = useToast();
   const { handleToggleFavorite } = useSocialFavorite();
+  const { track } = useUmamiTrack();
   const { canPost, isPremium, loading: dailyLimitsLoading } = useDailyLimits();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -155,8 +157,9 @@ export function SocialPostsFeed() {
         ) : (
           <>
             <Link
-              href="/social/posts/new?from_minnade_promote_free_users_post_banner=1"
+              href="/social/posts/new"
               className={styles.promoteBanner}
+              onClick={() => track("promote_free_users_post_banner_click")}
             >
               <img
                 src={
