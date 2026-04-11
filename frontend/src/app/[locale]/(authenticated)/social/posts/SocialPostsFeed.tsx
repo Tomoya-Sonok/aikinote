@@ -139,6 +139,25 @@ export function SocialPostsFeed() {
   return (
     <SocialLayout>
       <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
+      <Link
+        href="/social/posts/new"
+        className={styles.promoteBanner}
+        onClick={() => track("promote_free_users_post_banner_click")}
+      >
+        <img
+          src={
+            locale === "en"
+              ? "/images/banner/en_minnade_promote_free_users_post.png"
+              : "/images/banner/minnade_promote_free_users_post.png"
+          }
+          alt={
+            locale === "en"
+              ? "Free for everyone! Start posting"
+              : "無料（Freeプラン）でも投稿できます"
+          }
+          className={styles.promoteBannerImage}
+        />
+      </Link>
       <SocialTabBar
         activeTab={activeTab}
         onTabChange={(tab) => handleSwipeTabChange(tab)}
@@ -156,25 +175,6 @@ export function SocialPostsFeed() {
           <p className={styles.emptyMessage}>{t(emptyKey)}</p>
         ) : (
           <>
-            <Link
-              href="/social/posts/new"
-              className={styles.promoteBanner}
-              onClick={() => track("promote_free_users_post_banner_click")}
-            >
-              <img
-                src={
-                  locale === "en"
-                    ? "/images/banner/en_minnade_promote_free_users_post.png"
-                    : "/images/banner/minnade_promote_free_users_post.png"
-                }
-                alt={
-                  locale === "en"
-                    ? "Free for everyone! Start posting"
-                    : "無料（Freeプラン）でも投稿できます"
-                }
-                className={styles.promoteBannerImage}
-              />
-            </Link>
             {posts.map((post: SocialFeedPostData) => (
               <SocialPostCard
                 key={post.id}
