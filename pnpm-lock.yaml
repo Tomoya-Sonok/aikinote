@@ -67,8 +67,8 @@ importers:
         specifier: ^5.8.3
         version: 5.9.2
       undici:
-        specifier: ^7.16.0
-        version: 7.16.0
+        specifier: ^8.0.3
+        version: 8.0.3
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@22.19.13)(@vitest/ui@4.1.4)(happy-dom@18.0.1)(tsx@4.20.5)
@@ -4749,8 +4749,8 @@ packages:
       concat-map: 0.0.1
     dev: false
 
-  /brace-expansion@1.1.13:
-    resolution: {integrity: sha512-9ZLprWS6EENmhEOpjCYW2c8VkmOvckIJZfkr7rBW6dObmfgJ/L1GpSYW5Hpo9lDz4D1+n0Ckz8rU7FwHDQiG/w==}
+  /brace-expansion@1.1.14:
+    resolution: {integrity: sha512-MWPGfDxnyzKU7rNOW9SP/c50vi3xrmrua/+6hfPbCS2ABNWfx24vPidzvC7krjU/RTo235sV776ymlsMtGKj8g==}
     dependencies:
       balanced-match: 1.0.2
       concat-map: 0.0.1
@@ -7402,7 +7402,7 @@ packages:
   /minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
     dependencies:
-      brace-expansion: 1.1.13
+      brace-expansion: 1.1.14
     dev: false
 
   /minimatch@9.0.5:
@@ -8910,9 +8910,9 @@ packages:
     engines: {node: '>=20.18.1'}
     dev: true
 
-  /undici@7.16.0:
-    resolution: {integrity: sha512-QEg3HPMll0o3t2ourKwOeUAZ159Kn9mx5pnzHRQO8+Wixmh88YdZRiIwat0iNzNNXn0yoEtXJqFpyW7eM8BV7g==}
-    engines: {node: '>=20.18.1'}
+  /undici@8.0.3:
+    resolution: {integrity: sha512-vTLEG/ceXgu/dMTQ8uNE2zgl7I7qEkx9l9tkz2H802AkgbBMvbmHMu4YqsrpGbUAMYKSQhCbmjsWMAeGu1dYXg==}
+    engines: {node: '>=22.19.0'}
     dev: true
 
   /unenv@2.0.0-rc.24:
