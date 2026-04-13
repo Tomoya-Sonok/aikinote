@@ -8,7 +8,6 @@ import {
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useRouter } from "@/lib/i18n/routing";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { PersonalCalendar } from "./PersonalCalendar";
 

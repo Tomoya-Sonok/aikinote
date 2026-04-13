@@ -152,23 +152,20 @@ export function useTagManagement(
   }, [allTags]);
 
   // 旧互換プロパティ
-  const toriTags = useMemo(
-    () => tagsByCategory["取り"] ?? [],
-    [tagsByCategory],
-  );
-  const ukeTags = useMemo(() => tagsByCategory["受け"] ?? [], [tagsByCategory]);
-  const wazaTags = useMemo(() => tagsByCategory["技"] ?? [], [tagsByCategory]);
+  const toriTags = useMemo(() => tagsByCategory.取り ?? [], [tagsByCategory]);
+  const ukeTags = useMemo(() => tagsByCategory.受け ?? [], [tagsByCategory]);
+  const wazaTags = useMemo(() => tagsByCategory.技 ?? [], [tagsByCategory]);
 
   const selectedTori = useMemo(
-    () => selectedByCategory["取り"] ?? [],
+    () => selectedByCategory.取り ?? [],
     [selectedByCategory],
   );
   const selectedUke = useMemo(
-    () => selectedByCategory["受け"] ?? [],
+    () => selectedByCategory.受け ?? [],
     [selectedByCategory],
   );
   const selectedWaza = useMemo(
-    () => selectedByCategory["技"] ?? [],
+    () => selectedByCategory.技 ?? [],
     [selectedByCategory],
   );
 

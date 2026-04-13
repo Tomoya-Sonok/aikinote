@@ -254,41 +254,35 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
 
       {/* タブコンテンツ */}
       <div className={styles.postsSection}>
-        {activeTab === "posts" && (
-          <>
-            {regularPosts.length === 0 ? (
-              <p className={styles.emptyPosts}>{t("emptyAll")}</p>
-            ) : (
-              regularPosts.map((post) => (
-                <SocialPostCard
-                  key={post.id}
-                  post={post}
-                  currentUserId={currentUser?.id ?? ""}
-                  onFavoriteToggle={handleFavoriteToggle}
-                  onClick={handlePostClick}
-                />
-              ))
-            )}
-          </>
-        )}
+        {activeTab === "posts" &&
+          (regularPosts.length === 0 ? (
+            <p className={styles.emptyPosts}>{t("emptyAll")}</p>
+          ) : (
+            regularPosts.map((post) => (
+              <SocialPostCard
+                key={post.id}
+                post={post}
+                currentUserId={currentUser?.id ?? ""}
+                onFavoriteToggle={handleFavoriteToggle}
+                onClick={handlePostClick}
+              />
+            ))
+          ))}
 
-        {activeTab === "training" && (
-          <>
-            {trainingPosts.length === 0 ? (
-              <p className={styles.emptyPosts}>{t("emptyTrainingRecords")}</p>
-            ) : (
-              trainingPosts.map((post) => (
-                <SocialPostCard
-                  key={post.id}
-                  post={post}
-                  currentUserId={currentUser?.id ?? ""}
-                  onFavoriteToggle={handleFavoriteToggle}
-                  onClick={handlePostClick}
-                />
-              ))
-            )}
-          </>
-        )}
+        {activeTab === "training" &&
+          (trainingPosts.length === 0 ? (
+            <p className={styles.emptyPosts}>{t("emptyTrainingRecords")}</p>
+          ) : (
+            trainingPosts.map((post) => (
+              <SocialPostCard
+                key={post.id}
+                post={post}
+                currentUserId={currentUser?.id ?? ""}
+                onFavoriteToggle={handleFavoriteToggle}
+                onClick={handlePostClick}
+              />
+            ))
+          ))}
       </div>
     </SocialLayout>
   );

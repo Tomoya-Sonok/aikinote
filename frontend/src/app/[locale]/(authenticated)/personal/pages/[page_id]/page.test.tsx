@@ -51,7 +51,7 @@ describe("ページ詳細画面", () => {
   const mockUseAuth = vi.mocked(useAuth);
   const mockGetPage = vi.mocked(getPage);
   const mockGetTags = vi.mocked(getTags);
-  const mockUpdatePage = vi.mocked(updatePage);
+  const _mockUpdatePage = vi.mocked(updatePage);
   const mockDeletePage = vi.mocked(deletePage);
 
   const mockPush = vi.fn();

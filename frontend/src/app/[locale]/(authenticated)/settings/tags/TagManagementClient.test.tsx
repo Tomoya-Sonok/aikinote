@@ -20,12 +20,20 @@ const mockGetTags = vi.fn();
 const mockCreateTag = vi.fn();
 const mockDeleteTag = vi.fn();
 const mockUpdateTagOrder = vi.fn();
+const mockGetCategories = vi.fn();
+const mockCreateCategory = vi.fn();
+const mockUpdateCategory = vi.fn();
+const mockDeleteCategory = vi.fn();
 
 vi.mock("@/lib/api/client", () => ({
   getTags: (...args: unknown[]) => mockGetTags(...args),
   createTag: (...args: unknown[]) => mockCreateTag(...args),
   deleteTag: (...args: unknown[]) => mockDeleteTag(...args),
   updateTagOrder: (...args: unknown[]) => mockUpdateTagOrder(...args),
+  getCategories: (...args: unknown[]) => mockGetCategories(...args),
+  createCategory: (...args: unknown[]) => mockCreateCategory(...args),
+  updateCategory: (...args: unknown[]) => mockUpdateCategory(...args),
+  deleteCategory: (...args: unknown[]) => mockDeleteCategory(...args),
 }));
 
 const mockUseAuth = vi.fn();
@@ -39,6 +47,36 @@ vi.mock("@/contexts/ToastContext", () => ({
     showToast: mockShowToast,
   }),
 }));
+
+const defaultCategories = [
+  {
+    id: "cat-1",
+    user_id: "user-id",
+    name: "取り",
+    slug: "tori",
+    sort_order: 1,
+    is_default: true,
+    created_at: "2024-01-01T00:00:00.000Z",
+  },
+  {
+    id: "cat-2",
+    user_id: "user-id",
+    name: "受け",
+    slug: "uke",
+    sort_order: 2,
+    is_default: true,
+    created_at: "2024-01-01T00:00:00.000Z",
+  },
+  {
+    id: "cat-3",
+    user_id: "user-id",
+    name: "技",
+    slug: "waza",
+    sort_order: 3,
+    is_default: true,
+    created_at: "2024-01-01T00:00:00.000Z",
+  },
+];
 
 const defaultTags = [
   {
@@ -82,7 +120,15 @@ describe("TagManagement", () => {
     mockCreateTag.mockReset();
     mockDeleteTag.mockReset();
     mockUpdateTagOrder.mockReset();
+    mockGetCategories.mockReset();
+    mockCreateCategory.mockReset();
+    mockUpdateCategory.mockReset();
+    mockDeleteCategory.mockReset();
     mockUseAuth.mockReturnValue({ user: { id: "user-id" } });
+    mockGetCategories.mockResolvedValue({
+      success: true,
+      data: defaultCategories,
+    });
     mockGetTags.mockResolvedValue({ success: true, data: defaultTags });
     mockCreateTag.mockResolvedValue({ success: true });
     mockDeleteTag.mockResolvedValue({ success: true, data: defaultTags[0] });
@@ -151,7 +197,7 @@ describe("TagManagement", () => {
     const targetTagButton = within(toriSection as HTMLElement).getByRole(
       "button",
       {
-        name: /立技/,
+        name: /Delete tag 立技/,
       },
     );
 
@@ -207,7 +253,7 @@ describe("TagManagement", () => {
     }
 
     const saveButton = within(toriSection as HTMLElement).getByRole("button", {
-      name: "並び順を保存",
+      name: "保存",
     });
 
     await waitFor(() => {
@@ -222,9 +268,11 @@ describe("TagManagement", () => {
 
     expect(mockUpdateTagOrder).toHaveBeenCalledWith({
       user_id: "user-id",
-      tori: ["tag-tori-2", "tag-tori-1"],
-      uke: ["tag-uke-1"],
-      waza: ["tag-waza-1"],
+      categories: {
+        取り: ["tag-tori-2", "tag-tori-1"],
+        受け: ["tag-uke-1"],
+        技: ["tag-waza-1"],
+      },
     });
   });
 
