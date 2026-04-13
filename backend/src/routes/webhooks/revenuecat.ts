@@ -146,10 +146,9 @@ app.post("/revenuecat", async (c) => {
     const platform = mapStore(event.store);
 
     // entitlement_ids から最初の entitlement を取得
-    const entitlementIds: string[] = event.subscriber_attributes?.[
-      "$entitlementIds"
-    ]?.value
-      ? JSON.parse(event.subscriber_attributes["$entitlementIds"].value)
+    const entitlementIds: string[] = event.subscriber_attributes
+      ?.$entitlementIds?.value
+      ? JSON.parse(event.subscriber_attributes.$entitlementIds.value)
       : [];
     const entitlementId = entitlementIds[0] ?? event.entitlement_id ?? null;
 

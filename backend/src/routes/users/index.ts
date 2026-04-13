@@ -561,7 +561,7 @@ app.get("/:userId", authMiddleware, async (c) => {
       data: userData,
       message: "ユーザー情報を取得しました",
     });
-  } catch (error) {
+  } catch (_error) {
     return c.json(
       {
         success: false,
@@ -693,7 +693,7 @@ app.put(
         data: updatedUser,
         message: "プロフィールを更新しました",
       });
-    } catch (error) {
+    } catch (_error) {
       return c.json(
         {
           success: false,

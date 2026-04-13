@@ -124,9 +124,9 @@ const resolveTagNamesForPage = (
 ): Record<string, string[]> => {
   if ("tori" in tagNames && "uke" in tagNames && "waza" in tagNames) {
     const result: Record<string, string[]> = {};
-    if (tagNames.tori.length > 0) result["取り"] = tagNames.tori;
-    if (tagNames.uke.length > 0) result["受け"] = tagNames.uke;
-    if (tagNames.waza.length > 0) result["技"] = tagNames.waza;
+    if (tagNames.tori.length > 0) result.取り = tagNames.tori;
+    if (tagNames.uke.length > 0) result.受け = tagNames.uke;
+    if (tagNames.waza.length > 0) result.技 = tagNames.waza;
     return result;
   }
   return tagNames as Record<string, string[]>;
@@ -2621,7 +2621,7 @@ export const getUsersPublicityDojosBatch = async (
     if (!map.has(row.user_id)) {
       map.set(row.user_id, new Set());
     }
-    map.get(row.user_id)!.add(row.dojo_style_id);
+    map.get(row.user_id)?.add(row.dojo_style_id);
   }
   return map;
 };

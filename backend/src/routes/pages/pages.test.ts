@@ -133,11 +133,7 @@ describe("ページ作成API", () => {
         is_public: false,
         created_at: "2026-03-13T00:00:00.000Z",
       },
-      {
-        tori: [],
-        uke: [],
-        waza: [],
-      },
+      {},
     );
   });
 
