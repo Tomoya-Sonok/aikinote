@@ -174,7 +174,11 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           content: pageData.content,
           is_public: false,
           date: formatToLocalDateString(new Date().toISOString()),
-          tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+          tags: [
+            ...(pageData.tori ?? []),
+            ...(pageData.uke ?? []),
+            ...(pageData.waza ?? []),
+          ],
           attachments: [],
         };
         setAllTrainingPageData((prev) => [optimisticPage, ...prev]);
@@ -293,7 +297,11 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           date:
             originalPage.date ||
             formatToLocalDateString(new Date().toISOString()),
-          tags: [...pageData.tori, ...pageData.uke, ...pageData.waza],
+          tags: [
+            ...(pageData.tori ?? []),
+            ...(pageData.uke ?? []),
+            ...(pageData.waza ?? []),
+          ],
           attachments: originalPage.attachments ?? [],
         };
         return next;

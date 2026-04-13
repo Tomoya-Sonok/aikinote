@@ -1,5 +1,9 @@
 import { PostgrestError } from "@supabase/supabase-js";
-import { INITIAL_USER_TAGS, type TagLanguage } from "@/constants/tags";
+import {
+  DEFAULT_CATEGORIES,
+  INITIAL_USER_TAGS,
+  type TagLanguage,
+} from "@/constants/tags";
 import { getServiceRoleSupabase } from "@/lib/supabase/server";
 
 export type UserTag = {
@@ -85,6 +89,19 @@ export async function initializeUserTagsIfNeeded(
         message: "ユーザーには既にタグが存在します",
       };
     }
+
+    // デフォルトカテゴリを作成
+    const supabase = getServiceRoleSupabase();
+    await supabase.from("UserCategory").upsert(
+      DEFAULT_CATEGORIES.map((d) => ({
+        user_id: userId,
+        name: d.name,
+        slug: d.slug,
+        sort_order: d.sort_order,
+        is_default: true,
+      })),
+      { onConflict: "user_id,name" },
+    );
 
     // 初期タグを作成
     const { data, error } = await createInitialUserTags(userId, language);

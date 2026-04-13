@@ -1,5 +1,13 @@
 export type TagLanguage = "ja" | "en";
 
+export const DEFAULT_CATEGORIES = [
+  { name: "取り", slug: "tori", sort_order: 1 },
+  { name: "受け", slug: "uke", sort_order: 2 },
+  { name: "技", slug: "waza", sort_order: 3 },
+] as const;
+
+export const MAX_CATEGORIES = 5;
+
 export const INITIAL_USER_TAGS: Record<
   TagLanguage,
   readonly { category: string; name: string }[]

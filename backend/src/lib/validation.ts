@@ -6,9 +6,12 @@ export const createPageSchema = z.object({
     .string()
     .min(1, "タイトルは必須です")
     .max(100, "タイトルは100文字以内で入力してください"),
-  tori: z.array(z.string()).default([]),
-  uke: z.array(z.string()).default([]),
-  waza: z.array(z.string()).default([]),
+  // 新形式: 動的カテゴリ対応
+  tags: z.record(z.string(), z.array(z.string())).optional(),
+  // 旧形式: 後方互換
+  tori: z.array(z.string()).optional().default([]),
+  uke: z.array(z.string()).optional().default([]),
+  waza: z.array(z.string()).optional().default([]),
   content: z
     .string()
     .min(1, "内容は必須です")
@@ -26,6 +29,28 @@ export const createPageSchema = z.object({
 
 export type CreatePageInput = z.infer<typeof createPageSchema>;
 
+// tagsフィールド（新形式）と旧形式tori/uke/wazaを統合するヘルパー
+export const resolveTagNames = (input: {
+  tags?: Record<string, string[]>;
+  tori?: string[];
+  uke?: string[];
+  waza?: string[];
+}): Record<string, string[]> => {
+  if (input.tags && Object.keys(input.tags).length > 0) {
+    return input.tags;
+  }
+  const mapping: [string, string[] | undefined][] = [
+    ["取り", input.tori],
+    ["受け", input.uke],
+    ["技", input.waza],
+  ];
+  const result: Record<string, string[]> = {};
+  for (const [key, value] of mapping) {
+    if (value && value.length > 0) result[key] = value;
+  }
+  return result;
+};
+
 // ページ更新のバリデーションスキーマ
 export const updatePageSchema = z.object({
   id: z.string().min(1, "ページIDは必須です"),
@@ -33,9 +58,12 @@ export const updatePageSchema = z.object({
     .string()
     .min(1, "タイトルは必須です")
     .max(100, "タイトルは100文字以内で入力してください"),
-  tori: z.array(z.string()).default([]),
-  uke: z.array(z.string()).default([]),
-  waza: z.array(z.string()).default([]),
+  // 新形式: 動的カテゴリ対応
+  tags: z.record(z.string(), z.array(z.string())).optional(),
+  // 旧形式: 後方互換
+  tori: z.array(z.string()).optional().default([]),
+  uke: z.array(z.string()).optional().default([]),
+  waza: z.array(z.string()).optional().default([]),
   content: z
     .string()
     .min(1, "内容は必須です")

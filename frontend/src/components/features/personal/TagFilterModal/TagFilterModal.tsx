@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/shared/Button/Button";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
+import type { UserCategory } from "@/types/category";
 import styles from "./TagFilterModal.module.css";
 
 interface TagType {
@@ -19,6 +20,7 @@ interface TagFilterModalProps {
   selectedTags: string[]; // 選択されているタグ名の配列
   onTagsConfirm: (tags: string[]) => void;
   title?: string;
+  categories?: UserCategory[];
 }
 
 export const TagFilterModal: FC<TagFilterModalProps> = ({
@@ -28,6 +30,7 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
   selectedTags,
   onTagsConfirm,
   title,
+  categories,
 }) => {
   const t = useTranslations();
   const [tempSelectedTags, setTempSelectedTags] =
@@ -39,19 +42,38 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
       setTempSelectedTags(selectedTags);
     }
   }, [isOpen, selectedTags]);
-  // タグをカテゴリ別に分類
-  const { toriTags, ukeTags, wazaTags } = useMemo(() => {
-    const toriTags = tags
-      .filter((tag) => tag.category === "取り")
-      .map((tag) => tag.name);
-    const ukeTags = tags
-      .filter((tag) => tag.category === "受け")
-      .map((tag) => tag.name);
-    const wazaTags = tags
-      .filter((tag) => tag.category === "技")
-      .map((tag) => tag.name);
-    return { toriTags, ukeTags, wazaTags };
+
+  // タグをカテゴリ別に分類（動的カテゴリ対応）
+  const tagsByCategory = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    for (const tag of tags) {
+      if (!result[tag.category]) {
+        result[tag.category] = [];
+      }
+      result[tag.category].push(tag.name);
+    }
+    return result;
   }, [tags]);
+
+  // カテゴリ表示順序を決定
+  const categoryOrder = useMemo(() => {
+    if (categories && categories.length > 0) {
+      return categories;
+    }
+    // フォールバック: タグデータから一意なカテゴリを抽出
+    const uniqueCategories = Array.from(
+      new Set(tags.map((tag) => tag.category)),
+    );
+    return uniqueCategories.map((name, index) => ({
+      id: name,
+      user_id: "",
+      name,
+      slug: name,
+      sort_order: index,
+      is_default: ["取り", "受け", "技"].includes(name),
+      created_at: "",
+    }));
+  }, [categories, tags]);
 
   if (!isOpen) {
     return null;
@@ -111,33 +133,26 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
           <h3 className={styles.title}>{title || t("tagFilterModal.title")}</h3>
         </div>
         <div className={styles.content}>
-          <div className={styles.section}>
-            <TagSelection
-              title={t("tagFilterModal.tori")}
-              tags={toriTags}
-              selectedTags={tempSelectedTags}
-              onTagToggle={handleTempTagToggle}
-              showAddButton={false}
-            />
-          </div>
-          <div className={styles.section}>
-            <TagSelection
-              title={t("tagFilterModal.uke")}
-              tags={ukeTags}
-              selectedTags={tempSelectedTags}
-              onTagToggle={handleTempTagToggle}
-              showAddButton={false}
-            />
-          </div>
-          <div className={styles.section}>
-            <TagSelection
-              title={t("tagFilterModal.waza")}
-              tags={wazaTags}
-              selectedTags={tempSelectedTags}
-              onTagToggle={handleTempTagToggle}
-              showAddButton={false}
-            />
-          </div>
+          {categoryOrder.map((cat) => {
+            const categoryTags = tagsByCategory[cat.name] ?? [];
+            if (categoryTags.length === 0) return null;
+
+            const displayTitle = cat.is_default
+              ? t(`tagFilterModal.${cat.slug}`)
+              : cat.name;
+
+            return (
+              <div key={cat.slug} className={styles.section}>
+                <TagSelection
+                  title={displayTitle}
+                  tags={categoryTags}
+                  selectedTags={tempSelectedTags}
+                  onTagToggle={handleTempTagToggle}
+                  showAddButton={false}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Action Buttons */}
