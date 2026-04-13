@@ -46,6 +46,16 @@ export const updatePageSchema = z.object({
 
 export type UpdatePageInput = z.infer<typeof updatePageSchema>;
 
+// ページ公開範囲変更のバリデーションスキーマ
+export const togglePageVisibilitySchema = z.object({
+  user_id: z.string().min(1, "ユーザーIDは必須です"),
+  is_public: z.boolean(),
+});
+
+export type TogglePageVisibilityInput = z.infer<
+  typeof togglePageVisibilitySchema
+>;
+
 // ページレスポンスの型（実際のDB設計に合わせて修正）
 export const pageResponseSchema = z.object({
   id: z.string(),

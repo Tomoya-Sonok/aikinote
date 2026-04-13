@@ -433,6 +433,29 @@ export const updatePage = async (pageData: UpdatePagePayload) => {
   }
 };
 
+// ページ公開範囲変更API関数（軽量版）
+export const togglePageVisibility = async (
+  pageId: string,
+  userId: string,
+  isPublic: boolean,
+) => {
+  try {
+    const response = await trpcClient.pages.toggleVisibility.mutate({
+      pageId,
+      user_id: userId,
+      is_public: isPublic,
+    });
+    invalidateQueryCacheByPrefixes([
+      "pages:getList",
+      "pages:getById",
+      "socialProfile:get",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "公開範囲の変更に失敗しました"));
+  }
+};
+
 export interface TrainingDateRecord {
   id: string;
   user_id: string;

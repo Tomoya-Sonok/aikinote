@@ -17,6 +17,7 @@ import {
   getPagesSchema,
   type PagesListResponse,
   type PageWithTagsResponse,
+  togglePageVisibilitySchema,
   updatePageSchema,
 } from "../../lib/validation.js";
 
@@ -296,6 +297,71 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
     return c.json(errorResponse, 500);
   }
 });
+
+// ページ公開範囲変更API（軽量版）
+app.patch(
+  "/:id/visibility",
+  zValidator("json", togglePageVisibilitySchema),
+  async (c) => {
+    try {
+      const pageId = c.req.param("id");
+      const { user_id, is_public } = c.req.valid("json");
+
+      // ページの存在確認・権限チェックと is_public 更新を一括実行
+      const { data: updatedPage, error: updateError } = await supabase
+        .from("TrainingPage")
+        .update({
+          is_public,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", pageId)
+        .eq("user_id", user_id)
+        .select("*")
+        .single();
+
+      if (updateError || !updatedPage) {
+        const errorResponse: ApiResponse<never> = {
+          success: false,
+          error: "ページが見つからないか、編集権限がありません",
+        };
+        return c.json(errorResponse, 404);
+      }
+
+      // SocialPost 連動
+      if (supabase) {
+        try {
+          await syncSocialPostForTrainingPage(
+            supabase,
+            pageId,
+            user_id,
+            updatedPage.content,
+            is_public,
+          );
+        } catch (socialError) {
+          console.error("SocialPost 連動更新エラー:", socialError);
+        }
+      }
+
+      const response: ApiResponse<{ page: typeof updatedPage }> = {
+        success: true,
+        data: { page: updatedPage },
+        message: "公開範囲を変更しました",
+      };
+
+      return c.json(response, 200);
+    } catch (error) {
+      console.error("公開範囲変更エラー:", error);
+
+      const errorResponse: ApiResponse<never> = {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "不明なエラーが発生しました",
+      };
+
+      return c.json(errorResponse, 500);
+    }
+  },
+);
 
 // ページ削除API
 app.delete("/:id", zValidator("query", getPageSchema), async (c) => {

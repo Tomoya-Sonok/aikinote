@@ -82,7 +82,7 @@
 }
 
 .toggle.active {
-  background: var(--primary-color);
+  background: var(--active-color);
 }
 
 .toggleKnob {
