@@ -319,7 +319,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
               className={`${styles.button} ${styles.emailSubmitButton}`}
             >
               {isProcessing ? (
-                <Loader size="small" text={t("auth.processing")} />
+                <Loader size="xs" text={t("auth.processing")} />
               ) : (
                 t("auth.signupWithEmail")
               )}
@@ -382,7 +382,7 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
                 disabled={isProcessing}
               >
                 {isProcessing ? (
-                  <Loader size="small" text={t("auth.creating")} />
+                  <Loader size="xs" text={t("auth.creating")} />
                 ) : (
                   t("auth.next")
                 )}

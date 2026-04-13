@@ -126,7 +126,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
           className={`${styles.button} ${styles.primaryButton}`}
         >
           {isProcessing ? (
-            <Loader size="small" text={t("auth.sending")} />
+            <Loader size="xs" text={t("auth.sending")} />
           ) : (
             t("auth.sendResetEmail")
           )}

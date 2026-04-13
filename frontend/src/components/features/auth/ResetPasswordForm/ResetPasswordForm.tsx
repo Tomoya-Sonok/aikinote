@@ -164,7 +164,7 @@ export function ResetPasswordForm({
           className={`${styles.button} ${styles.primaryButton}`}
         >
           {isProcessing ? (
-            <Loader size="small" text={t("auth.changing")} />
+            <Loader size="xs" text={t("auth.changing")} />
           ) : (
             t("auth.changePassword")
           )}

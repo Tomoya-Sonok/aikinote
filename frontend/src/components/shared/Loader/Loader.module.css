@@ -30,6 +30,13 @@
   border-width: 3px;
 }
 
+/* ボタン内用の極小サイズ */
+.xs .spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
 /* 中央揃えコンテナ */
 .centered {
   position: fixed;

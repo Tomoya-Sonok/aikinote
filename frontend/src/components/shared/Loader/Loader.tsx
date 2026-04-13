@@ -3,7 +3,7 @@ import styles from "./Loader.module.css";
 
 export interface LoaderProps {
   /** ローダーのサイズ */
-  size?: "small" | "medium" | "large";
+  size?: "xs" | "small" | "medium" | "large";
   /** 中央揃えにするかどうか */
   centered?: boolean;
   /** 表示するテキスト */

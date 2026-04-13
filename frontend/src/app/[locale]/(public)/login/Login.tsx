@@ -231,7 +231,7 @@ export function Login({ locale, onSuccess }: LoginProps) {
               className={`${styles.button} ${styles.emailSubmitButton}`}
             >
               {isProcessing ? (
-                <Loader size="small" text={t("auth.loginInProgress")} />
+                <Loader size="xs" text={t("auth.loginInProgress")} />
               ) : (
                 t("auth.loginButton")
               )}
