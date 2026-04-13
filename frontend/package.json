@@ -38,7 +38,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "eslint-config-next": "16.0.10",
-    "hono": "^4.9.7",
+    "hono": "^4.12.12",
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "linkify-react": "^4.3.2",
