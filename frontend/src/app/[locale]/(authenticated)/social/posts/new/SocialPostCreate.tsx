@@ -44,6 +44,7 @@ export function SocialPostCreate() {
   const searchParams = useSearchParams();
   const modeGroupId = useId();
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const postTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { incrementPostCount } = useDailyLimits();
 
@@ -97,10 +98,14 @@ export function SocialPostCreate() {
     [tagManagement],
   );
 
-  // 稽古記録モード切り替え時にタイトルへフォーカス
+  // モード切り替え時に先頭の入力欄へフォーカス
   useEffect(() => {
     if (mode === "training" && titleInputRef.current) {
       const id = setTimeout(() => titleInputRef.current?.focus(), 100);
+      return () => clearTimeout(id);
+    }
+    if (mode === "post" && postTextareaRef.current) {
+      const id = setTimeout(() => postTextareaRef.current?.focus(), 100);
       return () => clearTimeout(id);
     }
   }, [mode]);
@@ -296,11 +301,7 @@ export function SocialPostCreate() {
             onClick={handleSubmit}
             disabled={isDisabled}
           >
-            {isSubmitting
-              ? tSocial("submitting")
-              : mode === "post"
-                ? tSocial("submit")
-                : t("pageCreate.save")}
+            {isSubmitting ? tSocial("submitting") : tSocial("submit")}
           </Button>
         }
       />
@@ -355,6 +356,7 @@ export function SocialPostCreate() {
             <div className={styles.section}>
               <HashtagTextarea
                 className={styles.textarea}
+                textareaRef={postTextareaRef}
                 value={postContent}
                 onChange={(e) =>
                   setPostContent(

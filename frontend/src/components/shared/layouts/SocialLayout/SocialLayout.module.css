@@ -24,3 +24,9 @@
   background: var(--white, #fdfcfa);
   padding: 10px 0 14px;
 }
+
+@media (min-width: 768px) {
+  .tabNavigation {
+    display: none;
+  }
+}

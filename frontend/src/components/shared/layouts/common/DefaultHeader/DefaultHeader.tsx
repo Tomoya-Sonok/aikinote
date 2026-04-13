@@ -1,8 +1,15 @@
 "use client";
 
-import { ListIcon, PencilSimpleIcon, UserIcon } from "@phosphor-icons/react";
+import {
+  ChatsIcon,
+  IdentificationCardIcon,
+  ListIcon,
+  PencilSimpleIcon,
+  UserIcon,
+} from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +17,7 @@ import { NavigationDrawer } from "@/components/shared/NavigationDrawer";
 import type { UserSession } from "@/lib/auth";
 import { useTooltipVisibility } from "@/lib/hooks/useTooltipVisibility";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useUnreadNotificationCount } from "@/lib/hooks/useUnreadNotificationCount";
 import styles from "./DefaultHeader.module.css";
 
 interface DefaultHeaderProps {
@@ -36,6 +44,23 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   const locale = useLocale();
   const t = useTranslations();
   const { track } = useUmamiTrack();
+
+  const pathname = usePathname();
+  const unreadCount = useUnreadNotificationCount(user?.id);
+
+  const getActiveTab = () => {
+    const localePrefix = `/${locale}`;
+    const normalizedPath = pathname.startsWith(localePrefix)
+      ? pathname.slice(localePrefix.length) || "/"
+      : pathname;
+
+    if (normalizedPath.startsWith("/personal")) return "personal";
+    if (normalizedPath.startsWith("/social")) return "social";
+    if (normalizedPath.startsWith("/mypage")) return "mypage";
+    return "personal";
+  };
+
+  const activeTab = getActiveTab();
 
   const handleSettingsClick = () => {
     hideTooltip();
@@ -112,6 +137,31 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
       </Link>
 
       <div className={styles.headerRight}>
+        <nav className={styles.desktopNav}>
+          <Link
+            href={`/${locale}/personal/pages`}
+            className={`${styles.desktopNavLink} ${activeTab === "personal" ? styles.desktopNavLinkActive : ""}`}
+          >
+            <PencilSimpleIcon size={18} weight="light" />
+            {t("components.personal")}
+          </Link>
+          <Link
+            href={`/${locale}/social/posts`}
+            className={`${styles.desktopNavLink} ${activeTab === "social" ? styles.desktopNavLinkActive : ""}`}
+          >
+            <ChatsIcon size={18} weight="light" />
+            {t("components.group")}
+            {unreadCount > 0 && <span className={styles.desktopNavBadge} />}
+          </Link>
+          <Link
+            href={`/${locale}/mypage`}
+            className={`${styles.desktopNavLink} ${activeTab === "mypage" ? styles.desktopNavLinkActive : ""}`}
+          >
+            <IdentificationCardIcon size={18} weight="light" />
+            {t("components.mypage")}
+          </Link>
+        </nav>
+
         {showUserSection && user && (
           <div ref={profileCardRef} className={styles.profileCardWrapper}>
             <button

@@ -139,6 +139,9 @@ export function SocialPostsFeed() {
   return (
     <SocialLayout>
       <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
+      <div className={styles.desktopPageTitleWrapper}>
+        <h2 className={styles.desktopPageTitle}>{t("title")}</h2>
+      </div>
       <Link
         href="/social/posts/new"
         className={styles.promoteBanner}
