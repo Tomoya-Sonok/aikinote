@@ -137,30 +137,32 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
       </Link>
 
       <div className={styles.headerRight}>
-        <nav className={styles.desktopNav}>
-          <Link
-            href={`/${locale}/personal/pages`}
-            className={`${styles.desktopNavLink} ${activeTab === "personal" ? styles.desktopNavLinkActive : ""}`}
-          >
-            <PencilSimpleIcon size={18} weight="light" />
-            {t("components.personal")}
-          </Link>
-          <Link
-            href={`/${locale}/social/posts`}
-            className={`${styles.desktopNavLink} ${activeTab === "social" ? styles.desktopNavLinkActive : ""}`}
-          >
-            <ChatsIcon size={18} weight="light" />
-            {t("components.group")}
-            {unreadCount > 0 && <span className={styles.desktopNavBadge} />}
-          </Link>
-          <Link
-            href={`/${locale}/mypage`}
-            className={`${styles.desktopNavLink} ${activeTab === "mypage" ? styles.desktopNavLinkActive : ""}`}
-          >
-            <IdentificationCardIcon size={18} weight="light" />
-            {t("components.mypage")}
-          </Link>
-        </nav>
+        {user && (
+          <nav className={styles.desktopNav}>
+            <Link
+              href={`/${locale}/personal/pages`}
+              className={`${styles.desktopNavLink} ${activeTab === "personal" ? styles.desktopNavLinkActive : ""}`}
+            >
+              <PencilSimpleIcon size={18} weight="light" />
+              {t("components.personal")}
+            </Link>
+            <Link
+              href={`/${locale}/social/posts`}
+              className={`${styles.desktopNavLink} ${activeTab === "social" ? styles.desktopNavLinkActive : ""}`}
+            >
+              <ChatsIcon size={18} weight="light" />
+              {t("components.group")}
+              {unreadCount > 0 && <span className={styles.desktopNavBadge} />}
+            </Link>
+            <Link
+              href={`/${locale}/mypage`}
+              className={`${styles.desktopNavLink} ${activeTab === "mypage" ? styles.desktopNavLinkActive : ""}`}
+            >
+              <IdentificationCardIcon size={18} weight="light" />
+              {t("components.mypage")}
+            </Link>
+          </nav>
+        )}
 
         {showUserSection && user && (
           <div ref={profileCardRef} className={styles.profileCardWrapper}>
