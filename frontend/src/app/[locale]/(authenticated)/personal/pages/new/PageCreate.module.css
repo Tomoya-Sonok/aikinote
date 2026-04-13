@@ -56,3 +56,10 @@
   color: var(--text-light);
   margin-top: 4px;
 }
+
+@media (min-width: 768px) {
+  .layout {
+    max-width: 100%;
+    width: 100%;
+  }
+}

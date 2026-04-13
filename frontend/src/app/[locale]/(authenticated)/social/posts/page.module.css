@@ -85,3 +85,36 @@
 .feedBottomCtaButton:hover {
   opacity: 0.85;
 }
+
+.desktopPageTitleWrapper {
+  display: none;
+}
+
+.desktopPageTitle {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-lg);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  color: var(--black);
+}
+
+@media (min-width: 768px) {
+  .desktopPageTitleWrapper {
+    display: block;
+    width: 580px;
+    margin: 0 auto;
+    padding: 36px 16px 8px;
+  }
+
+  .promoteBanner {
+    max-width: 580px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    border-radius: 12px;
+  }
+
+  .promoteBannerImage {
+    border-radius: 12px;
+  }
+}

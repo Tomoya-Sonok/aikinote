@@ -254,6 +254,27 @@ export const updatePageProcedure = publicProcedure
     });
   });
 
+export const togglePageVisibilityProcedure = publicProcedure
+  .input(
+    z.object({
+      pageId: z.string().min(1),
+      user_id: z.string().min(1),
+      is_public: z.boolean(),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    return callHonoApi<ApiResponse<{ page: Page }>>(
+      `/api/pages/${input.pageId}/visibility`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({
+          user_id: input.user_id,
+          is_public: input.is_public,
+        }),
+      },
+    );
+  });
+
 export type PublicTrainingPage = {
   id: string;
   title: string;

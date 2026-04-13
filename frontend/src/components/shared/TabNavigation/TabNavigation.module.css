@@ -78,3 +78,9 @@
   border-radius: 50%;
   background: var(--error-color);
 }
+
+@media (min-width: 768px) {
+  .tabContainer {
+    display: none;
+  }
+}

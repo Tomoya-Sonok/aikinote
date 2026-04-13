@@ -9,11 +9,11 @@ import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/Pre
 import { Skeleton } from "@/components/shared/Skeleton";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
-import { deletePage, updatePage } from "@/lib/api/client";
+import { deletePage, togglePageVisibility } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useSubscription } from "@/lib/hooks/useSubscription";
-import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
+
 import { useRouter } from "@/lib/i18n/routing";
 import { linkifyText } from "@/lib/utils/linkifyText";
 import styles from "./page.module.css";
@@ -27,8 +27,6 @@ export function PageDetail() {
 
   const { loading, pageData, setPageData, attachments } =
     usePageDetailData(pageId);
-
-  const { availableTags } = useTrainingTags();
 
   const { showToast } = useToast();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -50,36 +48,22 @@ export function PageDetail() {
       return;
     }
 
+    const newValue = !pageData.is_public;
+    const previousPageData = pageData;
+
+    // 楽観的更新: 即座にUI反映
+    setPageData({ ...pageData, is_public: newValue });
+    showToast(
+      newValue ? t("pageDetail.publicEnabled") : t("pageDetail.publicDisabled"),
+      "success",
+    );
+
     setTogglingPublic(true);
     try {
-      const newValue = !pageData.is_public;
-      const response = await updatePage({
-        id: pageData.id,
-        title: pageData.title,
-        tori: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "取り"),
-        ),
-        uke: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "受け"),
-        ),
-        waza: pageData.tags.filter((tag) =>
-          availableTags.find((t) => t.name === tag && t.category === "技"),
-        ),
-        content: pageData.content,
-        user_id: user.id,
-        is_public: newValue,
-      });
-      if (response.success) {
-        setPageData({ ...pageData, is_public: newValue });
-        showToast(
-          newValue
-            ? t("pageDetail.publicEnabled")
-            : t("pageDetail.publicDisabled"),
-          "success",
-        );
-      }
-    } catch (error) {
-      console.error("公開範囲設定変更エラー:", error);
+      await togglePageVisibility(pageData.id, user.id, newValue);
+    } catch {
+      // ロールバック
+      setPageData(previousPageData);
       showToast(t("pageDetail.publicToggleFailed"), "error");
     } finally {
       setTogglingPublic(false);
@@ -280,7 +264,6 @@ export function PageDetail() {
               aria-checked={pageData.is_public}
               className={`${styles.toggle} ${pageData.is_public ? styles.toggleOn : ""}`}
               onClick={handleTogglePublic}
-              disabled={isTogglingPublic}
             >
               <span className={styles.toggleKnob} />
             </button>

@@ -19,6 +19,7 @@
 .section {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .titleRow {
@@ -147,4 +148,11 @@
   font-size: var(--font-size-xs);
   color: var(--error-color);
   margin-top: 4px;
+}
+
+@media (min-width: 768px) {
+  .layout {
+    max-width: 100%;
+    width: 100%;
+  }
 }

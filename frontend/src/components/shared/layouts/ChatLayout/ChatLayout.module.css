@@ -21,10 +21,33 @@
   min-height: 100%;
 }
 
+.footerWrapper {
+  /* PC版でcontentWrapperとスクロールバー幅を揃えるためのラッパー */
+}
+
 .footer {
   max-width: 580px;
   width: 100%;
   margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main {
+    max-width: 100%;
+  }
+
+  .footer {
+    max-width: 100%;
+  }
+
+  .contentWrapper {
+    scrollbar-gutter: stable;
+  }
+
+  .footerWrapper {
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
 }
 
 /* PWA standalone モードで body スクロールによるフッター隠れを防止 */

@@ -14,7 +14,11 @@ export function ChatLayout({ children, footer }: ChatLayoutProps) {
       <div className={styles.contentWrapper}>
         <main className={styles.main}>{children}</main>
       </div>
-      {footer && <div className={styles.footer}>{footer}</div>}
+      {footer && (
+        <div className={styles.footerWrapper}>
+          <div className={styles.footer}>{footer}</div>
+        </div>
+      )}
     </div>
   );
 }

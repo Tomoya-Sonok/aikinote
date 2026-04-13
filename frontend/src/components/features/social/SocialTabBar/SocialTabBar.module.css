@@ -52,3 +52,10 @@
     transition-duration: 0s;
   }
 }
+
+@media (min-width: 768px) {
+  .tabBar {
+    width: 580px;
+    margin: 0 auto;
+  }
+}
