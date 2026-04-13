@@ -42,9 +42,19 @@ export interface UserTagRow {
   id: string; // uuid PK
   user_id: string; // uuid FK
   name: string; // text
-  category: string; // text (取り、受け、技)
+  category: string; // text (取り、受け、技、カスタムカテゴリ)
   created_at: string; // timestamp
   sort_order: number | null; // 並び順（カテゴリ内）
+}
+
+export interface UserCategoryRow {
+  id: string; // uuid PK
+  user_id: string; // uuid FK
+  name: string; // text (カテゴリ表示名)
+  slug: string; // text (内部キー)
+  sort_order: number; // 並び順
+  is_default: boolean; // デフォルト3カテゴリかどうか
+  created_at: string; // timestamptz
 }
 
 export interface TitleTemplateRow {
@@ -106,12 +116,30 @@ const buildJstUtcIso = (
   return new Date(timestamp).toISOString();
 };
 
+// タグ名の新旧形式を統合するヘルパー
+const resolveTagNamesForPage = (
+  tagNames:
+    | { tori: string[]; uke: string[]; waza: string[] }
+    | Record<string, string[]>,
+): Record<string, string[]> => {
+  if ("tori" in tagNames && "uke" in tagNames && "waza" in tagNames) {
+    const result: Record<string, string[]> = {};
+    if (tagNames.tori.length > 0) result.取り = tagNames.tori;
+    if (tagNames.uke.length > 0) result.受け = tagNames.uke;
+    if (tagNames.waza.length > 0) result.技 = tagNames.waza;
+    return result;
+  }
+  return tagNames as Record<string, string[]>;
+};
+
 // データベース操作関数
 export const createTrainingPage = async (
   pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at"> & {
     created_at?: string;
   },
-  tagNames: { tori: string[]; uke: string[]; waza: string[] },
+  tagNames:
+    | { tori: string[]; uke: string[]; waza: string[] }
+    | Record<string, string[]>,
 ): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
   // トランザクションを使用してページと関連タグを作成
   try {
@@ -142,11 +170,11 @@ export const createTrainingPage = async (
     }
 
     // 2. すべてのタグ名を統合してカテゴリ付きで配列化
-    const categories = [
-      ...tagNames.tori.map((name) => ({ name, category: "取り" })),
-      ...tagNames.uke.map((name) => ({ name, category: "受け" })),
-      ...tagNames.waza.map((name) => ({ name, category: "技" })),
-    ];
+    // 新旧両形式に対応
+    const resolvedTagNames = resolveTagNamesForPage(tagNames);
+    const categories = Object.entries(resolvedTagNames).flatMap(
+      ([category, names]) => names.map((name) => ({ name, category })),
+    );
 
     const associatedTags: UserTagRow[] = [];
     const trainingPageTags: Omit<TrainingPageTagRow, "id">[] = [];
@@ -858,7 +886,9 @@ export const getTrainingPageById = async (
 // ページ更新関数
 export const updateTrainingPage = async (
   pageData: Omit<TrainingPageRow, "created_at" | "updated_at"> & { id: string },
-  tagNames: { tori: string[]; uke: string[]; waza: string[] },
+  tagNames:
+    | { tori: string[]; uke: string[]; waza: string[] }
+    | Record<string, string[]>,
 ): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
   try {
     // 1. ページの存在確認と権限チェック
@@ -907,11 +937,10 @@ export const updateTrainingPage = async (
     }
 
     // 4. 新しいタグを処理（createTrainingPageと同じロジック）
-    const categories = [
-      ...tagNames.tori.map((name) => ({ name, category: "取り" })),
-      ...tagNames.uke.map((name) => ({ name, category: "受け" })),
-      ...tagNames.waza.map((name) => ({ name, category: "技" })),
-    ];
+    const resolvedTagNames = resolveTagNamesForPage(tagNames);
+    const categories = Object.entries(resolvedTagNames).flatMap(
+      ([category, names]) => names.map((name) => ({ name, category })),
+    );
 
     const associatedTags: UserTagRow[] = [];
     const trainingPageTags: Omit<TrainingPageTagRow, "id">[] = [];
@@ -2592,7 +2621,7 @@ export const getUsersPublicityDojosBatch = async (
     if (!map.has(row.user_id)) {
       map.set(row.user_id, new Set());
     }
-    map.get(row.user_id)!.add(row.dojo_style_id);
+    map.get(row.user_id)?.add(row.dojo_style_id);
   }
   return map;
 };
@@ -3143,4 +3172,258 @@ export const deleteTitleTemplate = async (
   }
 
   return data;
+};
+
+// ===================================
+// カテゴリ関連関数
+// ===================================
+
+const MAX_CATEGORIES = 5;
+
+// カテゴリ一覧取得
+export const getUserCategories = async (
+  userId: string,
+): Promise<UserCategoryRow[]> => {
+  const { data, error } = await supabase
+    .from("UserCategory")
+    .select("*")
+    .eq("user_id", userId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    throw new Error(`カテゴリ取得に失敗しました: ${error.message}`);
+  }
+
+  return data || [];
+};
+
+// カテゴリ数取得（上限チェック用）
+export const getUserCategoryCount = async (userId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from("UserCategory")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`カテゴリ数取得に失敗しました: ${error.message}`);
+  }
+
+  return count ?? 0;
+};
+
+// slug生成: カテゴリ名からslugを生成（重複時はランダムサフィックス付与）
+const generateCategorySlug = async (
+  userId: string,
+  name: string,
+): Promise<string> => {
+  // 英数字のみの場合はそのまま小文字化、それ以外はランダム文字列
+  const base = /^[a-zA-Z0-9]+$/.test(name)
+    ? name.toLowerCase()
+    : `custom_${Date.now().toString(36)}`;
+
+  const { data: existing } = await supabase
+    .from("UserCategory")
+    .select("slug")
+    .eq("user_id", userId)
+    .eq("slug", base)
+    .maybeSingle();
+
+  if (!existing) {
+    return base;
+  }
+
+  return `${base}_${Date.now().toString(36)}`;
+};
+
+// カテゴリ作成
+export const createUserCategory = async (
+  userId: string,
+  name: string,
+): Promise<UserCategoryRow> => {
+  // 上限チェック
+  const count = await getUserCategoryCount(userId);
+  if (count >= MAX_CATEGORIES) {
+    throw new Error(
+      `カテゴリは最大${MAX_CATEGORIES}個までです。現在${count}個登録されています`,
+    );
+  }
+
+  // sort_order自動採番
+  const { data: maxOrderRow } = await supabase
+    .from("UserCategory")
+    .select("sort_order")
+    .eq("user_id", userId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextSortOrder = (maxOrderRow?.sort_order ?? 0) + 1;
+
+  const slug = await generateCategorySlug(userId, name);
+
+  const { data, error } = await supabase
+    .from("UserCategory")
+    .insert({
+      user_id: userId,
+      name,
+      slug,
+      sort_order: nextSortOrder,
+      is_default: false,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error(`同じ名前のカテゴリが既に存在します`);
+    }
+    throw new Error(`カテゴリ作成に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+// カテゴリ名更新（+ 所属UserTagのcategoryも一括更新）
+export const updateUserCategory = async (
+  categoryId: string,
+  userId: string,
+  newName: string,
+): Promise<UserCategoryRow> => {
+  // カテゴリ取得
+  const { data: category, error: fetchError } = await supabase
+    .from("UserCategory")
+    .select("*")
+    .eq("id", categoryId)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchError || !category) {
+    throw new Error("カテゴリが見つかりません");
+  }
+
+  const oldName = category.name;
+
+  // カテゴリ名を更新
+  const { data: updated, error: updateError } = await supabase
+    .from("UserCategory")
+    .update({ name: newName })
+    .eq("id", categoryId)
+    .eq("user_id", userId)
+    .select("*")
+    .single();
+
+  if (updateError) {
+    if (updateError.code === "23505") {
+      throw new Error(`同じ名前のカテゴリが既に存在します`);
+    }
+    throw new Error(`カテゴリ更新に失敗しました: ${updateError.message}`);
+  }
+
+  // 所属UserTagのcategoryを一括更新
+  const { error: tagUpdateError } = await supabase
+    .from("UserTag")
+    .update({ category: newName })
+    .eq("user_id", userId)
+    .eq("category", oldName);
+
+  if (tagUpdateError) {
+    throw new Error(
+      `タグのカテゴリ更新に失敗しました: ${tagUpdateError.message}`,
+    );
+  }
+
+  return updated;
+};
+
+// カテゴリ削除（所属タグも連鎖削除）
+export const deleteUserCategory = async (
+  categoryId: string,
+  userId: string,
+): Promise<void> => {
+  // カテゴリ取得
+  const { data: category, error: fetchError } = await supabase
+    .from("UserCategory")
+    .select("*")
+    .eq("id", categoryId)
+    .eq("user_id", userId)
+    .single();
+
+  if (fetchError || !category) {
+    throw new Error("カテゴリが見つかりません");
+  }
+
+  // 所属タグのID一覧を取得
+  const { data: tags } = await supabase
+    .from("UserTag")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("category", category.name);
+
+  if (tags && tags.length > 0) {
+    const tagIds = tags.map((t) => t.id);
+
+    // TrainingPageTagの関連を削除
+    const { error: detachError } = await supabase
+      .from("TrainingPageTag")
+      .delete()
+      .in("user_tag_id", tagIds);
+
+    if (detachError) {
+      throw new Error(`タグ関連付け削除に失敗しました: ${detachError.message}`);
+    }
+
+    // 所属UserTagを削除
+    const { error: tagDeleteError } = await supabase
+      .from("UserTag")
+      .delete()
+      .eq("user_id", userId)
+      .eq("category", category.name);
+
+    if (tagDeleteError) {
+      throw new Error(`タグ削除に失敗しました: ${tagDeleteError.message}`);
+    }
+  }
+
+  // カテゴリ自体を削除
+  const { error: deleteError } = await supabase
+    .from("UserCategory")
+    .delete()
+    .eq("id", categoryId)
+    .eq("user_id", userId);
+
+  if (deleteError) {
+    throw new Error(`カテゴリ削除に失敗しました: ${deleteError.message}`);
+  }
+};
+
+// デフォルト3カテゴリ初期化
+export const initializeUserCategories = async (
+  userId: string,
+): Promise<UserCategoryRow[]> => {
+  const defaults = [
+    { name: "取り", slug: "tori", sort_order: 1 },
+    { name: "受け", slug: "uke", sort_order: 2 },
+    { name: "技", slug: "waza", sort_order: 3 },
+  ];
+
+  const { data, error } = await supabase
+    .from("UserCategory")
+    .upsert(
+      defaults.map((d) => ({
+        user_id: userId,
+        name: d.name,
+        slug: d.slug,
+        sort_order: d.sort_order,
+        is_default: true,
+      })),
+      { onConflict: "user_id,name" },
+    )
+    .select("*");
+
+  if (error) {
+    throw new Error(`カテゴリ初期化に失敗しました: ${error.message}`);
+  }
+
+  return data || [];
 };

@@ -212,9 +212,10 @@ export const createPageProcedure = publicProcedure
   .input(
     z.object({
       title: z.string(),
-      tori: z.array(z.string()),
-      uke: z.array(z.string()),
-      waza: z.array(z.string()),
+      tags: z.record(z.string(), z.array(z.string())).optional(),
+      tori: z.array(z.string()).optional(),
+      uke: z.array(z.string()).optional(),
+      waza: z.array(z.string()).optional(),
       content: z.string(),
       user_id: z.string(),
       is_public: z.boolean().optional(),
@@ -239,9 +240,10 @@ export const updatePageProcedure = publicProcedure
     z.object({
       id: z.string().min(1),
       title: z.string(),
-      tori: z.array(z.string()),
-      uke: z.array(z.string()),
-      waza: z.array(z.string()),
+      tags: z.record(z.string(), z.array(z.string())).optional(),
+      tori: z.array(z.string()).optional(),
+      uke: z.array(z.string()).optional(),
+      waza: z.array(z.string()).optional(),
       content: z.string(),
       user_id: z.string(),
       is_public: z.boolean().optional(),
@@ -407,7 +409,7 @@ export const createTagProcedure = publicProcedure
   .input(
     z.object({
       name: z.string().min(1),
-      category: z.enum(["取り", "受け", "技"]),
+      category: z.string().min(1).max(10),
       user_id: z.string().min(1),
     }),
   )
@@ -442,9 +444,10 @@ export const updateTagOrderProcedure = publicProcedure
   .input(
     z.object({
       user_id: z.string().min(1),
-      tori: z.array(z.string()),
-      uke: z.array(z.string()),
-      waza: z.array(z.string()),
+      categories: z.record(z.string(), z.array(z.string())).optional(),
+      tori: z.array(z.string()).optional(),
+      uke: z.array(z.string()).optional(),
+      waza: z.array(z.string()).optional(),
     }),
   )
   .mutation(async ({ input }) => {
@@ -1314,6 +1317,92 @@ export const deleteTitleTemplateProcedure = publicProcedure
 
     return callHonoApi<ApiResponse<TitleTemplate>>(
       `/api/title-templates/${input.templateId}?${query.toString()}`,
+      {
+        method: "DELETE",
+      },
+    );
+  });
+
+// ===================================
+// カテゴリ関連プロシージャ
+// ===================================
+
+type UserCategory = {
+  id: string;
+  user_id: string;
+  name: string;
+  slug: string;
+  sort_order: number;
+  is_default: boolean;
+  created_at: string;
+};
+
+export const getCategoriesProcedure = publicProcedure
+  .input(
+    z.object({
+      userId: z.string().min(1),
+    }),
+  )
+  .query(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+    });
+
+    return callHonoApi<ApiResponse<UserCategory[]>>(
+      `/api/categories?${query.toString()}`,
+    );
+  });
+
+export const createCategoryProcedure = publicProcedure
+  .input(
+    z.object({
+      name: z.string().min(1).max(10),
+      user_id: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    return callHonoApi<ApiResponse<UserCategory>>("/api/categories", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  });
+
+export const updateCategoryProcedure = publicProcedure
+  .input(
+    z.object({
+      categoryId: z.string().min(1),
+      userId: z.string().min(1),
+      name: z.string().min(1).max(10),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+    });
+
+    return callHonoApi<ApiResponse<UserCategory>>(
+      `/api/categories/${input.categoryId}?${query.toString()}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({ name: input.name }),
+      },
+    );
+  });
+
+export const deleteCategoryProcedure = publicProcedure
+  .input(
+    z.object({
+      categoryId: z.string().min(1),
+      userId: z.string().min(1),
+    }),
+  )
+  .mutation(async ({ input }) => {
+    const query = new URLSearchParams({
+      user_id: input.userId,
+    });
+
+    return callHonoApi<ApiResponse<null>>(
+      `/api/categories/${input.categoryId}?${query.toString()}`,
       {
         method: "DELETE",
       },

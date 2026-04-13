@@ -7,8 +7,9 @@ import type { UseTagManagementReturn } from "@/lib/hooks/useTagManagement";
 import styles from "./TagSectionWithNewInput.module.css";
 
 interface TagSectionWithNewInputProps {
-  category: "tori" | "uke" | "waza";
-  titleKey: string;
+  category: string;
+  titleKey?: string;
+  title?: string;
   tags: string[];
   selectedTags: string[];
   tagManagement: UseTagManagementReturn;
@@ -17,16 +18,19 @@ interface TagSectionWithNewInputProps {
 export function TagSectionWithNewInput({
   category,
   titleKey,
+  title,
   tags,
   selectedTags,
   tagManagement,
 }: TagSectionWithNewInputProps) {
   const t = useTranslations();
 
+  const displayTitle = title ?? (titleKey ? t(titleKey) : category);
+
   return (
     <div className={styles.section}>
       <TagSelection
-        title={t(titleKey)}
+        title={displayTitle}
         tags={tags}
         selectedTags={selectedTags}
         onTagToggle={(tag) => tagManagement.handleTagToggle(category, tag)}

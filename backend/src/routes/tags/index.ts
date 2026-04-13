@@ -5,6 +5,7 @@ import {
   checkDuplicateTag,
   createUserTag,
   deleteUserTag,
+  getUserCategories,
   getUserTags,
   updateUserTagOrder,
 } from "../../lib/supabase.js";
@@ -28,14 +29,13 @@ export const createTagSchema = z.object({
     .min(1, "タグ名は必須です")
     .max(20, "タグ名は20文字以内で入力してください")
     .regex(
-      /^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９]+$/,
-      "タグ名は全角・半角英数字のみ使用可能です",
+      /^[a-zA-Z0-9ぁ-んァ-ンー一-龠０-９\- ]+$/,
+      "タグ名は全角・半角英数字、ハイフン、スペースのみ使用可能です",
     ),
-  category: z.enum(["取り", "受け", "技"], {
-    errorMap: () => ({
-      message: "カテゴリは「取り」「受け」「技」のいずれかを選択してください",
-    }),
-  }),
+  category: z
+    .string()
+    .min(1, "カテゴリは必須です")
+    .max(10, "カテゴリ名は10文字以内で入力してください"),
   user_id: z.string(),
 });
 
@@ -44,6 +44,9 @@ export type CreateTagInput = z.infer<typeof createTagSchema>;
 
 export const updateTagOrderSchema = z.object({
   user_id: z.string().min(1, "user_idパラメータは必須です"),
+  // 新形式: 動的カテゴリ対応
+  categories: z.record(z.string(), z.array(z.string())).optional(),
+  // 旧形式: 後方互換（deprecated）
   tori: z.array(z.string()).optional().default([]),
   uke: z.array(z.string()).optional().default([]),
   waza: z.array(z.string()).optional().default([]),
@@ -88,6 +91,17 @@ app.get("/", async (c) => {
 app.post("/", zValidator("json", createTagSchema), async (c) => {
   try {
     const input = c.req.valid("json");
+
+    // カテゴリ存在チェック
+    const userCategories = await getUserCategories(input.user_id);
+    const validCategoryNames = userCategories.map((c) => c.name);
+    if (!validCategoryNames.includes(input.category)) {
+      const errorResponse: ApiResponse<never> = {
+        success: false,
+        error: `無効なカテゴリです: ${input.category}`,
+      };
+      return c.json(errorResponse, 400);
+    }
 
     // 既存タグの重複チェック
     const existingTag = await checkDuplicateTag(
@@ -186,7 +200,7 @@ app.patch("/order", zValidator("json", updateTagOrderSchema), async (c) => {
   try {
     const input = c.req.valid("json");
 
-    const { user_id: userId, tori, uke, waza } = input;
+    const { user_id: userId, categories, tori, uke, waza } = input;
 
     if (!userId) {
       const errorResponse: ApiResponse<never> = {
@@ -196,7 +210,24 @@ app.patch("/order", zValidator("json", updateTagOrderSchema), async (c) => {
       return c.json(errorResponse, 400);
     }
 
-    const allTagIds = [...tori, ...uke, ...waza];
+    // 新形式（categories）と旧形式（tori/uke/waza）の統合
+    const categoryMap: Record<string, string[]> = categories
+      ? { ...categories }
+      : {};
+
+    // 旧形式のフォールバック: categoriesが未指定なら旧形式から構築
+    if (!categories) {
+      const legacy: [string, string[] | undefined][] = [
+        ["取り", tori],
+        ["受け", uke],
+        ["技", waza],
+      ];
+      for (const [key, value] of legacy) {
+        if (value && value.length > 0) categoryMap[key] = value;
+      }
+    }
+
+    const allTagIds = Object.values(categoryMap).flat();
     const uniqueIds = new Set(allTagIds);
 
     if (uniqueIds.size !== allTagIds.length) {
@@ -207,28 +238,19 @@ app.patch("/order", zValidator("json", updateTagOrderSchema), async (c) => {
       return c.json(errorResponse, 400);
     }
 
-    const categoryConfigs: {
-      ids: string[];
-      category: "取り" | "受け" | "技";
-    }[] = [
-      { ids: tori, category: "取り" },
-      { ids: uke, category: "受け" },
-      { ids: waza, category: "技" },
-    ];
-
     const orderUpdates: {
       id: string;
-      category: "取り" | "受け" | "技";
+      category: string;
       sort_order: number;
     }[] = [];
 
     let sequenceCounter = 1;
 
-    for (const { ids, category } of categoryConfigs) {
+    for (const [categoryName, ids] of Object.entries(categoryMap)) {
       for (const id of ids) {
         orderUpdates.push({
           id,
-          category,
+          category: categoryName,
           sort_order: sequenceCounter,
         });
         sequenceCounter += 1;

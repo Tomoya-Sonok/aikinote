@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "./index";
 import {
   checkUsernameProcedure,
+  createCategoryProcedure,
   createCheckoutSessionProcedure,
   createDojoStyleProcedure,
   createPageProcedure,
@@ -10,9 +11,11 @@ import {
   createTagProcedure,
   createTitleTemplateProcedure,
   createUserProcedure,
+  deleteCategoryProcedure,
   deletePageProcedure,
   deleteTagProcedure,
   deleteTitleTemplateProcedure,
+  getCategoriesProcedure,
   getDailyLimitsProcedure,
   getNotificationsProcedure,
   getPageProcedure,
@@ -47,6 +50,7 @@ import {
   toggleFavoriteProcedure,
   togglePageVisibilityProcedure,
   toggleReplyFavoriteProcedure,
+  updateCategoryProcedure,
   updatePageProcedure,
   updatePublicityDojosProcedure,
   updateSocialPostProcedure,
@@ -76,6 +80,12 @@ export const appRouter = createTRPCRouter({
     getMonth: getTrainingDatesMonthProcedure,
     upsertAttendance: upsertTrainingDateAttendanceProcedure,
     removeAttendance: removeTrainingDateAttendanceProcedure,
+  }),
+  categories: createTRPCRouter({
+    getList: getCategoriesProcedure,
+    create: createCategoryProcedure,
+    update: updateCategoryProcedure,
+    remove: deleteCategoryProcedure,
   }),
   tags: createTRPCRouter({
     getList: getTagsProcedure,

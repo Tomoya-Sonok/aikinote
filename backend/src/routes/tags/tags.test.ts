@@ -118,6 +118,36 @@ describe("タグ一覧取得API", () => {
   });
 });
 
+const mockDefaultCategories = [
+  {
+    id: "cat-1",
+    user_id: "test-user-id",
+    name: "取り",
+    slug: "tori",
+    sort_order: 1,
+    is_default: true,
+    created_at: "2024-01-01",
+  },
+  {
+    id: "cat-2",
+    user_id: "test-user-id",
+    name: "受け",
+    slug: "uke",
+    sort_order: 2,
+    is_default: true,
+    created_at: "2024-01-01",
+  },
+  {
+    id: "cat-3",
+    user_id: "test-user-id",
+    name: "技",
+    slug: "waza",
+    sort_order: 3,
+    is_default: true,
+    created_at: "2024-01-01",
+  },
+];
+
 describe("タグ作成API", () => {
   let app: Hono;
 
@@ -125,6 +155,9 @@ describe("タグ作成API", () => {
     app = new Hono();
     app.route("/", tagsRoute);
     vi.clearAllMocks();
+    vi.spyOn(supabaseModule, "getUserCategories").mockResolvedValue(
+      mockDefaultCategories,
+    );
   });
 
   it("有効なリクエストボディでタグが作成され201を返す", async () => {

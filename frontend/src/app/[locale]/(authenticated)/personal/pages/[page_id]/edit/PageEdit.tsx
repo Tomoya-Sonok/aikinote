@@ -1,5 +1,6 @@
 "use client";
 
+import { PlusCircle } from "@phosphor-icons/react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -11,6 +12,7 @@ import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHea
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
+import { MAX_CATEGORIES } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
 import { updatePage } from "@/lib/api/client";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
@@ -48,6 +50,25 @@ export function PageEdit() {
   // タグ管理
   const tagManagement = useTagManagement();
 
+  // カテゴリ追加
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [newCategoryInput, setNewCategoryInput] = useState("");
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const canAddCategory = tagManagement.categories.length < MAX_CATEGORIES;
+
+  const handleAddCategory = async () => {
+    const trimmed = newCategoryInput.trim();
+    if (!trimmed) return;
+    setIsCreatingCategory(true);
+    try {
+      await tagManagement.handleCreateCategory(trimmed);
+      setNewCategoryInput("");
+      setShowAddCategory(false);
+    } finally {
+      setIsCreatingCategory(false);
+    }
+  };
+
   // 添付管理
   const attachmentMgmt = useAttachmentManagement("page");
 
@@ -58,19 +79,13 @@ export function PageEdit() {
       setContent(pageData.content);
       attachmentMgmt.setAttachments(initialAttachments);
 
-      // タグの選択状態を設定
-      const tori = pageData.tags.filter((tag) =>
-        availableTags.find((t) => t.name === tag && t.category === "取り"),
-      );
-      const uke = pageData.tags.filter((tag) =>
-        availableTags.find((t) => t.name === tag && t.category === "受け"),
-      );
-      const waza = pageData.tags.filter((tag) =>
-        availableTags.find((t) => t.name === tag && t.category === "技"),
-      );
-      tagManagement.setSelectedTori(tori);
-      tagManagement.setSelectedUke(uke);
-      tagManagement.setSelectedWaza(waza);
+      // タグの選択状態をカテゴリ別に設定
+      for (const cat of tagManagement.categories) {
+        const selected = pageData.tags.filter((tag) =>
+          availableTags.find((t) => t.name === tag && t.category === cat.name),
+        );
+        tagManagement.setSelectedByCategory(cat.name, selected);
+      }
       setInitialized(true);
     }
   }, [
@@ -130,12 +145,17 @@ export function PageEdit() {
 
     setIsSubmitting(true);
     try {
+      // 動的カテゴリからtagsペイロードを構築
+      const tags: Record<string, string[]> = {};
+      for (const cat of tagManagement.categories) {
+        const selected = tagManagement.selectedByCategory[cat.name] ?? [];
+        if (selected.length > 0) tags[cat.name] = selected;
+      }
+
       const response = await updatePage({
         id: pageId,
         title: title.trim(),
-        tori: tagManagement.selectedTori,
-        uke: tagManagement.selectedUke,
-        waza: tagManagement.selectedWaza,
+        tags,
         content: content.trim(),
         user_id: user.id,
         is_public: pageData.is_public,
@@ -166,9 +186,8 @@ export function PageEdit() {
     title,
     content,
     attachmentMgmt,
-    tagManagement.selectedTori,
-    tagManagement.selectedUke,
-    tagManagement.selectedWaza,
+    tagManagement.categories,
+    tagManagement.selectedByCategory,
     showToast,
     t,
     router,
@@ -264,27 +283,74 @@ export function PageEdit() {
           />
         </div>
 
-        <TagSectionWithNewInput
-          category="tori"
-          titleKey="pageModal.tori"
-          tags={tagManagement.toriTags}
-          selectedTags={tagManagement.selectedTori}
-          tagManagement={tagManagement}
-        />
-        <TagSectionWithNewInput
-          category="uke"
-          titleKey="pageModal.uke"
-          tags={tagManagement.ukeTags}
-          selectedTags={tagManagement.selectedUke}
-          tagManagement={tagManagement}
-        />
-        <TagSectionWithNewInput
-          category="waza"
-          titleKey="pageModal.waza"
-          tags={tagManagement.wazaTags}
-          selectedTags={tagManagement.selectedWaza}
-          tagManagement={tagManagement}
-        />
+        {tagManagement.categories.map((cat) => (
+          <TagSectionWithNewInput
+            key={cat.slug}
+            category={cat.name}
+            title={cat.is_default ? t(`pageModal.${cat.slug}`) : cat.name}
+            tags={tagManagement.tagsByCategory[cat.name] ?? []}
+            selectedTags={tagManagement.selectedByCategory[cat.name] ?? []}
+            tagManagement={tagManagement}
+          />
+        ))}
+
+        {/* カテゴリ追加 */}
+        <div className={styles.addCategoryWrapper}>
+          <div className={styles.addCategoryArea}>
+            {showAddCategory ? (
+              <div className={styles.addCategoryForm}>
+                <input
+                  type="text"
+                  className={styles.addCategoryInput}
+                  placeholder={t("tagManagement.categoryNamePlaceholder")}
+                  value={newCategoryInput}
+                  onChange={(e) => setNewCategoryInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setShowAddCategory(false);
+                      setNewCategoryInput("");
+                    }
+                  }}
+                  maxLength={10}
+                  disabled={isCreatingCategory}
+                />
+                <Button
+                  variant="cancel"
+                  size="small"
+                  onClick={() => {
+                    setShowAddCategory(false);
+                    setNewCategoryInput("");
+                  }}
+                >
+                  {t("tagFilterModal.cancel")}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  onClick={handleAddCategory}
+                  disabled={isCreatingCategory || !newCategoryInput.trim()}
+                >
+                  {t("pageModal.add")}
+                </Button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.addCategoryButton}
+                onClick={() => setShowAddCategory(true)}
+                disabled={!canAddCategory}
+              >
+                <PlusCircle size={16} weight="light" />
+                {t("tagManagement.addCategory")}
+              </button>
+            )}
+          </div>
+          <div className={styles.skeletonTags}>
+            <span className={styles.skeletonTag} style={{ width: 48 }} />
+            <span className={styles.skeletonTag} style={{ width: 64 }} />
+            <span className={styles.skeletonTag} style={{ width: 40 }} />
+          </div>
+        </div>
 
         <div className={styles.section}>
           <TextArea

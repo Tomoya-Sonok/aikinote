@@ -123,7 +123,7 @@ const testMessages = {
     add: "＋追加",
   },
   tagManagement: {
-    title: "タグ管理",
+    title: "タグ・カテゴリ管理",
     loading: "読み込み中...",
     categories: {
       tori: "取り",
@@ -133,17 +133,34 @@ const testMessages = {
     editAria: "{category}のタグを編集",
     editingHint: "×が表示されたタグを押すと削除できます",
     reorderHint:
-      "タグを動かして並び替えることができます。×を押すとタグを削除できます。",
+      "タグを長押しで並び替え、×ボタンで削除できます。\n新しいタグの追加やカテゴリの管理も可能です",
     empty: "登録済みのタグはありません",
     deleteSuccess: "タグを削除しました",
     deleteFailed: "タグの削除に失敗しました",
-    fetchFailed: "タグの取得に失敗しました",
+    fetchFailed: "データの取得に失敗しました",
     authRequired: "ログイン状態を確認してください",
-    saveOrder: "並び順を保存",
-    undo: "元に戻す",
+    saveOrder: "保存",
+    undo: "戻す",
     orderSaving: "保存中...",
     orderSaveSuccess: "タグの並び順を保存しました",
     orderSaveFailed: "タグの並び順の保存に失敗しました",
+    addCategory: "カテゴリ追加",
+    categoryNamePlaceholder: "カテゴリ名を入力",
+    categoryNameTooLong: "カテゴリ名は10文字以内で入力してください",
+    categoryLimit:
+      "管理・利用できるカテゴリは{max}つまで（残り{remaining}つは追加可能）",
+    categoryLimitReached:
+      "利用できるカテゴリ数は{max}つまでです\nさらに追加する場合、既存のカテゴリを削除してください",
+    categoryCreateSuccess: "カテゴリを追加しました",
+    categoryCreateFailed: "カテゴリの追加に失敗しました",
+    categoryUpdateSuccess: "カテゴリ名を変更しました",
+    categoryUpdateFailed: "カテゴリ名の変更に失敗しました",
+    categoryDeleteConfirmTitle: "カテゴリの削除",
+    categoryDeleteConfirm:
+      "カテゴリ「{name}」を削除しますか？所属する全てのタグも削除されます。",
+    categoryDeleteConfirmButton: "削除する",
+    categoryDeleteSuccess: "カテゴリを削除しました",
+    categoryDeleteFailed: "カテゴリの削除に失敗しました",
   },
   tagFilterModal: {
     title: "タグで絞り込み",

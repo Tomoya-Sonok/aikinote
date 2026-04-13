@@ -68,6 +68,7 @@ const CACHE_TTL_MS = {
   notifications: 15_000,
   titleTemplates: 60_000,
   dailyLimits: 15_000,
+  categoriesList: 60_000,
 } as const;
 
 const isBrowser = () => typeof window !== "undefined";
@@ -191,9 +192,10 @@ export const deleteTitleTemplate = async (
 // ページ作成の型定義（フロントエンド用）
 export interface CreatePagePayload {
   title: string;
-  tori: string[];
-  uke: string[];
-  waza: string[];
+  tags?: Record<string, string[]>;
+  tori?: string[];
+  uke?: string[];
+  waza?: string[];
   content: string;
   user_id: string;
   is_public?: boolean;
@@ -339,7 +341,7 @@ export const createAttachment = async (payload: Record<string, unknown>) => {
 // タグ関連のAPI関数
 export interface CreateTagPayload {
   name: string;
-  category: "取り" | "受け" | "技";
+  category: string;
   user_id: string;
 }
 
@@ -390,9 +392,10 @@ export const deleteTag = async (tagId: string, userId: string) => {
 
 export interface UpdateTagOrderPayload {
   user_id: string;
-  tori: string[];
-  uke: string[];
-  waza: string[];
+  categories?: Record<string, string[]>;
+  tori?: string[];
+  uke?: string[];
+  waza?: string[];
 }
 
 export const updateTagOrder = async (payload: UpdateTagOrderPayload) => {
@@ -409,9 +412,10 @@ export const updateTagOrder = async (payload: UpdateTagOrderPayload) => {
 export interface UpdatePagePayload {
   id: string;
   title: string;
-  tori: string[];
-  uke: string[];
-  waza: string[];
+  tags?: Record<string, string[]>;
+  tori?: string[];
+  uke?: string[];
+  waza?: string[];
   content: string;
   user_id: string;
   is_public?: boolean;
@@ -1182,5 +1186,88 @@ export const getUnreadNotificationCount = async (): Promise<number> => {
     return 0;
   } catch {
     return 0;
+  }
+};
+
+// ===================================
+// カテゴリ関連のAPI関数
+// ===================================
+
+export interface CreateCategoryPayload {
+  name: string;
+  user_id: string;
+}
+
+export interface UpdateCategoryPayload {
+  name: string;
+}
+
+// カテゴリ一覧取得
+export const getCategories = async (userId: string) => {
+  try {
+    const input = { userId };
+
+    return await cachedQuery(
+      "categories:getList",
+      input,
+      CACHE_TTL_MS.categoriesList,
+      async () => trpcClient.categories.getList.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "カテゴリ一覧の取得に失敗しました"));
+  }
+};
+
+// カテゴリ作成
+export const createCategory = async (payload: CreateCategoryPayload) => {
+  try {
+    const response = await trpcClient.categories.create.mutate(payload);
+    invalidateQueryCacheByPrefixes(["categories:getList"]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "カテゴリ作成に失敗しました"));
+  }
+};
+
+// カテゴリ名更新
+export const updateCategory = async (
+  categoryId: string,
+  userId: string,
+  payload: UpdateCategoryPayload,
+) => {
+  try {
+    const response = await trpcClient.categories.update.mutate({
+      categoryId,
+      userId,
+      ...payload,
+    });
+    invalidateQueryCacheByPrefixes([
+      "categories:getList",
+      "tags:getList",
+      "pages:getList",
+      "pages:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "カテゴリ更新に失敗しました"));
+  }
+};
+
+// カテゴリ削除
+export const deleteCategory = async (categoryId: string, userId: string) => {
+  try {
+    const response = await trpcClient.categories.remove.mutate({
+      categoryId,
+      userId,
+    });
+    invalidateQueryCacheByPrefixes([
+      "categories:getList",
+      "tags:getList",
+      "pages:getList",
+      "pages:getById",
+    ]);
+    return response;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "カテゴリ削除に失敗しました"));
   }
 };

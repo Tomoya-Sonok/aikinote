@@ -17,6 +17,7 @@ import {
   getPagesSchema,
   type PagesListResponse,
   type PageWithTagsResponse,
+  resolveTagNames,
   togglePageVisibilitySchema,
   updatePageSchema,
 } from "../../lib/validation.js";
@@ -37,11 +38,7 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
         is_public: input.is_public ?? false,
         created_at: input.created_at,
       },
-      {
-        tori: input.tori,
-        uke: input.uke,
-        waza: input.waza,
-      },
+      resolveTagNames(input),
     );
 
     // is_public=true の場合、SocialPost を連動作成
@@ -256,11 +253,7 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
         user_id: input.user_id,
         is_public: newIsPublic,
       },
-      {
-        tori: input.tori,
-        uke: input.uke,
-        waza: input.waza,
-      },
+      resolveTagNames(input),
     );
 
     // is_public が明示指定されている場合のみ SocialPost を同期
