@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/shared/Skeleton";
-import { createCheckoutSession, createPortalSession } from "@/lib/api/client";
+import { createPortalSession } from "@/lib/api/client";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useRouter } from "@/lib/i18n/routing";
 import styles from "./page.module.css";
@@ -16,11 +16,6 @@ declare global {
     showNativeCustomerCenter?: () => void;
   }
 }
-
-const PRICE_IDS = {
-  monthly: process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY ?? "",
-  yearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY ?? "",
-};
 
 const FEATURE_MATRIX = [
   {
@@ -64,7 +59,6 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
     subscription,
     refetch,
   } = useSubscription();
-  const [purchasing, setPurchasing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isNativeApp, setIsNativeApp] = useState(false);
@@ -80,34 +74,11 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
   }, []);
 
   const handlePurchase = useCallback(
-    async (planKey: "monthly" | "yearly") => {
-      const priceId = PRICE_IDS[planKey];
-      if (!priceId) {
-        setError("Price ID が設定されていません");
-        return;
-      }
-
-      setPurchasing(planKey);
-      setError(null);
-
-      try {
-        const url = await createCheckoutSession(priceId, locale);
-        if (url) {
-          window.location.replace(url);
-        } else {
-          setError("チェックアウトの作成に失敗しました");
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "チェックアウトの作成に失敗しました",
-        );
-      } finally {
-        setPurchasing(null);
-      }
+    (planKey: "monthly" | "yearly") => {
+      const pkgId = planKey === "monthly" ? "$rc_monthly" : "$rc_annual";
+      router.push(`/settings/subscription/checkout?pkg=${pkgId}`);
     },
-    [locale],
+    [router],
   );
 
   const handleNativeUpgrade = useCallback(async () => {
@@ -264,9 +235,8 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
                   type="button"
                   className={styles.ctaButton}
                   onClick={() => handlePurchase(selectedPeriod)}
-                  disabled={purchasing !== null}
                 >
-                  {purchasing ? t("processing") : t("startPremium")}
+                  {t("startPremium")}
                 </button>
               )}
 
