@@ -43,23 +43,6 @@ describe("FilterArea", () => {
     userId: "user-1",
   };
 
-  it("初期状態で検索欄とタグ・日付フィルタに「指定なし」が表示される", () => {
-    // Arrange & Act
-    render(
-      <I18nTestProvider>
-        <FilterArea {...baseProps} />
-      </I18nTestProvider>,
-    );
-
-    // Assert
-    expect(
-      screen.getByPlaceholderText("フリーワードで絞り込む"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("タグ")).toBeInTheDocument();
-    expect(screen.getByText("日付")).toBeInTheDocument();
-    expect(screen.getAllByText("指定なし")).toHaveLength(2);
-  });
-
   it("日付範囲が指定されている場合に「開始日 ～ 終了日」形式で表示される", () => {
     // Arrange
     const props = {

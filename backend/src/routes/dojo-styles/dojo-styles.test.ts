@@ -177,4 +177,55 @@ describe("POST /api/dojo-styles", () => {
     // Assert
     expect(res.status).toBe(400);
   });
+
+  test("既存レコード検索でDBエラーが発生した場合500を返す", async () => {
+    // Arrange
+    const app = createTestApp();
+    const token = await createTestToken();
+    mockMaybeSingle.mockResolvedValue({
+      data: null,
+      error: { message: "DB接続エラー" },
+    });
+
+    // Act
+    const res = await app.request("/api/dojo-styles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        dojo_name: "テスト道場",
+      }),
+    });
+
+    // Assert
+    expect(res.status).toBe(500);
+  });
+
+  test("新規作成でDBエラーが発生した場合500を返す", async () => {
+    // Arrange
+    const app = createTestApp();
+    const token = await createTestToken();
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+    mockInsert.mockResolvedValue({
+      data: null,
+      error: { message: "INSERT失敗" },
+    });
+
+    // Act
+    const res = await app.request("/api/dojo-styles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        dojo_name: "新規道場",
+      }),
+    });
+
+    // Assert
+    expect(res.status).toBe(500);
+  });
 });
