@@ -29,51 +29,20 @@ describe("ヘルスチェックAPI", () => {
     });
   });
 
-  it("GET /health にリクエストすると200とstatus:okを返す", async () => {
+  it("GET /health にリクエストすると200・status:ok・ISO 8601形式のtimestampを返す", async () => {
     // Arrange
-    const request = new Request("http://localhost/health", {
-      method: "GET",
-    });
+    const request = new Request("http://localhost/health", { method: "GET" });
 
     // Act
     const response = await app.fetch(request);
-    const responseBody = await response.json();
+    const body = await response.json();
 
     // Assert
     expect(response.status).toBe(200);
-    expect(responseBody.status).toBe("ok");
-    expect(responseBody.message).toBe("AikiNote API Server is running!");
-    expect(responseBody.timestamp).toBeDefined();
-  });
-
-  it("GET /health のtimestampがISO 8601形式で返される", async () => {
-    // Arrange
-    const request = new Request("http://localhost/health", {
-      method: "GET",
-    });
-
-    // Act
-    const response = await app.fetch(request);
-    const responseBody = await response.json();
-
-    // Assert
-    expect(() => new Date(responseBody.timestamp)).not.toThrow();
-    expect(responseBody.timestamp).toMatch(
+    expect(body.status).toBe("ok");
+    expect(body.message).toBe("AikiNote API Server is running!");
+    expect(body.timestamp).toMatch(
       /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
     );
-  });
-
-  it("GET /health のレスポンスがJSON形式でパース可能", async () => {
-    // Arrange
-    const request = new Request("http://localhost/health", {
-      method: "GET",
-    });
-
-    // Act
-    const response = await app.fetch(request);
-
-    // Assert
-    expect(response.status).toBe(200);
-    expect(() => response.json()).not.toThrow();
   });
 });

@@ -124,4 +124,54 @@ describe("稽古参加日API", () => {
     // Assert
     expect(response.status).toBe(400);
   });
+
+  it("DELETEでtraining_date未指定の場合に400を返す", async () => {
+    // Arrange
+    const request = new Request("http://localhost/?user_id=user-1", {
+      method: "DELETE",
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(400);
+  });
+
+  it("GETで稽古日取得中にDBエラーが発生した場合500を返す", async () => {
+    // Arrange
+    vi.spyOn(supabaseModule, "getTrainingDatesByMonth").mockRejectedValue(
+      new Error("DB接続エラー"),
+    );
+
+    // Act
+    const response = await app.fetch(
+      new Request("http://localhost/?user_id=user-1&year=2026&month=3"),
+    );
+
+    // Assert
+    expect(response.status).toBe(500);
+  });
+
+  it("PUTでupsert中にDBエラーが発生した場合500を返す", async () => {
+    // Arrange
+    vi.spyOn(supabaseModule, "upsertTrainingDateAttendance").mockRejectedValue(
+      new Error("DB接続エラー"),
+    );
+
+    // Act
+    const response = await app.fetch(
+      new Request("http://localhost/", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: "user-1",
+          training_date: "2026-03-05",
+        }),
+      }),
+    );
+
+    // Assert
+    expect(response.status).toBe(500);
+  });
 });
