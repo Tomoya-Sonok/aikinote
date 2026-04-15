@@ -17,10 +17,47 @@
   margin-bottom: 4px;
 }
 
-.username {
+.authorLink {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.authorButton {
+  display: flex;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.authorNameLink {
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--black);
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.authorNameLink:hover {
+  text-decoration: underline;
+}
+
+.authorNameButton {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.3;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
+.authorNameButton:hover {
+  text-decoration: underline;
 }
 
 .timestamp {
