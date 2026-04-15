@@ -2,7 +2,7 @@
 
 import { DotsThreeVerticalIcon, HeartIcon } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { type FC, memo, useCallback, useEffect, useRef, useState } from "react";
 
 const ReportModal = dynamic(
@@ -64,6 +64,11 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
     onUnauthenticatedAction,
   }) {
     const t = useTranslations("socialPosts");
+    const locale = useLocale();
+    const profileHref = `/${locale}/social/profile/${reply.user.id}`;
+    const handleUnauthenticatedProfileClick = useCallback(() => {
+      onUnauthenticatedAction?.();
+    }, [onUnauthenticatedAction]);
     const isOwner = reply.user_id === currentUserId;
     const [showMenu, setShowMenu] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -145,10 +150,34 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
 
     return (
       <div className={styles.reply}>
-        <ProfileImage src={reply.user.profile_image_url} size="small" />
+        {isAuthenticated ? (
+          <a href={profileHref} className={styles.authorLink}>
+            <ProfileImage src={reply.user.profile_image_url} size="small" />
+          </a>
+        ) : (
+          <button
+            type="button"
+            className={styles.authorButton}
+            onClick={handleUnauthenticatedProfileClick}
+          >
+            <ProfileImage src={reply.user.profile_image_url} size="small" />
+          </button>
+        )}
         <div className={styles.replyContent}>
           <div className={styles.replyHeader}>
-            <span className={styles.username}>{reply.user.username}</span>
+            {isAuthenticated ? (
+              <a href={profileHref} className={styles.authorNameLink}>
+                {reply.user.username}
+              </a>
+            ) : (
+              <button
+                type="button"
+                className={styles.authorNameButton}
+                onClick={handleUnauthenticatedProfileClick}
+              >
+                {reply.user.username}
+              </button>
+            )}
             <span className={styles.timestamp}>
               {formatToRelativeTime(reply.created_at)}
             </span>
