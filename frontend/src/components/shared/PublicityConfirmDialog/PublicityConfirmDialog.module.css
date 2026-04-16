@@ -1,0 +1,230 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--overlay-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: var(--z-confirm);
+}
+
+.dialog {
+  background-color: var(--white);
+  width: 100%;
+  max-width: 340px;
+  border-radius: 8px;
+  padding: 20px;
+  border: 0.5px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(44, 44, 44, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  text-align: center;
+  color: var(--black);
+  letter-spacing: 0.06em;
+}
+
+.description {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* アコーディオン */
+.accordionSection {
+  border-top: 0.5px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.accordionToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 500;
+}
+
+.accordionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  margin-top: 8px;
+  background-color: var(--bg-base);
+  border-radius: 6px;
+}
+
+/* 公開範囲ラジオボタン */
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radioOption {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--white);
+  transition: border-color 0.15s;
+}
+
+.radioLabel:has(input:checked) {
+  border-color: var(--primary-color);
+}
+
+.radioInput {
+  accent-color: var(--primary-color);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.radioContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radioTitle {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--black);
+}
+
+.radioDescription {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+/* closed 時の道場選択 */
+.closedDojoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dojoAddRow {
+  position: relative;
+}
+
+.noDojoWarning {
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+  margin: 0;
+}
+
+.selectedDojoList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dojoChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background-color: var(--white);
+  font-family: var(--font-ui);
+}
+
+.dojoChipName {
+  font-size: var(--font-size-xs);
+  color: var(--black);
+}
+
+.dojoChipRemove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+.defaultBadge {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+}
+
+/* チェックボックス */
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox {
+  accent-color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.checkboxLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  cursor: pointer;
+}
+
+/* アクションボタン */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  border-top: 0.5px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.actionButton {
+  min-width: auto;
+  width: 100%;
+}
+
+@media (min-width: 431px) {
+  .dialog {
+    padding: 24px;
+    max-width: 380px;
+  }
+
+  .actionButton {
+    width: auto;
+    min-width: 120px;
+  }
+}

@@ -17,6 +17,7 @@ import { FloatingActionButton } from "@/components/shared/FloatingActionButton/F
 import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
+import { PublicityConfirmDialog } from "@/components/shared/PublicityConfirmDialog/PublicityConfirmDialog";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
@@ -26,6 +27,7 @@ import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
 import { Link, useRouter } from "@/lib/i18n/routing";
+import { usePublicityConfirmStore } from "@/stores/publicityConfirmStore";
 import styles from "./page.module.css";
 
 const VALID_TABS: SocialTab[] = ["all", "training", "favorites"];
@@ -57,6 +59,8 @@ export function SocialPostsFeed() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalKey, setUpgradeModalKey] =
     useState<string>("premiumModalBrowse");
+  const { hasConfirmedPublicity } = usePublicityConfirmStore();
+  const [showPublicityDialog, setShowPublicityDialog] = useState(false);
 
   const updateTab = useCallback((tab: SocialTab) => {
     setActiveTab(tab);
@@ -200,15 +204,18 @@ export function SocialPostsFeed() {
       </div>
 
       <FloatingActionButton
-        href={canPost ? `/${locale}/social/posts/new` : undefined}
-        onClick={
-          !canPost
-            ? () => {
-                setUpgradeModalKey("premiumModalDailyLimit");
-                setShowUpgradeModal(true);
-              }
-            : undefined
-        }
+        onClick={() => {
+          if (!canPost) {
+            setUpgradeModalKey("premiumModalDailyLimit");
+            setShowUpgradeModal(true);
+            return;
+          }
+          if (!hasConfirmedPublicity) {
+            setShowPublicityDialog(true);
+            return;
+          }
+          router.push("/social/posts/new");
+        }}
         label={t("createPost")}
       />
 
@@ -219,6 +226,15 @@ export function SocialPostsFeed() {
           setUpgradeModalKey("premiumModalBrowse");
         }}
         translationKey={upgradeModalKey}
+      />
+
+      <PublicityConfirmDialog
+        isOpen={showPublicityDialog}
+        onCancel={() => setShowPublicityDialog(false)}
+        onConfirm={() => {
+          setShowPublicityDialog(false);
+          router.push("/social/posts/new");
+        }}
       />
     </SocialLayout>
   );
