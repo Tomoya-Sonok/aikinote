@@ -42,6 +42,24 @@ function createMiddlewareSupabase(
 }
 
 export async function proxy(request: NextRequest) {
+  // --- LINE内蔵ブラウザ対策 ---
+  // LINE WebView から openExternalBrowser=1 なしでアクセスされた場合、
+  // パラメータを付与してリダイレクトし、外部ブラウザで開かせる。
+  // Google / Apple OAuth が WebView でブロックされる問題の回避策。
+  // 注意: openExternalBrowser=1 は LINE 独自パラメータ。X / Instagram には効かない。
+  const userAgent = request.headers.get("user-agent") || "";
+  const isLineWebView = /\bLine\//i.test(userAgent);
+
+  if (
+    isLineWebView &&
+    !request.nextUrl.searchParams.has("openExternalBrowser")
+  ) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.searchParams.set("openExternalBrowser", "1");
+    return NextResponse.redirect(redirectUrl, 302);
+  }
+  // --- LINE内蔵ブラウザ対策 ここまで ---
+
   const shouldSkipAuthSync = process.env.SKIP_MIDDLEWARE === "true";
 
   if (request.nextUrl.pathname.startsWith("/auth/")) {

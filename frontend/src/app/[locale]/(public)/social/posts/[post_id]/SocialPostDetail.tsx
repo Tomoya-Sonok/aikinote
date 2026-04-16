@@ -53,6 +53,7 @@ import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
 import { isWithinDeleteDisplayWindow } from "@/lib/utils/notificationUtils";
+import { buildShareUrl } from "@/lib/utils/share";
 import styles from "./SocialPostDetail.module.css";
 
 interface SocialReplyData {
@@ -422,7 +423,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleShare = useCallback(async () => {
     if (!detail) return;
-    const url = `${window.location.origin}/${locale}/social/posts/${postId}`;
+    const url = buildShareUrl(`/${locale}/social/posts/${postId}`);
     const shareData = {
       title: "AikiNote",
       text: detail.post.content.slice(0, 100),

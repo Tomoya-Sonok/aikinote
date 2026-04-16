@@ -10,6 +10,7 @@ import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
+import { buildShareUrl } from "@/lib/utils/share";
 import { SocialMediaGrid } from "./SocialMediaGrid";
 import styles from "./SocialPostCard.module.css";
 
@@ -95,7 +96,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
       async (e: React.MouseEvent) => {
         e.stopPropagation();
         track("social_post_share");
-        const url = `${window.location.origin}/${locale}/social/posts/${post.id}`;
+        const url = buildShareUrl(`/${locale}/social/posts/${post.id}`);
         const shareData = {
           title: "AikiNote",
           text: post.content.slice(0, 100),
