@@ -553,7 +553,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         <div className={styles.authorHeader}>
           {isAuthenticated ? (
             <a
-              href={`/${locale}/social/profile/${detail.author.id}`}
+              href={`/${locale}/social/profile/${detail.author.username}`}
               className={styles.authorLink}
             >
               <ProfileImage
@@ -576,7 +576,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           <div className={styles.authorInfo}>
             {isAuthenticated ? (
               <a
-                href={`/${locale}/social/profile/${detail.author.id}`}
+                href={`/${locale}/social/profile/${detail.author.username}`}
                 className={styles.authorNameLink}
               >
                 {detail.author.username}

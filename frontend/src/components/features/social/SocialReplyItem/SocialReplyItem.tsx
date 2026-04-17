@@ -65,7 +65,7 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
   }) {
     const t = useTranslations("socialPosts");
     const locale = useLocale();
-    const profileHref = `/${locale}/social/profile/${reply.user.id}`;
+    const profileHref = `/${locale}/social/profile/${reply.user.username}`;
     const handleUnauthenticatedProfileClick = useCallback(() => {
       onUnauthenticatedAction?.();
     }, [onUnauthenticatedAction]);

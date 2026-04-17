@@ -48,7 +48,7 @@ export const SocialFeedHeader: FC<SocialFeedHeaderProps> = ({
   return (
     <SocialHeader>
       <Link
-        href={`/social/profile/${user?.id ?? ""}`}
+        href={`/social/profile/${user?.username ?? ""}`}
         className={styles.profileLink}
         aria-label={t("profile")}
       >

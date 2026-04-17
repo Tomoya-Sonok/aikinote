@@ -2628,7 +2628,7 @@ export const getUsersPublicityDojosBatch = async (
 
 export const getSocialProfile = async (
   supabaseClient: SupabaseClient,
-  targetUserId: string,
+  targetUsername: string,
   viewerId: string,
   viewerDojoStyleId: string | null,
 ): Promise<{
@@ -2654,12 +2654,14 @@ export const getSocialProfile = async (
     .select(
       "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, dojo_style_id, publicity_setting, full_name",
     )
-    .eq("id", targetUserId)
+    .eq("username", targetUsername)
     .single();
 
   if (userError || !user) {
     return null;
   }
+
+  const targetUserId = user.id;
 
   // 他ユーザーの非公開プロフィールは制限付きレスポンスを返す
   const publicity = user.publicity_setting;

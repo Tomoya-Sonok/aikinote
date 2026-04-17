@@ -63,7 +63,7 @@ function renderReply(
 }
 
 describe("SocialReplyItem", () => {
-  it("認証済みユーザーには返信者ユーザー名が /social/profile/[user_id] へのリンクとして描画される", () => {
+  it("認証済みユーザーには返信者ユーザー名が /social/profile/[username] へのリンクとして描画される", () => {
     // Arrange & Act
     renderReply();
 
@@ -71,7 +71,7 @@ describe("SocialReplyItem", () => {
     const usernameLink = screen.getByRole("link", { name: replierUsername });
     expect(usernameLink).toHaveAttribute(
       "href",
-      `/ja/social/profile/${replierId}`,
+      `/ja/social/profile/${replierUsername}`,
     );
   });
 
@@ -83,7 +83,8 @@ describe("SocialReplyItem", () => {
     const profileLinks = screen
       .getAllByRole("link")
       .filter(
-        (el) => el.getAttribute("href") === `/ja/social/profile/${replierId}`,
+        (el) =>
+          el.getAttribute("href") === `/ja/social/profile/${replierUsername}`,
       );
     expect(profileLinks).toHaveLength(2);
   });

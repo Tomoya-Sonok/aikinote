@@ -135,7 +135,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
       >
         <div className={styles.authorHeader}>
           <a
-            href={`/${locale}/social/profile/${post.author.id}`}
+            href={`/${locale}/social/profile/${post.author.username}`}
             className={styles.authorLink}
             onClick={(e) => e.stopPropagation()}
           >
@@ -143,7 +143,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
           </a>
           <div className={styles.authorInfo}>
             <a
-              href={`/${locale}/social/profile/${post.author.id}`}
+              href={`/${locale}/social/profile/${post.author.username}`}
               className={styles.authorNameLink}
               onClick={(e) => e.stopPropagation()}
             >

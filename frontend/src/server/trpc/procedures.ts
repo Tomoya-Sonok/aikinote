@@ -1125,12 +1125,31 @@ export const getTrendingHashtagsProcedure = authenticatedProcedure
 export const getSocialProfileProcedure = authenticatedProcedure
   .input(
     z.object({
-      userId: z.string().min(1),
+      username: z
+        .string()
+        .min(1)
+        .max(20)
+        .regex(/^[a-zA-Z0-9_-]+$/),
     }),
   )
   .query(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<SocialProfileData>>(
-      `/api/social/profile/${input.userId}`,
+      `/api/social/profile/${input.username}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
+    );
+  });
+
+export const getUsernameByUserIdProcedure = authenticatedProcedure
+  .input(
+    z.object({
+      userId: z.string().uuid(),
+    }),
+  )
+  .query(async ({ input, ctx }) => {
+    return callHonoApi<ApiResponse<{ username: string }>>(
+      `/api/users/${input.userId}/username`,
       {
         headers: { Authorization: `Bearer ${ctx.authToken}` },
       },

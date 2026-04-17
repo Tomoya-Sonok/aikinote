@@ -572,6 +572,43 @@ app.get("/:userId", authMiddleware, async (c) => {
   }
 });
 
+// user_id から username を解決するAPI（旧URLリダイレクト用）
+app.get("/:userId/username", authMiddleware, async (c) => {
+  try {
+    const targetUserId = c.req.param("userId");
+    const supabase = c.get("supabase")!;
+
+    const { data: userData, error } = await supabase
+      .from("User")
+      .select("username")
+      .eq("id", targetUserId)
+      .single();
+
+    if (error || !userData) {
+      return c.json(
+        {
+          success: false,
+          error: "ユーザーが見つかりません",
+        },
+        404,
+      );
+    }
+
+    return c.json({
+      success: true,
+      data: { username: userData.username },
+    });
+  } catch (_error) {
+    return c.json(
+      {
+        success: false,
+        error: "サーバーエラーが発生しました",
+      },
+      500,
+    );
+  }
+});
+
 // ユーザープロフィール更新API
 app.put(
   "/:userId",

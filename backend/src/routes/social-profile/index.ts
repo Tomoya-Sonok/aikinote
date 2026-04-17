@@ -17,13 +17,13 @@ const app = new Hono<{
   Variables: ProfileVariables;
 }>();
 
-// GET /:userId — ソーシャルプロフィール取得
-app.get("/:userId", authMiddleware, async (c) => {
+// GET /:username — ソーシャルプロフィール取得
+app.get("/:username", authMiddleware, async (c) => {
   const userId = c.get("userId");
   const supabase = c.get("supabase")!;
 
   try {
-    const targetUserId = c.req.param("userId");
+    const targetUsername = c.req.param("username");
 
     // viewer の dojo_style_id を取得
     const { data: viewer } = await supabase
@@ -36,7 +36,7 @@ app.get("/:userId", authMiddleware, async (c) => {
 
     const profile = await getSocialProfile(
       supabase,
-      targetUserId,
+      targetUsername,
       userId,
       viewerDojoStyleId,
     );

@@ -59,7 +59,7 @@ export default async function ProfileEditPage({
   // 遷移元に応じた戻り先を決定
   const backHref =
     from === "social"
-      ? `/${locale}/social/profile/${user.id}`
+      ? `/${locale}/social/profile/${user.username}`
       : `/${locale}/mypage`;
 
   return (

@@ -43,10 +43,10 @@ interface ProfileData {
 }
 
 interface SocialProfileViewProps {
-  userId: string;
+  username: string;
 }
 
-export function SocialProfileView({ userId }: SocialProfileViewProps) {
+export function SocialProfileView({ username }: SocialProfileViewProps) {
   const { user: currentUser } = useAuth();
   const router = useRouter();
   const t = useTranslations("socialPosts");
@@ -58,13 +58,14 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const { handleToggleFavorite } = useSocialFavorite();
 
-  const isOwnProfile = currentUser?.id === userId;
+  const isOwnProfile =
+    !!profile?.user?.id && profile.user.id === currentUser?.id;
 
   useEffect(() => {
     if (!currentUser?.id) return;
     const fetchProfile = async () => {
       try {
-        const result = await getSocialProfile(userId);
+        const result = await getSocialProfile(username);
         if (result.success && result.data) {
           const data = result.data as ProfileData;
           setProfile(data);
@@ -77,7 +78,7 @@ export function SocialProfileView({ userId }: SocialProfileViewProps) {
       }
     };
     fetchProfile();
-  }, [currentUser?.id, userId]);
+  }, [currentUser?.id, username]);
 
   const updatePost = useCallback(
     (

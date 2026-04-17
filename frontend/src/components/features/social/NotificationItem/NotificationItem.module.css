@@ -8,6 +8,7 @@
   border-bottom: 1px solid var(--border-color);
   transition: background 0.15s;
   background: var(--white);
+  cursor: pointer;
 }
 
 .item.read {

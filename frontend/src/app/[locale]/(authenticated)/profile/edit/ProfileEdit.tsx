@@ -179,7 +179,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
 
       isNavigatingRef.current = true;
       if (from === "social") {
-        router.push(`/${locale}/social/profile/${user.id}`);
+        router.push(`/${locale}/social/profile/${formData.username}`);
       } else {
         router.push(`/${locale}/mypage`);
       }
@@ -198,11 +198,11 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
     isNavigatingRef.current = true;
     cleanupImagePreview();
     if (from === "social") {
-      router.push(`/${locale}/social/profile/${user.id}`);
+      router.push(`/${locale}/social/profile/${user.username}`);
     } else {
       router.push(`/${locale}/mypage`);
     }
-  }, [cleanupImagePreview, from, locale, router, user.id]);
+  }, [cleanupImagePreview, from, locale, router, user.username]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges()) {
