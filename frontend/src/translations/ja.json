@@ -725,6 +725,7 @@
     "profileTitle": "プロフィール",
     "profileEdit": "プロフィールを編集",
     "profileEditButton": "編集する",
+    "profileMenuCopyUrl": "URLをコピー",
     "bioPlaceholder": "自己紹介を入力してください",
     "publicitySetting": "公開範囲設定",
     "publicityPublic": "公開",

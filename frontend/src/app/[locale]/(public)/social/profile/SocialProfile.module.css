@@ -109,3 +109,65 @@
   color: var(--text-light);
   font-size: var(--font-size-sm);
 }
+
+.headerRight {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  border-radius: 50%;
+  transition:
+    background 0.2s,
+    color 0.2s;
+  min-width: unset;
+  padding: 0;
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
+.iconButton:hover {
+  background: var(--background-light);
+  color: var(--black);
+}
+
+.menuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 160px;
+  background: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: var(--z-header-dropdown);
+  overflow: hidden;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.menuItem:hover {
+  background: var(--background-light);
+}

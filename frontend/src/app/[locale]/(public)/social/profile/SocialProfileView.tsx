@@ -1,8 +1,8 @@
 "use client";
 
-import { InfoIcon } from "@phosphor-icons/react";
-import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { DotsThreeVerticalIcon, InfoIcon } from "@phosphor-icons/react";
+import { useLocale, useTranslations } from "next-intl";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProfileCard } from "@/components/features/social/ProfileCard/ProfileCard";
 import {
   type SocialFeedPostData,
@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
+import { buildShareUrl } from "@/lib/utils/share";
 import styles from "./SocialProfile.module.css";
 
 type ProfileTab = "posts" | "training";
@@ -50,6 +51,7 @@ interface SocialProfileViewProps {
 export function SocialProfileView({ username }: SocialProfileViewProps) {
   const { user: currentUser, isInitializing } = useAuth();
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("socialPosts");
   const { showToast } = useToast();
   const { track } = useUmamiTrack();
@@ -58,11 +60,24 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { handleToggleFavorite } = useSocialFavorite();
 
   const isAuthenticated = !!currentUser;
   const isOwnProfile =
     !!profile?.user?.id && profile.user.id === currentUser?.id;
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [showMenu]);
 
   useEffect(() => {
     if (isInitializing) return;
@@ -136,9 +151,21 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
   }, [router]);
 
   const handleEdit = useCallback(() => {
+    setShowMenu(false);
     track("social_profile_start_edit_profile");
     router.push("/profile/edit?from=social");
   }, [router, track]);
+
+  const handleCopyUrl = useCallback(async () => {
+    setShowMenu(false);
+    const url = buildShareUrl(`/${locale}/social/profile/${username}`);
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast(t("shareSuccess"), "success");
+    } catch (error) {
+      console.error("URL コピーエラー:", error);
+    }
+  }, [locale, username, showToast, t]);
 
   const regularPosts = useMemo(
     () => posts.filter((p) => p.post_type !== "training_record"),
@@ -152,7 +179,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
 
   if (isLoading || isInitializing) {
     return (
-      <SocialLayout>
+      <SocialLayout showTabNavigation={false}>
         <Loader centered size="large" />
       </SocialLayout>
     );
@@ -160,7 +187,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
 
   if (!profile) {
     return (
-      <SocialLayout>
+      <SocialLayout showTabNavigation={false}>
         <SocialHeader
           title={t("profileTitle")}
           onBack={isAuthenticated ? handleBack : undefined}
@@ -179,7 +206,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
 
   if (profile.is_restricted) {
     return (
-      <SocialLayout>
+      <SocialLayout showTabNavigation={false}>
         <SocialHeader
           title={t("profileTitle")}
           onBack={isAuthenticated ? handleBack : undefined}
@@ -199,7 +226,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
   const profileUser = profile.user;
   if (!profileUser) {
     return (
-      <SocialLayout>
+      <SocialLayout showTabNavigation={false}>
         <SocialHeader
           title={t("profileTitle")}
           onBack={isAuthenticated ? handleBack : undefined}
@@ -217,17 +244,41 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
   }
 
   return (
-    <SocialLayout>
+    <SocialLayout showTabNavigation={false}>
       <SocialHeader
         title={t("profileTitle")}
         onBack={isAuthenticated ? handleBack : undefined}
         backLabel={t("back")}
         right={
-          isOwnProfile ? (
-            <Button variant="primary" size="small" onClick={handleEdit}>
-              {t("profileEditButton")}
+          <div className={styles.headerRight} ref={menuRef}>
+            <Button
+              className={styles.iconButton}
+              onClick={() => setShowMenu((prev) => !prev)}
+              aria-label="メニュー"
+            >
+              <DotsThreeVerticalIcon size={24} weight="bold" />
             </Button>
-          ) : undefined
+            {showMenu && (
+              <div className={styles.menuDropdown}>
+                {isOwnProfile && (
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={handleEdit}
+                  >
+                    {t("profileEditButton")}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  onClick={handleCopyUrl}
+                >
+                  {t("profileMenuCopyUrl")}
+                </button>
+              </div>
+            )}
+          </div>
         }
       />
 

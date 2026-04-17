@@ -6,19 +6,25 @@ import styles from "./SocialLayout.module.css";
 
 interface SocialLayoutProps {
   children: ReactNode;
+  showTabNavigation?: boolean;
 }
 
-export function SocialLayout({ children }: SocialLayoutProps) {
+export function SocialLayout({
+  children,
+  showTabNavigation = true,
+}: SocialLayoutProps) {
   return (
     <div className={styles.layout}>
       <div className={styles.contentWrapper}>
         <main className={styles.main}>{children}</main>
       </div>
-      <div className={styles.tabNavigation}>
-        <Suspense fallback={null}>
-          <TabNavigation />
-        </Suspense>
-      </div>
+      {showTabNavigation && (
+        <div className={styles.tabNavigation}>
+          <Suspense fallback={null}>
+            <TabNavigation />
+          </Suspense>
+        </div>
+      )}
     </div>
   );
 }
