@@ -23,6 +23,7 @@ import {
   getPublicityDojosProcedure,
   getPublicPagesFeedProcedure,
   getPublicSocialPostByIdProcedure,
+  getPublicSocialProfileProcedure,
   getSocialFeedProcedure,
   getSocialPostByIdProcedure,
   getSocialProfileProcedure,
@@ -35,6 +36,7 @@ import {
   getUnreadNotificationCountProcedure,
   getUnreadNotificationPostIdsProcedure,
   getUserInfoProcedure,
+  getUsernameByUserIdProcedure,
   healthProcedure,
   honoBridgeTodoProcedure,
   initializeUserTagsProcedure,
@@ -108,6 +110,7 @@ export const appRouter = createTRPCRouter({
     updateUserInfo: updateUserInfoProcedure,
     create: createUserProcedure,
     checkUsername: checkUsernameProcedure,
+    getUsernameByUserId: getUsernameByUserIdProcedure,
     getPublicityDojos: getPublicityDojosProcedure,
     updatePublicityDojos: updatePublicityDojosProcedure,
   }),
@@ -135,6 +138,7 @@ export const appRouter = createTRPCRouter({
   }),
   socialProfile: createTRPCRouter({
     get: getSocialProfileProcedure,
+    getPublic: getPublicSocialProfileProcedure,
   }),
   notifications: createTRPCRouter({
     getList: getNotificationsProcedure,

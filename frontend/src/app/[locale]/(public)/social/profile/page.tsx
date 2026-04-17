@@ -13,5 +13,5 @@ export default async function SocialProfilePage({
     redirect(`/${locale}/login`);
   }
 
-  redirect(`/${locale}/social/profile/${user.id}`);
+  redirect(`/${locale}/social/profile/${user.username}`);
 }

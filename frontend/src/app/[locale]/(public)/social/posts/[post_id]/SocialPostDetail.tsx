@@ -175,11 +175,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleBack = useCallback(() => {
     const referrer = document.referrer || "";
-    if (
-      referrer.startsWith(window.location.origin) &&
-      referrer.includes("/social/posts") &&
-      !referrer.includes("/edit")
-    ) {
+    const isInternalReferrer = referrer.startsWith(window.location.origin);
+    const isFromSocialPage =
+      referrer.includes("/social/posts") ||
+      referrer.includes("/social/profile/");
+    if (isInternalReferrer && isFromSocialPage && !referrer.includes("/edit")) {
       window.history.back();
     } else {
       router.replace("/social/posts");
@@ -553,7 +553,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         <div className={styles.authorHeader}>
           {isAuthenticated ? (
             <a
-              href={`/${locale}/social/profile/${detail.author.id}`}
+              href={`/${locale}/social/profile/${detail.author.username}`}
               className={styles.authorLink}
             >
               <ProfileImage
@@ -576,7 +576,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           <div className={styles.authorInfo}>
             {isAuthenticated ? (
               <a
-                href={`/${locale}/social/profile/${detail.author.id}`}
+                href={`/${locale}/social/profile/${detail.author.username}`}
                 className={styles.authorNameLink}
               >
                 {detail.author.username}

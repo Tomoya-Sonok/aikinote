@@ -2628,7 +2628,7 @@ export const getUsersPublicityDojosBatch = async (
 
 export const getSocialProfile = async (
   supabaseClient: SupabaseClient,
-  targetUserId: string,
+  targetUsername: string,
   viewerId: string,
   viewerDojoStyleId: string | null,
 ): Promise<{
@@ -2654,12 +2654,14 @@ export const getSocialProfile = async (
     .select(
       "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, dojo_style_id, publicity_setting, full_name",
     )
-    .eq("id", targetUserId)
+    .eq("username", targetUsername)
     .single();
 
   if (userError || !user) {
     return null;
   }
+
+  const targetUserId = user.id;
 
   // 他ユーザーの非公開プロフィールは制限付きレスポンスを返す
   const publicity = user.publicity_setting;
@@ -2756,6 +2758,84 @@ export const getSocialProfile = async (
   return result;
 };
 
+export const getPublicSocialProfile = async (
+  supabaseClient: SupabaseClient,
+  targetUsername: string,
+): Promise<{
+  is_restricted: boolean;
+  user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+    bio: string | null;
+    aikido_rank: string | null;
+    dojo_style_name: string | null;
+    publicity_setting: string | null;
+    full_name: string | null;
+  } | null;
+  // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
+  posts: any[];
+  total_pages: number;
+  public_pages: { id: string; title: string; created_at: string }[];
+} | null> => {
+  const { data: user, error: userError } = await supabaseClient
+    .from("User")
+    .select(
+      "id, username, profile_image_url, bio, aikido_rank, dojo_style_name, publicity_setting, full_name",
+    )
+    .eq("username", targetUsername)
+    .single();
+
+  if (userError || !user) {
+    return null;
+  }
+
+  // 未ログインユーザーは publicity_setting === "public" のプロフィールのみ閲覧可
+  if (user.publicity_setting !== "public") {
+    return {
+      is_restricted: true,
+      user: null,
+      posts: [],
+      total_pages: 0,
+      public_pages: [],
+    };
+  }
+
+  const targetUserId = user.id;
+
+  const [postsResult, totalPagesResult, publicPagesResult] = await Promise.all([
+    supabaseClient
+      .from("SocialPost")
+      .select("*")
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .order("created_at", { ascending: false })
+      .limit(20),
+    supabaseClient
+      .from("TrainingPage")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", targetUserId),
+    supabaseClient
+      .from("TrainingPage")
+      .select("id, title, created_at")
+      .eq("user_id", targetUserId)
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
+
+  const posts = postsResult.data ?? [];
+  const enrichedPosts = await enrichSocialPosts(supabaseClient, posts, "");
+
+  return {
+    is_restricted: false,
+    user,
+    posts: enrichedPosts,
+    total_pages: totalPagesResult.count ?? 0,
+    public_pages: publicPagesResult.data ?? [],
+  };
+};
+
 /**
  * 投稿一覧をバッチクエリでエンリッチする（N+1 解消版）
  * author, attachments, tags, is_favorited を一括取得して結合
@@ -2773,6 +2853,14 @@ export const enrichSocialPosts = async (
     .filter((p) => p.post_type === "training_record" && p.source_page_id)
     .map((p) => p.source_page_id)
     .filter((id): id is string => !!id);
+
+  const favoritesQuery = viewerUserId
+    ? supabaseClient
+        .from("SocialFavorite")
+        .select("post_id")
+        .in("post_id", postIds)
+        .eq("user_id", viewerUserId)
+    : Promise.resolve({ data: [] as { post_id: string }[], error: null });
 
   // バッチクエリを並列実行（N+1 → 固定クエリ数）
   const [
@@ -2795,11 +2883,7 @@ export const enrichSocialPosts = async (
       .from("SocialPostTag")
       .select("post_id, user_tag_id, UserTag(id, name, category)")
       .in("post_id", postIds),
-    supabaseClient
-      .from("SocialFavorite")
-      .select("post_id")
-      .in("post_id", postIds)
-      .eq("user_id", viewerUserId),
+    favoritesQuery,
     supabaseClient
       .from("SocialPostHashtag")
       .select("post_id, hashtag_id, Hashtag(id, name)")

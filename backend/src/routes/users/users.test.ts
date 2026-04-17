@@ -202,6 +202,73 @@ describe("ユーザープロフィールAPI", () => {
     });
   });
 
+  describe("UUID→username 解決API", () => {
+    test("有効なuser_idを渡すと200とusernameを返す", async () => {
+      // Arrange
+      const targetUsername = "taro_budo";
+      mockSingle.mockResolvedValue({
+        data: { username: targetUsername },
+        error: null,
+      });
+
+      // Act
+      const response = await app.request(`/api/users/${otherUserId}/username`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${validToken}`,
+        },
+      });
+
+      // Assert
+      expect(response.status).toBe(200);
+      const responseData = await response.json();
+      expect(responseData.success).toBe(true);
+      expect(responseData.data).toEqual({ username: targetUsername });
+    });
+
+    test("存在しないuser_idの場合は404エラーを返す", async () => {
+      // Arrange
+      mockSingle.mockResolvedValue({
+        data: null,
+        error: { message: "not found" },
+      });
+
+      // Act
+      const response = await app.request(`/api/users/${otherUserId}/username`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${validToken}`,
+        },
+      });
+
+      // Assert
+      expect(response.status).toBe(404);
+      const responseData = await response.json();
+      expect(responseData.success).toBe(false);
+      expect(responseData.error).toBe("ユーザーが見つかりません");
+    });
+
+    test("認証ヘッダーが無くても200とusernameを返す（旧URLリダイレクト用にpublic化）", async () => {
+      // Arrange
+      const targetUsername = "taro_budo";
+      mockSingle.mockResolvedValue({
+        data: { username: targetUsername },
+        error: null,
+      });
+
+      // Act
+      const response = await app.request(`/api/users/${otherUserId}/username`, {
+        method: "GET",
+      });
+
+      // Assert
+      expect(response.status).toBe(200);
+      const responseData = await response.json();
+      expect(responseData.success).toBe(true);
+      expect(responseData.data).toEqual({ username: targetUsername });
+    });
+  });
+
   describe("プロフィール更新API", () => {
     test("認証済みユーザーが全フィールド更新すると200と更新後データを返す", async () => {
       // Arrange

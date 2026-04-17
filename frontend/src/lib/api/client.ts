@@ -1014,9 +1014,9 @@ export const getTrendingHashtags = async (limit?: number) => {
   }
 };
 
-export const getSocialProfile = async (userId: string) => {
+export const getSocialProfile = async (username: string) => {
   try {
-    const input = { userId };
+    const input = { username };
     return await cachedQuery(
       "socialProfile:get",
       input,
@@ -1025,6 +1025,34 @@ export const getSocialProfile = async (userId: string) => {
     );
   } catch (error) {
     throw new Error(getErrorMessage(error, "プロフィールの取得に失敗しました"));
+  }
+};
+
+export const getPublicSocialProfile = async (username: string) => {
+  try {
+    const input = { username };
+    return await cachedQuery(
+      "socialProfile:getPublic",
+      input,
+      CACHE_TTL_MS.socialProfile,
+      async () => trpcClient.socialProfile.getPublic.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "プロフィールの取得に失敗しました"));
+  }
+};
+
+export const getUsernameByUserId = async (userId: string) => {
+  try {
+    const input = { userId };
+    return await cachedQuery(
+      "users:getUsernameByUserId",
+      input,
+      CACHE_TTL_MS.socialProfile,
+      async () => trpcClient.users.getUsernameByUserId.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "ユーザー名の取得に失敗しました"));
   }
 };
 
