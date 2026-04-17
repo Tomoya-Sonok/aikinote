@@ -943,7 +943,7 @@
   },
   "publicityConfirmDialog": {
     "title": "Confirm Visibility",
-    "description": "Unlike creating Personal training log pages, Social posts are visible to other users. You can change your publicity settings anytime from the Publicity page in My Page.",
+    "description": "Unlike \"Personal\" training log pages, \"Social\" posts are visible to other users. You can change your publicity settings anytime from the Publicity page in My Page.",
     "accordionLabel": "Review visibility settings",
     "dontShowAgain": "Don't show again",
     "cancel": "Cancel",
