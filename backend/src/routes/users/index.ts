@@ -572,11 +572,15 @@ app.get("/:userId", authMiddleware, async (c) => {
   }
 });
 
-// user_id から username を解決するAPI（旧URLリダイレクト用）
-app.get("/:userId/username", authMiddleware, async (c) => {
+// user_id から username を解決するAPI（旧URLリダイレクト用、未認証でもアクセス可）
+app.get("/:userId/username", async (c) => {
   try {
     const targetUserId = c.req.param("userId");
-    const supabase = c.get("supabase")!;
+    const supabase = c.get("supabase");
+
+    if (!supabase) {
+      return c.json({ success: false, error: "サーバー設定が不正です" }, 500);
+    }
 
     const { data: userData, error } = await supabase
       .from("User")

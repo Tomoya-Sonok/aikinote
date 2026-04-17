@@ -1028,6 +1028,20 @@ export const getSocialProfile = async (username: string) => {
   }
 };
 
+export const getPublicSocialProfile = async (username: string) => {
+  try {
+    const input = { username };
+    return await cachedQuery(
+      "socialProfile:getPublic",
+      input,
+      CACHE_TTL_MS.socialProfile,
+      async () => trpcClient.socialProfile.getPublic.query(input),
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "プロフィールの取得に失敗しました"));
+  }
+};
+
 export const getUsernameByUserId = async (userId: string) => {
   try {
     const input = { userId };

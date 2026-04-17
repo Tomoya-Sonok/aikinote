@@ -14,9 +14,10 @@ import {
   SocialHeader,
   SocialLayout,
 } from "@/components/shared/layouts/SocialLayout";
+import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupPromptModal";
 import { Tooltip } from "@/components/shared/Tooltip";
 import { useToast } from "@/contexts/ToastContext";
-import { getSocialProfile } from "@/lib/api/client";
+import { getPublicSocialProfile, getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
@@ -47,7 +48,7 @@ interface SocialProfileViewProps {
 }
 
 export function SocialProfileView({ username }: SocialProfileViewProps) {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isInitializing } = useAuth();
   const router = useRouter();
   const t = useTranslations("socialPosts");
   const { showToast } = useToast();
@@ -56,16 +57,20 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
   const [posts, setPosts] = useState<SocialFeedPostData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const { handleToggleFavorite } = useSocialFavorite();
 
+  const isAuthenticated = !!currentUser;
   const isOwnProfile =
     !!profile?.user?.id && profile.user.id === currentUser?.id;
 
   useEffect(() => {
-    if (!currentUser?.id) return;
+    if (isInitializing) return;
     const fetchProfile = async () => {
       try {
-        const result = await getSocialProfile(username);
+        const result = currentUser?.id
+          ? await getSocialProfile(username)
+          : await getPublicSocialProfile(username);
         if (result.success && result.data) {
           const data = result.data as ProfileData;
           setProfile(data);
@@ -78,7 +83,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       }
     };
     fetchProfile();
-  }, [currentUser?.id, username]);
+  }, [currentUser?.id, username, isInitializing]);
 
   const updatePost = useCallback(
     (
@@ -90,20 +95,40 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
     [],
   );
 
+  const handleSignupPromptOpen = useCallback(() => {
+    setShowSignupPrompt(true);
+  }, []);
+
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
+      if (!isAuthenticated) {
+        handleSignupPromptOpen();
+        return;
+      }
       handleToggleFavorite(postId, posts, updatePost, () => {
         showToast(t("favoriteDailyLimitReached"), "error");
       });
     },
-    [handleToggleFavorite, posts, updatePost, showToast, t],
+    [
+      handleToggleFavorite,
+      posts,
+      updatePost,
+      showToast,
+      t,
+      isAuthenticated,
+      handleSignupPromptOpen,
+    ],
   );
 
   const handlePostClick = useCallback(
     (postId: string) => {
+      if (!isAuthenticated) {
+        handleSignupPromptOpen();
+        return;
+      }
       router.push(`/social/posts/${postId}`);
     },
-    [router],
+    [router, isAuthenticated, handleSignupPromptOpen],
   );
 
   const handleBack = useCallback(() => {
@@ -125,7 +150,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
     [posts],
   );
 
-  if (isLoading) {
+  if (isLoading || isInitializing) {
     return (
       <SocialLayout>
         <Loader centered size="large" />
@@ -138,12 +163,16 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       <SocialLayout>
         <SocialHeader
           title={t("profileTitle")}
-          onBack={handleBack}
+          onBack={isAuthenticated ? handleBack : undefined}
           backLabel={t("back")}
         />
         <div className={styles.empty}>
           <p>{t("profileNotFound")}</p>
         </div>
+        <SignupPromptModal
+          isOpen={showSignupPrompt}
+          onClose={() => setShowSignupPrompt(false)}
+        />
       </SocialLayout>
     );
   }
@@ -153,12 +182,16 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       <SocialLayout>
         <SocialHeader
           title={t("profileTitle")}
-          onBack={handleBack}
+          onBack={isAuthenticated ? handleBack : undefined}
           backLabel={t("back")}
         />
         <div className={styles.empty}>
           <p>{t("profileRestricted")}</p>
         </div>
+        <SignupPromptModal
+          isOpen={showSignupPrompt}
+          onClose={() => setShowSignupPrompt(false)}
+        />
       </SocialLayout>
     );
   }
@@ -169,12 +202,16 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       <SocialLayout>
         <SocialHeader
           title={t("profileTitle")}
-          onBack={handleBack}
+          onBack={isAuthenticated ? handleBack : undefined}
           backLabel={t("back")}
         />
         <div className={styles.empty}>
           <p>{t("profileNotFound")}</p>
         </div>
+        <SignupPromptModal
+          isOpen={showSignupPrompt}
+          onClose={() => setShowSignupPrompt(false)}
+        />
       </SocialLayout>
     );
   }
@@ -183,7 +220,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
     <SocialLayout>
       <SocialHeader
         title={t("profileTitle")}
-        onBack={handleBack}
+        onBack={isAuthenticated ? handleBack : undefined}
         backLabel={t("back")}
         right={
           isOwnProfile ? (
@@ -285,6 +322,11 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
             ))
           ))}
       </div>
+
+      <SignupPromptModal
+        isOpen={showSignupPrompt}
+        onClose={() => setShowSignupPrompt(false)}
+      />
     </SocialLayout>
   );
 }

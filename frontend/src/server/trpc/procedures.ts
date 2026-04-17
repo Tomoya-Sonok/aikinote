@@ -1141,18 +1141,33 @@ export const getSocialProfileProcedure = authenticatedProcedure
     );
   });
 
-export const getUsernameByUserIdProcedure = authenticatedProcedure
+export const getPublicSocialProfileProcedure = publicProcedure
+  .input(
+    z.object({
+      username: z
+        .string()
+        .min(1)
+        .max(20)
+        .regex(/^[a-zA-Z0-9_-]+$/),
+    }),
+  )
+  .query(async ({ input }) => {
+    return callHonoApi<ApiResponse<SocialProfileData>>(
+      `/api/social/profile/public/${input.username}`,
+      {},
+    );
+  });
+
+export const getUsernameByUserIdProcedure = publicProcedure
   .input(
     z.object({
       userId: z.string().uuid(),
     }),
   )
-  .query(async ({ input, ctx }) => {
+  .query(async ({ input }) => {
     return callHonoApi<ApiResponse<{ username: string }>>(
       `/api/users/${input.userId}/username`,
-      {
-        headers: { Authorization: `Bearer ${ctx.authToken}` },
-      },
+      {},
     );
   });
 

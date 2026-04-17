@@ -248,14 +248,24 @@ describe("ユーザープロフィールAPI", () => {
       expect(responseData.error).toBe("ユーザーが見つかりません");
     });
 
-    test("認証ヘッダーが無い場合は401エラーを返す", async () => {
+    test("認証ヘッダーが無くても200とusernameを返す（旧URLリダイレクト用にpublic化）", async () => {
+      // Arrange
+      const targetUsername = "taro_budo";
+      mockSingle.mockResolvedValue({
+        data: { username: targetUsername },
+        error: null,
+      });
+
       // Act
       const response = await app.request(`/api/users/${otherUserId}/username`, {
         method: "GET",
       });
 
       // Assert
-      expect(response.status).toBe(401);
+      expect(response.status).toBe(200);
+      const responseData = await response.json();
+      expect(responseData.success).toBe(true);
+      expect(responseData.data).toEqual({ username: targetUsername });
     });
   });
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { buildMetadata } from "@/lib/metadata";
-import { buildApiUrl, createBackendAuthToken } from "@/lib/server/auth";
+import { buildApiUrl } from "@/lib/server/auth";
 import type { ApiResponse } from "@/types/api";
 import { SocialProfileView } from "../SocialProfileView";
 
@@ -25,12 +25,8 @@ export async function generateMetadata({
 const resolveUsernameFromUserId = async (
   userId: string,
 ): Promise<string | null> => {
-  const token = await createBackendAuthToken();
-  if (!token) return null;
-
   const response = await fetch(buildApiUrl(`/api/users/${userId}/username`), {
     method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
 
