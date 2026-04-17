@@ -61,6 +61,11 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
       return categories;
     }
     // フォールバック: タグデータから一意なカテゴリを抽出
+    const defaultSlugMap: Record<string, string> = {
+      取り: "tori",
+      受け: "uke",
+      技: "waza",
+    };
     const uniqueCategories = Array.from(
       new Set(tags.map((tag) => tag.category)),
     );
@@ -68,9 +73,9 @@ export const TagFilterModal: FC<TagFilterModalProps> = ({
       id: name,
       user_id: "",
       name,
-      slug: name,
+      slug: defaultSlugMap[name] ?? name,
       sort_order: index,
-      is_default: ["取り", "受け", "技"].includes(name),
+      is_default: name in defaultSlugMap,
       created_at: "",
     }));
   }, [categories, tags]);
