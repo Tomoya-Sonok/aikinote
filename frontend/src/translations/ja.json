@@ -355,6 +355,15 @@
     "processing": "処理中...",
     "close": "記録だけ続ける"
   },
+  "premiumModalPublishPage": {
+    "badge": "PREMIUM",
+    "title": "たったの1タップで、\n稽古の学びをみんなに公開",
+    "description": "ひとりでコツコツ積み重ねた稽古記録を、そのままの形でカンタンに公開・投稿することができます。",
+    "upgradeMain": "みんなに学びを共有する",
+    "upgradeSub": "月額 ¥380",
+    "processing": "処理中...",
+    "close": "ひとりで稽古記録を続ける"
+  },
   "premiumModalDailyLimit": {
     "badge": "PREMIUM",
     "title": "本日の投稿・返信数の\n上限に達しました",

@@ -355,6 +355,15 @@
     "processing": "Processing...",
     "close": "Just keep recording"
   },
+  "premiumModalPublishPage": {
+    "badge": "PREMIUM",
+    "title": "Share your training\nwith the community in one tap",
+    "description": "Publish your solo training records to the community, just as they are, with a single tap.",
+    "upgradeMain": "Share with everyone",
+    "upgradeSub": "¥380 / month",
+    "processing": "Processing...",
+    "close": "Keep training records solo"
+  },
   "premiumModalDailyLimit": {
     "badge": "PREMIUM",
     "title": "You've reached today's\npost/reply limit",
