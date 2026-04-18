@@ -67,33 +67,19 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
     setUploadingFileName("");
   }, []);
 
-  // ファイル選択
-  const handleFileSelect = useCallback(
-    async (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      // 件数上限チェック
-      if (attachments.length >= ATTACHMENT_MAX_COUNT) {
-        setError(t("pageModal.attachments.maxCountReached"));
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
-      }
-
-      // クライアントサイドでのサイズチェック
+  // 1ファイルのアップロード処理。cancel 時は Error("cancelled") を throw
+  const uploadOneFile = useCallback(
+    async (file: File, label: string) => {
       const isVideo = file.type.startsWith("video/");
       const maxSize = isVideo ? 300 * 1024 * 1024 : 5 * 1024 * 1024;
       if (file.size > maxSize) {
-        setError(
+        throw new Error(
           isVideo
             ? t("pageModal.attachments.videoFileTooLarge")
             : t("pageModal.attachments.imageFileTooLarge"),
         );
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        return;
       }
 
-      // 画像の場合は圧縮
       let uploadFile: File = file;
       if (!isVideo && file.type.startsWith("image/")) {
         try {
@@ -101,114 +87,149 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
             maxWidth: 1920,
             maxHeight: 1920,
             quality: 0.85,
-            maxFileSize: 3 * 1024 * 1024, // 3MB
+            maxFileSize: 3 * 1024 * 1024,
           });
         } catch {
           // 圧縮失敗時は元ファイルをそのまま使用
         }
       }
 
+      setUploadProgress(0);
+      setUploadingFileName(`${label}${uploadFile.name}`);
+
+      const response = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: uploadFile.name,
+          contentType: uploadFile.type,
+          fileSize: uploadFile.size,
+          uploadType,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || t("pageModal.attachments.uploadFailed"),
+        );
+      }
+
+      const { uploadUrl, fileKey }: UploadResponse = await response.json();
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr;
+
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) {
+            setUploadProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        });
+
+        xhr.addEventListener("load", () => {
+          xhrRef.current = null;
+          if (xhr.status === 200) {
+            resolve();
+          } else {
+            reject(
+              new Error(
+                `${t("pageModal.attachments.uploadFailed")} (${xhr.status})`,
+              ),
+            );
+          }
+        });
+
+        xhr.addEventListener("error", () => {
+          xhrRef.current = null;
+          reject(new Error(t("pageModal.attachments.uploadFailed")));
+        });
+
+        xhr.addEventListener("abort", () => {
+          xhrRef.current = null;
+          reject(new Error("cancelled"));
+        });
+
+        xhr.open("PUT", uploadUrl);
+        xhr.setRequestHeader("Content-Type", uploadFile.type);
+        xhr.send(uploadFile);
+      });
+
+      const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || "";
+
+      const newAttachment: AttachmentData = {
+        id: generateTempId(),
+        type: isVideo ? "video" : "image",
+        url: `https://${cloudFrontDomain}/${fileKey}`,
+        original_filename: uploadFile.name,
+        file_size_bytes: uploadFile.size,
+      };
+
+      onAttachmentAdd({
+        ...newAttachment,
+        ...({ _fileKey: fileKey } as Record<string, string>),
+      });
+    },
+    [onAttachmentAdd, t, uploadType],
+  );
+
+  // ファイル選択（複数可）。選択順に逐次アップロードして順序を保持
+  const handleFileSelect = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = Array.from(event.target.files ?? []);
+      if (selected.length === 0) return;
+
+      const clearInput = () => {
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      };
+
+      const available = ATTACHMENT_MAX_COUNT - attachments.length;
+      if (available <= 0) {
+        setError(t("pageModal.attachments.maxCountReached"));
+        clearInput();
+        return;
+      }
+
+      const filesToUpload = selected.slice(0, available);
+      const skipped = selected.length - filesToUpload.length;
+
       setError(null);
       setIsUploading(true);
-      setUploadProgress(0);
-      setUploadingFileName(uploadFile.name);
 
+      let lastError: string | null = null;
       try {
-        // ステップ1: 署名付きURL取得
-        const response = await fetch("/api/upload-url", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            filename: uploadFile.name,
-            contentType: uploadFile.type,
-            fileSize: uploadFile.size,
-            uploadType,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error || t("pageModal.attachments.uploadFailed"),
-          );
+        for (let i = 0; i < filesToUpload.length; i++) {
+          const file = filesToUpload[i];
+          const label =
+            filesToUpload.length > 1
+              ? `(${i + 1}/${filesToUpload.length}) `
+              : "";
+          try {
+            await uploadOneFile(file, label);
+          } catch (err) {
+            if (err instanceof Error && err.message === "cancelled") {
+              break;
+            }
+            lastError =
+              err instanceof Error
+                ? err.message
+                : t("pageModal.attachments.uploadFailed");
+          }
         }
-
-        const { uploadUrl, fileKey }: UploadResponse = await response.json();
-
-        // ステップ2: S3にアップロード
-        await new Promise<void>((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhrRef.current = xhr;
-
-          xhr.upload.addEventListener("progress", (e) => {
-            if (e.lengthComputable) {
-              setUploadProgress(Math.round((e.loaded / e.total) * 100));
-            }
-          });
-
-          xhr.addEventListener("load", () => {
-            xhrRef.current = null;
-            if (xhr.status === 200) {
-              resolve();
-            } else {
-              reject(
-                new Error(
-                  `${t("pageModal.attachments.uploadFailed")} (${xhr.status})`,
-                ),
-              );
-            }
-          });
-
-          xhr.addEventListener("error", () => {
-            xhrRef.current = null;
-            reject(new Error(t("pageModal.attachments.uploadFailed")));
-          });
-
-          xhr.addEventListener("abort", () => {
-            xhrRef.current = null;
-            reject(new Error("cancelled"));
-          });
-
-          xhr.open("PUT", uploadUrl);
-          xhr.setRequestHeader("Content-Type", uploadFile.type);
-          xhr.send(uploadFile);
-        });
-
-        // ステップ3: 添付データを追加
-        const isVideo = uploadFile.type.startsWith("video/");
-        const cloudFrontDomain =
-          process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN || "";
-
-        const newAttachment: AttachmentData = {
-          id: generateTempId(),
-          type: isVideo ? "video" : "image",
-          url: `https://${cloudFrontDomain}/${fileKey}`,
-          original_filename: uploadFile.name,
-          file_size_bytes: uploadFile.size,
-        };
-
-        onAttachmentAdd({
-          ...newAttachment,
-          // file_key を添付データに含める（POST /api/page-attachments 用）
-          ...({ _fileKey: fileKey } as Record<string, string>),
-        });
-      } catch (err) {
-        if (err instanceof Error && err.message === "cancelled") return;
-        setError(
-          err instanceof Error
-            ? err.message
-            : t("pageModal.attachments.uploadFailed"),
-        );
       } finally {
         setIsUploading(false);
         setUploadProgress(0);
         setUploadingFileName("");
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+        clearInput();
+      }
+
+      if (lastError) {
+        setError(lastError);
+      } else if (skipped > 0) {
+        setError(t("pageModal.attachments.maxCountReached"));
       }
     },
-    [attachments.length, onAttachmentAdd, t, uploadType],
+    [attachments.length, t, uploadOneFile],
   );
 
   // YouTube URL入力のデバウンスチェック
@@ -293,6 +314,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
       <input
         ref={fileInputRef}
         type="file"
+        multiple
         accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
         onChange={handleFileSelect}
         disabled={disabled || isUploading || isMaxReached}

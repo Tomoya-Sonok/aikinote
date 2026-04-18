@@ -35,7 +35,6 @@
 
 .statValueWithInfo [role="tooltip"] {
   max-width: min(200px, 80vw);
-  background-color: var(--primary-color);
 }
 
 .statLabel {

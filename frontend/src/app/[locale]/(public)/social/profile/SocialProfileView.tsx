@@ -307,12 +307,15 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
                 {profile.total_favorites ?? 0}
               </span>
             ) : (
-              <span className={styles.statValueWithInfo}>
+              <Tooltip
+                text={t("otherUserFavoritesHidden")}
+                position="bottom"
+                className={styles.statValueWithInfo}
+                ariaLabel={t("otherUserFavoritesHidden")}
+              >
                 ???
-                <Tooltip text={t("otherUserFavoritesHidden")} position="bottom">
-                  <InfoIcon size={14} weight="regular" />
-                </Tooltip>
-              </span>
+                <InfoIcon size={14} weight="regular" />
+              </Tooltip>
             )}
             <span className={styles.statLabel}>{t("totalFavorites")}</span>
           </div>

@@ -57,14 +57,17 @@ export function useAttachmentManagement(
   const saveNewAttachments = useCallback(
     async (entityId: string) => {
       const current = attachmentsRef.current;
-      const newAttachments = current.filter((a) => a.id.startsWith("temp-"));
-      if (newAttachments.length === 0) return;
+      // 全体配列の index をそのまま sort_order として保持し、新規分のみ抽出する
+      const tasks = current
+        .map((att, idx) => ({ att, sortOrder: idx }))
+        .filter(({ att }) => att.id.startsWith("temp-"));
+      if (tasks.length === 0) return;
 
       const idField = entityType === "page" ? "page_id" : "post_id";
       const endpoint = getDeleteEndpoint(entityType);
 
       await Promise.allSettled(
-        newAttachments.map((attachment, i) => {
+        tasks.map(({ att: attachment, sortOrder }) => {
           if (entityType === "page") {
             const payload: Record<string, unknown> = {
               [idField]: entityId,
@@ -72,6 +75,7 @@ export function useAttachmentManagement(
               original_filename: attachment.original_filename ?? null,
               file_size_bytes: attachment.file_size_bytes ?? null,
               thumbnail_url: attachment.thumbnail_url ?? null,
+              sort_order: sortOrder,
             };
             if (attachment.type === "youtube") {
               payload.url = attachment.url;
@@ -91,7 +95,7 @@ export function useAttachmentManagement(
               url: attachment.type === "youtube" ? attachment.url : undefined,
               original_filename: attachment.original_filename ?? null,
               file_size_bytes: attachment.file_size_bytes ?? null,
-              sort_order: i,
+              sort_order: sortOrder,
             }),
           });
         }),

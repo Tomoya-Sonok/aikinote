@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { type CSSProperties, type FC, useCallback, useState } from "react";
+import { buildYouTubeEmbedSrc } from "@/lib/utils/youtube";
 import styles from "./MediaPlayer.module.css";
 
 interface MediaPlayerProps {
@@ -11,24 +12,6 @@ interface MediaPlayerProps {
   alt?: string;
   fillParent?: boolean;
   onImageLoad?: (naturalWidth: number, naturalHeight: number) => void;
-}
-
-// YouTube URLからビデオIDを抽出
-function extractYouTubeVideoId(url: string): string | null {
-  const patterns = [
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
-    /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match?.[1]) {
-      return match[1];
-    }
-  }
-  return null;
 }
 
 export const MediaPlayer: FC<MediaPlayerProps> = ({
@@ -64,9 +47,9 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   const containerClass = `${styles.container} ${fillParent ? styles.fillParent : ""} ${isLandscape ? styles.containerLandscape : ""}`;
   const aspectClass = `${styles.aspectRatio} ${fillParent ? styles.fillParentAspect : ""}`;
   if (type === "youtube") {
-    const videoId = extractYouTubeVideoId(url);
+    const embedSrc = buildYouTubeEmbedSrc(url);
 
-    if (!videoId) {
+    if (!embedSrc) {
       return (
         <div className={containerClass}>
           <div className={aspectClass}>
@@ -81,7 +64,7 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
         <div className={aspectClass}>
           <iframe
             className={styles.iframe}
-            src={`https://www.youtube-nocookie.com/embed/${videoId}`}
+            src={embedSrc}
             title={alt}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

@@ -6,6 +6,7 @@ import {
   CaretUpIcon,
   ChartBar,
   CheckIcon,
+  InfoIcon,
   SortAscendingIcon,
   SortDescendingIcon,
 } from "@phosphor-icons/react";
@@ -20,6 +21,7 @@ import { Tutorial } from "@/components/features/tutorial/Tutorial";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Skeleton } from "@/components/shared/Skeleton";
+import { Tooltip } from "@/components/shared/Tooltip/Tooltip";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useTrainingPageFilters } from "@/lib/hooks/useTrainingPageFilters";
 import { useTrainingPageModals } from "@/lib/hooks/useTrainingPageModals";
@@ -147,7 +149,21 @@ export function PersonalPages() {
   return (
     <div className={styles.container}>
       <div className={styles.pageListHeader}>
-        <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+        <div className={styles.pageTitleGroup}>
+          <h2 className={styles.pageTitle}>{t("personalPages.pagesList")}</h2>
+          <Tooltip
+            text={t("personalPages.pagesListTooltip")}
+            position="bottom"
+            align="left"
+            ariaLabel={t("personalPages.pagesListTooltip")}
+          >
+            <InfoIcon
+              size={16}
+              weight="regular"
+              className={styles.pageTitleInfoIcon}
+            />
+          </Tooltip>
+        </div>
         <div className={styles.otherPageLinks}>
           <Link
             href={`/${locale}/personal/stats`}
