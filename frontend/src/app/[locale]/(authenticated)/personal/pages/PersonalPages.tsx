@@ -6,7 +6,7 @@ import {
   CaretUpIcon,
   ChartBar,
   CheckIcon,
-  InfoIcon,
+  QuestionIcon,
   SortAscendingIcon,
   SortDescendingIcon,
 } from "@phosphor-icons/react";
@@ -157,7 +157,7 @@ export function PersonalPages() {
             align="left"
             ariaLabel={t("personalPages.pagesListTooltip")}
           >
-            <InfoIcon
+            <QuestionIcon
               size={16}
               weight="regular"
               className={styles.pageTitleInfoIcon}
