@@ -9,7 +9,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--black);
+  background-color: var(--primary-color);
   color: var(--white);
   font-size: var(--font-size-xs, 12px);
   padding: 6px 12px;
