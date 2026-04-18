@@ -113,6 +113,16 @@
   color: var(--black);
 }
 
+.pageTitleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pageTitleInfoIcon {
+  color: var(--text-light);
+}
+
 .sortDropdownContainer {
   position: relative;
 }

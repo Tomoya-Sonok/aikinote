@@ -500,6 +500,7 @@
     "pageCount": "Total pages created so far:",
     "pageCountSuffix": "pages",
     "pagesList": "Pages List",
+    "pagesListTooltip": "Pages are personal training memos that only you can view and manage. They will never be shared publicly.",
     "sortNewest": "Newest",
     "sortOldest": "Oldest",
     "stats": "Stats",

@@ -502,6 +502,7 @@
     "pageCount": "これまでに作成したページ数は",
     "pageCountSuffix": "ページです",
     "pagesList": "ページ一覧",
+    "pagesListTooltip": "ページはあなた1人で閲覧・管理する稽古記録用のメモです。勝手に公開されることはありません。",
     "sortNewest": "新しい順",
     "sortOldest": "古い順",
     "stats": "統計データ",
