@@ -310,6 +310,7 @@ export function PageDetail() {
       <PremiumUpgradeModal
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
+        translationKey="premiumModalPublishPage"
       />
     </div>
   );

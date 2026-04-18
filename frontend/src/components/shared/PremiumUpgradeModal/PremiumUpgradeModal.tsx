@@ -39,6 +39,7 @@ export function PremiumUpgradeModal({
     premiumModalCalendar: "calendar",
     premiumModalStats: "stats",
     premiumModalDailyLimit: "daily_limit",
+    premiumModalPublishPage: "publish_page",
   };
   const context = CONTEXT_MAP[translationKey] ?? translationKey;
 
