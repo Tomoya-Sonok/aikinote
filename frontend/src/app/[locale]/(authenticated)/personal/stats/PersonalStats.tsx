@@ -6,8 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
+import { getCategories } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
+import type { UserCategory } from "@/types/category";
 import styles from "./page.module.css";
 
 const TagTrendChart = dynamic(
@@ -199,11 +202,13 @@ function PersonalStatsSkeleton() {
 
 function PersonalStatsContent() {
   const t = useTranslations("personalStats");
+  const { user } = useAuth();
 
   const [period, setPeriod] = useState<PeriodPreset>("all");
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [customStartDate, setCustomStartDate] = useState<string | null>(null);
   const [customEndDate, setCustomEndDate] = useState<string | null>(null);
+  const [categories, setCategories] = useState<UserCategory[]>([]);
 
   const { startDate, endDate } = useMemo(() => {
     if (period === "custom") {
@@ -216,6 +221,24 @@ function PersonalStatsContent() {
     startDate,
     endDate,
   });
+
+  useEffect(() => {
+    if (!user?.id) return;
+    let cancelled = false;
+    getCategories(user.id)
+      .then((res) => {
+        if (cancelled) return;
+        if (res?.success && res.data) {
+          setCategories(res.data as UserCategory[]);
+        }
+      })
+      .catch((err) => {
+        console.error("[stats] failed to fetch categories", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const handlePeriodChange = useCallback((preset: PeriodPreset) => {
     setPeriod(preset);
@@ -378,6 +401,7 @@ function PersonalStatsContent() {
         ) : (data?.tag_stats ?? []).length > 0 ? (
           <TagTrendChart
             tagStats={data?.tag_stats ?? []}
+            categories={categories}
             chartType={chartType}
           />
         ) : (
