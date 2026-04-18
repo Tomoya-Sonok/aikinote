@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/server";
-
-// YouTube URL パターン
-const YOUTUBE_URL_PATTERNS = [
-  /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/,
-  /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/,
-  /(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
-  /(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
-];
+import { extractYouTubeVideoId } from "@/lib/utils/youtube";
 
 interface YouTubeOEmbedResponse {
   title: string;
@@ -21,17 +14,6 @@ interface OgpResponse {
   thumbnail_url: string;
   video_id: string;
   author_name: string;
-}
-
-// YouTube URLからビデオIDを抽出
-function extractYouTubeVideoId(url: string): string | null {
-  for (const pattern of YOUTUBE_URL_PATTERNS) {
-    const match = url.match(pattern);
-    if (match?.[1]) {
-      return match[1];
-    }
-  }
-  return null;
 }
 
 // YouTube oEmbed APIからメタデータを取得
