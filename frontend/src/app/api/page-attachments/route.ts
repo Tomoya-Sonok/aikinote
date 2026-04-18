@@ -18,6 +18,7 @@ const createAttachmentSchema = z.object({
   thumbnail_url: z.string().url().optional().nullable(),
   original_filename: z.string().optional().nullable(),
   file_size_bytes: z.number().optional().nullable(),
+  sort_order: z.number().int().min(0).optional(),
 });
 
 // 添付作成API
@@ -84,18 +85,23 @@ export async function POST(request: NextRequest) {
       attachmentUrl = generatePublicUrl(validatedData.file_key);
     }
 
-    // 現在の最大sort_orderを取得
-    const { data: existingAttachments } = await supabase
-      .from("PageAttachment")
-      .select("sort_order")
-      .eq("page_id", validatedData.page_id)
-      .order("sort_order", { ascending: false })
-      .limit(1);
+    // sort_order が明示指定されていればそれを使用、なければ現在の最大値+1 を採番
+    let nextSortOrder: number;
+    if (validatedData.sort_order !== undefined) {
+      nextSortOrder = validatedData.sort_order;
+    } else {
+      const { data: existingAttachments } = await supabase
+        .from("PageAttachment")
+        .select("sort_order")
+        .eq("page_id", validatedData.page_id)
+        .order("sort_order", { ascending: false })
+        .limit(1);
 
-    const nextSortOrder =
-      existingAttachments && existingAttachments.length > 0
-        ? (existingAttachments[0].sort_order ?? 0) + 1
-        : 0;
+      nextSortOrder =
+        existingAttachments && existingAttachments.length > 0
+          ? (existingAttachments[0].sort_order ?? 0) + 1
+          : 0;
+    }
 
     // 添付レコードを作成
     const { data: newAttachment, error: insertError } = await supabase
