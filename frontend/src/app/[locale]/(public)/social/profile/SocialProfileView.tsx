@@ -40,7 +40,8 @@ interface ProfileData {
   } | null;
   posts: SocialFeedPostData[];
   total_favorites?: number;
-  total_pages: number;
+  total_posts_count: number;
+  total_training_records_count: number;
   public_pages: { id: string; title: string; created_at: string }[];
 }
 
@@ -294,11 +295,15 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       <div className={styles.statsSection}>
         <div className={styles.stats}>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{profile.posts.length}</span>
+            <span className={styles.statValue}>
+              {profile.total_posts_count}
+            </span>
             <span className={styles.statLabel}>{t("userPosts")}</span>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{profile.total_pages}</span>
+            <span className={styles.statValue}>
+              {profile.total_training_records_count}
+            </span>
             <span className={styles.statLabel}>{t("trainingRecords")}</span>
           </div>
           <div className={styles.statItem}>

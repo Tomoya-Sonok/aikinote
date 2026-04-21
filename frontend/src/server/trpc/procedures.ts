@@ -800,7 +800,8 @@ type SocialProfileData = {
   } | null;
   posts: SocialFeedPost[];
   total_favorites?: number;
-  total_pages: number;
+  total_posts_count: number;
+  total_training_records_count: number;
   public_pages: { id: string; title: string; created_at: string }[];
 };
 

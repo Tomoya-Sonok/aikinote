@@ -4,6 +4,7 @@ import { PaperPlaneRightIcon } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { type FC, useCallback, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
+import { useIsDesktop } from "@/lib/hooks/useIsDesktop";
 import styles from "./SocialReplyForm.module.css";
 
 const MAX_REPLY_LENGTH = 1000;
@@ -14,6 +15,7 @@ interface SocialReplyFormProps {
 
 export const SocialReplyForm: FC<SocialReplyFormProps> = ({ onSubmit }) => {
   const t = useTranslations("socialPosts");
+  const isDesktop = useIsDesktop();
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,6 +43,8 @@ export const SocialReplyForm: FC<SocialReplyFormProps> = ({ onSubmit }) => {
           maxLength={MAX_REPLY_LENGTH}
           rows={1}
           onKeyDown={(e) => {
+            // SP では Enter を改行用に開放し、送信はボタン操作のみに限定
+            if (!isDesktop) return;
             if (
               e.key === "Enter" &&
               !e.shiftKey &&

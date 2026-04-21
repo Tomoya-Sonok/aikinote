@@ -2646,7 +2646,8 @@ export const getSocialProfile = async (
   // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
   posts: any[];
   total_favorites?: number;
-  total_pages: number;
+  total_posts_count: number;
+  total_training_records_count: number;
   public_pages: { id: string; title: string; created_at: string }[];
 } | null> => {
   const { data: user, error: userError } = await supabaseClient
@@ -2671,7 +2672,8 @@ export const getSocialProfile = async (
         is_restricted: true,
         user: null,
         posts: [],
-        total_pages: 0,
+        total_posts_count: 0,
+        total_training_records_count: 0,
         public_pages: [],
       };
     }
@@ -2685,15 +2687,21 @@ export const getSocialProfile = async (
           is_restricted: true,
           user: null,
           posts: [],
-          total_pages: 0,
+          total_posts_count: 0,
+          total_training_records_count: 0,
           public_pages: [],
         };
       }
     }
   }
 
-  // 公開投稿・稽古記録数・公開稽古記録を並列取得
-  const [postsResult, totalPagesResult, publicPagesResult] = await Promise.all([
+  // 投稿フィード・投稿タイプ別カウント・公開稽古記録を並列取得
+  const [
+    postsResult,
+    totalPostsCountResult,
+    totalTrainingRecordsCountResult,
+    publicPagesResult,
+  ] = await Promise.all([
     supabaseClient
       .from("SocialPost")
       .select("*")
@@ -2702,9 +2710,17 @@ export const getSocialProfile = async (
       .order("created_at", { ascending: false })
       .limit(20),
     supabaseClient
-      .from("TrainingPage")
+      .from("SocialPost")
       .select("*", { count: "exact", head: true })
-      .eq("user_id", targetUserId),
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .eq("post_type", "post"),
+    supabaseClient
+      .from("SocialPost")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .eq("post_type", "training_record"),
     supabaseClient
       .from("TrainingPage")
       .select("id, title, created_at")
@@ -2715,7 +2731,6 @@ export const getSocialProfile = async (
   ]);
 
   const posts = postsResult.data;
-  const totalPagesCount = totalPagesResult.count;
   const publicPages = publicPagesResult.data;
 
   // 投稿データをエンリッチ（author, attachments, tags, hashtags, is_favorited 等を付与）
@@ -2731,28 +2746,42 @@ export const getSocialProfile = async (
     // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
     posts: any[];
     total_favorites?: number;
-    total_pages: number;
+    total_posts_count: number;
+    total_training_records_count: number;
     public_pages: { id: string; title: string; created_at: string }[];
   } = {
     is_restricted: false,
     user,
     posts: enrichedPosts,
-    total_pages: totalPagesCount ?? 0,
+    total_posts_count: totalPostsCountResult.count ?? 0,
+    total_training_records_count: totalTrainingRecordsCountResult.count ?? 0,
     public_pages: publicPages ?? [],
   };
 
-  // 本人のみ累計お気に入り数を返却
+  // 本人のみお気に入りされた数を返却（投稿＋返信の合算）
   if (targetUserId === viewerId) {
-    const { data: favData } = await supabaseClient
-      .from("SocialPost")
-      .select("favorite_count")
-      .eq("user_id", targetUserId)
-      .eq("is_deleted", false);
+    const [postFavRes, replyFavRes] = await Promise.all([
+      supabaseClient
+        .from("SocialPost")
+        .select("favorite_count")
+        .eq("user_id", targetUserId)
+        .eq("is_deleted", false),
+      supabaseClient
+        .from("SocialReply")
+        .select("favorite_count")
+        .eq("user_id", targetUserId)
+        .eq("is_deleted", false),
+    ]);
 
-    result.total_favorites = (favData ?? []).reduce(
+    const postSum = (postFavRes.data ?? []).reduce(
       (sum, p) => sum + (p.favorite_count ?? 0),
       0,
     );
+    const replySum = (replyFavRes.data ?? []).reduce(
+      (sum, r) => sum + (r.favorite_count ?? 0),
+      0,
+    );
+    result.total_favorites = postSum + replySum;
   }
 
   return result;
@@ -2775,7 +2804,8 @@ export const getPublicSocialProfile = async (
   } | null;
   // biome-ignore lint/suspicious/noExplicitAny: enrichSocialPosts の返り値型は動的に構築される
   posts: any[];
-  total_pages: number;
+  total_posts_count: number;
+  total_training_records_count: number;
   public_pages: { id: string; title: string; created_at: string }[];
 } | null> => {
   const { data: user, error: userError } = await supabaseClient
@@ -2796,14 +2826,20 @@ export const getPublicSocialProfile = async (
       is_restricted: true,
       user: null,
       posts: [],
-      total_pages: 0,
+      total_posts_count: 0,
+      total_training_records_count: 0,
       public_pages: [],
     };
   }
 
   const targetUserId = user.id;
 
-  const [postsResult, totalPagesResult, publicPagesResult] = await Promise.all([
+  const [
+    postsResult,
+    totalPostsCountResult,
+    totalTrainingRecordsCountResult,
+    publicPagesResult,
+  ] = await Promise.all([
     supabaseClient
       .from("SocialPost")
       .select("*")
@@ -2812,9 +2848,17 @@ export const getPublicSocialProfile = async (
       .order("created_at", { ascending: false })
       .limit(20),
     supabaseClient
-      .from("TrainingPage")
+      .from("SocialPost")
       .select("*", { count: "exact", head: true })
-      .eq("user_id", targetUserId),
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .eq("post_type", "post"),
+    supabaseClient
+      .from("SocialPost")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", targetUserId)
+      .eq("is_deleted", false)
+      .eq("post_type", "training_record"),
     supabaseClient
       .from("TrainingPage")
       .select("id, title, created_at")
@@ -2831,7 +2875,8 @@ export const getPublicSocialProfile = async (
     is_restricted: false,
     user,
     posts: enrichedPosts,
-    total_pages: totalPagesResult.count ?? 0,
+    total_posts_count: totalPostsCountResult.count ?? 0,
+    total_training_records_count: totalTrainingRecordsCountResult.count ?? 0,
     public_pages: publicPagesResult.data ?? [],
   };
 };
