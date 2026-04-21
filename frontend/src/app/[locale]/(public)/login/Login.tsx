@@ -57,6 +57,16 @@ export function Login({ locale, onSuccess }: LoginProps) {
       onSuccess?.();
     } catch (err) {
       console.error("Sign in error:", err);
+      const message = err instanceof Error ? err.message : "";
+      if (message.includes("メールアドレスまたはパスワード")) {
+        // トースト表示 + プリフィルは /signup 側で ?from=login を検出して実施する
+        const emailParam = encodeURIComponent(data.email);
+        const localePrefix =
+          resolvedLocale === "ja" ? "" : `/${resolvedLocale}`;
+        window.location.replace(
+          `${localePrefix}/signup?from=login&email=${emailParam}`,
+        );
+      }
     }
   };
 

@@ -12,7 +12,9 @@ import { SubscriptionLayout } from "./SubscriptionLayout";
 declare global {
   interface Window {
     __AIKINOTE_NATIVE_APP__?: boolean;
-    showNativePaywall?: () => Promise<{ success: boolean; isPremium: boolean }>;
+    showNativePaywall?: (options?: {
+      planType?: "monthly" | "yearly";
+    }) => Promise<{ success: boolean; isPremium: boolean }>;
     showNativeCustomerCenter?: () => void;
   }
 }
@@ -112,13 +114,15 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
 
   const handleNativeUpgrade = useCallback(async () => {
     if (window.showNativePaywall) {
-      const result = await window.showNativePaywall();
+      const result = await window.showNativePaywall({
+        planType: selectedPeriod,
+      });
       if (result.success) {
         refetch();
         router.push("/settings/subscription?success=1");
       }
     }
-  }, [refetch, router]);
+  }, [refetch, router, selectedPeriod]);
 
   const handleManageSubscription = useCallback(async () => {
     if (isNativeApp && window.showNativeCustomerCenter) {

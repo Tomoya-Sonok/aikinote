@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -70,6 +71,19 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
     }
   }, [showEmailForm, emailPasswordForm]);
 
+  // /login から「アカウント未作成」としてリダイレクトされた場合、メール欄を自動展開・プリフィルし案内を表示
+  const searchParams = useSearchParams();
+  const [redirectedFromLogin, setRedirectedFromLogin] = useState(false);
+  useEffect(() => {
+    if (searchParams.get("from") !== "login") return;
+    const email = searchParams.get("email");
+    if (email) {
+      emailPasswordForm.setValue("email", email, { shouldValidate: true });
+    }
+    setShowEmailForm(true);
+    setRedirectedFromLogin(true);
+  }, [searchParams, emailPasswordForm]);
+
   const handleEmailPasswordSubmit = async (data: EmailPasswordFormData) => {
     setEmailPasswordData(data);
     usernameForm.setValue("username", generateUsernameFromEmail(data.email));
@@ -127,6 +141,24 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
     <div className={styles.container}>
       <h1 className={styles.title}>{t("auth.signup")}</h1>
       <p className={styles.subtitle}>{t("auth.signupSubtitle")}</p>
+
+      {/* /login から遷移してきた場合の案内 */}
+      {redirectedFromLogin && (
+        <output
+          style={{
+            display: "block",
+            padding: "12px 16px",
+            marginBottom: 16,
+            borderRadius: 8,
+            background: "var(--background-light)",
+            color: "var(--black)",
+            fontSize: 14,
+            lineHeight: 1.5,
+          }}
+        >
+          アカウントが見つかりませんでした。こちらから新規登録をお願いします。
+        </output>
+      )}
 
       {/* 利用規約・プライバシーポリシー同意カード */}
       <div

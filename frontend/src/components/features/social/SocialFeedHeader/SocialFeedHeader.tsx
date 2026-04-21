@@ -9,7 +9,7 @@ import {
 } from "@phosphor-icons/react";
 import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import type { FC } from "react";
+import { type FC, useEffect } from "react";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
 import { ProfileImage } from "@/components/shared/ProfileImage/ProfileImage";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -30,6 +30,22 @@ export const SocialFeedHeader: FC<SocialFeedHeaderProps> = ({
   const pathname = usePathname();
   const { user } = useAuth();
   const unreadCount = useUnreadNotificationCount(user?.id);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const w = window as unknown as {
+      __AIKINOTE_NATIVE_APP__?: boolean;
+      ReactNativeWebView?: { postMessage: (msg: string) => void };
+    };
+    if (w.__AIKINOTE_NATIVE_APP__ && w.ReactNativeWebView) {
+      w.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "UNREAD_NOTIFICATION_COUNT",
+          payload: { count: unreadCount },
+        }),
+      );
+    }
+  }, [unreadCount]);
 
   const getActiveTab = () => {
     const localePrefix = `/${locale}`;
