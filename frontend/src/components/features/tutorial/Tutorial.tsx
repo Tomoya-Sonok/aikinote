@@ -40,6 +40,26 @@ export function Tutorial() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const w = window as unknown as {
+      __AIKINOTE_NATIVE_APP__?: boolean;
+      ReactNativeWebView?: { postMessage: (msg: string) => void };
+    };
+    const send = (active: boolean) => {
+      if (w.__AIKINOTE_NATIVE_APP__ && w.ReactNativeWebView) {
+        w.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "TUTORIAL_STATE",
+            payload: { active },
+          }),
+        );
+      }
+    };
+    send(true);
+    return () => send(false);
+  }, []);
+
   const SKIP_EVENT_NAMES = [
     "tutorial_step1_skip",
     "tutorial_step2_skip",

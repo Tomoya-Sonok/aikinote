@@ -68,6 +68,14 @@
   --font-size-large: 20px;
   --current-font-size: var(--font-size-medium);
 
+  /* ── FAB 下端位置 ── */
+  /* TabNavigation（約 82px）の上に FAB を浮かせるための値。
+     ネイティブアプリのように TabNavigation を非表示にする環境では、
+     `:root` レベルでこの変数を小さな値（例: 18px）に上書きすることで
+     FAB の下方スペースを調整できる。 */
+  --fab-bottom: 100px; /* SP: TabNavigation 分 + 余白 */
+  --fab-bottom-large: 125px; /* SP large font */
+
   /* ── z-index レイヤー管理 ── */
   /* グローバルな重なり順：値が大きいほど前面 */
   /* 10の倍数で間隔を確保 → ローカルスタッキングコンテキストとの衝突を防止 */

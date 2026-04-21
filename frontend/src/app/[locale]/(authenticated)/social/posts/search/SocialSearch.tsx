@@ -508,7 +508,7 @@ export function SocialSearch() {
   );
 
   return (
-    <SocialLayout>
+    <SocialLayout showTabNavigation={false}>
       <div className={styles.stickyTop}>
         <SocialHeader
           onBack={handleBack}

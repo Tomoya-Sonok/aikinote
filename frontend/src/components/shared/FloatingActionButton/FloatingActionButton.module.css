@@ -1,6 +1,6 @@
 .fab {
   position: fixed;
-  bottom: 100px;
+  bottom: var(--fab-bottom);
   right: 14px;
   width: 100px;
   height: 100px;
@@ -24,7 +24,7 @@
 }
 
 [data-font-size="large"] .fab {
-  bottom: 125px;
+  bottom: var(--fab-bottom-large);
 }
 
 .icon {
