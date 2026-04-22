@@ -33,11 +33,15 @@ The following data will be deleted upon account deletion request:
 
 The following data will be retained for a certain period after account deletion for legal compliance, fraud prevention, and accounting obligations.
 
-| Data type                                                         | Retention period | Reason                                                                           |
-| ----------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------- |
-| Payment and subscription records (via Stripe / RevenueCat)        | 7 years          | Required by the Japanese Electronic Books Preservation Act and Corporate Tax Act |
-| Fraud records and access logs                                     | 1 year           | Investigation and prevention of fraudulent use                                   |
-| Record of the deletion request itself (received via contact form) | 2 years          | Evidence that deletion was performed legitimately                                |
+- **Payment and subscription records (via Stripe / RevenueCat)**
+  - Retention period: 7 years
+  - Reason: Required by the Japanese Electronic Books Preservation Act and Corporate Tax Act
+- **Fraud records and access logs**
+  - Retention period: 1 year
+  - Reason: Investigation and prevention of fraudulent use
+- **Record of the deletion request itself (received via contact form)**
+  - Retention period: 2 years
+  - Reason: Evidence that deletion was performed legitimately
 
 Retained data is either stored in an anonymized/aggregated form that cannot identify individuals, or encrypted and stored with the minimum necessary scope.
 
