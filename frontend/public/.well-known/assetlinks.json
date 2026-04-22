@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aikinote",
+      "sha256_cert_fingerprints": [
+        "76:F8:3B:53:1E:EB:26:87:FA:75:49:5D:07:50:83:93:70:7F:6B:E2:59:9B:9A:4C:92:B1:A1:87:E6:47:E9:DC"
+      ]
+    }
+  }
+]

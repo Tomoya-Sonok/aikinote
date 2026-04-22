@@ -267,13 +267,34 @@ export function useAuth() {
   );
 
   const signInWithGoogle = useCallback(async () => {
-    // ネイティブアプリの場合はブリッジに委譲
+    // ネイティブアプリの場合はブリッジに委譲し、結果を待つ
+    const nativeBridge = window as unknown as {
+      __AIKINOTE_NATIVE_APP__?: boolean;
+      startNativeOAuth?: (
+        provider: "google" | "apple",
+      ) => Promise<{ success: boolean; reason?: string; message?: string }>;
+    };
     if (
       typeof window !== "undefined" &&
-      (window as any).__AIKINOTE_NATIVE_APP__ &&
-      typeof (window as any).startNativeOAuth === "function"
+      nativeBridge.__AIKINOTE_NATIVE_APP__ &&
+      typeof nativeBridge.startNativeOAuth === "function"
     ) {
-      (window as any).startNativeOAuth("google");
+      setIsProcessing(true);
+      setError(null);
+      try {
+        const result = await nativeBridge.startNativeOAuth("google");
+        if (!result?.success) {
+          const reason = result?.reason ?? "unknown";
+          const message =
+            reason === "cancel" || reason === "dismiss"
+              ? "Googleログインがキャンセルされました"
+              : "Googleログインに失敗しました。もう一度お試しください。";
+          setError(message);
+          throw new Error(message);
+        }
+      } finally {
+        setIsProcessing(false);
+      }
       return;
     }
 
@@ -302,13 +323,34 @@ export function useAuth() {
   }, [supabase.auth]);
 
   const signInWithApple = useCallback(async () => {
-    // ネイティブアプリの場合はブリッジに委譲
+    // ネイティブアプリの場合はブリッジに委譲し、結果を待つ
+    const nativeBridge = window as unknown as {
+      __AIKINOTE_NATIVE_APP__?: boolean;
+      startNativeOAuth?: (
+        provider: "google" | "apple",
+      ) => Promise<{ success: boolean; reason?: string; message?: string }>;
+    };
     if (
       typeof window !== "undefined" &&
-      (window as any).__AIKINOTE_NATIVE_APP__ &&
-      typeof (window as any).startNativeOAuth === "function"
+      nativeBridge.__AIKINOTE_NATIVE_APP__ &&
+      typeof nativeBridge.startNativeOAuth === "function"
     ) {
-      (window as any).startNativeOAuth("apple");
+      setIsProcessing(true);
+      setError(null);
+      try {
+        const result = await nativeBridge.startNativeOAuth("apple");
+        if (!result?.success) {
+          const reason = result?.reason ?? "unknown";
+          const message =
+            reason === "cancel" || reason === "dismiss"
+              ? "Appleログインがキャンセルされました"
+              : "Appleログインに失敗しました。もう一度お試しください。";
+          setError(message);
+          throw new Error(message);
+        }
+      } finally {
+        setIsProcessing(false);
+      }
       return;
     }
 
