@@ -52,6 +52,20 @@ const nextConfig = {
     return config;
   },
 
+  // Universal Links / App Links 用の .well-known ファイルを正しい Content-Type で配信
+  async headers() {
+    return [
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+      {
+        source: "/.well-known/assetlinks.json",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
+    ];
+  },
+
   // 環境変数を明示的に設定（ビルド時とランタイム両方で利用可能）
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,

@@ -37,6 +37,7 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
 }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isProfileCardOpen, setIsProfileCardOpen] = useState(false);
+  const [isNativeApp, setIsNativeApp] = useState(false);
   const profileCardRef = useRef<HTMLDivElement>(null);
   const { shouldShowTooltip, hideTooltip } = useTooltipVisibility();
   const tooltipId = "font-size-tooltip";
@@ -44,6 +45,13 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   const locale = useLocale();
   const t = useTranslations();
   const { track } = useUmamiTrack();
+
+  useEffect(() => {
+    setIsNativeApp(
+      !!(window as unknown as { __AIKINOTE_NATIVE_APP__?: boolean })
+        .__AIKINOTE_NATIVE_APP__,
+    );
+  }, []);
 
   const pathname = usePathname();
   const unreadCount = useUnreadNotificationCount(user?.id);
@@ -118,23 +126,30 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   }, [isProfileCardOpen]);
 
   const homeHref = `/${locale}`;
+  const logoImage = (
+    <Image
+      src="/images/shared/aikinote_logo.png"
+      alt="AikiNote"
+      width={56}
+      height={56}
+      priority
+      className={styles.logo}
+    />
+  );
 
   return (
     <header className={styles.header} data-testid="default-header">
-      <Link
-        href={homeHref}
-        className={styles.logoLink}
-        aria-label="ホームに移動"
-      >
-        <Image
-          src="/images/shared/aikinote_logo.png"
-          alt="AikiNote"
-          width={56}
-          height={56}
-          priority
-          className={styles.logo}
-        />
-      </Link>
+      {isNativeApp ? (
+        <div className={styles.logoLink}>{logoImage}</div>
+      ) : (
+        <Link
+          href={homeHref}
+          className={styles.logoLink}
+          aria-label="ホームに移動"
+        >
+          {logoImage}
+        </Link>
+      )}
 
       <div className={styles.headerRight}>
         {user && (
