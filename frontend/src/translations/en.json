@@ -987,6 +987,7 @@
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
     "tokushoho": "Specified Commercial Transactions Act",
+    "accountDeletion": "About account deletion",
     "legalInfo": "Legal Information",
     "agreeToTerms": "By registering, you agree to the {terms} and {privacy}",
     "agreeCheckbox": "I agree to the above"

@@ -989,6 +989,7 @@
     "termsOfService": "利用規約",
     "privacyPolicy": "プライバシーポリシー",
     "tokushoho": "特定商取引法に基づく表記",
+    "accountDeletion": "退会・アカウント削除について",
     "legalInfo": "法的情報",
     "agreeToTerms": "{terms} および {privacy} に同意の上、登録してください",
     "agreeCheckbox": "上記に同意する"

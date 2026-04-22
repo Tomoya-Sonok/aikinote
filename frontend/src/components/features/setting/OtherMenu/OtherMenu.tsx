@@ -35,6 +35,9 @@ export const OtherMenu: FC<OtherMenuProps> = ({
       <SettingItem onClick={onHelpClick}>
         {t("components.helpContact")}
       </SettingItem>
+      <SettingItem onClick={() => router.push(`/${locale}/account-deletion`)}>
+        {t("legal.accountDeletion")}
+      </SettingItem>
       <SettingItem onClick={onLogoutClick} variant="danger">
         {t("components.logout")}
       </SettingItem>
