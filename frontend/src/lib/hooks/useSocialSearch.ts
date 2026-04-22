@@ -24,7 +24,7 @@ interface UseSocialSearchResult {
 }
 
 const DEBOUNCE_MS = 400;
-const LIMIT = 20;
+const SOCIAL_SEARCH_FETCH_LIMIT = 20;
 
 export function useSocialSearch(
   userId: string | undefined,
@@ -58,7 +58,7 @@ export function useSocialSearch(
             rank: rank || undefined,
             hashtag: hashtag || undefined,
             postType: postType || undefined,
-            limit: LIMIT,
+            limit: SOCIAL_SEARCH_FETCH_LIMIT,
           };
           const result = await searchSocialPosts(params);
           if (result.success && result.data) {
