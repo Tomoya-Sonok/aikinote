@@ -27,6 +27,8 @@ interface PageCreateData {
 // 楽観的更新用の一時的なプレフィックス
 const OPTIMISTIC_ID_PREFIX = "optimistic-";
 
+const TRAINING_PAGES_FETCH_LIMIT = 25;
+
 export interface FetchOptions {
   query?: string;
   tags?: string[];
@@ -81,7 +83,6 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
       );
 
       try {
-        const limit = 25;
         const offset = isLoadMore
           ? allDataRef.current.filter(
               (p) => !p.id.startsWith(OPTIMISTIC_ID_PREFIX),
@@ -90,7 +91,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
 
         const response = await getPages({
           userId: user.id,
-          limit,
+          limit: TRAINING_PAGES_FETCH_LIMIT,
           offset,
           query: options.query || "",
           tags: options.tags || [],

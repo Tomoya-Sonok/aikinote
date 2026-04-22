@@ -36,7 +36,7 @@ interface UseSocialFeedResult {
   ) => void;
 }
 
-const LIMIT = 20;
+const SOCIAL_FEED_FETCH_LIMIT = 20;
 
 export function useSocialFeed(
   userId: string | undefined,
@@ -60,7 +60,7 @@ export function useSocialFeed(
         const params: GetSocialFeedParams = {
           userId,
           tab: targetTab,
-          limit: LIMIT,
+          limit: SOCIAL_FEED_FETCH_LIMIT,
           offset,
         };
 
@@ -75,7 +75,7 @@ export function useSocialFeed(
           [targetTab]: {
             posts: append ? [...prev[targetTab].posts, ...newPosts] : newPosts,
             offset: offset + newPosts.length,
-            hasMore: newPosts.length >= LIMIT,
+            hasMore: newPosts.length >= SOCIAL_FEED_FETCH_LIMIT,
             initialLoading: false,
           },
         }));

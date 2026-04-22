@@ -32,7 +32,7 @@ interface UseNotificationsReturn {
   loadMore: () => void;
 }
 
-const LIMIT = 20;
+const NOTIFICATIONS_FETCH_LIMIT = 20;
 
 export function useNotifications(
   tab: NotificationTab,
@@ -54,7 +54,7 @@ export function useNotifications(
       try {
         const typeFilter = tab === "all" ? undefined : tab;
         const result = await getNotifications({
-          limit: LIMIT,
+          limit: NOTIFICATIONS_FETCH_LIMIT,
           offset,
           type: typeFilter,
         });
@@ -66,7 +66,7 @@ export function useNotifications(
 
         setNotifications((prev) => (append ? [...prev, ...items] : items));
         offsetRef.current = offset + items.length;
-        setHasMore(items.length >= LIMIT);
+        setHasMore(items.length >= NOTIFICATIONS_FETCH_LIMIT);
       } catch {
         setHasMore(false);
       }
