@@ -16,6 +16,7 @@ import { useSubscription } from "@/lib/hooks/useSubscription";
 
 import { useRouter } from "@/lib/i18n/routing";
 import { linkifyText } from "@/lib/utils/linkifyText";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import styles from "./page.module.css";
 
 export function PageDetail() {
@@ -61,10 +62,13 @@ export function PageDetail() {
     setTogglingPublic(true);
     try {
       await togglePageVisibility(pageData.id, user.id, newValue);
-    } catch {
+    } catch (error) {
       // ロールバック
       setPageData(previousPageData);
-      showToast(t("pageDetail.publicToggleFailed"), "error");
+      showToast(
+        getNetworkAwareErrorMessage(error, t("pageDetail.publicToggleFailed")),
+        "error",
+      );
     } finally {
       setTogglingPublic(false);
     }
@@ -114,7 +118,7 @@ export function PageDetail() {
     } catch (error) {
       console.error("Failed to delete page:", error);
       showToast(
-        error instanceof Error ? error.message : t("pageDetail.deleteFailed"),
+        getNetworkAwareErrorMessage(error, t("pageDetail.deleteFailed")),
         "error",
       );
     } finally {

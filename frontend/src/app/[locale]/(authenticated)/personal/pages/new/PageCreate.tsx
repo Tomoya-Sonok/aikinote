@@ -9,6 +9,7 @@ import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { InitialTagLanguageDialog } from "@/components/shared/InitialTagLanguageDialog/InitialTagLanguageDialog";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
+import { OfflineHint } from "@/components/shared/OfflineHint/OfflineHint";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
@@ -26,6 +27,7 @@ import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import styles from "./PageCreate.module.css";
 
 export function PageCreate() {
@@ -181,8 +183,14 @@ export function PageCreate() {
           ("error" in result && result.error) || "作成に失敗しました",
         );
       }
-    } catch {
-      showToast(t("pageCreate.createFailed") || "作成に失敗しました", "error");
+    } catch (error) {
+      showToast(
+        getNetworkAwareErrorMessage(
+          error,
+          t("pageCreate.createFailed") || "作成に失敗しました",
+        ),
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -237,6 +245,7 @@ export function PageCreate() {
       />
 
       <main className={styles.main}>
+        <OfflineHint />
         <div className={styles.section}>
           <div className={styles.titleRow}>
             <TextInput

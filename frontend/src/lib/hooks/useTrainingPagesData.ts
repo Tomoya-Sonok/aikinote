@@ -6,9 +6,11 @@ import {
 } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo } from "react";
+import { useToast } from "@/contexts/ToastContext";
 import { deletePage, getPages } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import type { TrainingPageData } from "@/types/training";
 
 const TRAINING_PAGES_FETCH_LIMIT = 25;
@@ -67,6 +69,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
   const t = useTranslations();
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const normalizedOptions = useMemo(() => normalizeOptions(options), [options]);
   const filtersApplied = hasAnyFilters(normalizedOptions);
@@ -215,10 +218,9 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
         );
       }
       console.error("Failed to delete page:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : t("personalPages.pageDeleteFailed"),
+      showToast(
+        getNetworkAwareErrorMessage(error, t("personalPages.pageDeleteFailed")),
+        "error",
       );
     },
     onSettled: () => {
