@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useMemo } from "react";
 import { getNotifications } from "@/lib/api/client";
 
 export type NotificationTab = "all" | "reply" | "favorite";
@@ -32,73 +33,70 @@ interface UseNotificationsReturn {
   loadMore: () => void;
 }
 
+interface NotificationsPage {
+  items: NotificationItemData[];
+  next_offset: number | null;
+}
+
 const NOTIFICATIONS_FETCH_LIMIT = 20;
+
+export const notificationsQueryKey = (
+  userId: string | undefined,
+  tab: NotificationTab,
+) => ["notifications", userId, tab] as const;
 
 export function useNotifications(
   tab: NotificationTab,
   userId: string | undefined,
 ): UseNotificationsReturn {
-  const [notifications, setNotifications] = useState<NotificationItemData[]>(
-    [],
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const offsetRef = useRef(0);
-  const prevTabRef = useRef(tab);
-
-  const fetchNotifications = useCallback(
-    async (offset: number, append: boolean) => {
-      if (!userId) return;
-
-      try {
-        const typeFilter = tab === "all" ? undefined : tab;
-        const result = await getNotifications({
-          limit: NOTIFICATIONS_FETCH_LIMIT,
-          offset,
-          type: typeFilter,
-        });
-
-        const items =
-          result.success && result.data
-            ? (result.data as NotificationItemData[])
-            : [];
-
-        setNotifications((prev) => (append ? [...prev, ...items] : items));
-        offsetRef.current = offset + items.length;
-        setHasMore(items.length >= NOTIFICATIONS_FETCH_LIMIT);
-      } catch {
-        setHasMore(false);
-      }
+  const query = useInfiniteQuery<
+    NotificationsPage,
+    Error,
+    InfiniteData<NotificationsPage>,
+    ReturnType<typeof notificationsQueryKey>,
+    number
+  >({
+    queryKey: notificationsQueryKey(userId, tab),
+    enabled: !!userId,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      if (!userId) return { items: [], next_offset: null };
+      const typeFilter = tab === "all" ? undefined : tab;
+      const result = await getNotifications({
+        limit: NOTIFICATIONS_FETCH_LIMIT,
+        offset: pageParam,
+        type: typeFilter,
+      });
+      const items =
+        result.success && result.data
+          ? (result.data as NotificationItemData[])
+          : [];
+      return {
+        items,
+        next_offset:
+          items.length >= NOTIFICATIONS_FETCH_LIMIT
+            ? pageParam + items.length
+            : null,
+      };
     },
-    [userId, tab],
+    getNextPageParam: (lastPage) => lastPage.next_offset ?? undefined,
+  });
+
+  const notifications = useMemo(
+    () => query.data?.pages.flatMap((p) => p.items) ?? [],
+    [query.data],
   );
-
-  useEffect(() => {
-    if (!userId) {
-      setNotifications([]);
-      setIsLoading(false);
-      return;
-    }
-
-    if (prevTabRef.current !== tab) {
-      prevTabRef.current = tab;
-      setNotifications([]);
-      offsetRef.current = 0;
-      setHasMore(true);
-    }
-
-    setIsLoading(true);
-    fetchNotifications(0, false).finally(() => setIsLoading(false));
-  }, [userId, tab, fetchNotifications]);
 
   const loadMore = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
-    setIsLoadingMore(true);
-    fetchNotifications(offsetRef.current, true).finally(() =>
-      setIsLoadingMore(false),
-    );
-  }, [isLoadingMore, hasMore, fetchNotifications]);
+    if (!query.hasNextPage || query.isFetchingNextPage) return;
+    void query.fetchNextPage();
+  }, [query]);
 
-  return { notifications, isLoading, isLoadingMore, hasMore, loadMore };
+  return {
+    notifications,
+    isLoading: !userId ? false : query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore: !!query.hasNextPage,
+    loadMore,
+  };
 }
