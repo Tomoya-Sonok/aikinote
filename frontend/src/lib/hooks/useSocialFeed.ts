@@ -1,27 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type InfiniteData,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo } from "react";
 import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { type GetSocialFeedParams, getSocialFeed } from "@/lib/api/client";
 
 type SocialTab = "all" | "training" | "favorites";
 
 const ALL_TABS: SocialTab[] = ["all", "training", "favorites"];
+const SOCIAL_FEED_FETCH_LIMIT = 20;
 
-interface TabState {
+interface SocialFeedPage {
   posts: SocialFeedPostData[];
-  offset: number;
-  hasMore: boolean;
-  /** null = 未取得, true = ロード中, false = 取得済み */
-  initialLoading: boolean | null;
+  next_offset: number | null;
 }
-
-const createEmptyTabState = (): TabState => ({
-  posts: [],
-  offset: 0,
-  hasMore: true,
-  initialLoading: null,
-});
 
 interface UseSocialFeedResult {
   posts: SocialFeedPostData[];
@@ -36,149 +32,135 @@ interface UseSocialFeedResult {
   ) => void;
 }
 
-const SOCIAL_FEED_FETCH_LIMIT = 20;
+export const socialFeedQueryKey = (
+  userId: string | undefined,
+  tab: SocialTab,
+) => ["social-feed", userId, tab] as const;
+
+async function fetchSocialFeedPage(
+  userId: string,
+  tab: SocialTab,
+  offset: number,
+): Promise<SocialFeedPage> {
+  const params: GetSocialFeedParams = {
+    userId,
+    tab,
+    limit: SOCIAL_FEED_FETCH_LIMIT,
+    offset,
+  };
+  const result = await getSocialFeed(params);
+  const posts =
+    result.success && result.data ? (result.data as SocialFeedPostData[]) : [];
+  return {
+    posts,
+    next_offset:
+      posts.length >= SOCIAL_FEED_FETCH_LIMIT ? offset + posts.length : null,
+  };
+}
 
 export function useSocialFeed(
   userId: string | undefined,
   tab: SocialTab,
 ): UseSocialFeedResult {
-  const [tabCache, setTabCache] = useState<Record<SocialTab, TabState>>({
-    all: createEmptyTabState(),
-    training: createEmptyTabState(),
-    favorites: createEmptyTabState(),
-  });
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const prefetchedRef = useRef(false);
-  const tabCacheRef = useRef(tabCache);
-  tabCacheRef.current = tabCache;
+  const queryClient = useQueryClient();
 
-  const fetchTab = useCallback(
-    async (targetTab: SocialTab, offset: number, append: boolean) => {
-      if (!userId) return;
-
-      try {
-        const params: GetSocialFeedParams = {
-          userId,
-          tab: targetTab,
-          limit: SOCIAL_FEED_FETCH_LIMIT,
-          offset,
-        };
-
-        const result = await getSocialFeed(params);
-        const newPosts =
-          result.success && result.data
-            ? (result.data as SocialFeedPostData[])
-            : [];
-
-        setTabCache((prev) => ({
-          ...prev,
-          [targetTab]: {
-            posts: append ? [...prev[targetTab].posts, ...newPosts] : newPosts,
-            offset: offset + newPosts.length,
-            hasMore: newPosts.length >= SOCIAL_FEED_FETCH_LIMIT,
-            initialLoading: false,
-          },
-        }));
-      } catch (error) {
-        console.error("フィード取得エラー:", error);
-        setTabCache((prev) => ({
-          ...prev,
-          [targetTab]: {
-            ...prev[targetTab],
-            initialLoading: false,
-          },
-        }));
-      }
+  const query = useInfiniteQuery<
+    SocialFeedPage,
+    Error,
+    InfiniteData<SocialFeedPage>,
+    ReturnType<typeof socialFeedQueryKey>,
+    number
+  >({
+    queryKey: socialFeedQueryKey(userId, tab),
+    enabled: !!userId,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
+      if (!userId) return { posts: [], next_offset: null };
+      return fetchSocialFeedPage(userId, tab, pageParam);
     },
-    [userId],
-  );
+    getNextPageParam: (lastPage) => lastPage.next_offset ?? undefined,
+  });
 
-  // アクティブタブの初回ロード
+  // 他タブのプリフェッチ（アクティブタブのロード完了後、idle callback で実行）
   useEffect(() => {
-    if (!userId) return;
-    if (tabCacheRef.current[tab].initialLoading !== null) return;
+    if (!userId || !query.isSuccess) return;
 
-    setTabCache((prev) => ({
-      ...prev,
-      [tab]: { ...prev[tab], initialLoading: true },
-    }));
-    fetchTab(tab, 0, false);
-  }, [userId, tab, fetchTab]);
-
-  // 他タブのプリフェッチ（アクティブタブのロード完了後）
-  useEffect(() => {
-    if (!userId || prefetchedRef.current) return;
-    if (tabCacheRef.current[tab].initialLoading !== false) return;
-
-    prefetchedRef.current = true;
-
-    const prefetch = () => {
-      const cache = tabCacheRef.current;
+    const prefetchOtherTabs = () => {
       for (const otherTab of ALL_TABS) {
         if (otherTab === tab) continue;
-        if (cache[otherTab].initialLoading !== null) continue;
-
-        setTabCache((prev) => ({
-          ...prev,
-          [otherTab]: { ...prev[otherTab], initialLoading: true },
-        }));
-        fetchTab(otherTab, 0, false);
+        void queryClient.prefetchInfiniteQuery<
+          SocialFeedPage,
+          Error,
+          InfiniteData<SocialFeedPage>,
+          ReturnType<typeof socialFeedQueryKey>,
+          number
+        >({
+          queryKey: socialFeedQueryKey(userId, otherTab),
+          initialPageParam: 0,
+          queryFn: async ({ pageParam }) =>
+            fetchSocialFeedPage(userId, otherTab, pageParam),
+        });
       }
     };
 
     if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(prefetch, { timeout: 3000 });
-    } else {
-      setTimeout(prefetch, 500);
+      const handle = window.requestIdleCallback(prefetchOtherTabs, {
+        timeout: 3000,
+      });
+      return () => window.cancelIdleCallback(handle);
     }
-  }, [userId, tab, fetchTab]);
+    const timeoutId = setTimeout(prefetchOtherTabs, 500);
+    return () => clearTimeout(timeoutId);
+  }, [userId, tab, query.isSuccess, queryClient]);
 
-  const currentState = tabCache[tab];
+  const posts = useMemo(
+    () => query.data?.pages.flatMap((p) => p.posts) ?? [],
+    [query.data],
+  );
+
+  const hasMore = !!query.hasNextPage;
 
   const loadMore = useCallback(() => {
-    if (isLoadingMore || !currentState.hasMore) return;
-    setIsLoadingMore(true);
-    fetchTab(tab, currentState.offset, true).finally(() =>
-      setIsLoadingMore(false),
-    );
-  }, [fetchTab, tab, currentState.offset, currentState.hasMore, isLoadingMore]);
+    if (!query.hasNextPage || query.isFetchingNextPage) return;
+    void query.fetchNextPage();
+  }, [query]);
 
   const refetch = useCallback(() => {
-    setTabCache((prev) => ({
-      ...prev,
-      [tab]: { ...createEmptyTabState(), initialLoading: true },
-    }));
-    fetchTab(tab, 0, false);
-  }, [fetchTab, tab]);
+    void query.refetch();
+  }, [query]);
 
   const updatePost = useCallback(
     (
       postId: string,
       updater: (post: SocialFeedPostData) => SocialFeedPostData,
     ) => {
-      // 全タブのキャッシュを更新（同じ投稿が複数タブに存在しうる）
-      setTabCache((prev) => {
-        const next = { ...prev };
-        for (const t of ALL_TABS) {
-          const state = prev[t];
-          if (state.posts.some((p) => p.id === postId)) {
-            next[t] = {
-              ...state,
-              posts: state.posts.map((p) => (p.id === postId ? updater(p) : p)),
-            };
-          }
-        }
-        return next;
-      });
+      // 全タブの infinite-query キャッシュから該当 postId を差し替え
+      for (const t of ALL_TABS) {
+        queryClient.setQueryData<InfiniteData<SocialFeedPage>>(
+          socialFeedQueryKey(userId, t),
+          (old) =>
+            old
+              ? {
+                  ...old,
+                  pages: old.pages.map((page) => ({
+                    ...page,
+                    posts: page.posts.map((p) =>
+                      p.id === postId ? updater(p) : p,
+                    ),
+                  })),
+                }
+              : old,
+        );
+      }
     },
-    [],
+    [userId, queryClient],
   );
 
   return {
-    posts: currentState.posts,
-    isLoading: currentState.initialLoading !== false,
-    isLoadingMore,
-    hasMore: currentState.hasMore,
+    posts,
+    isLoading: query.isLoading,
+    isLoadingMore: query.isFetchingNextPage,
+    hasMore,
     loadMore,
     refetch,
     updatePost,
