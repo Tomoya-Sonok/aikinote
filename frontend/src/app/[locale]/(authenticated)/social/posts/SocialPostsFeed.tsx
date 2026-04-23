@@ -18,6 +18,7 @@ import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { PublicityConfirmDialog } from "@/components/shared/PublicityConfirmDialog/PublicityConfirmDialog";
+import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
 import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
@@ -48,8 +49,16 @@ export function SocialPostsFeed() {
   const [activeTab, setActiveTab] = useState<SocialTab>(() =>
     parseTabParam(searchParams.get("tab")),
   );
-  const { posts, isLoading, isLoadingMore, hasMore, loadMore, updatePost } =
-    useSocialFeed(user?.id, activeTab);
+  const {
+    posts,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    updatePost,
+    refetch,
+    isRefetchError,
+  } = useSocialFeed(user?.id, activeTab);
   const { showToast } = useToast();
   const { handleToggleFavorite } = useSocialFavorite();
   const { track } = useUmamiTrack();
@@ -176,6 +185,9 @@ export function SocialPostsFeed() {
         className={`${styles.feedContainer} ${isDragging ? styles.feedContainerSwiping : ""}`}
         {...handlers}
       >
+        {isRefetchError && posts.length > 0 && (
+          <RefetchErrorBanner onRetry={refetch} />
+        )}
         {isLoading ? (
           <SocialPostCardSkeleton />
         ) : posts.length === 0 ? (

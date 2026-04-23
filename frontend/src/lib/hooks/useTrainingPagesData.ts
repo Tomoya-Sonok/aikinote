@@ -249,5 +249,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
     hasMore,
     loadMore,
     removePage,
+    // キャッシュ表示中だが直近の refetch が失敗している（＝データは見えるけど最新ではない）
+    isRefetchError: pagesQuery.isError && !!pagesQuery.data,
   };
 }

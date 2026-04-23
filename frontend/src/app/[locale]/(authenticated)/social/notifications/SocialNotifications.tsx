@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { NotificationList } from "@/components/features/social/NotificationList/NotificationList";
 import { NotificationTabBar } from "@/components/features/social/NotificationTabBar/NotificationTabBar";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout/MinimalLayout";
+import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
 import { markNotificationsRead } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
@@ -27,8 +28,14 @@ export function SocialNotifications() {
   );
   const markedReadRef = useRef(false);
 
-  const { notifications, isLoading, isLoadingMore, hasMore, loadMore } =
-    useNotifications(activeTab, user?.id);
+  const {
+    notifications,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    isRefetchError,
+  } = useNotifications(activeTab, user?.id);
 
   const handleTabChange = useCallback((newTab: string) => {
     const tab = newTab as NotificationTab;
@@ -66,6 +73,7 @@ export function SocialNotifications() {
         swipeProgress={swipeProgress}
       />
       <div ref={containerRef} {...handlers} className={styles.feedContainer}>
+        {isRefetchError && notifications.length > 0 && <RefetchErrorBanner />}
         <NotificationList
           notifications={notifications}
           isLoading={isLoading}
