@@ -9,11 +9,13 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
+import { OfflineHint } from "@/components/shared/OfflineHint/OfflineHint";
 import { useToast } from "@/contexts/ToastContext";
 import { getSocialPost, updateSocialPost } from "@/lib/api/client";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useRouter } from "@/lib/i18n/routing";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import styles from "./SocialPostEdit.module.css";
 
 const MAX_CONTENT_LENGTH = 2000;
@@ -101,8 +103,8 @@ export function SocialPostEdit() {
 
       isNavigatingRef.current = true;
       router.replace(`/social/posts/${postId}`);
-    } catch {
-      showToast(t("editFailed"), "error");
+    } catch (error) {
+      showToast(getNetworkAwareErrorMessage(error, t("editFailed")), "error");
     } finally {
       setIsSaving(false);
     }
@@ -156,6 +158,7 @@ export function SocialPostEdit() {
       />
 
       <main className={styles.main}>
+        <OfflineHint />
         <div className={styles.section}>
           <HashtagTextarea
             className={styles.textarea}

@@ -10,6 +10,7 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
 import { InitialTagLanguageDialog } from "@/components/shared/InitialTagLanguageDialog/InitialTagLanguageDialog";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
+import { OfflineHint } from "@/components/shared/OfflineHint/OfflineHint";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
@@ -29,6 +30,7 @@ import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import styles from "./SocialPostCreate.module.css";
 
 type CreateMode = "post" | "training";
@@ -189,10 +191,10 @@ export function SocialPostCreate() {
       isNavigatingRef.current = true;
       router.replace("/social/posts");
     } catch (error) {
-      showToast(
-        tSocial(isRateLimitError(error) ? "postRateLimited" : "createFailed"),
-        "error",
+      const fallback = tSocial(
+        isRateLimitError(error) ? "postRateLimited" : "createFailed",
       );
+      showToast(getNetworkAwareErrorMessage(error, fallback), "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -251,8 +253,11 @@ export function SocialPostCreate() {
           ("error" in result && result.error) || tSocial("createFailed"),
         );
       }
-    } catch {
-      showToast(tSocial("createFailed"), "error");
+    } catch (error) {
+      showToast(
+        getNetworkAwareErrorMessage(error, tSocial("createFailed")),
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -330,6 +335,7 @@ export function SocialPostCreate() {
       />
 
       <main className={styles.main}>
+        <OfflineHint />
         {/* モード切り替え */}
         <div className={styles.section}>
           <span id={modeGroupId} className={styles.srOnly}>

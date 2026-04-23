@@ -45,6 +45,7 @@ import { AGE_RANGE_OPTIONS, GENDER_OPTIONS } from "@/lib/constants/userProfile";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useProfileImageUpload } from "@/lib/hooks/useProfileImageUpload";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import { usernameSchema } from "@/lib/utils/validation";
 import styles from "./ProfileEdit.module.css";
 
@@ -186,9 +187,10 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
     } catch (error) {
       console.error("プロフィール更新エラー:", error);
       showToast(
-        error instanceof Error
-          ? error.message
-          : t("userInfoEdit.communicationFailed"),
+        getNetworkAwareErrorMessage(
+          error,
+          t("userInfoEdit.communicationFailed"),
+        ),
         "error",
       );
     }
@@ -326,7 +328,13 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
       }
     } catch (error) {
       console.error("道場登録エラー:", error);
-      showToast(t("userInfoEdit.communicationFailed"), "error");
+      showToast(
+        getNetworkAwareErrorMessage(
+          error,
+          t("userInfoEdit.communicationFailed"),
+        ),
+        "error",
+      );
     }
   };
 

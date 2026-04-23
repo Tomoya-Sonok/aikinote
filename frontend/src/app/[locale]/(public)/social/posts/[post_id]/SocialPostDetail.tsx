@@ -53,6 +53,7 @@ import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
 import { isWithinDeleteDisplayWindow } from "@/lib/utils/notificationUtils";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import { buildShareUrl } from "@/lib/utils/share";
 import styles from "./SocialPostDetail.module.css";
 
@@ -225,6 +226,11 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
       );
       if (isDailyLimitError(error)) {
         showToast(t("favoriteDailyLimitReached"), "error");
+      } else if (!navigator.onLine) {
+        showToast(
+          "オフラインです。ネットワークに接続してから再度お試しください。",
+          "error",
+        );
       }
     }
   }, [detail, postId, isAuthenticated, showToast, t]);
@@ -234,8 +240,8 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     try {
       await deleteSocialPost(postId);
       router.replace("/social/posts");
-    } catch {
-      showToast(t("deleteFailed"), "error");
+    } catch (error) {
+      showToast(getNetworkAwareErrorMessage(error, t("deleteFailed")), "error");
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -260,10 +266,10 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
           setDetail(result.data as PostDetailData);
         }
       } catch (error) {
-        showToast(
-          t(isRateLimitError(error) ? "replyRateLimited" : "replySendFailed"),
-          "error",
+        const fallback = t(
+          isRateLimitError(error) ? "replyRateLimited" : "replySendFailed",
         );
+        showToast(getNetworkAwareErrorMessage(error, fallback), "error");
       }
     },
     [postId, user?.id, showToast, t, incrementReplyCount],
