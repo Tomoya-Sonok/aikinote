@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getTags } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 
@@ -8,32 +8,26 @@ export interface Tag {
   category: string;
 }
 
+export const trainingTagsQueryKey = (userId: string | undefined) =>
+  ["training-tags", userId] as const;
+
 export function useTrainingTags() {
   const { user } = useAuth();
-  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
 
-  useEffect(() => {
-    const fetchTags = async () => {
-      if (!user?.id) return;
-      try {
-        const response = await getTags(user.id);
-        if (!response.success) {
-          console.error(
-            "Failed to fetch tags:",
-            "error" in response ? response.error : undefined,
-          );
-          return;
-        }
-
-        if (response.data) {
-          setAvailableTags(response.data as Tag[]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch tags:", err);
+  const query = useQuery<Tag[], Error>({
+    queryKey: trainingTagsQueryKey(user?.id),
+    enabled: !!user?.id,
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await getTags(user.id);
+      if (!response.success) {
+        const error = "error" in response ? response.error : undefined;
+        console.error("Failed to fetch tags:", error);
+        return [];
       }
-    };
-    fetchTags();
-  }, [user]);
+      return (response.data ?? []) as Tag[];
+    },
+  });
 
-  return { availableTags };
+  return { availableTags: query.data ?? [] };
 }

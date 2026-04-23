@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getTrainingStats } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 
@@ -33,50 +33,43 @@ export interface UseTrainingStatsOptions {
   endDate?: string | null;
 }
 
+export const trainingStatsQueryKey = (
+  userId: string | undefined,
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+) => ["training-stats", userId, startDate ?? null, endDate ?? null] as const;
+
 export function useTrainingStats(options?: UseTrainingStatsOptions) {
   const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<TrainingStatsData | null>(null);
 
-  const fetchStats = useCallback(async () => {
-    if (authLoading) return;
-    if (!user?.id) {
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
+  const query = useQuery<TrainingStatsData, Error>({
+    queryKey: trainingStatsQueryKey(
+      user?.id,
+      options?.startDate ?? null,
+      options?.endDate ?? null,
+    ),
+    enabled: !authLoading && !!user?.id,
+    queryFn: async () => {
+      if (!user?.id) throw new Error("ユーザー未ログイン");
       const response = await getTrainingStats({
         userId: user.id,
         startDate: options?.startDate ?? undefined,
         endDate: options?.endDate ?? undefined,
       });
-
       if (!response.success || !response.data) {
         throw new Error(
           (response as { error?: string }).error ??
             "統計データの取得に失敗しました",
         );
       }
+      return response.data as TrainingStatsData;
+    },
+  });
 
-      setData(response.data as TrainingStatsData);
-    } catch (err) {
-      console.error("Failed to fetch training stats:", err);
-      setError(
-        err instanceof Error ? err.message : "統計データの取得に失敗しました",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [authLoading, user?.id, options?.startDate, options?.endDate]);
-
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
-
-  return { loading, error, data, refetch: fetchStats };
+  return {
+    loading: authLoading || query.isLoading,
+    error: query.error?.message ?? null,
+    data: query.data ?? null,
+    refetch: query.refetch,
+  };
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { type DailyLimitsData, getDailyLimits } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
@@ -8,78 +9,91 @@ import { useSubscription } from "@/lib/hooks/useSubscription";
 const FREE_DAILY_LIMIT = 3;
 const FREE_DAILY_FAVORITE_LIMIT = 5;
 
+const FALLBACK_FREE_LIMITS: DailyLimitsData = {
+  posts: { used: 0, limit: FREE_DAILY_LIMIT },
+  replies: { used: 0, limit: FREE_DAILY_LIMIT },
+  favorites: { used: 0, limit: FREE_DAILY_FAVORITE_LIMIT },
+  is_premium: false,
+};
+
+const PREMIUM_UNLIMITED: DailyLimitsData = {
+  posts: { used: 0, limit: -1 },
+  replies: { used: 0, limit: -1 },
+  favorites: { used: 0, limit: -1 },
+  is_premium: true,
+};
+
+export const dailyLimitsQueryKey = (userId: string | undefined) =>
+  ["daily-limits", userId] as const;
+
 export function useDailyLimits() {
   const { user } = useAuth();
   const { isPremium, loading: subLoading } = useSubscription();
-  const [limits, setLimits] = useState<DailyLimitsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const fetchLimits = useCallback(async () => {
-    if (!user?.id || subLoading) return;
+  const query = useQuery<DailyLimitsData, Error>({
+    queryKey: dailyLimitsQueryKey(user?.id),
+    enabled: !!user?.id && !subLoading && !isPremium,
+    queryFn: async () => {
+      try {
+        return await getDailyLimits();
+      } catch {
+        return FALLBACK_FREE_LIMITS;
+      }
+    },
+  });
 
-    if (isPremium) {
-      setLimits({
-        posts: { used: 0, limit: -1 },
-        replies: { used: 0, limit: -1 },
-        favorites: { used: 0, limit: -1 },
-        is_premium: true,
-      });
-      setLoading(false);
-      return;
-    }
+  // Premium ユーザーは API を叩かずローカルで無制限扱いにする
+  const limits: DailyLimitsData | null = isPremium
+    ? PREMIUM_UNLIMITED
+    : (query.data ?? null);
 
-    setLoading(true);
-    try {
-      const data = await getDailyLimits();
-      setLimits(data);
-    } catch {
-      setLimits({
-        posts: { used: 0, limit: FREE_DAILY_LIMIT },
-        replies: { used: 0, limit: FREE_DAILY_LIMIT },
-        favorites: { used: 0, limit: FREE_DAILY_FAVORITE_LIMIT },
-        is_premium: false,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, isPremium, subLoading]);
+  const loading =
+    subLoading ||
+    (!isPremium && !!user?.id && query.isLoading && limits === null);
 
-  useEffect(() => {
-    fetchLimits();
-  }, [fetchLimits]);
+  const updateLimits = useCallback(
+    (updater: (prev: DailyLimitsData | undefined) => DailyLimitsData) => {
+      queryClient.setQueryData<DailyLimitsData>(
+        dailyLimitsQueryKey(user?.id),
+        (prev) => updater(prev),
+      );
+    },
+    [queryClient, user?.id],
+  );
 
   const incrementPostCount = useCallback(() => {
-    setLimits((prev) =>
-      prev
-        ? { ...prev, posts: { ...prev.posts, used: prev.posts.used + 1 } }
-        : prev,
-    );
-  }, []);
+    if (isPremium) return;
+    updateLimits((prev) => {
+      const base = prev ?? FALLBACK_FREE_LIMITS;
+      return {
+        ...base,
+        posts: { ...base.posts, used: base.posts.used + 1 },
+      };
+    });
+  }, [updateLimits, isPremium]);
 
   const incrementReplyCount = useCallback(() => {
-    setLimits((prev) =>
-      prev
-        ? {
-            ...prev,
-            replies: { ...prev.replies, used: prev.replies.used + 1 },
-          }
-        : prev,
-    );
-  }, []);
+    if (isPremium) return;
+    updateLimits((prev) => {
+      const base = prev ?? FALLBACK_FREE_LIMITS;
+      return {
+        ...base,
+        replies: { ...base.replies, used: base.replies.used + 1 },
+      };
+    });
+  }, [updateLimits, isPremium]);
 
   const incrementFavoriteCount = useCallback(() => {
-    setLimits((prev) =>
-      prev
-        ? {
-            ...prev,
-            favorites: {
-              ...prev.favorites,
-              used: prev.favorites.used + 1,
-            },
-          }
-        : prev,
-    );
-  }, []);
+    if (isPremium) return;
+    updateLimits((prev) => {
+      const base = prev ?? FALLBACK_FREE_LIMITS;
+      return {
+        ...base,
+        favorites: { ...base.favorites, used: base.favorites.used + 1 },
+      };
+    });
+  }, [updateLimits, isPremium]);
 
   const postsRemaining = isPremium
     ? Number.POSITIVE_INFINITY
@@ -99,10 +113,10 @@ export function useDailyLimits() {
     repliesRemaining,
     favoritesRemaining,
     isPremium: isPremium ?? false,
-    loading: loading || subLoading,
+    loading,
     incrementPostCount,
     incrementReplyCount,
     incrementFavoriteCount,
-    refetch: fetchLimits,
+    refetch: query.refetch,
   };
 }

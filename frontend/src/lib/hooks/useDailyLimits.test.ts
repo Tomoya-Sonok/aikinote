@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // モック定義
@@ -23,6 +25,16 @@ vi.mock("@/lib/hooks/useSubscription", () => ({
 
 import { useDailyLimits } from "./useDailyLimits";
 
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+    },
+  });
+  return ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
+}
+
 describe("useDailyLimits", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -40,7 +52,9 @@ describe("useDailyLimits", () => {
       });
 
       // Act
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert: 残り = 制限値 - 使用量
@@ -59,7 +73,9 @@ describe("useDailyLimits", () => {
       });
 
       // Act
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert: 残り0で投稿不可
@@ -73,7 +89,9 @@ describe("useDailyLimits", () => {
       mockGetDailyLimits.mockRejectedValue(new Error("Network error"));
 
       // Act
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert: デフォルト値（使用量0）で全残り回数が制限値と一致
@@ -89,7 +107,9 @@ describe("useDailyLimits", () => {
       mockUseSubscription.mockReturnValue({ isPremium: true, loading: false });
 
       // Act
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert
@@ -107,7 +127,9 @@ describe("useDailyLimits", () => {
       mockUseSubscription.mockReturnValue({ isPremium: true, loading: false });
 
       // Act
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert
@@ -124,14 +146,16 @@ describe("useDailyLimits", () => {
         favorites: { used: 0, limit: 5 },
         is_premium: false,
       });
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
       act(() => result.current.incrementPostCount());
 
       // Assert: 残り2 → 1に減少
-      expect(result.current.postsRemaining).toBe(1);
+      await waitFor(() => expect(result.current.postsRemaining).toBe(1));
     });
 
     it("incrementFavoriteCountでいいね使用量が1増加する", async () => {
@@ -142,15 +166,19 @@ describe("useDailyLimits", () => {
         favorites: { used: 4, limit: 5 },
         is_premium: false,
       });
-      const { result } = renderHook(() => useDailyLimits());
+      const { result } = renderHook(() => useDailyLimits(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
       act(() => result.current.incrementFavoriteCount());
 
       // Assert: 残り1 → 0、canFavoriteがfalseに
-      expect(result.current.favoritesRemaining).toBe(0);
-      expect(result.current.canFavorite).toBe(false);
+      await waitFor(() => {
+        expect(result.current.favoritesRemaining).toBe(0);
+        expect(result.current.canFavorite).toBe(false);
+      });
     });
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getTrendingHashtags } from "@/lib/api/client";
 
 interface TrendingHashtag {
@@ -13,27 +13,19 @@ interface UseTrendingHashtagsResult {
   isLoading: boolean;
 }
 
+export const trendingHashtagsQueryKey = () => ["trending-hashtags"] as const;
+
 export function useTrendingHashtags(): UseTrendingHashtagsResult {
-  const [trending, setTrending] = useState<TrendingHashtag[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const fetchTrending = useCallback(async () => {
-    try {
-      setIsLoading(true);
+  const query = useQuery<TrendingHashtag[], Error>({
+    queryKey: trendingHashtagsQueryKey(),
+    queryFn: async () => {
       const result = await getTrendingHashtags();
-      if (result.success && result.data) {
-        setTrending(result.data);
-      }
-    } catch {
-      // エラー時は空配列のまま
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      return result.success && result.data ? result.data : [];
+    },
+  });
 
-  useEffect(() => {
-    fetchTrending();
-  }, [fetchTrending]);
-
-  return { trending, isLoading };
+  return {
+    trending: query.data ?? [],
+    isLoading: query.isLoading,
+  };
 }
