@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { FontSizeProvider } from "@/components/shared/providers/FontSizeProvider";
 import { LocaleInitializer } from "@/components/shared/providers/LocaleInitializer";
+import { QueryProvider } from "@/components/shared/providers/QueryProvider";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { routing } from "@/lib/i18n/routing";
 
@@ -30,13 +31,15 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <LocaleInitializer />
-      <FontSizeProvider>
-        <ToastProvider>
-          <main style={{ background: "var(--bg-base)", minHeight: "100vh" }}>
-            {children}
-          </main>
-        </ToastProvider>
-      </FontSizeProvider>
+      <QueryProvider>
+        <FontSizeProvider>
+          <ToastProvider>
+            <main style={{ background: "var(--bg-base)", minHeight: "100vh" }}>
+              {children}
+            </main>
+          </ToastProvider>
+        </FontSizeProvider>
+      </QueryProvider>
     </NextIntlClientProvider>
   );
 }
