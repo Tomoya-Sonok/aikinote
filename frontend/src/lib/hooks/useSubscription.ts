@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   getSubscriptionStatus,
   type SubscriptionStatusResult,
@@ -9,8 +9,8 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 
 /**
- * sync は Stripe Portal / Checkout からの戻り時のみ実行
- * 通常のページロードでは getSubscriptionStatus のみ（キャッシュ活用）
+ * sync は Stripe Portal / Checkout からの戻り時のみ実行。
+ * 通常のページロードでは getSubscriptionStatus のみ（キャッシュ活用）。
  */
 function shouldSync(): boolean {
   if (typeof window === "undefined") return false;
@@ -20,46 +20,27 @@ function shouldSync(): boolean {
   );
 }
 
+export const subscriptionQueryKey = (userId: string | undefined) =>
+  ["subscription", userId] as const;
+
 export function useSubscription() {
   const { user, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [isPremium, setIsPremium] = useState(false);
-  const [subscription, setSubscription] =
-    useState<SubscriptionStatusResult | null>(null);
 
-  const fetchStatus = useCallback(async () => {
-    if (authLoading) return;
-    if (!user?.id) {
-      setLoading(false);
-      setIsPremium(false);
-      setSubscription(null);
-      return;
-    }
-
-    setLoading(true);
-    try {
+  const query = useQuery<SubscriptionStatusResult, Error>({
+    queryKey: subscriptionQueryKey(user?.id),
+    enabled: !authLoading && !!user?.id,
+    queryFn: async () => {
       if (shouldSync()) {
         await syncSubscription();
       }
-      const status = await getSubscriptionStatus();
-      setSubscription(status);
-      setIsPremium(status.is_premium);
-    } catch {
-      setIsPremium(false);
-      setSubscription(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [authLoading, user?.id]);
-
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
+      return await getSubscriptionStatus();
+    },
+  });
 
   return {
-    loading,
-    isPremium,
-    subscription,
-    refetch: fetchStatus,
+    loading: authLoading || query.isLoading,
+    isPremium: query.data?.is_premium ?? false,
+    subscription: query.data ?? null,
+    refetch: query.refetch,
   };
 }

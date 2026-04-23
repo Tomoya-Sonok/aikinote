@@ -269,9 +269,17 @@ describe("ページ一覧画面", () => {
     };
 
     mockGetPages.mockResolvedValue(mockPagesResponse);
-    mockDeletePage.mockResolvedValue({
-      success: true,
-      message: "ページが正常に削除されました",
+    mockDeletePage.mockImplementation(() => {
+      // 削除成功後は invalidate → refetch されるので空配列を返すようにモックを差し替える
+      mockGetPages.mockResolvedValue({
+        success: true,
+        data: { training_pages: [], total_count: 0 },
+        message: "ページ一覧を取得しました",
+      });
+      return Promise.resolve({
+        success: true,
+        message: "ページが正常に削除されました",
+      });
     });
 
     const user = userEvent.setup();

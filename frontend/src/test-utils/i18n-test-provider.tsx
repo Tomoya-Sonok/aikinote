@@ -1,5 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { NextIntlClientProvider } from "next-intl";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 // テスト用のメッセージ
 const testMessages = {
@@ -249,9 +250,20 @@ export function I18nTestProvider({
   locale = "ja",
   messages = testMessages,
 }: I18nTestProviderProps) {
+  // 各テスト毎に独立した QueryClient を作成（テスト間のキャッシュ汚染を防ぐ）
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: { retry: false, gcTime: 0 },
+        },
+      }),
+  );
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
-    </NextIntlClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        {children}
+      </NextIntlClientProvider>
+    </QueryClientProvider>
   );
 }

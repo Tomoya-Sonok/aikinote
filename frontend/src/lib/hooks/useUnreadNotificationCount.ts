@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import {
   getUnreadNotificationCount,
   getUnreadNotificationPostIds,
@@ -8,66 +9,32 @@ import {
 
 const POLLING_INTERVAL_MS = 60_000;
 
+export const unreadNotificationCountQueryKey = (userId: string | undefined) =>
+  ["unread-notification-count", userId] as const;
+
+export const unreadReplyPostIdsQueryKey = (userId: string | undefined) =>
+  ["unread-reply-post-ids", userId] as const;
+
 export function useUnreadNotificationCount(userId: string | undefined): number {
-  const [count, setCount] = useState(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const query = useQuery<number, Error>({
+    queryKey: unreadNotificationCountQueryKey(userId),
+    enabled: !!userId,
+    queryFn: () => getUnreadNotificationCount(),
+    refetchInterval: POLLING_INTERVAL_MS,
+    refetchIntervalInBackground: false,
+  });
 
-  const fetchCount = useCallback(async () => {
-    if (!userId) return;
-    const c = await getUnreadNotificationCount();
-    setCount(c);
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) {
-      setCount(0);
-      return;
-    }
-
-    void fetchCount();
-
-    intervalRef.current = setInterval(() => {
-      void fetchCount();
-    }, POLLING_INTERVAL_MS);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [userId, fetchCount]);
-
-  return count;
+  return query.data ?? 0;
 }
 
 export function useUnreadReplyPostIds(userId: string | undefined): Set<string> {
-  const [postIds, setPostIds] = useState<Set<string>>(new Set());
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const query = useQuery<string[], Error>({
+    queryKey: unreadReplyPostIdsQueryKey(userId),
+    enabled: !!userId,
+    queryFn: () => getUnreadNotificationPostIds(),
+    refetchInterval: POLLING_INTERVAL_MS,
+    refetchIntervalInBackground: false,
+  });
 
-  const fetchPostIds = useCallback(async () => {
-    if (!userId) return;
-    const ids = await getUnreadNotificationPostIds();
-    setPostIds(new Set(ids));
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) {
-      setPostIds(new Set());
-      return;
-    }
-
-    void fetchPostIds();
-
-    intervalRef.current = setInterval(() => {
-      void fetchPostIds();
-    }, POLLING_INTERVAL_MS);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [userId, fetchPostIds]);
-
-  return postIds;
+  return useMemo(() => new Set(query.data ?? []), [query.data]);
 }

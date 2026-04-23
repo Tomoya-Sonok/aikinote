@@ -1,11 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import {
   type SearchSocialPostsParams,
   searchSocialPosts,
 } from "@/lib/api/client";
+import { useDebounce } from "@/lib/hooks/useDebounce";
+
+interface SearchInput {
+  query: string;
+  dojoName?: string;
+  rank?: string;
+  hashtag?: string;
+  postType?: "post" | "training_record";
+}
 
 interface UseSocialSearchResult {
   results: SocialFeedPostData[];
@@ -26,12 +36,51 @@ interface UseSocialSearchResult {
 const DEBOUNCE_MS = 400;
 const SOCIAL_SEARCH_FETCH_LIMIT = 20;
 
+function hasMeaningfulParams(input: SearchInput | null): boolean {
+  if (!input) return false;
+  return !!(
+    input.query.trim() ||
+    input.dojoName ||
+    input.rank ||
+    input.hashtag
+  );
+}
+
+export const socialSearchQueryKey = (
+  userId: string | undefined,
+  input: SearchInput | null,
+) => ["social-search", userId, input] as const;
+
 export function useSocialSearch(
   userId: string | undefined,
 ): UseSocialSearchResult {
-  const [results, setResults] = useState<SocialFeedPostData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const queryClient = useQueryClient();
+  const [input, setInput] = useState<SearchInput | null>(null);
+  const debouncedInput = useDebounce(input, DEBOUNCE_MS);
+
+  const enabled =
+    !!userId && !!debouncedInput && hasMeaningfulParams(debouncedInput);
+
+  const query = useQuery<SocialFeedPostData[], Error>({
+    queryKey: socialSearchQueryKey(userId, debouncedInput),
+    enabled,
+    queryFn: async () => {
+      if (!userId || !debouncedInput) return [];
+      const params: SearchSocialPostsParams = {
+        userId,
+        query: debouncedInput.query.trim() || undefined,
+        dojoName: debouncedInput.dojoName || undefined,
+        rank: debouncedInput.rank || undefined,
+        hashtag: debouncedInput.hashtag || undefined,
+        postType: debouncedInput.postType || undefined,
+        limit: SOCIAL_SEARCH_FETCH_LIMIT,
+      };
+      const result = await searchSocialPosts(params);
+      return result.success && result.data
+        ? (result.data as SocialFeedPostData[])
+        : [];
+    },
+  });
 
   const search = useCallback(
     (
@@ -41,54 +90,35 @@ export function useSocialSearch(
       hashtag?: string,
       postType?: "post" | "training_record",
     ) => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-
-      if (!userId || (!query.trim() && !dojoName && !rank && !hashtag)) {
-        setResults([]);
+      const next: SearchInput = { query, dojoName, rank, hashtag, postType };
+      if (!hasMeaningfulParams(next)) {
+        setInput(null);
         return;
       }
-
-      timerRef.current = setTimeout(async () => {
-        setIsLoading(true);
-        try {
-          const params: SearchSocialPostsParams = {
-            userId,
-            query: query.trim() || undefined,
-            dojoName: dojoName || undefined,
-            rank: rank || undefined,
-            hashtag: hashtag || undefined,
-            postType: postType || undefined,
-            limit: SOCIAL_SEARCH_FETCH_LIMIT,
-          };
-          const result = await searchSocialPosts(params);
-          if (result.success && result.data) {
-            setResults(result.data as SocialFeedPostData[]);
-          }
-        } catch (error) {
-          console.error("検索エラー:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }, DEBOUNCE_MS);
+      setInput(next);
     },
-    [userId],
+    [],
   );
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
 
   const updateResult = useCallback(
     (
       postId: string,
       updater: (post: SocialFeedPostData) => SocialFeedPostData,
     ) => {
-      setResults((prev) => prev.map((p) => (p.id === postId ? updater(p) : p)));
+      // 全ての social-search キャッシュ（複数の検索条件）の該当 postId を差し替え
+      queryClient.setQueriesData<SocialFeedPostData[]>(
+        { queryKey: ["social-search", userId] },
+        (old) =>
+          old ? old.map((p) => (p.id === postId ? updater(p) : p)) : old,
+      );
     },
-    [],
+    [userId, queryClient],
   );
 
-  return { results, isLoading, search, updateResult };
+  return {
+    results: enabled ? (query.data ?? []) : [],
+    isLoading: enabled && (query.isLoading || query.isFetching),
+    search,
+    updateResult,
+  };
 }

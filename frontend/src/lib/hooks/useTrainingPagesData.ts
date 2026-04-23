@@ -1,31 +1,15 @@
-import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import {
-  type CreatePagePayload,
-  createAttachment,
-  createPage,
-  deletePage,
-  getPages,
-  type UpdatePagePayload,
-  updatePage,
-  upsertTrainingDateAttendance,
-} from "@/lib/api/client";
+  type InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { useCallback, useMemo } from "react";
+import { deletePage, getPages } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
-import { type TrainingPageData } from "@/types/training";
-
-interface PageCreateData {
-  title: string;
-  tori: string[];
-  uke: string[];
-  waza: string[];
-  content: string;
-  attachments: AttachmentData[];
-}
-
-// 楽観的更新用の一時的なプレフィックス
-const OPTIMISTIC_ID_PREFIX = "optimistic-";
+import type { TrainingPageData } from "@/types/training";
 
 const TRAINING_PAGES_FETCH_LIMIT = 25;
 
@@ -37,398 +21,231 @@ export interface FetchOptions {
   sortOrder?: "newest" | "oldest";
 }
 
+interface NormalizedOptions {
+  query: string;
+  tags: string[];
+  startDate: string | null;
+  endDate: string | null;
+  sortOrder: "newest" | "oldest";
+}
+
+interface TrainingPagesPage {
+  training_pages: TrainingPageData[];
+  total_count: number;
+  next_offset: number | null;
+}
+
+export const trainingPagesQueryKey = (
+  userId: string | undefined,
+  options: NormalizedOptions,
+) => ["training-pages", userId, options] as const;
+
+export const trainingPagesUnfilteredCountQueryKey = (
+  userId: string | undefined,
+) => ["training-pages-unfiltered-count", userId] as const;
+
+function normalizeOptions(options: FetchOptions): NormalizedOptions {
+  return {
+    query: options.query ?? "",
+    tags: options.tags ?? [],
+    startDate: options.startDate ?? null,
+    endDate: options.endDate ?? null,
+    sortOrder: options.sortOrder ?? "newest",
+  };
+}
+
+function hasAnyFilters(options: NormalizedOptions): boolean {
+  return (
+    !!options.query ||
+    options.tags.length > 0 ||
+    !!options.startDate ||
+    !!options.endDate
+  );
+}
+
 export function useTrainingPagesData(options: FetchOptions = {}) {
   const t = useTranslations();
   const { user, loading: authLoading } = useAuth();
-  const [dataLoading, setDataLoading] = useState(true);
-  const [allTrainingPageData, setAllTrainingPageData] = useState<
-    TrainingPageData[]
-  >([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [unfilteredTotalCount, setUnfilteredTotalCount] = useState<
-    number | null
-  >(null);
-  const [hasMore, setHasMore] = useState(false);
-  const optimisticIdCounter = useRef(0);
-  const lastOptionsRef = useRef<string>("");
-  const allDataRef = useRef<TrainingPageData[]>([]);
-  useEffect(() => {
-    allDataRef.current = allTrainingPageData;
-  }, [allTrainingPageData]);
+  const queryClient = useQueryClient();
 
-  const fetchData = useCallback(
-    async (isLoadMore = false) => {
-      if (authLoading) return;
+  const normalizedOptions = useMemo(() => normalizeOptions(options), [options]);
+  const filtersApplied = hasAnyFilters(normalizedOptions);
 
+  const pagesQuery = useInfiniteQuery<
+    TrainingPagesPage,
+    Error,
+    InfiniteData<TrainingPagesPage>,
+    ReturnType<typeof trainingPagesQueryKey>,
+    number
+  >({
+    queryKey: trainingPagesQueryKey(user?.id, normalizedOptions),
+    enabled: !authLoading && !!user?.id,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }) => {
       if (!user?.id) {
-        setDataLoading(false);
-        return;
+        return { training_pages: [], total_count: 0, next_offset: null };
       }
-
-      const currentOptionsStr = JSON.stringify(options);
-      if (!isLoadMore && currentOptionsStr === lastOptionsRef.current) {
-        return; // 既に同じオプションでフェッチ済み
-      }
-
-      if (!isLoadMore) {
-        setDataLoading(true);
-        lastOptionsRef.current = currentOptionsStr;
-      }
-
-      const hasFilters = !!(
-        options.query ||
-        (options.tags?.length ?? 0) > 0 ||
-        options.startDate ||
-        options.endDate
-      );
-
-      try {
-        const offset = isLoadMore
-          ? allDataRef.current.filter(
-              (p) => !p.id.startsWith(OPTIMISTIC_ID_PREFIX),
-            ).length
-          : 0;
-
-        const response = await getPages({
-          userId: user.id,
-          limit: TRAINING_PAGES_FETCH_LIMIT,
-          offset,
-          query: options.query || "",
-          tags: options.tags || [],
-          startDate: options.startDate || undefined,
-          endDate: options.endDate || undefined,
-          sortOrder: options.sortOrder || "newest",
-        });
-
-        if (!response.success || !response.data) {
-          throw new Error(
-            (response && "error" in response && response.error) ||
-              t("personalPages.dataFetchFailed"),
-          );
-        }
-
-        const pagesBatch: TrainingPageData[] = response.data.training_pages.map(
-          (item) => ({
-            id: item.page.id,
-            title: item.page.title,
-            content: item.page.content,
-            is_public: item.page.is_public ?? false,
-            date: formatToLocalDateString(item.page.created_at),
-            tags: item.tags.map((tag) => tag.name),
-            attachments: item.attachments ?? [],
-          }),
-        );
-
-        if (isLoadMore) {
-          setAllTrainingPageData((prev) => {
-            const next = [...prev, ...pagesBatch];
-            setHasMore(next.length < response.data?.total_count);
-            return next;
-          });
-        } else {
-          setAllTrainingPageData(pagesBatch);
-          setHasMore(pagesBatch.length < response.data.total_count);
-        }
-
-        setTotalCount(response.data.total_count);
-        if (!hasFilters) {
-          setUnfilteredTotalCount(response.data.total_count);
-        }
-      } catch (err) {
-        console.error("Failed to fetch training page data:", err);
-        if (!isLoadMore) {
-          setAllTrainingPageData([]);
-          setHasMore(false);
-        }
-      } finally {
-        setDataLoading(false);
-      }
-    },
-    [user, t, authLoading, options],
-  );
-
-  useEffect(() => {
-    // オプションが変更されたら初回フェッチ
-    void fetchData(false);
-  }, [fetchData]);
-
-  const loadMore = useCallback(() => {
-    if (!hasMore || dataLoading) return;
-    void fetchData(true);
-  }, [hasMore, dataLoading, fetchData]);
-
-  const addPage = useCallback(
-    async (pageData: PageCreateData) => {
-      try {
-        if (!user?.id) {
-          throw new Error(t("personalPages.loginRequired"));
-        }
-
-        const userId = user.id;
-
-        // 楽観的更新: 一時的なIDでプレースホルダーを即座に挿入
-        optimisticIdCounter.current += 1;
-        const optimisticId = `${OPTIMISTIC_ID_PREFIX}${optimisticIdCounter.current}`;
-        const optimisticPage: TrainingPageData = {
-          id: optimisticId,
-          title: pageData.title.trim(),
-          content: pageData.content,
-          is_public: false,
-          date: formatToLocalDateString(new Date().toISOString()),
-          tags: [
-            ...(pageData.tori ?? []),
-            ...(pageData.uke ?? []),
-            ...(pageData.waza ?? []),
-          ],
-          attachments: [],
-        };
-        setAllTrainingPageData((prev) => [optimisticPage, ...prev]);
-
-        const payload: CreatePagePayload = {
-          title: pageData.title.trim(),
-          tori: pageData.tori,
-          uke: pageData.uke,
-          waza: pageData.waza,
-          content: pageData.content,
-          user_id: userId,
-        };
-
-        const response = await createPage(payload);
-
-        if (response.success && response.data) {
-          const pageId = response.data.page.id;
-
-          // 添付メタデータをDBに保存
-          if (pageData.attachments && pageData.attachments.length > 0) {
-            for (const attachment of pageData.attachments) {
-              try {
-                const attachmentPayload: Record<string, unknown> = {
-                  page_id: pageId,
-                  type: attachment.type,
-                  original_filename: attachment.original_filename ?? null,
-                  file_size_bytes: attachment.file_size_bytes ?? null,
-                  thumbnail_url: attachment.thumbnail_url ?? null,
-                };
-
-                if (attachment.type === "youtube") {
-                  attachmentPayload.url = attachment.url;
-                } else {
-                  attachmentPayload.file_key = attachment._fileKey;
-                }
-
-                await createAttachment(attachmentPayload);
-              } catch (attachError) {
-                console.warn("添付メタデータの保存に失敗:", attachError);
-              }
-            }
-          }
-
-          // ページ作成日の稽古参加を自動登録
-          try {
-            await upsertTrainingDateAttendance({
-              userId,
-              trainingDate: formatToLocalDateString(
-                response.data.page.created_at,
-              ),
-            });
-          } catch (attendanceError) {
-            console.warn("稽古参加の自動登録に失敗:", attendanceError);
-          }
-
-          // 楽観的プレースホルダーを正式データに差し替え
-          const confirmedPage: TrainingPageData = {
-            id: pageId,
-            title: response.data.page.title,
-            content: response.data.page.content,
-            is_public: response.data.page.is_public ?? false,
-            date: formatToLocalDateString(response.data.page.created_at),
-            tags: response.data.tags.map((tag) => tag.name),
-            attachments: response.data.attachments ?? [],
-          };
-
-          setAllTrainingPageData((prev) =>
-            prev.map((page) =>
-              page.id === optimisticId ? confirmedPage : page,
-            ),
-          );
-          setUnfilteredTotalCount((prev) => (prev !== null ? prev + 1 : 1));
-          return true;
-        }
-
-        // API失敗時: 楽観的プレースホルダーを除去
-        setAllTrainingPageData((prev) =>
-          prev.filter((page) => page.id !== optimisticId),
-        );
-        return false;
-      } catch (error) {
-        // エラー時: 楽観的更新をロールバック（プレースホルダーを除去）
-        setAllTrainingPageData((prev) =>
-          prev.filter((page) => !page.id.startsWith(OPTIMISTIC_ID_PREFIX)),
-        );
-        console.error("Failed to create page:", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : t("personalPages.pageCreationFailed"),
-        );
-        return false;
-      }
-    },
-    [user, t],
-  );
-
-  const updatePageData = useCallback(
-    async (pageData: UpdatePagePayload) => {
-      // 楽観的更新: 先にUIを更新
-      let originalPage: TrainingPageData | undefined;
-      let targetIndex = -1;
-
-      setAllTrainingPageData((prev) => {
-        targetIndex = prev.findIndex((p) => p.id === pageData.id);
-        originalPage = prev[targetIndex];
-
-        if (targetIndex === -1 || !originalPage) return prev;
-
-        const next = [...prev];
-        next[targetIndex] = {
-          id: pageData.id,
-          title: pageData.title,
-          content: pageData.content,
-          is_public: originalPage.is_public,
-          date:
-            originalPage.date ||
-            formatToLocalDateString(new Date().toISOString()),
-          tags: [
-            ...(pageData.tori ?? []),
-            ...(pageData.uke ?? []),
-            ...(pageData.waza ?? []),
-          ],
-          attachments: originalPage.attachments ?? [],
-        };
-        return next;
+      const response = await getPages({
+        userId: user.id,
+        limit: TRAINING_PAGES_FETCH_LIMIT,
+        offset: pageParam,
+        query: normalizedOptions.query,
+        tags: normalizedOptions.tags,
+        startDate: normalizedOptions.startDate ?? undefined,
+        endDate: normalizedOptions.endDate ?? undefined,
+        sortOrder: normalizedOptions.sortOrder,
       });
 
-      try {
-        const response = await updatePage(pageData);
-
-        if (response.success && response.data) {
-          // APIレスポンスで正式データに差し替え
-          const confirmedPage: TrainingPageData = {
-            id: response.data.page.id,
-            title: response.data.page.title,
-            content: response.data.page.content,
-            is_public: response.data.page.is_public ?? false,
-            date: formatToLocalDateString(response.data.page.created_at),
-            tags: response.data.tags.map((tag) => tag.name),
-            attachments: response.data.attachments ?? [],
-          };
-
-          setAllTrainingPageData((prev) =>
-            prev.map((page) =>
-              page.id === confirmedPage.id ? confirmedPage : page,
-            ),
-          );
-          return true;
-        }
-
-        // API失敗時: ロールバック
-        if (originalPage && targetIndex !== -1) {
-          setAllTrainingPageData((prev) => {
-            const next = [...prev];
-            const currentIndex = next.findIndex((p) => p.id === pageData.id);
-            if (currentIndex !== -1) {
-              next[currentIndex] = originalPage as TrainingPageData;
-            }
-            return next;
-          });
-        }
-        return false;
-      } catch (error) {
-        // エラー時: ロールバック
-        if (originalPage && targetIndex !== -1) {
-          setAllTrainingPageData((prev) => {
-            const next = [...prev];
-            const currentIndex = next.findIndex((p) => p.id === pageData.id);
-            if (currentIndex !== -1) {
-              next[currentIndex] = originalPage as TrainingPageData;
-            }
-            return next;
-          });
-        }
-        console.error("Failed to update page:", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : t("personalPages.pageUpdateFailed"),
+      if (!response.success || !response.data) {
+        throw new Error(
+          (response && "error" in response && response.error) ||
+            t("personalPages.dataFetchFailed"),
         );
-        return false;
       }
+
+      const trainingPages: TrainingPageData[] =
+        response.data.training_pages.map((item) => ({
+          id: item.page.id,
+          title: item.page.title,
+          content: item.page.content,
+          is_public: item.page.is_public ?? false,
+          date: formatToLocalDateString(item.page.created_at),
+          tags: item.tags.map((tag) => tag.name),
+          attachments: item.attachments ?? [],
+        }));
+
+      const loadedSoFar = pageParam + trainingPages.length;
+      const nextOffset =
+        loadedSoFar < response.data.total_count ? loadedSoFar : null;
+
+      return {
+        training_pages: trainingPages,
+        total_count: response.data.total_count,
+        next_offset: nextOffset,
+      };
     },
-    [t],
+    getNextPageParam: (lastPage) => lastPage.next_offset ?? undefined,
+  });
+
+  const allTrainingPageData = useMemo(
+    () => pagesQuery.data?.pages.flatMap((p) => p.training_pages) ?? [],
+    [pagesQuery.data],
   );
+
+  const totalCount = pagesQuery.data?.pages[0]?.total_count ?? 0;
+
+  // unfilteredTotalCount: フィルタ未適用時の最新 total_count を反映
+  // フィルタ適用中でも「何も登録が無いのか / フィルタで 0 件なのか」を判別する用途
+  const unfilteredTotalCount = useMemo<number | null>(() => {
+    if (!filtersApplied) {
+      return totalCount > 0 || pagesQuery.isSuccess ? totalCount : null;
+    }
+    // フィルタ適用中は未フィルタのキャッシュから読み取る
+    const unfilteredCached = queryClient.getQueryData<
+      InfiniteData<TrainingPagesPage>
+    >(
+      trainingPagesQueryKey(user?.id, {
+        query: "",
+        tags: [],
+        startDate: null,
+        endDate: null,
+        sortOrder: normalizedOptions.sortOrder,
+      }),
+    );
+    return unfilteredCached?.pages[0]?.total_count ?? null;
+  }, [
+    filtersApplied,
+    totalCount,
+    pagesQuery.isSuccess,
+    queryClient,
+    user?.id,
+    normalizedOptions.sortOrder,
+  ]);
+
+  const hasMore = !!pagesQuery.hasNextPage;
+
+  const loadMore = useCallback(() => {
+    if (!pagesQuery.hasNextPage || pagesQuery.isFetchingNextPage) return;
+    void pagesQuery.fetchNextPage();
+  }, [pagesQuery]);
+
+  // removePage: 楽観的削除 → 失敗時ロールバック
+  const removeMutation = useMutation({
+    mutationFn: async (pageId: string) => {
+      if (!user?.id) {
+        throw new Error(t("personalPages.loginRequired"));
+      }
+      const response = await deletePage(pageId, user.id);
+      if (!response.success) {
+        throw new Error(response.error || t("personalPages.pageDeleteFailed"));
+      }
+      return pageId;
+    },
+    onMutate: async (pageId) => {
+      const currentKey = trainingPagesQueryKey(user?.id, normalizedOptions);
+      await queryClient.cancelQueries({ queryKey: currentKey });
+      const previous =
+        queryClient.getQueryData<InfiniteData<TrainingPagesPage>>(currentKey);
+
+      // 全ページから該当 pageId を除去
+      queryClient.setQueryData<InfiniteData<TrainingPagesPage>>(
+        currentKey,
+        (old) =>
+          old
+            ? {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  training_pages: page.training_pages.filter(
+                    (p) => p.id !== pageId,
+                  ),
+                  total_count: Math.max(0, page.total_count - 1),
+                })),
+              }
+            : old,
+      );
+
+      return { previous };
+    },
+    onError: (error, _pageId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          trainingPagesQueryKey(user?.id, normalizedOptions),
+          context.previous,
+        );
+      }
+      console.error("Failed to delete page:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : t("personalPages.pageDeleteFailed"),
+      );
+    },
+    onSettled: () => {
+      // 全ての training-pages キャッシュを無効化（フィルタ違いも含めて次回参照時に最新化）
+      queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+    },
+  });
 
   const removePage = useCallback(
     async (pageId: string) => {
-      if (!user?.id) {
-        alert(t("personalPages.loginRequired"));
-        return false;
-      }
-
-      // 楽観的更新: 先にUIから削除
-      let originalPage: TrainingPageData | undefined;
-      let targetIndex = -1;
-
-      setAllTrainingPageData((prev) => {
-        targetIndex = prev.findIndex((p) => p.id === pageId);
-        originalPage = prev[targetIndex];
-        return prev.filter((item) => item.id !== pageId);
-      });
-
       try {
-        const response = await deletePage(pageId, user.id);
-
-        if (response.success) {
-          setUnfilteredTotalCount((prev) =>
-            prev !== null ? Math.max(0, prev - 1) : null,
-          );
-          return true;
-        }
-
-        throw new Error(response.error || t("personalPages.pageDeleteFailed"));
-      } catch (error) {
-        // エラー時: ロールバック
-        if (originalPage && targetIndex !== -1) {
-          setAllTrainingPageData((prev) => {
-            const next = [...prev];
-            if (!next.find((p) => p.id === pageId)) {
-              // 削除された要素を元の位置に復元
-              const insertPosition = Math.min(targetIndex, next.length);
-              next.splice(insertPosition, 0, originalPage as TrainingPageData);
-            }
-            return next;
-          });
-        }
-        console.error("Failed to delete page:", error);
-        alert(
-          error instanceof Error
-            ? error.message
-            : t("personalPages.pageDeleteFailed"),
-        );
+        await removeMutation.mutateAsync(pageId);
+        return true;
+      } catch {
         return false;
       }
     },
-    [user, t],
+    [removeMutation],
   );
 
   return {
-    loading: authLoading || dataLoading,
+    loading: authLoading || pagesQuery.isLoading,
     allTrainingPageData,
     totalCount,
     unfilteredTotalCount,
     hasMore,
     loadMore,
-    addPage,
-    updatePageData,
     removePage,
   };
 }
