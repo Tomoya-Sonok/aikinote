@@ -11,6 +11,11 @@
   --active-color: #3b4b59;
   --danger-color: #b64545;
 
+  /* 警告/オフライン通知（Apple HIG / Material Design の caution yellow 系） */
+  --warning-bg: #fff4d6;
+  --warning-border: #e8d580;
+  --warning-text: #6b5400;
+
   /* テキスト・ボーダー・背景色 */
   --black: #2c2c2c;
   --text-light: #8b8178;
