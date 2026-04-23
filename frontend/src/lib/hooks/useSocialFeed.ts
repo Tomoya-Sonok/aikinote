@@ -30,6 +30,8 @@ interface UseSocialFeedResult {
     postId: string,
     updater: (post: SocialFeedPostData) => SocialFeedPostData,
   ) => void;
+  /** キャッシュ表示中だが直近の refetch が失敗している */
+  isRefetchError: boolean;
 }
 
 export const socialFeedQueryKey = (
@@ -161,6 +163,7 @@ export function useSocialFeed(
     isLoading: query.isLoading,
     isLoadingMore: query.isFetchingNextPage,
     hasMore,
+    isRefetchError: query.isError && !!query.data,
     loadMore,
     refetch,
     updatePost,

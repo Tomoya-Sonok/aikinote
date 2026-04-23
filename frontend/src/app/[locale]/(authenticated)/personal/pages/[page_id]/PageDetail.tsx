@@ -26,8 +26,14 @@ export function PageDetail() {
   const { user } = useAuth();
   const pageId = params.page_id as string;
 
-  const { loading, pageData, setPageData, attachments } =
-    usePageDetailData(pageId);
+  const {
+    loading,
+    pageData,
+    setPageData,
+    attachments,
+    isErrorWithoutCache,
+    refetch,
+  } = usePageDetailData(pageId);
 
   const { showToast } = useToast();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -197,11 +203,24 @@ export function PageDetail() {
   }
 
   if (!pageData) {
+    // キャッシュもなくフェッチに失敗した場合はオフライン想定のメッセージを出す
+    const message = isErrorWithoutCache
+      ? "オフラインのため読み込めませんでした。ネットワーク接続後に再試行してください。"
+      : t("pageDetail.notFound");
     return (
       <div className={styles.container}>
         <div className={styles.contentArea}>
-          <div className={styles.notFound}>{t("pageDetail.notFound")}</div>
+          <div className={styles.notFound}>{message}</div>
           <div className={styles.buttonsContainer}>
+            {isErrorWithoutCache && (
+              <button
+                type="button"
+                className={styles.backButton}
+                onClick={() => refetch()}
+              >
+                再試行
+              </button>
+            )}
             <button
               type="button"
               className={styles.backButton}

@@ -20,6 +20,7 @@ import { TrainingCardSkeleton } from "@/components/features/personal/TrainingCar
 import { Tutorial } from "@/components/features/tutorial/Tutorial";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
+import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { Tooltip } from "@/components/shared/Tooltip/Tooltip";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -66,6 +67,7 @@ export function PersonalPages() {
     hasMore,
     loadMore,
     removePage,
+    isRefetchError,
   } = useTrainingPagesData({
     query: debouncedSearchQuery,
     tags: selectedTags,
@@ -292,6 +294,9 @@ export function PersonalPages() {
           </div>
         </div>
         <div className={styles.trainingList}>
+          {isRefetchError && displayedTrainingPageData.length > 0 && (
+            <RefetchErrorBanner />
+          )}
           {loading ? (
             <TrainingCardSkeleton count={3} />
           ) : displayedTrainingPageData.length === 0 ? (
