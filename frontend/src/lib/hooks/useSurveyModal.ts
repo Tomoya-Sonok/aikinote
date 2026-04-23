@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSurveyStore } from "@/stores/surveyStore";
 
-const STORAGE_KEY = "aikinote-survey-dismissed";
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 interface UseSurveyModalParams {
@@ -23,10 +23,9 @@ export function useSurveyModal({
   loading,
 }: UseSurveyModalParams): UseSurveyModalReturn {
   const [isOpen, setIsOpen] = useState(false);
+  const { dismissedAt, setDismissedAt } = useSurveyStore();
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     // ユーザー情報取得中は判定しない
     if (loading) return;
 
@@ -35,27 +34,17 @@ export function useSurveyModal({
     if (!hasIncompleteProfile) return;
 
     // 条件②: 前回のモーダル表示から1週間が経過している
-    try {
-      const dismissedAt = localStorage.getItem(STORAGE_KEY);
-      if (dismissedAt) {
-        const elapsed = Date.now() - new Date(dismissedAt).getTime();
-        if (elapsed < COOLDOWN_MS) return;
-      }
-    } catch {
-      // localStorage が使えない場合はフォールバック: 表示する
+    if (dismissedAt) {
+      const elapsed = Date.now() - new Date(dismissedAt).getTime();
+      if (elapsed < COOLDOWN_MS) return;
     }
 
     setIsOpen(true);
-  }, [ageRange, gender, loading]);
+  }, [ageRange, gender, loading, dismissedAt]);
 
   const dismiss = () => {
     setIsOpen(false);
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(STORAGE_KEY, new Date().toISOString());
-    } catch {
-      // localStorage が使えない場合は無視
-    }
+    setDismissedAt(new Date().toISOString());
   };
 
   return { isOpen, dismiss };
