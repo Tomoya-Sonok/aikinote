@@ -8,10 +8,12 @@ import { PropsWithChildren } from "react";
 import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 import * as userApi from "@/lib/utils/user";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
-import { useAuth } from "./useAuth";
+import { AuthProvider, useAuth } from "./useAuth";
 
 const Wrapper = ({ children }: PropsWithChildren) => (
-  <I18nTestProvider>{children}</I18nTestProvider>
+  <I18nTestProvider>
+    <AuthProvider>{children}</AuthProvider>
+  </I18nTestProvider>
 );
 
 // useRouterをモック
