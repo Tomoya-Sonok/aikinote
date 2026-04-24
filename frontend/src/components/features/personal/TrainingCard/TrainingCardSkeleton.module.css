@@ -9,6 +9,19 @@
   gap: 12px;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .tags {
   display: flex;
   flex-wrap: wrap;

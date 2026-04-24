@@ -11,12 +11,23 @@ export interface Tag {
 export const trainingTagsQueryKey = (userId: string | undefined) =>
   ["training-tags", userId] as const;
 
-export function useTrainingTags() {
+interface UseTrainingTagsOptions {
+  /**
+   * タグ取得を有効化するか。デフォルト true。
+   * ページ一覧など、タグフィルタモーダルを開いてから初めてタグを読み込みたい画面では
+   * `{ enabled: isTagModalOpen }` のように絞る。
+   */
+  enabled?: boolean;
+}
+
+export function useTrainingTags({
+  enabled = true,
+}: UseTrainingTagsOptions = {}) {
   const { user } = useAuth();
 
   const query = useQuery<Tag[], Error>({
     queryKey: trainingTagsQueryKey(user?.id),
-    enabled: !!user?.id,
+    enabled: enabled && !!user?.id,
     queryFn: async () => {
       if (!user?.id) return [];
       const response = await getTags(user.id);

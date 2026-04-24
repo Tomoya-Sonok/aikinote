@@ -27,3 +27,17 @@
   flex-direction: column;
   gap: 8px;
 }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-top: 8px;
+  border-top: 0.5px solid var(--border-color);
+}

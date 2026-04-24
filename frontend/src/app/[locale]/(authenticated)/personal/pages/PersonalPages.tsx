@@ -45,8 +45,6 @@ export function PersonalPages() {
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Custom Hooks
-  const { availableTags } = useTrainingTags();
   const {
     searchQuery,
     setSearchQuery,
@@ -91,6 +89,10 @@ export function PersonalPages() {
     isTagModalOpen,
     setIsTagModalOpen,
   } = useTrainingPageModals();
+
+  // タグ一覧はタグフィルタモーダルを開くまで画面に出ないので、初回ロード時の不要フェッチを避けるため遅延取得する。
+  // 一度取得すれば TanStack Query のキャッシュに残るため、2 回目以降のモーダル起動は即時反映される
+  const { availableTags } = useTrainingTags({ enabled: isTagModalOpen });
 
   // ソートドロップダウン外クリックで閉じる
   const handleClickOutside = useCallback((event: MouseEvent) => {
