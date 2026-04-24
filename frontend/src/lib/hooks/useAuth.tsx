@@ -3,7 +3,16 @@
 import type { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useToast } from "@/contexts/ToastContext";
 import type { UserSession } from "@/lib/auth";
 import { getClientSupabase } from "@/lib/supabase/client";
@@ -31,7 +40,35 @@ interface SignUpResponse {
   userId?: string;
 }
 
-export function useAuth() {
+interface AuthContextValue {
+  user: UserSession | null;
+  loading: boolean;
+  isInitializing: boolean;
+  isProcessing: boolean;
+  error: string | null;
+  signUp: (data: SignUpFormData) => Promise<SignUpResponse>;
+  signInWithCredentials: (data: SignInFormData) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  signOutUser: () => Promise<void>;
+  forgotPassword: (data: ResetPasswordFormData) => Promise<unknown>;
+  resetPassword: (token: string, data: NewPasswordFormData) => Promise<unknown>;
+  verifyEmail: (token: string) => Promise<unknown>;
+  refreshUser: () => Promise<UserSession | null>;
+  clearError: () => void;
+}
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+/**
+ * 認証状態を単一インスタンスで保持するプロバイダ。
+ * 以前は `useAuth()` を呼ぶ度に各コンポーネントが独立して
+ * `supabase.auth.getSession()` → `fetchUserProfile()` → `getUserInfo` API を走らせていた。
+ * authenticated ルートでは 30 以上の箇所で useAuth を呼んでおり、
+ * 本番では Cloudflare Workers / Supabase の順序待ちで最大 20 秒以上の遅延が発生していた。
+ * Provider で状態を一元化することで、tRPC の `users.getUserInfo` は画面ロード時に 1 回だけ走る。
+ */
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserSession | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -594,21 +631,51 @@ export function useAuth() {
 
   const clearError = useCallback(() => setError(null), []);
 
-  return {
-    user,
-    loading: isInitializing || isProcessing,
-    isInitializing,
-    isProcessing,
-    error,
-    signUp,
-    signInWithCredentials,
-    signInWithGoogle,
-    signInWithApple,
-    signOutUser,
-    forgotPassword,
-    resetPassword,
-    verifyEmail,
-    refreshUser,
-    clearError,
-  };
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      loading: isInitializing || isProcessing,
+      isInitializing,
+      isProcessing,
+      error,
+      signUp,
+      signInWithCredentials,
+      signInWithGoogle,
+      signInWithApple,
+      signOutUser,
+      forgotPassword,
+      resetPassword,
+      verifyEmail,
+      refreshUser,
+      clearError,
+    }),
+    [
+      user,
+      isInitializing,
+      isProcessing,
+      error,
+      signUp,
+      signInWithCredentials,
+      signInWithGoogle,
+      signInWithApple,
+      signOutUser,
+      forgotPassword,
+      resetPassword,
+      verifyEmail,
+      refreshUser,
+      clearError,
+    ],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error(
+      "useAuth は <AuthProvider> 配下で呼び出してください。`app/[locale]/layout.tsx` で Provider を登録済みのはずです。",
+    );
+  }
+  return ctx;
 }
