@@ -8,6 +8,7 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { type GetSocialFeedParams, getSocialFeed } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 type SocialTab = "all" | "training" | "favorites";
 
@@ -60,10 +61,8 @@ async function fetchSocialFeedPage(
   };
 }
 
-export function useSocialFeed(
-  userId: string | undefined,
-  tab: SocialTab,
-): UseSocialFeedResult {
+export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
 
   const query = useInfiniteQuery<
@@ -73,19 +72,20 @@ export function useSocialFeed(
     ReturnType<typeof socialFeedQueryKey>,
     number
   >({
-    queryKey: socialFeedQueryKey(userId, tab),
-    enabled: !!userId,
+    queryKey: socialFeedQueryKey(user?.id, tab),
+    enabled: !authLoading && !!user?.id,
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
-      if (!userId) return { posts: [], next_offset: null };
-      return fetchSocialFeedPage(userId, tab, pageParam);
+      if (!user?.id) return { posts: [], next_offset: null };
+      return fetchSocialFeedPage(user.id, tab, pageParam);
     },
     getNextPageParam: (lastPage) => lastPage.next_offset ?? undefined,
   });
 
   // 他タブのプリフェッチ（アクティブタブのロード完了後、idle callback で実行）
   useEffect(() => {
-    if (!userId || !query.isSuccess) return;
+    if (!user?.id || !query.isSuccess) return;
+    const currentUserId = user.id;
 
     const prefetchOtherTabs = () => {
       for (const otherTab of ALL_TABS) {
@@ -97,10 +97,10 @@ export function useSocialFeed(
           ReturnType<typeof socialFeedQueryKey>,
           number
         >({
-          queryKey: socialFeedQueryKey(userId, otherTab),
+          queryKey: socialFeedQueryKey(currentUserId, otherTab),
           initialPageParam: 0,
           queryFn: async ({ pageParam }) =>
-            fetchSocialFeedPage(userId, otherTab, pageParam),
+            fetchSocialFeedPage(currentUserId, otherTab, pageParam),
         });
       }
     };
@@ -113,7 +113,7 @@ export function useSocialFeed(
     }
     const timeoutId = setTimeout(prefetchOtherTabs, 500);
     return () => clearTimeout(timeoutId);
-  }, [userId, tab, query.isSuccess, queryClient]);
+  }, [user?.id, tab, query.isSuccess, queryClient]);
 
   const posts = useMemo(
     () => query.data?.pages.flatMap((p) => p.posts) ?? [],
@@ -139,7 +139,7 @@ export function useSocialFeed(
       // 全タブの infinite-query キャッシュから該当 postId を差し替え
       for (const t of ALL_TABS) {
         queryClient.setQueryData<InfiniteData<SocialFeedPage>>(
-          socialFeedQueryKey(userId, t),
+          socialFeedQueryKey(user?.id, t),
           (old) =>
             old
               ? {
@@ -155,12 +155,12 @@ export function useSocialFeed(
         );
       }
     },
-    [userId, queryClient],
+    [user?.id, queryClient],
   );
 
   return {
     posts,
-    isLoading: query.isLoading,
+    isLoading: authLoading || query.isLoading,
     isLoadingMore: query.isFetchingNextPage,
     hasMore,
     isRefetchError: query.isError && !!query.data,

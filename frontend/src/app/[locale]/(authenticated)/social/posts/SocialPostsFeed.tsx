@@ -58,7 +58,7 @@ export function SocialPostsFeed() {
     updatePost,
     refetch,
     isRefetchError,
-  } = useSocialFeed(user?.id, activeTab);
+  } = useSocialFeed(activeTab);
   const { showToast } = useToast();
   const { handleToggleFavorite } = useSocialFavorite();
   const { track } = useUmamiTrack();
