@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
@@ -234,7 +235,10 @@ export function PersonalCalendar() {
     } catch (error) {
       console.error("Failed to fetch calendar data:", error);
       showToastRef.current(
-        tRef.current("personalCalendar.dataFetchFailed"),
+        getNetworkAwareErrorMessage(
+          error,
+          tRef.current("personalCalendar.dataFetchFailed"),
+        ),
         "error",
       );
       setDayStatusMap({});
@@ -410,7 +414,13 @@ export function PersonalCalendar() {
       setIsActionModalOpen(false);
     } catch (error) {
       console.error("Failed to update attendance:", error);
-      showToast(t("personalCalendar.attendanceUpdateFailed"), "error");
+      showToast(
+        getNetworkAwareErrorMessage(
+          error,
+          t("personalCalendar.attendanceUpdateFailed"),
+        ),
+        "error",
+      );
     } finally {
       setIsProcessing(false);
     }

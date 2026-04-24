@@ -31,6 +31,7 @@ interface UseNotificationsReturn {
   isLoadingMore: boolean;
   hasMore: boolean;
   loadMore: () => void;
+  isRefetchError: boolean;
 }
 
 interface NotificationsPage {
@@ -98,5 +99,6 @@ export function useNotifications(
     isLoadingMore: query.isFetchingNextPage,
     hasMore: !!query.hasNextPage,
     loadMore,
+    isRefetchError: query.isError && !!query.data,
   };
 }

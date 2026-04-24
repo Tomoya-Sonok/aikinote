@@ -9,6 +9,7 @@ import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { Loader } from "@/components/shared/Loader";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
+import { OfflineHint } from "@/components/shared/OfflineHint/OfflineHint";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
@@ -22,6 +23,7 @@ import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import { useRouter } from "@/lib/i18n/routing";
+import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import styles from "./PageEdit.module.css";
 
 export function PageEdit() {
@@ -172,8 +174,11 @@ export function PageEdit() {
           "error" in response ? response.error : "更新に失敗しました",
         );
       }
-    } catch {
-      showToast(t("pageDetail.updateFailed"), "error");
+    } catch (error) {
+      showToast(
+        getNetworkAwareErrorMessage(error, t("pageDetail.updateFailed")),
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -257,6 +262,7 @@ export function PageEdit() {
       />
 
       <main className={styles.main}>
+        <OfflineHint />
         <div className={styles.section}>
           <TextInput
             ref={titleInputRef}

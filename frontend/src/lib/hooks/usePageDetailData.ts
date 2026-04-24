@@ -75,5 +75,13 @@ export function usePageDetailData(pageId: string) {
     setPageData,
     attachments: attachmentsQuery.data ?? [],
     fetchAttachments,
+    // 初回ロードで失敗してキャッシュも無い（＝オフラインで未訪問ページを開いた等）
+    isErrorWithoutCache:
+      (pageQuery.isError && !pageQuery.data) ||
+      (attachmentsQuery.isError && !attachmentsQuery.data),
+    refetch: () => {
+      void pageQuery.refetch();
+      void attachmentsQuery.refetch();
+    },
   };
 }
