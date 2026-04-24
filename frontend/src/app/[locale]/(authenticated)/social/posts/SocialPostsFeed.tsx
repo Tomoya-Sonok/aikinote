@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -160,7 +161,7 @@ export function SocialPostsFeed() {
         className={styles.promoteBanner}
         onClick={() => track("promote_free_users_post_banner_click")}
       >
-        <img
+        <Image
           src={
             locale === "en"
               ? "/images/banner/en_minnade_promote_free_users_post.png"
@@ -172,6 +173,9 @@ export function SocialPostsFeed() {
               : "無料（Freeプラン）でも投稿できます"
           }
           className={styles.promoteBannerImage}
+          width={1080}
+          height={360}
+          sizes="(min-width: 581px) 548px, 100vw"
         />
       </Link>
       <SocialTabBar
