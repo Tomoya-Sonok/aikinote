@@ -6,7 +6,9 @@ function makeQueryClient(): QueryClient {
       queries: {
         staleTime: 30 * 1000,
         gcTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: true,
+        // モバイルでの帯域・バッテリー消費を抑えるため、フォーカス時の自動 refetch はデフォルト OFF
+        // 通知カウントなどフォーカス復帰時に追随させたいクエリは個別に `refetchOnWindowFocus: true` を指定する
+        refetchOnWindowFocus: false,
         refetchOnReconnect: true,
         retry: 1,
       },

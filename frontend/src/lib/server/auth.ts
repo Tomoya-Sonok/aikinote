@@ -23,6 +23,10 @@ type HonoUserInfo = {
   training_start_date?: string | null;
   aikido_rank?: string | null;
   full_name?: string | null;
+  bio?: string | null;
+  publicity_setting?: string | null;
+  age_range?: string | null;
+  gender?: string | null;
 };
 
 export const buildApiUrl = (path: string) => {
@@ -100,6 +104,11 @@ export const fetchUserInfoFromHono = async (
     dojo_style_id: data.dojo_style_id || null,
     aikido_rank: data.aikido_rank || null,
     full_name: data.full_name || null,
+    bio: data.bio ?? null,
+    publicity_setting: data.publicity_setting ?? null,
+    age_range: data.age_range ?? null,
+    gender: data.gender ?? null,
+    training_start_date: data.training_start_date ?? null,
   };
 };
 

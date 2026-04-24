@@ -41,14 +41,22 @@ export default async function Page({
     redirect(loginPath);
   }
 
+  // サーバー側で Hono から取得した全フィールドを初期値として渡すことで、
+  // クライアント側の初期 fetch を不要にし、MyPage の LCP を短縮する
   const initialProfile = {
     id: user.id,
     email: user.email || "",
     username: user.username || userInfoT("usernamePlaceholder"),
     profile_image_url: user.profile_image_url || null,
     dojo_style_name: user.dojo_style_name || null,
-    training_start_date: null,
-    publicity_setting: "private" as const,
+    dojo_style_id: user.dojo_style_id || null,
+    training_start_date: user.training_start_date || null,
+    publicity_setting: user.publicity_setting || null,
+    aikido_rank: user.aikido_rank || null,
+    full_name: user.full_name || null,
+    bio: user.bio ?? null,
+    age_range: user.age_range ?? null,
+    gender: user.gender ?? null,
     language: locale,
     is_email_verified: true,
     password_hash: "",

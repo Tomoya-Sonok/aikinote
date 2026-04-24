@@ -29,7 +29,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
         client={queryClient}
         persistOptions={{
           persister,
-          maxAge: 24 * 60 * 60 * 1000,
+          // 古い空キャッシュの残留で「まだ投稿がありません」等の誤表示が長引くのを避けるため 12h に短縮
+          maxAge: 12 * 60 * 60 * 1000,
           dehydrateOptions: {
             shouldDehydrateQuery: (query) =>
               query.state.status === "success" && Boolean(query.state.data),
