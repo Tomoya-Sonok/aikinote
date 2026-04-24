@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { SurveyModal } from "@/components/shared/SurveyModal/SurveyModal";
@@ -18,7 +18,9 @@ interface MyPageProps {
 export default function MyPage({ initialUser }: MyPageProps) {
   const t = useTranslations();
   const [user, setUser] = useState<UserProfile>(initialUser);
-  const [loading, setLoading] = useState(true);
+  // サーバー側で全フィールドが初期化済みなので、マウント時の loading は不要。
+  // ミューテーション後の再取得時のみ true にする
+  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
   const { track } = useUmamiTrack();
 
@@ -42,11 +44,6 @@ export default function MyPage({ initialUser }: MyPageProps) {
       setLoading(false);
     }
   }, [showToast, t, user.id]);
-
-  // マイページアクセス時に最新のユーザー情報を取得
-  useEffect(() => {
-    fetchUserInfo();
-  }, [fetchUserInfo]);
 
   const { isOpen: isSurveyOpen, dismiss: dismissSurvey } = useSurveyModal({
     ageRange: user.age_range ?? null,

@@ -102,12 +102,14 @@ export function useAuth() {
       setIsInitializing(true);
       try {
         // タイムアウト付きでセッション取得
+        // 不安定なネットワーク下での「開かない」体感を避けるため、3 秒で打ち切り、
+        // タイムアウト時は未ログイン扱いで UI を先に出す（onAuthStateChange が後追いで復帰させる）
         const sessionPromise: Promise<SessionResponse> =
           supabaseClient.auth.getSession();
         const timeoutPromise = new Promise<never>((_, reject) =>
           setTimeout(
             () => reject(new Error("セッション取得がタイムアウトしました")),
-            10000,
+            3000,
           ),
         );
 

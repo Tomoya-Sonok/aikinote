@@ -23,6 +23,8 @@ export type UserSession = {
   publicity_setting?: string | null;
   age_range?: string | null;
   gender?: string | null;
+  bio?: string | null;
+  training_start_date?: string | null;
 };
 
 export async function signUp(credentials: SignUpCredentials) {

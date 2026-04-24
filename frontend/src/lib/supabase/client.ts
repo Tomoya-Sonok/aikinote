@@ -17,13 +17,24 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// GoTrueClient は複数インスタンスを立てると認証状態が不整合になりうるため、
+// モジュールスコープで singleton を維持する。
+// 型は createBrowserClient の呼び出し結果から具体型が推論されるよう、
+// 一旦ローカル関数を経由して ReturnType を取る（generic 直参照だとジェネリクスが展開されず any 化する）
+const buildBrowserClient = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Supabase environment variables are missing");
+  }
+  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+};
+
+let cachedClient: ReturnType<typeof buildBrowserClient> | undefined;
+
 export function getClientSupabase() {
+  if (cachedClient) return cachedClient;
   try {
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error("Supabase environment variables are missing");
-    }
-    const client = createBrowserClient(supabaseUrl, supabaseAnonKey);
-    return client;
+    cachedClient = buildBrowserClient();
+    return cachedClient;
   } catch (error) {
     console.error("getClientSupabase: クライアント作成エラー", error);
     throw error;
