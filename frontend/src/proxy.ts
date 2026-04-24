@@ -60,6 +60,23 @@ export async function proxy(request: NextRequest) {
   }
   // --- LINE内蔵ブラウザ対策 ここまで ---
 
+  // Next.js は React Server Component リクエストに "RSC: 1" ヘッダを付与する
+  // （Link の自動プリフェッチ / ソフトナビゲーション両方で同じヘッダ）。
+  // 認証 cookie の同期は初回のフル document リクエスト時点で済んでいるので、
+  // RSC リクエストでは重い `supabase.auth.getSession()` をスキップし、
+  // i18n ルーティングだけ通して即返す。
+  //
+  // これを怠ると、本番 Vercel Edge では Link プリフェッチの度に
+  // Vercel Edge → Supabase の RTT（~100-300ms）が加算され、
+  // bottom TabNavigation が返ってくるプリフェッチ 3 本ぶんが実質機能しなくなる。
+  const isRscRequest = request.headers.get("rsc") === "1";
+  if (isRscRequest) {
+    return (
+      handleI18nRouting(request) ||
+      NextResponse.next({ request: { headers: request.headers } })
+    );
+  }
+
   const shouldSkipAuthSync = process.env.SKIP_MIDDLEWARE === "true";
 
   if (request.nextUrl.pathname.startsWith("/auth/")) {
