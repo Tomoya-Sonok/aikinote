@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { type CSSProperties, type FC, useCallback, useState } from "react";
+import {
+  type CSSProperties,
+  type FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { buildYouTubeEmbedSrc } from "@/lib/utils/youtube";
 import styles from "./MediaPlayer.module.css";
 
@@ -76,18 +83,12 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
 
   if (type === "video") {
     return (
-      <div className={containerClass}>
-        <div className={aspectClass}>
-          {/* biome-ignore lint/a11y/useMediaCaption: 稽古動画のキャプション不要 */}
-          <video
-            className={styles.video}
-            src={url}
-            controls
-            preload="metadata"
-            poster={thumbnailUrl ?? undefined}
-          />
-        </div>
-      </div>
+      <VideoPlayer
+        url={url}
+        thumbnailUrl={thumbnailUrl}
+        containerClass={containerClass}
+        aspectClass={aspectClass}
+      />
     );
   }
 
@@ -102,6 +103,72 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
           className={`${styles.image} ${isLandscape ? styles.imageLandscape : ""}`}
           sizes="(max-width: 580px) 100vw, 580px"
           onLoad={handleImageLoad}
+        />
+      </div>
+    </div>
+  );
+};
+
+interface VideoPlayerProps {
+  url: string;
+  thumbnailUrl?: string | null;
+  containerClass: string;
+  aspectClass: string;
+}
+
+/**
+ * ビューポート内に入るまで `<video preload="none">` とし、メタデータ取得を遅延させる。
+ * 投稿一覧のように複数動画が縦に並ぶ画面で、画面外動画のメタデータリクエストを抑制して
+ * 初期ロード時の帯域・メモリ消費を削減する。
+ */
+const VideoPlayer: FC<VideoPlayerProps> = ({
+  url,
+  thumbnailUrl,
+  containerClass,
+  aspectClass,
+}) => {
+  const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const setContainerRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+      if (!node || hasEnteredViewport) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setHasEnteredViewport(true);
+            observer.disconnect();
+            observerRef.current = null;
+          }
+        },
+        { rootMargin: "200px" },
+      );
+      observer.observe(node);
+      observerRef.current = observer;
+    },
+    [hasEnteredViewport],
+  );
+
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+    };
+  }, []);
+
+  return (
+    <div className={containerClass} ref={setContainerRef}>
+      <div className={aspectClass}>
+        {/* biome-ignore lint/a11y/useMediaCaption: 稽古動画のキャプション不要 */}
+        <video
+          className={styles.video}
+          src={url}
+          controls
+          preload={hasEnteredViewport ? "metadata" : "none"}
+          poster={thumbnailUrl ?? undefined}
         />
       </div>
     </div>

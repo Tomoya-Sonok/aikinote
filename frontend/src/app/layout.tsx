@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { ServiceWorkerRegister } from "@/components/shared/ServiceWorkerRegister/ServiceWorkerRegister";
 import "../styles/globals.css";
+
+const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -98,16 +101,21 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* CloudFront（添付画像・動画・プロフィール画像の配信元）への接続を事前確立し、初回リソースの DNS/TLS 待ちを短縮 */}
+        {cloudFrontDomain && (
+          <>
+            <link
+              rel="preconnect"
+              href={`https://${cloudFrontDomain}`}
+              crossOrigin="anonymous"
+            />
+            <link rel="dns-prefetch" href={`https://${cloudFrontDomain}`} />
+          </>
+        )}
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap"
           rel="stylesheet"
         />
-        <script
-          defer
-          src="https://cloud.umami.is/script.js"
-          data-website-id="344d247e-0025-4d95-ba54-50e31ea42f22"
-          data-domains="www.aikinote.com,aikinote.com"
-        ></script>
       </head>
       <body suppressHydrationWarning>
         <script
@@ -117,6 +125,18 @@ export default function RootLayout({
         />
         <ServiceWorkerRegister />
         {children}
+        {/*
+          Umami 解析スクリプトは initial paint をブロックしないよう next/script の afterInteractive で遅延ロード。
+          生の <script defer> と比べ、Next.js のルーティング中も一貫したライフサイクルで管理できる
+        */}
+        {/* biome-ignore lint/correctness/useUniqueElementIds: next/script は同一 id で重複ロードを防止する仕様のため、静的 id が必要 */}
+        <Script
+          id="umami-analytics"
+          src="https://cloud.umami.is/script.js"
+          strategy="afterInteractive"
+          data-website-id="344d247e-0025-4d95-ba54-50e31ea42f22"
+          data-domains="www.aikinote.com,aikinote.com"
+        />
       </body>
     </html>
   );

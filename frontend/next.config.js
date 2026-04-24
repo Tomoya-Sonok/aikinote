@@ -45,6 +45,12 @@ const nextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
     ],
+    // _next/image 経由で配信する画像を対応ブラウザ向けに AVIF/WebP へ自動変換。
+    // LP の巨大 PNG（2.7MB 等）も 50〜70% 程度転送量を削減できる
+    formats: ["image/avif", "image/webp"],
+    // SP 比率 90% を踏まえ、実機幅に近いブレークポイントを明示指定して srcset の無駄生成を抑える
+    deviceSizes: [320, 375, 428, 640, 768, 1024, 1280, 1536],
+    imageSizes: [16, 24, 32, 40, 48, 64, 96, 128, 256, 384],
   },
 
   // webpack設定
