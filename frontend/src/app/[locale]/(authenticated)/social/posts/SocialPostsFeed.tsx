@@ -9,7 +9,6 @@ import {
   type SocialFeedPostData,
   SocialPostCard,
 } from "@/components/features/social/SocialPostCard/SocialPostCard";
-import { SocialPostCardSkeleton } from "@/components/features/social/SocialPostCard/SocialPostCardSkeleton";
 import {
   type SocialTab,
   SocialTabBar,
@@ -210,7 +209,7 @@ export function SocialPostsFeed() {
           <RefetchErrorBanner onRetry={refetch} />
         )}
         {isLoading ? (
-          <SocialPostCardSkeleton />
+          <Loader size="large" centered />
         ) : posts.length === 0 ? (
           <p className={styles.emptyMessage}>{t(emptyKey)}</p>
         ) : (

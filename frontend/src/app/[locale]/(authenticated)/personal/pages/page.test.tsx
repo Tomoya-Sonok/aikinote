@@ -73,14 +73,10 @@ vi.mock("@/components/features/personal/TrainingCard/TrainingCard", () => ({
   ),
 }));
 
-vi.mock(
-  "@/components/features/personal/TrainingCard/TrainingCardSkeleton",
-  () => ({
-    TrainingCardSkeleton: () => (
-      <div data-testid="training-card-skeleton">TrainingCardSkeleton</div>
-    ),
-  }),
-);
+vi.mock("@/components/shared/Loader", () => ({
+  Loader: () => <div data-testid="list-loader">Loader</div>,
+  default: () => <div data-testid="list-loader">Loader</div>,
+}));
 
 vi.mock(
   "@/components/shared/FloatingActionButton/FloatingActionButton",
@@ -314,7 +310,7 @@ describe("ページ一覧画面", () => {
     });
   });
 
-  it("API応答待ちの間にスケルトンが描画される", async () => {
+  it("API応答待ちの間にLoaderが描画される", async () => {
     // Arrange
     mockGetPages.mockImplementation(
       () => new Promise((resolve) => setTimeout(resolve, 1000)),
@@ -330,10 +326,10 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    expect(screen.getByTestId("training-card-skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("list-loader")).toBeInTheDocument();
   });
 
-  it("ユーザー情報がnullかつloading中でもクラッシュせずスケルトンが描画される", async () => {
+  it("ユーザー情報がnullかつloading中でもクラッシュせずLoaderが描画される", async () => {
     // Arrange
     mockUseAuth.mockReturnValue({
       user: null,
@@ -361,7 +357,7 @@ describe("ページ一覧画面", () => {
     });
 
     // Assert
-    expect(screen.getByTestId("training-card-skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("list-loader")).toBeInTheDocument();
   });
 
   it("ページが0件の場合にTrainingCardが描画されない", async () => {
