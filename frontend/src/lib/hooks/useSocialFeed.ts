@@ -105,13 +105,15 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
       }
     };
 
+    // idle callback のタイムアウトが長すぎるとユーザーがタブをすぐ切替えた際にプリフェッチが間に合わない。
+    // アクティブタブのロードが済んだ直後にバックグラウンド fetch を開始させたいので 1 秒で打ち切る
     if ("requestIdleCallback" in window) {
       const handle = window.requestIdleCallback(prefetchOtherTabs, {
-        timeout: 3000,
+        timeout: 1000,
       });
       return () => window.cancelIdleCallback(handle);
     }
-    const timeoutId = setTimeout(prefetchOtherTabs, 500);
+    const timeoutId = setTimeout(prefetchOtherTabs, 300);
     return () => clearTimeout(timeoutId);
   }, [user?.id, tab, query.isSuccess, queryClient]);
 

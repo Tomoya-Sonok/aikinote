@@ -64,7 +64,6 @@ export function SocialPostsFeed() {
   const { track } = useUmamiTrack();
   const { canPost, isPremium, loading: dailyLimitsLoading } = useDailyLimits();
   const unreadReplyPostIds = useUnreadReplyPostIds(user?.id);
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeModalKey, setUpgradeModalKey] =
     useState<string>("premiumModalBrowse");
@@ -105,26 +104,44 @@ export function SocialPostsFeed() {
     });
 
   // Intersection Observer で無限スクロール
+  // isLoading / hasMore / isLoadingMore の変化で observer を作り直すと、
+  // タブ切替やデータ更新のたびに観測がリセットされて取りこぼしやちらつきに繋がる。
+  // volatile な値は ref 経由で参照し、sentinel ノードのマウント時に 1 度だけ observer を生成する
   const loadMoreRef = useRef(loadMore);
   loadMoreRef.current = loadMore;
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+  const isLoadingMoreRef = useRef(isLoadingMore);
+  isLoadingMoreRef.current = isLoadingMore;
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  useEffect(() => {
-    if (isLoading) return;
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
+  const setSentinelRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    if (!node) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
+        if (
+          entries[0].isIntersecting &&
+          hasMoreRef.current &&
+          !isLoadingMoreRef.current
+        ) {
           loadMoreRef.current();
         }
       },
       { rootMargin: "200px" },
     );
+    observer.observe(node);
+    observerRef.current = observer;
+  }, []);
 
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, isLoading]);
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+    };
+  }, []);
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
@@ -205,7 +222,7 @@ export function SocialPostsFeed() {
               />
             ))}
 
-            <div ref={sentinelRef} className={styles.sentinel}>
+            <div ref={setSentinelRef} className={styles.sentinel}>
               {isLoadingMore && <Loader size="large" centered />}
               {!hasMore && posts.length > 0 && (
                 <p className={styles.noMore}>{t("noMorePosts")}</p>

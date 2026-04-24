@@ -6,9 +6,26 @@ interface TrainingCardSkeletonProps {
   count?: number;
 }
 
+// 実カード（TrainingCard）と同じ header/tags/content/date の順序にすることで、差し替え時の CLS を抑える
 const SingleCard = () => (
   <div className={styles.card}>
-    <Skeleton variant="text" width="60%" height="16px" />
+    <div className={styles.header}>
+      <Skeleton variant="text" width="60%" height="16px" />
+      <div className={styles.headerActions}>
+        <Skeleton
+          variant="rect"
+          width="16px"
+          height="16px"
+          borderRadius="4px"
+        />
+        <Skeleton
+          variant="rect"
+          width="16px"
+          height="16px"
+          borderRadius="4px"
+        />
+      </div>
+    </div>
     <div className={styles.tags}>
       <Skeleton
         variant="rect"

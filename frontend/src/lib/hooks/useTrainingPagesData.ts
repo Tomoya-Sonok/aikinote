@@ -1,5 +1,6 @@
 import {
   type InfiniteData,
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
@@ -83,6 +84,9 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
   >({
     queryKey: trainingPagesQueryKey(user?.id, normalizedOptions),
     enabled: !authLoading && !!user?.id,
+    // 検索ワード・タグ・日付レンジ等の filter 変更で queryKey が変わるたびにスケルトンへ戻るのを防ぐため、
+    // 新キー用のデータが取れるまで前のデータを表示（TanStack Query v5 の keepPreviousData 相当）
+    placeholderData: keepPreviousData,
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
       if (!user?.id) {
