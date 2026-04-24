@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { TagLanguage } from "@/constants/tags";
 import { MAX_CATEGORIES } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
@@ -14,12 +15,27 @@ import {
   initializeUserTags,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { trainingTagsQueryKey } from "@/lib/hooks/useTrainingTags";
 import type { UserCategory } from "@/types/category";
+
+/** タグ一覧のキャッシュは useTrainingTags と共有する（queryKey を統一）ので、キーはそちらから再輸出する */
+export { trainingTagsQueryKey };
+
+/** カテゴリ一覧の TanStack Query キャッシュキー */
+export const trainingCategoriesQueryKey = (userId: string | undefined) =>
+  ["training-categories", userId] as const;
 
 interface UseTagManagementOptions {
   /** フックを有効にするか（ページ遷移後に有効化する用途） */
   enabled?: boolean;
 }
+
+type TagEntity = {
+  id: string;
+  name: string;
+  category: string;
+  user_id: string;
+};
 
 export interface UseTagManagementReturn {
   // 動的カテゴリ
@@ -62,13 +78,41 @@ export function useTagManagement(
   const { user } = useAuth();
   const t = useTranslations();
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
 
-  const [allTags, setAllTags] = useState<
-    { id: string; name: string; category: string; user_id: string }[]
-  >([]);
-  const [categories, setCategories] = useState<UserCategory[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [needsInitialTags, setNeedsInitialTags] = useState(false);
+  // カテゴリ / タグは TanStack Query に任せる。
+  // /personal/pages で `useTrainingTags` が事前にタグをキャッシュしていれば、
+  // /personal/pages/new や /social/posts/new に遷移した瞬間にキャッシュヒットする。
+  const categoriesQuery = useQuery<UserCategory[], Error>({
+    queryKey: trainingCategoriesQueryKey(user?.id),
+    enabled: enabled && !!user?.id,
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await getCategories(user.id);
+      if (response?.success && response.data) {
+        return response.data as UserCategory[];
+      }
+      return [];
+    },
+  });
+
+  const tagsQuery = useQuery<TagEntity[], Error>({
+    queryKey: trainingTagsQueryKey(user?.id),
+    enabled: enabled && !!user?.id,
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const response = await getTags(user.id);
+      if (response.success && response.data) {
+        return response.data as TagEntity[];
+      }
+      return [];
+    },
+  });
+
+  const categories = categoriesQuery.data ?? [];
+  const allTags = tagsQuery.data ?? [];
+  const loading = categoriesQuery.isLoading || tagsQuery.isLoading;
+  const needsInitialTags = tagsQuery.isSuccess && allTags.length === 0;
 
   // 動的選択状態: カテゴリ名 → 選択タグ名配列
   const [selectedByCategory, setSelectedByCategoryState] = useState<
@@ -79,64 +123,28 @@ export function useTagManagement(
   const [newTagInput, setNewTagInput] = useState("");
   const [showNewTagInput, setShowNewTagInput] = useState<string | null>(null);
 
-  const fetchData = useCallback(async () => {
-    if (!user?.id || !enabled) return;
-    try {
-      setLoading(true);
-
-      // カテゴリとタグを並列取得
-      const [categoriesResponse, tagsResponse] = await Promise.all([
-        getCategories(user.id),
-        getTags(user.id),
-      ]);
-
-      if (categoriesResponse?.success && categoriesResponse.data) {
-        setCategories(categoriesResponse.data);
-      }
-
-      if (tagsResponse.success && tagsResponse.data) {
-        setAllTags(tagsResponse.data);
-        if (tagsResponse.data.length === 0) {
-          setNeedsInitialTags(true);
-        } else {
-          setNeedsInitialTags(false);
-        }
-      }
-    } catch {
-      // タグ取得失敗は致命的ではない
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id, enabled]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const invalidateTagsAndCategories = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: trainingTagsQueryKey(user?.id),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: trainingCategoriesQueryKey(user?.id),
+      }),
+    ]);
+  }, [queryClient, user?.id]);
 
   const initializeTags = useCallback(
     async (language: TagLanguage) => {
       if (!user?.id) return;
       try {
         await initializeUserTags(user.id, language);
-
-        // 再取得
-        const [categoriesResponse, tagsResponse] = await Promise.all([
-          getCategories(user.id),
-          getTags(user.id),
-        ]);
-
-        if (categoriesResponse?.success && categoriesResponse.data) {
-          setCategories(categoriesResponse.data);
-        }
-        if (tagsResponse.success && tagsResponse.data) {
-          setAllTags(tagsResponse.data);
-          setNeedsInitialTags(false);
-        }
+        await invalidateTagsAndCategories();
       } catch {
         showToast(t("pageModal.tagAddFailed"), "error");
       }
     },
-    [user?.id, showToast, t],
+    [user?.id, showToast, t, invalidateTagsAndCategories],
   );
 
   // タグをカテゴリ別に分類
@@ -207,7 +215,9 @@ export function useTagManagement(
       try {
         const response = await createTag(tagData);
         if (response.success && response.data) {
-          await fetchData();
+          await queryClient.invalidateQueries({
+            queryKey: trainingTagsQueryKey(user?.id),
+          });
           setNewTagInput("");
           setShowNewTagInput(null);
 
@@ -222,7 +232,7 @@ export function useTagManagement(
         );
       }
     },
-    [fetchData, showToast, t, handleTagToggle],
+    [queryClient, user?.id, showToast, t, handleTagToggle],
   );
 
   const handleSubmitNewTag = useCallback(
@@ -273,7 +283,11 @@ export function useTagManagement(
         });
         if (response.success && response.data) {
           const newCat = response.data as UserCategory;
-          setCategories((prev) => [...prev, newCat]);
+          // 即時反映のためキャッシュに追記（サーバー側で作成済みなので invalidate は不要）
+          queryClient.setQueryData<UserCategory[]>(
+            trainingCategoriesQueryKey(user.id),
+            (prev) => (prev ? [...prev, newCat] : [newCat]),
+          );
           showToast(t("tagManagement.categoryCreateSuccess"), "success");
         } else {
           showToast(
@@ -291,7 +305,7 @@ export function useTagManagement(
         );
       }
     },
-    [user?.id, categories.length, showToast, t],
+    [user?.id, categories.length, queryClient, showToast, t],
   );
 
   return {

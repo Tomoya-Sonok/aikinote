@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // モック定義
@@ -31,6 +33,17 @@ vi.mock("@/lib/api/client", () => ({
 
 import { useTagManagement } from "./useTagManagement";
 
+/** TanStack Query 化に伴い useQuery を使うので、renderHook を QueryClientProvider で包む */
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0 },
+    },
+  });
+  return ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
 /** 共通のモック初期化 */
 const setupDefaultMocks = () => {
   mockGetCategories.mockResolvedValue({
@@ -61,7 +74,9 @@ describe("useTagManagement", () => {
   describe("タグトグル操作", () => {
     it("未選択のタグをトグルすると選択状態になる", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
@@ -73,7 +88,9 @@ describe("useTagManagement", () => {
 
     it("選択済みのタグをトグルすると選択解除される", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
       act(() => result.current.handleTagToggle("取り", "立技"));
 
@@ -86,7 +103,9 @@ describe("useTagManagement", () => {
 
     it("複数カテゴリのタグを独立してトグルできる", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
@@ -104,7 +123,9 @@ describe("useTagManagement", () => {
   describe("新規タグ作成バリデーション", () => {
     it("空文字列の場合はエラートーストを表示しAPIを呼ばない", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
       act(() => result.current.setNewTagInput("   "));
 
@@ -121,7 +142,9 @@ describe("useTagManagement", () => {
 
     it("21文字以上の場合はエラートーストを表示する", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
       act(() => result.current.setNewTagInput("あ".repeat(21)));
 
@@ -138,7 +161,9 @@ describe("useTagManagement", () => {
 
     it("不正な文字（@#$）を含む場合はエラートーストを表示する", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
       act(() => result.current.setNewTagInput("タグ@#$"));
 
@@ -163,7 +188,9 @@ describe("useTagManagement", () => {
           user_id: "user-1",
         },
       });
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
       act(() => result.current.setNewTagInput("半身半立ち"));
 
@@ -191,7 +218,9 @@ describe("useTagManagement", () => {
           sort_order: i,
         })),
       });
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
@@ -216,7 +245,9 @@ describe("useTagManagement", () => {
           sort_order: 4,
         },
       });
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
@@ -237,7 +268,9 @@ describe("useTagManagement", () => {
   describe("旧形式互換プロパティ", () => {
     it("tagsByCategoryから取り・受け・技のタグが導出される", async () => {
       // Arrange & Act
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert
@@ -248,7 +281,9 @@ describe("useTagManagement", () => {
 
     it("setSelectedToriで取りカテゴリの選択状態が更新される", async () => {
       // Arrange
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Act
@@ -266,7 +301,9 @@ describe("useTagManagement", () => {
       mockGetTags.mockResolvedValue({ success: true, data: [] });
 
       // Act
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert
@@ -275,7 +312,9 @@ describe("useTagManagement", () => {
 
     it("タグが1件以上ある場合はneedsInitialTagsがfalseになる", async () => {
       // Arrange & Act
-      const { result } = renderHook(() => useTagManagement());
+      const { result } = renderHook(() => useTagManagement(), {
+        wrapper: createWrapper(),
+      });
       await waitFor(() => expect(result.current.loading).toBe(false));
 
       // Assert

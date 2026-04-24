@@ -18,6 +18,9 @@
   border: none;
   background: var(--white);
   padding: 0;
+  /* Link（<a>）化したので、下線・色継承を button と同じ見た目に揃える */
+  text-decoration: none;
+  color: inherit;
 }
 
 .tab.active {
