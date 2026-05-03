@@ -1,11 +1,15 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.aikinote",
       "sha256_cert_fingerprints": [
-        "76:F8:3B:53:1E:EB:26:87:FA:75:49:5D:07:50:83:93:70:7F:6B:E2:59:9B:9A:4C:92:B1:A1:87:E6:47:E9:DC"
+        "76:F8:3B:53:1E:EB:26:87:FA:75:49:5D:07:50:83:93:70:7F:6B:E2:59:9B:9A:4C:92:B1:A1:87:E6:47:E9:DC",
+        "ED:EE:5B:26:98:A7:44:4F:79:41:DC:5B:69:B8:F9:A5:70:22:46:6E:6D:0F:2F:F0:FE:80:2D:5E:F8:3F:F8:13"
       ]
     }
   }
