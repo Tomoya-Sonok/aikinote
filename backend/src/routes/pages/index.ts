@@ -41,18 +41,29 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
       resolveTagNames(input),
     );
 
-    // is_public=true の場合、SocialPost を連動作成
+    // is_public=true の場合、SocialPost を連動作成。
+    // 元々エラーは握りつぶす実装だったため、レスポンスを待たせずに waitUntil で
+    // 非同期実行する。ページ作成本体のレスポンスを早く返すことで体感を改善。
     if (input.is_public && supabase) {
+      const socialSyncTask = (async () => {
+        try {
+          await syncSocialPostForTrainingPage(
+            supabase,
+            result.page.id,
+            input.user_id,
+            input.content,
+            true,
+          );
+        } catch (socialError) {
+          console.error("SocialPost 連動作成エラー:", socialError);
+        }
+      })();
+      // c.executionCtx は Cloudflare Workers Runtime 外（テスト等）では getter が
+      // throw する仕様のため、try/catch で防御。
       try {
-        await syncSocialPostForTrainingPage(
-          supabase,
-          result.page.id,
-          input.user_id,
-          input.content,
-          true,
-        );
-      } catch (socialError) {
-        console.error("SocialPost 連動作成エラー:", socialError);
+        c.executionCtx.waitUntil(socialSyncTask);
+      } catch {
+        // executionCtx が利用できない環境では何もしない
       }
     }
 

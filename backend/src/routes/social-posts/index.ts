@@ -203,8 +203,21 @@ app.post(
 
       const supabase = c.get("supabase")!;
 
-      // Free ユーザー: 1日3件まで投稿可能
-      const premium = await isPremiumUser(supabase, userId);
+      // Premium 判定は daily limit を呼ぶか否かに影響するため先に評価する。
+      // それ以外の独立した DB アクセス（60分レート制限・NGワード・User取得）と
+      // 並列実行して RTT 累積を抑える。
+      const [premium, rateLimited, ngResult, userResult] = await Promise.all([
+        isPremiumUser(supabase, userId),
+        checkRateLimit(supabase, userId, "SocialPost", 60, 10),
+        containsNgWord(input.content, supabase),
+        supabase
+          .from("User")
+          .select("publicity_setting, dojo_style_id, dojo_style_name")
+          .eq("id", input.user_id)
+          .single(),
+      ]);
+
+      // Free ユーザーのみ daily limit をチェック
       if (!premium) {
         const dailyLimited = await checkRateLimit(
           supabase,
@@ -226,13 +239,6 @@ app.post(
       }
 
       // レート制限チェック（60分以内に10件まで）
-      const rateLimited = await checkRateLimit(
-        supabase,
-        userId,
-        "SocialPost",
-        60,
-        10,
-      );
       if (rateLimited) {
         return c.json(
           {
@@ -244,20 +250,13 @@ app.post(
       }
 
       // NGワードチェック（ブロックせず警告のみ）
-      const ngResult = await containsNgWord(input.content, supabase);
       if (ngResult.found) {
         console.warn(
           `[NGワード検出] 投稿作成 userId=${input.user_id} matchedWord="${ngResult.matchedWord}"`,
         );
       }
 
-      // User情報取得 (publicity_setting, dojo_style_id, dojo_style_name)
-      const { data: user } = await supabase
-        .from("User")
-        .select("publicity_setting, dojo_style_id, dojo_style_name")
-        .eq("id", input.user_id)
-        .single();
-
+      const user = userResult.data;
       if (!user) {
         return c.json(
           { success: false, error: "ユーザーが見つかりません" },
@@ -274,20 +273,35 @@ app.post(
         source_page_id: input.source_page_id,
       });
 
-      // タグ紐付け
+      // タグ紐付け（投稿一覧で表示するため同期で確定させる）
       if (input.tag_ids && input.tag_ids.length > 0) {
         await createSocialPostTags(supabase, post.id, input.tag_ids);
       }
 
-      // ハッシュタグ抽出・登録
+      // ハッシュタグ抽出・登録は UI 表示に必須ではない（content から再抽出可能）ため
+      // Cloudflare Workers の waitUntil でレスポンス後に非同期実行し、応答を早く返す。
       const hashtagNames = extractHashtags(input.content);
       if (hashtagNames.length > 0) {
-        const hashtags = await upsertHashtags(supabase, hashtagNames);
-        await createSocialPostHashtags(
-          supabase,
-          post.id,
-          hashtags.map((h) => h.id),
-        );
+        const hashtagTask = (async () => {
+          try {
+            const hashtags = await upsertHashtags(supabase, hashtagNames);
+            await createSocialPostHashtags(
+              supabase,
+              post.id,
+              hashtags.map((h) => h.id),
+            );
+          } catch (error) {
+            console.error("ハッシュタグ処理エラー:", error);
+          }
+        })();
+        // c.executionCtx は Cloudflare Workers Runtime 外（テスト等）では getter が
+        // throw する仕様のため、try/catch で防御。テスト環境では fire-and-forget だが
+        // IIFE 内で try/catch しているので unhandled rejection にはならない。
+        try {
+          c.executionCtx.waitUntil(hashtagTask);
+        } catch {
+          // executionCtx が利用できない環境では何もしない
+        }
       }
 
       return c.json(
