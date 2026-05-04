@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { AuthGate } from "@/components/shared/auth";
 import { buildMetadata } from "@/lib/metadata";
 import { PageCreate } from "./PageCreate";
 
@@ -16,6 +17,15 @@ export async function generateMetadata({
   });
 }
 
-export default async function PersonalPageNewPage() {
-  return <PageCreate />;
+export default async function PersonalPageNewPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return (
+    <AuthGate redirectTo={`/${locale}/login`}>
+      <PageCreate />
+    </AuthGate>
+  );
 }

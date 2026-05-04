@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { AuthGate } from "@/components/shared/auth";
 import { buildMetadata } from "@/lib/metadata";
 import { SocialPostsFeed } from "./SocialPostsFeed";
 
@@ -17,6 +18,15 @@ export async function generateMetadata({
   });
 }
 
-export default async function SocialPostsPage() {
-  return <SocialPostsFeed />;
+export default async function SocialPostsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return (
+    <AuthGate redirectTo={`/${locale}/login`}>
+      <SocialPostsFeed />
+    </AuthGate>
+  );
 }

@@ -1,21 +1,12 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/server/auth";
-
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
 }
 
-export default async function AuthenticatedLayout({
+// 認証 redirect は各 page の `<AuthGate>` に移譲する。
+// layout を passthrough 化することで、cacheComponents 有効化時に
+// (authenticated) 配下の static shell が dynamic source 由来で潰れるのを防ぐ
+export default function AuthenticatedLayout({
   children,
-  params,
 }: AuthenticatedLayoutProps) {
-  const { locale } = await params;
-  const user = await getCurrentUser();
-
-  if (!user) {
-    redirect(`/${locale}/login`);
-  }
-
   return children;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { AuthGate } from "@/components/shared/auth";
 import { buildMetadata } from "@/lib/metadata";
 import { SocialNotifications } from "./SocialNotifications";
 
@@ -16,6 +17,15 @@ export async function generateMetadata({
   });
 }
 
-export default async function SocialNotificationsPage() {
-  return <SocialNotifications />;
+export default async function SocialNotificationsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return (
+    <AuthGate redirectTo={`/${locale}/login`}>
+      <SocialNotifications />
+    </AuthGate>
+  );
 }

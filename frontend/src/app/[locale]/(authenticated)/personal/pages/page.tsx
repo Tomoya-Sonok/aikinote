@@ -1,3 +1,4 @@
+import { AuthGate } from "@/components/shared/auth";
 import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { PersonalPages } from "./PersonalPages";
@@ -7,10 +8,17 @@ export const metadata = buildMetadata({
   description: "個人で作成した稽古ページを一覧で管理できます。",
 });
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   return (
-    <DefaultLayout showTooltip={true}>
-      <PersonalPages />
-    </DefaultLayout>
+    <AuthGate redirectTo={`/${locale}/login`}>
+      <DefaultLayout showTooltip={true}>
+        <PersonalPages />
+      </DefaultLayout>
+    </AuthGate>
   );
 }

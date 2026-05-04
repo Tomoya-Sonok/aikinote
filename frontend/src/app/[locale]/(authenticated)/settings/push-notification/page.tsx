@@ -1,3 +1,4 @@
+import { AuthGate } from "@/components/shared/auth";
 import { PushNotificationSetting } from "./PushNotificationSetting";
 
 interface Props {
@@ -6,5 +7,9 @@ interface Props {
 
 export default async function PushNotificationSettingPage({ params }: Props) {
   const { locale } = await params;
-  return <PushNotificationSetting locale={locale} />;
+  return (
+    <AuthGate redirectTo={`/${locale}/login`}>
+      <PushNotificationSetting locale={locale} />
+    </AuthGate>
+  );
 }

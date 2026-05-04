@@ -1,3 +1,4 @@
+import { AuthGate } from "@/components/shared/auth";
 import { SubscriptionSetting } from "./SubscriptionSetting";
 
 export default async function Page({
@@ -7,5 +8,9 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <SubscriptionSetting locale={locale} />;
+  return (
+    <AuthGate redirectTo={`/${locale}/login`}>
+      <SubscriptionSetting locale={locale} />
+    </AuthGate>
+  );
 }
