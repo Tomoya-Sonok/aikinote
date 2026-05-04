@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardText, PlusCircle } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
@@ -44,6 +45,7 @@ export function SocialPostCreate() {
   const tSocial = useTranslations("socialPosts");
   const { showToast } = useToast();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const modeGroupId = useId();
   const titleInputRef = useRef<HTMLInputElement>(null);
   const postTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -182,6 +184,11 @@ export function SocialPostCreate() {
         incrementPostCount();
         const postId = (result.data as { id: string }).id;
         await postAttachmentMgmt.saveNewAttachments(postId);
+
+        // 投稿一覧 (useSocialFeed) のキャッシュを無効化して、遷移先で
+        // 作成したばかりの投稿が反映されるようにする。staleTime に関係なく
+        // 強制 refetch されるため、staleTime 延長による表示遅延を防ぐ。
+        queryClient.invalidateQueries({ queryKey: ["social-feed"] });
       }
 
       if (result.success && result.warning) {
@@ -207,6 +214,7 @@ export function SocialPostCreate() {
     showToast,
     tSocial,
     router,
+    queryClient,
   ]);
 
   // 稽古記録モード送信
@@ -246,6 +254,11 @@ export function SocialPostCreate() {
           console.warn("稽古参加の自動登録に失敗:", err);
         }
 
+        // 稽古記録モードは is_public=true でページ + 連動 SocialPost を作成するため、
+        // ページ一覧と投稿一覧の両キャッシュを無効化する。
+        queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+        queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+
         isNavigatingRef.current = true;
         router.replace("/social/posts");
       } else {
@@ -272,6 +285,7 @@ export function SocialPostCreate() {
     showToast,
     tSocial,
     router,
+    queryClient,
   ]);
 
   const handleAddCategory = async () => {
