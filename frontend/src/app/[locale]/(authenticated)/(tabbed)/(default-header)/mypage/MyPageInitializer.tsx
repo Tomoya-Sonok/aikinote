@@ -39,7 +39,5 @@ export async function MyPageInitializer({ locale }: MyPageInitializerProps) {
     password_hash: "",
   };
 
-  return (
-    <MyPage initialUser={initialProfile} settingsHref={`/${locale}/mypage`} />
-  );
+  return <MyPage initialUser={initialProfile} />;
 }

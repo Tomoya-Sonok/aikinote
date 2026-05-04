@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { SocialFeedHeader } from "@/components/features/social/SocialFeedHeader/SocialFeedHeader";
 import {
   type SocialFeedPostData,
   SocialPostCard,
@@ -166,11 +165,10 @@ export function SocialPostsFeed() {
         ? "emptyTraining"
         : "emptyFavorites";
 
-  // 外殻 layout (.layout / .contentWrapper / .main / .tabNavigation) は呼び出し側
-  // (page.tsx) で再現済み。ここでは中身だけを fragment で返す
+  // SocialFeedHeader / 外殻 layout は呼び出し側 (page.tsx + (tabbed) layout) で提供される。
+  // ここでは page 中身 (バナー + タブバー + フィード) のみ render する
   return (
     <>
-      <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
       <div className={styles.desktopPageTitleWrapper}>
         <h2 className={styles.desktopPageTitle}>{t("title")}</h2>
       </div>

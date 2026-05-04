@@ -24,16 +24,12 @@ interface DefaultHeaderProps {
   user: UserSession | null;
   showUserSection?: boolean;
   showSettings?: boolean;
-  settingsHref?: string;
-  showTooltip?: boolean;
 }
 
 export const DefaultHeader: FC<DefaultHeaderProps> = ({
   user,
   showUserSection = true,
   showSettings = true,
-  settingsHref: _settingsHref = "/settings",
-  showTooltip = false,
 }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isProfileCardOpen, setIsProfileCardOpen] = useState(false);
@@ -41,8 +37,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
   const profileCardRef = useRef<HTMLDivElement>(null);
   const { shouldShowTooltip, hideTooltip } = useTooltipVisibility();
   const tooltipId = "font-size-tooltip";
-  const isTooltipVisible = showTooltip && shouldShowTooltip;
   const locale = useLocale();
+  const pathname = usePathname();
+  // フォントサイズ調整の Tooltip は /personal/pages の初回訪問時のみ表示する
+  const isPersonalPagesIndex = pathname === `/${locale}/personal/pages`;
+  const isTooltipVisible = isPersonalPagesIndex && shouldShowTooltip;
   const t = useTranslations();
   const { track } = useUmamiTrack();
 
@@ -53,7 +52,6 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
     );
   }, []);
 
-  const pathname = usePathname();
   const unreadCount = useUnreadNotificationCount(user?.id);
 
   const getActiveTab = () => {
