@@ -1,5 +1,5 @@
 import type { User } from "@supabase/supabase-js";
-import { revalidateTag, unstable_cache } from "next/cache";
+import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 import type { UserSession } from "@/lib/auth";
 import { fetchUserInfoFromHono } from "@/lib/server/auth";
 
@@ -12,33 +12,31 @@ export const getUserInfoCacheTag = (userId: string) => {
   return `${CACHE_TAG_USER_INFO}-${userId}`;
 };
 
+// "use cache" 内では cookies() を呼べないため、fetchUserInfoFromHono が JWT 生成で使う
+// id / email だけをプリミティブ引数で受け取り、cookies 依存の fallback を経由させない
+async function getCachedUserInfoInner(
+  userId: string,
+  email: string,
+): Promise<UserSession | null> {
+  "use cache";
+  cacheLife({ revalidate: 604800 });
+  cacheTag(getUserInfoCacheTag(userId));
+  return fetchUserInfoFromHono(userId, { id: userId, email } as User);
+}
+
 /**
- * ユーザー情報をキャッシュ付きで取得
- * TTL: 1週間 (604800秒)
+ * ユーザー情報をキャッシュ付きで取得 (TTL: 1 週間)
  */
 export const getCachedUserInfo = async (
   userId: string,
   user: User,
 ): Promise<UserSession | null> => {
-  const getUserInfo = unstable_cache(
-    async () => {
-      // キャッシュミス時にHono APIから取得
-      return fetchUserInfoFromHono(userId, user);
-    },
-    [getUserInfoCacheTag(userId)],
-    {
-      tags: [getUserInfoCacheTag(userId)],
-      revalidate: 604800, // 1週間
-    },
-  );
-
-  return getUserInfo();
+  return getCachedUserInfoInner(userId, user.email ?? "");
 };
 
 /**
- * ユーザー情報のキャッシュを無効化
+ * ユーザー情報のキャッシュを無効化 (プロフィール更新後の即時反映用)
  */
 export const revalidateUserInfo = (userId: string) => {
-  // @ts-expect-error Next.js 16.0.10 type definition mismatch workaround
-  revalidateTag(getUserInfoCacheTag(userId));
+  revalidateTag(getUserInfoCacheTag(userId), "max");
 };

@@ -1,5 +1,3 @@
-"use client";
-
 import type { FC } from "react";
 import { Skeleton } from "@/components/shared/Skeleton/Skeleton";
 import styles from "./SocialPostCardSkeleton.module.css";

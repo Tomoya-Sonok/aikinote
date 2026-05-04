@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { AuthGate } from "@/components/shared/auth";
 import { buildMetadata } from "@/lib/metadata";
 import { SocialSearch } from "./SocialSearch";
 
@@ -17,5 +18,9 @@ export async function generateMetadata({
 }
 
 export default async function SocialSearchPage() {
-  return <SocialSearch />;
+  return (
+    <AuthGate>
+      <SocialSearch />
+    </AuthGate>
+  );
 }

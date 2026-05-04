@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import layoutStyles from "@/components/shared/layouts/SocialLayout/SocialLayout.module.css";
 import { buildMetadata } from "@/lib/metadata";
-import { buildApiUrl } from "@/lib/server/auth";
-import type { ApiResponse } from "@/types/api";
-import { SocialProfileView } from "../SocialProfileView";
-
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { ProfileResolver } from "./ProfileResolver";
+import { SocialProfileSkeleton } from "./SocialProfileSkeleton";
 
 export async function generateMetadata({
   params,
@@ -22,24 +19,8 @@ export async function generateMetadata({
   });
 }
 
-const resolveUsernameFromUserId = async (
-  userId: string,
-): Promise<string | null> => {
-  const response = await fetch(buildApiUrl(`/api/users/${userId}/username`), {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!response.ok) return null;
-
-  const result: ApiResponse<{ username: string }> = await response
-    .json()
-    .catch(() => ({ success: false, error: "Invalid JSON response" }));
-
-  if (!result.success || !result.data?.username) return null;
-  return result.data.username;
-};
-
+// SocialLayout (Client) を Server から直接 wrap すると createContext 連鎖で build に
+// 失敗するため、CSS Modules だけ流用して DOM を inline 再現する (showTabNavigation=false 相当)
 export default async function SocialProfileByUsernamePage({
   params,
 }: {
@@ -47,12 +28,15 @@ export default async function SocialProfileByUsernamePage({
 }) {
   const { locale, username } = await params;
 
-  if (UUID_REGEX.test(username)) {
-    const resolvedUsername = await resolveUsernameFromUserId(username);
-    if (resolvedUsername) {
-      redirect(`/${locale}/social/profile/${resolvedUsername}`);
-    }
-  }
-
-  return <SocialProfileView username={username} />;
+  return (
+    <div className={layoutStyles.layout}>
+      <div className={layoutStyles.contentWrapper}>
+        <main className={layoutStyles.main}>
+          <Suspense fallback={<SocialProfileSkeleton />}>
+            <ProfileResolver locale={locale} username={username} />
+          </Suspense>
+        </main>
+      </div>
+    </div>
+  );
 }

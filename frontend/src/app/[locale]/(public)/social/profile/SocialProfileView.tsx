@@ -14,10 +14,7 @@ import {
 } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
-import {
-  SocialHeader,
-  SocialLayout,
-} from "@/components/shared/layouts/SocialLayout";
+import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
 import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupPromptModal";
 import { Tooltip } from "@/components/shared/Tooltip";
 import { useToast } from "@/contexts/ToastContext";
@@ -195,17 +192,15 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       onTabChange: handleTabChange,
     });
 
+  // SocialLayout は呼び出し側 (page.tsx) でラップ済み。
+  // ここで再度ラップすると DOM が二重になり PPR の static shell 効果も弱まる。
   if (isLoading || isInitializing) {
-    return (
-      <SocialLayout showTabNavigation={false}>
-        <Loader centered size="large" />
-      </SocialLayout>
-    );
+    return <Loader centered size="large" />;
   }
 
   if (!profile) {
     return (
-      <SocialLayout showTabNavigation={false}>
+      <>
         <SocialHeader
           title={t("profileTitle")}
           onBack={isAuthenticated ? handleBack : undefined}
@@ -218,13 +213,13 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
           isOpen={showSignupPrompt}
           onClose={() => setShowSignupPrompt(false)}
         />
-      </SocialLayout>
+      </>
     );
   }
 
   if (profile.is_restricted) {
     return (
-      <SocialLayout showTabNavigation={false}>
+      <>
         <SocialHeader
           title={t("profileTitle")}
           onBack={isAuthenticated ? handleBack : undefined}
@@ -237,14 +232,14 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
           isOpen={showSignupPrompt}
           onClose={() => setShowSignupPrompt(false)}
         />
-      </SocialLayout>
+      </>
     );
   }
 
   const profileUser = profile.user;
   if (!profileUser) {
     return (
-      <SocialLayout showTabNavigation={false}>
+      <>
         <SocialHeader
           title={t("profileTitle")}
           onBack={isAuthenticated ? handleBack : undefined}
@@ -257,12 +252,12 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
           isOpen={showSignupPrompt}
           onClose={() => setShowSignupPrompt(false)}
         />
-      </SocialLayout>
+      </>
     );
   }
 
   return (
-    <SocialLayout showTabNavigation={false}>
+    <>
       <SocialHeader
         title={t("profileTitle")}
         onBack={isAuthenticated ? handleBack : undefined}
@@ -392,6 +387,6 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
         isOpen={showSignupPrompt}
         onClose={() => setShowSignupPrompt(false)}
       />
-    </SocialLayout>
+    </>
   );
 }

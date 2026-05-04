@@ -16,7 +16,6 @@ import {
 } from "@/components/features/social/SocialTabBar/SocialTabBar";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/shared/Loader/Loader";
-import { SocialLayout } from "@/components/shared/layouts/SocialLayout";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { PublicityConfirmDialog } from "@/components/shared/PublicityConfirmDialog/PublicityConfirmDialog";
 import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
@@ -167,8 +166,10 @@ export function SocialPostsFeed() {
         ? "emptyTraining"
         : "emptyFavorites";
 
+  // 外殻 layout (.layout / .contentWrapper / .main / .tabNavigation) は呼び出し側
+  // (page.tsx) で再現済み。ここでは中身だけを fragment で返す
   return (
-    <SocialLayout>
+    <>
       <SocialFeedHeader profileImageUrl={user?.profile_image_url} />
       <div className={styles.desktopPageTitleWrapper}>
         <h2 className={styles.desktopPageTitle}>{t("title")}</h2>
@@ -269,6 +270,6 @@ export function SocialPostsFeed() {
           router.push("/social/posts/new");
         }}
       />
-    </SocialLayout>
+    </>
   );
 }

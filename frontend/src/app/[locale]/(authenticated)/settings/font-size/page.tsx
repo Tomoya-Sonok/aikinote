@@ -1,3 +1,4 @@
+import { AuthGate } from "@/components/shared/auth";
 import { FontSizeSetting } from "./FontSizeSetting";
 
 export default async function Page({
@@ -7,5 +8,9 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <FontSizeSetting locale={locale} />;
+  return (
+    <AuthGate>
+      <FontSizeSetting locale={locale} />
+    </AuthGate>
+  );
 }

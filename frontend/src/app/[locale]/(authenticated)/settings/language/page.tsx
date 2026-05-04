@@ -1,3 +1,4 @@
+import { AuthGate } from "@/components/shared/auth";
 import { LanguageSetting } from "./LanguageSetting";
 
 export default async function Page({
@@ -7,5 +8,9 @@ export default async function Page({
 }) {
   const { locale } = await params;
 
-  return <LanguageSetting locale={locale} />;
+  return (
+    <AuthGate>
+      <LanguageSetting locale={locale} />
+    </AuthGate>
+  );
 }

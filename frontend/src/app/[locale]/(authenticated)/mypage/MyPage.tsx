@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/features/personal/MyPageContent/MyPageContent";
+import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { SurveyModal } from "@/components/shared/SurveyModal/SurveyModal";
 import { useToast } from "@/contexts/ToastContext";
 import { getUserInfo, updateUserInfo } from "@/lib/api/client";
@@ -13,13 +14,13 @@ import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 
 interface MyPageProps {
   initialUser: UserProfile;
+  settingsHref: string;
 }
 
-export default function MyPage({ initialUser }: MyPageProps) {
+export default function MyPage({ initialUser, settingsHref }: MyPageProps) {
   const t = useTranslations();
   const [user, setUser] = useState<UserProfile>(initialUser);
-  // サーバー側で全フィールドが初期化済みなので、マウント時の loading は不要。
-  // ミューテーション後の再取得時のみ true にする
+  // サーバーから initialUser が渡るのでマウント時は false。mutation 後の refetch でのみ true
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
   const { track } = useUmamiTrack();
@@ -74,7 +75,7 @@ export default function MyPage({ initialUser }: MyPageProps) {
   };
 
   return (
-    <>
+    <DefaultLayout settingsHref={settingsHref}>
       <MyPageContent user={user} loading={loading} />
       <SurveyModal
         isOpen={isSurveyOpen}
@@ -83,6 +84,6 @@ export default function MyPage({ initialUser }: MyPageProps) {
         initialAgeRange={user.age_range}
         initialGender={user.gender}
       />
-    </>
+    </DefaultLayout>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -27,6 +28,7 @@ export function SocialPostEdit() {
   const { showToast } = useToast();
   const params = useParams();
   const postId = params.post_id as string;
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState("");
@@ -101,6 +103,10 @@ export function SocialPostEdit() {
         showToast(result.warning, "error");
       }
 
+      // 一覧キャッシュ (useSocialFeed) を無効化して、戻り先で staleTime=2 分内でも
+      // 編集内容が反映されるようにする（PageEdit と同じ理由、PR #273 staleTime 延長対応）
+      queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+
       isNavigatingRef.current = true;
       router.replace(`/social/posts/${postId}`);
     } catch (error) {
@@ -108,7 +114,16 @@ export function SocialPostEdit() {
     } finally {
       setIsSaving(false);
     }
-  }, [content, isSaving, postId, showToast, t, router, attachmentMgmt]);
+  }, [
+    content,
+    isSaving,
+    postId,
+    showToast,
+    t,
+    router,
+    attachmentMgmt,
+    queryClient,
+  ]);
 
   const handleBack = useCallback(() => {
     if (hasUnsavedChanges()) {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { AuthGate } from "@/components/shared/auth";
 import { buildMetadata } from "@/lib/metadata";
 import { SocialPostCreate } from "./SocialPostCreate";
 
@@ -17,5 +18,9 @@ export async function generateMetadata({
 }
 
 export default async function SocialPostNewPage() {
-  return <SocialPostCreate />;
+  return (
+    <AuthGate>
+      <SocialPostCreate />
+    </AuthGate>
+  );
 }

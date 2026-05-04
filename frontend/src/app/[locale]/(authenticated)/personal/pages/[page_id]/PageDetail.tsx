@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -25,6 +26,7 @@ export function PageDetail() {
   const params = useParams();
   const { user } = useAuth();
   const pageId = params.page_id as string;
+  const queryClient = useQueryClient();
 
   const {
     loading,
@@ -68,6 +70,8 @@ export function PageDetail() {
     setTogglingPublic(true);
     try {
       await togglePageVisibility(pageData.id, user.id, newValue);
+      // 一覧の is_public 表示を最新化（楽観的更新は page-detail のみ反映済み）
+      queryClient.invalidateQueries({ queryKey: ["training-pages"] });
     } catch (error) {
       // ロールバック
       setPageData(previousPageData);
@@ -116,6 +120,8 @@ export function PageDetail() {
       const response = await deletePage(pageData.id, user.id);
 
       if (response.success) {
+        // 削除した行が一覧で staleTime=2 分間残らないよう無効化
+        queryClient.invalidateQueries({ queryKey: ["training-pages"] });
         setDeleteDialogOpen(false);
         router.push("/personal/pages");
       } else {
