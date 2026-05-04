@@ -90,8 +90,17 @@ export async function GET(request: NextRequest) {
         ? decodeURIComponent(returnToCookie)
         : null;
 
+      // 認証フロー内 path (signup/login/verify-email/forgot-password/reset-password) への
+      // 戻りループを防ぐ。10 分以内の setReturnTo 残存などで誤って戻されると新規登録画面で
+      // 滞留してしまうため、これらは無視して /personal/pages にフォールバックする
+      const isAuthPath = returnToPath
+        ? /^\/(?:[a-z]{2}\/)?(signup|login|verify-email|forgot-password|reset-password)(\/|$|\?)/.test(
+            returnToPath,
+          )
+        : false;
+
       let response: NextResponse;
-      if (returnToPath && isValidReturnTo(returnToPath)) {
+      if (returnToPath && isValidReturnTo(returnToPath) && !isAuthPath) {
         response = NextResponse.redirect(new URL(returnToPath, redirectOrigin));
       } else {
         response = NextResponse.redirect(buildUrl("/personal/pages"));

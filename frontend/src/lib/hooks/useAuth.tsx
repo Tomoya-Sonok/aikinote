@@ -345,6 +345,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         provider: "google",
         options: {
           redirectTo: getRedirectUrl("/auth/callback"),
+          // 既存の Google セッションでサイレント認証されないよう、毎回アカウント選択を強制
+          queryParams: { prompt: "select_account" },
         },
       });
 
@@ -401,6 +403,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         provider: "apple",
         options: {
           redirectTo: getRedirectUrl("/auth/callback"),
+          // 既存の Apple セッションでサイレント認証されないよう、毎回アカウント選択を強制
+          queryParams: { prompt: "select_account" },
         },
       });
 
