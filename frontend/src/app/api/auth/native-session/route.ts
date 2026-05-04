@@ -32,6 +32,12 @@ export async function POST(request: NextRequest) {
   // レスポンスに Cookie をセットするため、response を先に作成
   const response = NextResponse.json({ success: true });
 
+  // ネイティブアプリ (WebView) で kill 後も認証を維持できるよう、Supabase SSR が
+  // セットする Cookie に明示的な永続化属性を付与する。Supabase デフォルトでは
+  // maxAge が省略されるケースがあり、その場合 WebView は session cookie として
+  // 扱ってアプリ終了時に消去するため、1 日に数回再ログインが必要になる症状が出る。
+  const PERSISTENT_COOKIE_MAX_AGE = 60 * 60 * 24 * 60; // 60日 (refresh token 寿命に合わせる)
+
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
@@ -45,7 +51,15 @@ export async function POST(request: NextRequest) {
         }[],
       ) {
         cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set({ name, value, ...options });
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+            maxAge: options.maxAge ?? PERSISTENT_COOKIE_MAX_AGE,
+            sameSite: options.sameSite ?? "lax",
+            httpOnly: options.httpOnly ?? true,
+            path: options.path ?? "/",
+          });
         });
       },
     },
