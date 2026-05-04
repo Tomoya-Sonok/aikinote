@@ -32,8 +32,14 @@ export const Tooltip: FC<TooltipProps> = ({
     if (e.pointerType === "mouse") setVisible(false);
   }, []);
 
-  const handleClick = useCallback(() => {
-    setVisible((v) => !v);
+  // タッチ / ペン: pointerdown で即時トグル。preventDefault で後続の focus と synthetic click を抑制し、
+  // onFocus → setVisible(true) と onClick → toggle が連続して状態が反転する競合（SP で 2 タップ必要に
+  // 見えていた原因）を防ぐ。マウスは hover で開閉するので onClick toggle は不要。
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") {
+      e.preventDefault();
+      setVisible((v) => !v);
+    }
   }, []);
 
   const handleFocus = useCallback(() => setVisible(true), []);
@@ -74,7 +80,7 @@ export const Tooltip: FC<TooltipProps> = ({
       aria-label={ariaLabel}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
-      onClick={handleClick}
+      onPointerDown={handlePointerDown}
       onKeyDown={handleKeyDown}
       onFocus={handleFocus}
       onBlur={handleBlur}
