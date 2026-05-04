@@ -1,6 +1,7 @@
 "use client";
 
 import { PlusCircle } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -34,6 +35,7 @@ export function PageEdit() {
   const pageId = params.page_id as string;
   const titleInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     loading: pageLoading,
@@ -167,6 +169,14 @@ export function PageEdit() {
         // 新規追加された添付を保存
         await attachmentMgmt.saveNewAttachments(pageId);
 
+        // 詳細・一覧キャッシュを無効化して、戻り先で staleTime=2 分内でも
+        // 最新内容が反映されるようにする（PR #273 staleTime 延長と PR #274
+        // PageCreate の invalidate に揃えるため）
+        queryClient.invalidateQueries({
+          queryKey: ["page-detail", pageId],
+        });
+        queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+
         isNavigatingRef.current = true;
         router.replace(`/personal/pages/${pageId}`);
       } else {
@@ -196,6 +206,7 @@ export function PageEdit() {
     showToast,
     t,
     router,
+    queryClient,
   ]);
 
   const handleBack = useCallback(() => {
