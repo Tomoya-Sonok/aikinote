@@ -4,18 +4,21 @@ import { useTranslations } from "next-intl";
 import { useCallback, useState } from "react";
 import type { UserProfile } from "@/components/features/personal/MyPageContent/MyPageContent";
 import { MyPageContent } from "@/components/features/personal/MyPageContent/MyPageContent";
+import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { SurveyModal } from "@/components/shared/SurveyModal/SurveyModal";
 import { useToast } from "@/contexts/ToastContext";
 import { getUserInfo, updateUserInfo } from "@/lib/api/client";
 import type { AgeRange, Gender } from "@/lib/constants/userProfile";
 import { useSurveyModal } from "@/lib/hooks/useSurveyModal";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import styles from "./page.module.css";
 
 interface MyPageProps {
   initialUser: UserProfile;
+  settingsHref: string;
 }
 
-export default function MyPage({ initialUser }: MyPageProps) {
+export default function MyPage({ initialUser, settingsHref }: MyPageProps) {
   const t = useTranslations();
   const [user, setUser] = useState<UserProfile>(initialUser);
   // サーバー側で全フィールドが初期化済みなので、マウント時の loading は不要。
@@ -74,8 +77,12 @@ export default function MyPage({ initialUser }: MyPageProps) {
   };
 
   return (
-    <>
-      <MyPageContent user={user} loading={loading} />
+    <DefaultLayout settingsHref={settingsHref}>
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <MyPageContent user={user} loading={loading} />
+        </div>
+      </div>
       <SurveyModal
         isOpen={isSurveyOpen}
         onDismiss={handleSurveyDismiss}
@@ -83,6 +90,6 @@ export default function MyPage({ initialUser }: MyPageProps) {
         initialAgeRange={user.age_range}
         initialGender={user.gender}
       />
-    </>
+    </DefaultLayout>
   );
 }
