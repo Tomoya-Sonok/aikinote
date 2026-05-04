@@ -1,6 +1,7 @@
 "use client";
 
 import { ClipboardText, PlusCircle } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -37,6 +38,7 @@ export function PageCreate() {
   const searchParams = useSearchParams();
   const titleInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const returnUrl = searchParams.get("returnUrl") || "/personal/pages";
   const dateParam = searchParams.get("date");
@@ -176,6 +178,12 @@ export function PageCreate() {
           console.warn("稽古参加の自動登録に失敗:", err);
         }
 
+        // 一覧画面 (useTrainingPagesData) のキャッシュを無効化して、
+        // 遷移先で作成したばかりのページが反映されるようにする。
+        // staleTime に関係なく強制 refetch されるため、staleTime 延長による
+        // 表示遅延（PR #273）の回帰を防ぐ。
+        queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+
         isNavigatingRef.current = true;
         router.replace(returnUrl);
       } else {
@@ -208,6 +216,7 @@ export function PageCreate() {
     returnUrl,
     dateParam,
     router,
+    queryClient,
   ]);
 
   const handleBack = useCallback(() => {
