@@ -1,22 +1,4 @@
-/* SocialHeader.module.css の .header と寸法を揃え CLS を抑える */
-.headerShell {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 12px 16px;
-  min-height: 65px;
-  border-bottom: 0.5px solid var(--border-color);
-  background: var(--white);
-}
-
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* 実 view (page.module.css) の .desktopPageTitleWrapper を参考に、PC 表示時のみ高さ確保 */
+/* page.module.css の同名クラスと寸法を揃え CLS を抑える */
 .desktopPageTitleWrapper {
   display: none;
 }

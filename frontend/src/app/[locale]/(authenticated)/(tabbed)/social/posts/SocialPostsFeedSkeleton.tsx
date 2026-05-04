@@ -2,19 +2,11 @@ import { SocialPostCardSkeleton } from "@/components/features/social/SocialPostC
 import { Skeleton } from "@/components/shared/Skeleton/Skeleton";
 import styles from "./SocialPostsFeedSkeleton.module.css";
 
-// SocialFeedHeader / SocialTabBar (Client) を fallback で直接呼ぶと createContext
-// 連鎖が SSR module 評価で失敗するため、同寸法の DOM だけ inline で再現する
+// SocialFeedHeader と TabNavigation は呼び出し側 page と (tabbed) layout が提供する。
+// この fallback は main の中身（バナー + 3 タブ + 投稿カード）だけ再現する
 export function SocialPostsFeedSkeleton() {
   return (
     <>
-      <div className={styles.headerShell}>
-        <Skeleton variant="circle" width="40px" height="40px" />
-        <Skeleton variant="text" width="96px" height="16px" />
-        <div className={styles.headerActions}>
-          <Skeleton variant="circle" width="40px" height="40px" />
-          <Skeleton variant="circle" width="40px" height="40px" />
-        </div>
-      </div>
       <div className={styles.desktopPageTitleWrapper} />
       <div className={styles.promoteBannerPlaceholder} />
       <div className={styles.tabBarShell}>

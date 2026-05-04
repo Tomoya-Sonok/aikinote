@@ -17,18 +17,13 @@ import { useUnreadNotificationCount } from "@/lib/hooks/useUnreadNotificationCou
 import { Link } from "@/lib/i18n/routing";
 import styles from "./SocialFeedHeader.module.css";
 
-interface SocialFeedHeaderProps {
-  profileImageUrl?: string | null;
-}
-
-export const SocialFeedHeader: FC<SocialFeedHeaderProps> = ({
-  profileImageUrl,
-}) => {
+export const SocialFeedHeader: FC = () => {
   const t = useTranslations("socialPosts");
   const tNav = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
   const { user } = useAuth();
+  const profileImageUrl = user?.profile_image_url;
   const unreadCount = useUnreadNotificationCount(user?.id);
   const lastSentUnreadCountRef = useRef<number | null>(null);
 

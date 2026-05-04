@@ -1,5 +1,4 @@
 import { AuthGate } from "@/components/shared/auth";
-import { DefaultLayout } from "@/components/shared/layouts/DefaultLayout";
 import { buildMetadata } from "@/lib/metadata";
 import { PersonalPages } from "./PersonalPages";
 
@@ -11,9 +10,7 @@ export const metadata = buildMetadata({
 export default async function Page() {
   return (
     <AuthGate>
-      <DefaultLayout showTooltip={true}>
-        <PersonalPages />
-      </DefaultLayout>
+      <PersonalPages />
     </AuthGate>
   );
 }

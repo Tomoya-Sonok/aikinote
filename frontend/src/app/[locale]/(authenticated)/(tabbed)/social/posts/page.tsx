@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { SocialFeedHeader } from "@/components/features/social/SocialFeedHeader/SocialFeedHeader";
 import { AuthGate } from "@/components/shared/auth";
 import layoutStyles from "@/components/shared/layouts/SocialLayout/SocialLayout.module.css";
 import { buildMetadata } from "@/lib/metadata";
-import { SocialBottomNav } from "./SocialBottomNav";
 import { SocialPostsFeed } from "./SocialPostsFeed";
 import { SocialPostsFeedSkeleton } from "./SocialPostsFeedSkeleton";
 
@@ -22,21 +22,20 @@ export async function generateMetadata({
   });
 }
 
-// SocialLayout (Client) を Server から直接 wrap すると createContext 連鎖で build に
-// 失敗するため、CSS Modules だけ流用して DOM を inline 再現し TabNavigation 部分は
-// SocialBottomNav (Client) に分離している
+// (tabbed) layout が `.layout` 枠と TabNavigation を提供する。
+// このページは固有の SocialFeedHeader を持つので main 構造だけ自前で組み立てる。
+// SocialFeedHeader (Client、children なし) を Server から直接呼ぶのは Phase 4 の
+// SocialBottomNav と同じパターンで build OK。
 export default async function SocialPostsPage() {
   return (
     <AuthGate>
-      <div className={layoutStyles.layout}>
-        <div className={layoutStyles.contentWrapper}>
-          <main className={layoutStyles.main}>
-            <Suspense fallback={<SocialPostsFeedSkeleton />}>
-              <SocialPostsFeed />
-            </Suspense>
-          </main>
-        </div>
-        <SocialBottomNav />
+      <SocialFeedHeader />
+      <div className={layoutStyles.contentWrapper}>
+        <main className={layoutStyles.main}>
+          <Suspense fallback={<SocialPostsFeedSkeleton />}>
+            <SocialPostsFeed />
+          </Suspense>
+        </main>
       </div>
     </AuthGate>
   );
