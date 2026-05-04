@@ -1,0 +1,28 @@
+/* SocialHeader.module.css の .header と寸法を揃え CLS を防ぐ */
+.headerShell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  min-height: 65px;
+  border-bottom: 0.5px solid var(--border-color);
+  background: var(--white);
+}
+
+.headerSpacer {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.postsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 60px;
+  background: var(--bg-base);
+  max-width: 580px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
