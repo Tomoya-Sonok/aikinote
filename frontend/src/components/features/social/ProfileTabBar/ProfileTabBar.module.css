@@ -1,0 +1,66 @@
+.tabBar {
+  display: flex;
+  position: relative;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--white);
+  padding: 0 max(0px, calc((100% - 580px) / 2));
+  box-sizing: border-box;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tab:hover {
+  color: var(--black);
+}
+
+.tab.active {
+  color: var(--black);
+  font-weight: 600;
+}
+
+/* インジケーター（実DOM要素） */
+.indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  /* 各タブ幅の60%: (100% / 2) * 0.6 = 30% */
+  width: calc(100% / 2 * 0.6);
+  /* 各タブ内で中央に配置: (100% / 2) * 0.2 = 左マージン分 */
+  margin-left: calc(100% / 2 * 0.2);
+  height: 2px;
+  background: var(--primary-color);
+  border-radius: 1px;
+  will-change: transform;
+}
+
+.indicatorAnimated {
+  transition: transform 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabBar .indicatorAnimated {
+    transition-duration: 0s;
+  }
+}
+
+@media (min-width: 768px) {
+  /* PC ビューでは中央 580px の枠に揃え、padding は statsSection と同様の calc 計算で吸収 */
+  .tabBar {
+    padding: 0;
+    width: 580px;
+    margin: 0 auto;
+  }
+}

@@ -5,6 +5,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProfileCard } from "@/components/features/social/ProfileCard/ProfileCard";
 import {
+  type ProfileTab,
+  ProfileTabBar,
+} from "@/components/features/social/ProfileTabBar";
+import {
   type SocialFeedPostData,
   SocialPostCard,
 } from "@/components/features/social/SocialPostCard/SocialPostCard";
@@ -20,12 +24,13 @@ import { useToast } from "@/contexts/ToastContext";
 import { getPublicSocialProfile, getSocialProfile } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
+import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import { buildShareUrl } from "@/lib/utils/share";
 import styles from "./SocialProfile.module.css";
 
-type ProfileTab = "posts" | "training";
+const PROFILE_TABS: ProfileTab[] = ["posts", "training"];
 
 interface ProfileData {
   is_restricted: boolean;
@@ -178,6 +183,18 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
     [posts],
   );
 
+  const handleTabChange = useCallback((newTab: string): boolean => {
+    setActiveTab(newTab as ProfileTab);
+    return true;
+  }, []);
+
+  const { containerRef, handlers, swipeProgress, isDragging } =
+    useSwipeNavigation({
+      tabs: PROFILE_TABS,
+      activeTab,
+      onTabChange: handleTabChange,
+    });
+
   if (isLoading || isInitializing) {
     return (
       <SocialLayout showTabNavigation={false}>
@@ -327,30 +344,19 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
         </div>
       </div>
 
-      {/* タブ切り替え */}
-      <div className={styles.tabBar} role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "posts"}
-          className={`${styles.tab} ${activeTab === "posts" ? styles.tabActive : ""}`}
-          onClick={() => setActiveTab("posts")}
-        >
-          {t("profileTabPosts")}
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "training"}
-          className={`${styles.tab} ${activeTab === "training" ? styles.tabActive : ""}`}
-          onClick={() => setActiveTab("training")}
-        >
-          {t("profileTabTraining")}
-        </button>
-      </div>
+      {/* タブ切り替え（横スワイプ対応） */}
+      <ProfileTabBar
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab)}
+        swipeProgress={isDragging ? swipeProgress : 0}
+      />
 
-      {/* タブコンテンツ */}
-      <div className={styles.postsSection}>
+      {/* タブコンテンツ（containerRef + handlers でスワイプ検知） */}
+      <div
+        ref={containerRef}
+        className={`${styles.postsSection} ${isDragging ? styles.postsSectionSwiping : ""}`}
+        {...handlers}
+      >
         {activeTab === "posts" &&
           (regularPosts.length === 0 ? (
             <p className={styles.emptyPosts}>{t("emptyAll")}</p>
