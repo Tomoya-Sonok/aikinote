@@ -179,8 +179,12 @@ describe("投稿作成 POST /api/social-posts", () => {
 
   it("Freeユーザーが1日3件目を超えた場合は429を返す", async () => {
     // Arrange: 1日の投稿制限に達している
+    // 60分制限と1日制限を引数で分岐させる（並列実行のため呼び出し順序に依存しない）
     mockIsPremiumUser.mockResolvedValue(false);
-    mockCheckRateLimit.mockResolvedValueOnce(true); // 1日3件制限にヒット
+    mockCheckRateLimit.mockImplementation(
+      (_supabase, _userId, _action, windowMinutes) =>
+        Promise.resolve(windowMinutes === 1440),
+    );
     const app = createTestApp();
     const headers = await createAuthHeaders();
 
