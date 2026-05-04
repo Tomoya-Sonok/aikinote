@@ -1157,7 +1157,9 @@
       "labelPersonal": "ひとりで",
       "labelSocial": "みんなで",
       "labelMypage": "マイページ",
-      "later": "あとにする"
+      "later": "あとにする",
+      "nativeSignup": "新規登録",
+      "nativeLogin": "すでにアカウントをお持ちの方はこちら"
     }
   },
   "imageCropModal": {

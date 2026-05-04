@@ -6,14 +6,20 @@ import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import type { FontSize } from "@/stores/fontSizeStore";
 import { PillLabel } from "../PillLabel";
+import { notifyNativeTutorialCompleted, type TutorialMode } from "../Tutorial";
 import styles from "../Tutorial.module.css";
 
 interface StepCTAProps {
   onComplete: () => void;
   fontSize: FontSize;
+  mode?: TutorialMode;
 }
 
-export function StepCTA({ onComplete, fontSize }: StepCTAProps) {
+export function StepCTA({
+  onComplete,
+  fontSize,
+  mode = "default",
+}: StepCTAProps) {
   const t = useTranslations("tutorial.cta");
   const router = useRouter();
   const locale = useLocale();
@@ -32,6 +38,24 @@ export function StepCTA({ onComplete, fontSize }: StepCTAProps) {
       tutorial_changed_font_size: tutorialChangedFontSize,
     });
     onComplete();
+  };
+
+  const handleNativeSignup = () => {
+    track("tutorial_step6_native_cta_signup", {
+      tutorial_changed_font_size: tutorialChangedFontSize,
+    });
+    onComplete();
+    notifyNativeTutorialCompleted();
+    window.location.replace(`/${locale}/signup`);
+  };
+
+  const handleNativeLogin = () => {
+    track("tutorial_step6_native_cta_login", {
+      tutorial_changed_font_size: tutorialChangedFontSize,
+    });
+    onComplete();
+    notifyNativeTutorialCompleted();
+    window.location.replace(`/${locale}/login`);
   };
 
   const ctaItems = [
@@ -57,6 +81,41 @@ export function StepCTA({ onComplete, fontSize }: StepCTAProps) {
       eventName: "tutorial_step6_cta_start_update_profile",
     },
   ];
+
+  if (mode === "native-onboarding") {
+    return (
+      <div className={styles.stepCenterCTA}>
+        <div className={`${styles.ctaLogo} ${styles.fadeInUpA}`}>
+          <Image
+            src="/images/shared/aikinote_logo.png"
+            alt="AikiNote"
+            width={52}
+            height={52}
+          />
+        </div>
+        <h2 className={`${styles.ctaHeadingNative} ${styles.fadeInUpC}`}>
+          {t("heading")}
+        </h2>
+        <div className={`${styles.signupCtaWrapper} ${styles.fadeInUpG}`}>
+          <button
+            type="button"
+            className={styles.signupCta}
+            onClick={handleNativeSignup}
+          >
+            <span className={styles.signupCtaText}>{t("nativeSignup")}</span>
+            <AikinoteRightArrow size={16} color="var(--white)" />
+          </button>
+        </div>
+        <button
+          type="button"
+          className={`${styles.loginLink} ${styles.fadeInUpI}`}
+          onClick={handleNativeLogin}
+        >
+          {t("nativeLogin")}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.stepCenterCTA}>

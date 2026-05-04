@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeft } from "@phosphor-icons/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AikinoteRightArrow } from "@/components/shared/Icons/AikinoteRightArrow";
@@ -16,8 +16,28 @@ import { StepMyPage } from "./steps/StepMyPage";
 import { StepWelcome } from "./steps/StepWelcome";
 import styles from "./Tutorial.module.css";
 
-export function Tutorial() {
+export type TutorialMode = "default" | "native-onboarding";
+
+export function notifyNativeTutorialCompleted() {
+  if (typeof window === "undefined") return;
+  const w = window as unknown as {
+    __AIKINOTE_NATIVE_APP__?: boolean;
+    ReactNativeWebView?: { postMessage: (msg: string) => void };
+  };
+  if (w.__AIKINOTE_NATIVE_APP__ && w.ReactNativeWebView) {
+    w.ReactNativeWebView.postMessage(
+      JSON.stringify({ type: "TUTORIAL_COMPLETED" }),
+    );
+  }
+}
+
+interface TutorialProps {
+  mode?: TutorialMode;
+}
+
+export function Tutorial({ mode = "default" }: TutorialProps) {
   const t = useTranslations("tutorial");
+  const locale = useLocale();
   const setHasSeenTutorial = useTutorialStore((s) => s.setHasSeenTutorial);
   const { track } = useUmamiTrack();
 
@@ -72,6 +92,12 @@ export function Tutorial() {
     if (step < SKIP_EVENT_NAMES.length) {
       track(SKIP_EVENT_NAMES[step]);
     }
+    if (mode === "native-onboarding") {
+      setHasSeenTutorial(true);
+      notifyNativeTutorialCompleted();
+      window.location.replace(`/${locale}/signup`);
+      return;
+    }
     skipToEnd();
   };
 
@@ -96,7 +122,12 @@ export function Tutorial() {
     <StepHitoride key="hitoride" />,
     <StepMinnaDe key="minnaDe" />,
     <StepMyPage key="myPage" />,
-    <StepCTA key="cta" onComplete={handleComplete} fontSize={fontSize} />,
+    <StepCTA
+      key="cta"
+      onComplete={handleComplete}
+      fontSize={fontSize}
+      mode={mode}
+    />,
   ];
 
   if (!mounted) return null;

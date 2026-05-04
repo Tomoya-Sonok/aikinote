@@ -1155,7 +1155,9 @@
       "labelPersonal": "Personal",
       "labelSocial": "Social",
       "labelMypage": "My Page",
-      "later": "Maybe later"
+      "later": "Maybe later",
+      "nativeSignup": "Sign up",
+      "nativeLogin": "Already have an account?"
     }
   },
   "imageCropModal": {

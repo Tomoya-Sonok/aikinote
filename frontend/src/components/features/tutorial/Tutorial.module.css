@@ -610,3 +610,52 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* ── Step 6: Native onboarding（CTA + ログインリンク）── */
+.ctaHeadingNative {
+  font-family: var(--font-brand);
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+  margin-bottom: 32px;
+}
+
+.signupCtaWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 320px;
+}
+
+.signupCta {
+  width: 100%;
+  padding: 18px 20px;
+  border-radius: 50px;
+  border: none;
+  background-color: var(--black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.signupCtaText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  color: var(--white);
+  font-weight: 600;
+}
+
+.loginLink {
+  margin-top: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
