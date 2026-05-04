@@ -1,6 +1,9 @@
-// segment loading.tsx は page 内の <Suspense fallback> より外側で動くため、ここで
-// 何かを返すと page ごとに用意した専用 Skeleton が上書きされてしまう。null を返して
-// page level の fallback に委ねる
+import { Loader } from "@/components/shared/Loader";
+
+// page.tsx 解決前の「何も表示されない時間」を埋める。page 解決後は内側の
+// <Suspense fallback={<XxxSkeleton />}> が引き継ぐ二段構成。
+// 共通 layout で Header / Footer を共有していないため Web 版では navigation 時に
+// 全体再描画が起きるが、その間に Loader を出すことでチラつきの体感を抑える。
 export default function AuthenticatedLoading() {
-  return null;
+  return <Loader size="large" centered />;
 }
