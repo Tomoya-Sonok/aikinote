@@ -1,0 +1,22 @@
+.tabBar {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--white);
+  padding: 0 max(0px, calc((100% - 580px) / 2));
+  box-sizing: border-box;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+@media (min-width: 768px) {
+  .tabBar {
+    padding: 0;
+    width: 580px;
+    margin: 0 auto;
+  }
+}

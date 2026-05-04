@@ -1,0 +1,20 @@
+.statsSection {
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px max(16px, calc((100% - 580px) / 2));
+  background: var(--white);
+  box-sizing: border-box;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
