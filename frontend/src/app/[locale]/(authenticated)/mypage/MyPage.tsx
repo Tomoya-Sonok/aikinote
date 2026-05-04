@@ -11,7 +11,6 @@ import { getUserInfo, updateUserInfo } from "@/lib/api/client";
 import type { AgeRange, Gender } from "@/lib/constants/userProfile";
 import { useSurveyModal } from "@/lib/hooks/useSurveyModal";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
-import styles from "./page.module.css";
 
 interface MyPageProps {
   initialUser: UserProfile;
@@ -21,8 +20,7 @@ interface MyPageProps {
 export default function MyPage({ initialUser, settingsHref }: MyPageProps) {
   const t = useTranslations();
   const [user, setUser] = useState<UserProfile>(initialUser);
-  // サーバー側で全フィールドが初期化済みなので、マウント時の loading は不要。
-  // ミューテーション後の再取得時のみ true にする
+  // サーバーから initialUser が渡るのでマウント時は false。mutation 後の refetch でのみ true
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
   const { track } = useUmamiTrack();
@@ -78,11 +76,7 @@ export default function MyPage({ initialUser, settingsHref }: MyPageProps) {
 
   return (
     <DefaultLayout settingsHref={settingsHref}>
-      <div className={styles.container}>
-        <div className={styles.content}>
-          <MyPageContent user={user} loading={loading} />
-        </div>
-      </div>
+      <MyPageContent user={user} loading={loading} />
       <SurveyModal
         isOpen={isSurveyOpen}
         onDismiss={handleSurveyDismiss}

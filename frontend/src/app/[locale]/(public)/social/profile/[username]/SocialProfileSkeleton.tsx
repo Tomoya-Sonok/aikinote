@@ -5,10 +5,8 @@ import { Skeleton } from "@/components/shared/Skeleton/Skeleton";
 import styles from "./SocialProfileSkeleton.module.css";
 import { StatsCardSkeleton } from "./StatsCardSkeleton";
 
-// Suspense fallback として PPR の static shell に含まれる前提のため、
-// dynamic source を読まない sync 関数とする。
-// SocialHeader は Button (forwardRef) を内包しており Next.js 16 + Turbopack の
-// SSR module 評価で createContext エラーを起こすため、ここでは inline で再現する。
+// SocialHeader (Button forwardRef 経由) を fallback で直接呼ぶと createContext 連鎖が
+// SSR module 評価で失敗するため、同寸法の header DOM を inline で再現する
 export function SocialProfileSkeleton() {
   return (
     <>

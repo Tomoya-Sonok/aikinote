@@ -17,14 +17,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function SocialPostEditPage({
-  params,
-}: {
-  params: Promise<{ locale: string; post_id: string }>;
-}) {
-  const { locale } = await params;
+export default async function SocialPostEditPage() {
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <SocialPostEdit />
     </AuthGate>
   );

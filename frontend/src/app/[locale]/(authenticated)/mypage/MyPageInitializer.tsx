@@ -7,24 +7,19 @@ interface MyPageInitializerProps {
   locale: string;
 }
 
-// Suspense 境界の内側で動く Server Component。
-// getCurrentUser() は cookies() を読む dynamic source なので、Suspense fallback の
-// MyPageSkeleton を先行表示しつつ、ここで initialProfile を構築して MyPage に渡す。
-// 認証 redirect は AuthGate で済んでいるが、user 取得に失敗した場合の保険として残す。
+// Suspense 境界の内側で getCurrentUser() を実行し、Hono から取得した全フィールドを
+// initialProfile として MyPage に渡すことで、クライアント側の初回 fetch を不要にする。
+// 認証 redirect は AuthGate で完了している前提だが、型 narrowing と保険のため残している。
 export async function MyPageInitializer({ locale }: MyPageInitializerProps) {
-  const userInfoT = await getTranslations({
-    locale,
-    namespace: "userInfoEdit",
-  });
-
-  const user = await getCurrentUser();
+  const [userInfoT, user] = await Promise.all([
+    getTranslations({ locale, namespace: "userInfoEdit" }),
+    getCurrentUser(),
+  ]);
 
   if (!user) {
     redirect(`/${locale}/login`);
   }
 
-  // サーバー側で Hono から取得した全フィールドを初期値として渡すことで、
-  // クライアント側の初期 fetch を不要にし、MyPage の LCP を短縮する
   const initialProfile = {
     id: user.id,
     email: user.email || "",
@@ -44,7 +39,7 @@ export async function MyPageInitializer({ locale }: MyPageInitializerProps) {
     password_hash: "",
   };
 
-  const settingsHref = `/${locale}/mypage`;
-
-  return <MyPage initialUser={initialProfile} settingsHref={settingsHref} />;
+  return (
+    <MyPage initialUser={initialProfile} settingsHref={`/${locale}/mypage`} />
+  );
 }

@@ -8,7 +8,7 @@ interface Props {
 export default async function PushNotificationSettingPage({ params }: Props) {
   const { locale } = await params;
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <PushNotificationSetting locale={locale} />
     </AuthGate>
   );

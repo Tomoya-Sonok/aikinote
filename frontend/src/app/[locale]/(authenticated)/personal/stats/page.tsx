@@ -28,7 +28,7 @@ export default async function Page({
   const t = await getTranslations({ locale, namespace: "personalStats" });
 
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <MinimalLayout
         backHref={`/${locale}/personal/pages`}
         headerTitle={t("title")}

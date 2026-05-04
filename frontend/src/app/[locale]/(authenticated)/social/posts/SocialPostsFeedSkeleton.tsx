@@ -2,10 +2,8 @@ import { SocialPostCardSkeleton } from "@/components/features/social/SocialPostC
 import { Skeleton } from "@/components/shared/Skeleton/Skeleton";
 import styles from "./SocialPostsFeedSkeleton.module.css";
 
-// Suspense fallback として PPR の static shell に含まれる前提のため、
-// dynamic source を読まない sync 関数とする。
-// SocialFeedHeader / SocialTabBar は Client Component なので、ここでは inline で
-// 同寸法の DOM を再現して CLS を抑える。
+// SocialFeedHeader / SocialTabBar (Client) を fallback で直接呼ぶと createContext
+// 連鎖が SSR module 評価で失敗するため、同寸法の DOM だけ inline で再現する
 export function SocialPostsFeedSkeleton() {
   return (
     <>

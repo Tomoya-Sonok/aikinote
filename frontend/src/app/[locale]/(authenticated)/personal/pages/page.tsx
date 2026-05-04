@@ -8,14 +8,9 @@ export const metadata = buildMetadata({
   description: "個人で作成した稽古ページを一覧で管理できます。",
 });
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default async function Page() {
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <DefaultLayout showTooltip={true}>
         <PersonalPages />
       </DefaultLayout>

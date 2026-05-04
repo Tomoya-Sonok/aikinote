@@ -8,14 +8,9 @@ export const metadata = buildMetadata({
   description: "稽古ページの詳細を確認できます。",
 });
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ locale: string; page_id: string }>;
-}) {
-  const { locale } = await params;
+export default async function Page() {
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <DefaultLayout>
         <PageDetail />
       </DefaultLayout>

@@ -22,14 +22,12 @@ export async function generateMetadata({
   });
 }
 
-export default async function SocialPostsPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+// SocialLayout (Client) を Server から直接 wrap すると createContext 連鎖で build に
+// 失敗するため、CSS Modules だけ流用して DOM を inline 再現し TabNavigation 部分は
+// SocialBottomNav (Client) に分離している
+export default async function SocialPostsPage() {
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <div className={layoutStyles.layout}>
         <div className={layoutStyles.contentWrapper}>
           <main className={layoutStyles.main}>

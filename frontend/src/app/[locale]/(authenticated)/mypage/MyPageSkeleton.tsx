@@ -1,11 +1,8 @@
 import { Skeleton } from "@/components/shared/Skeleton/Skeleton";
 import styles from "./MyPageSkeleton.module.css";
 
-// Suspense fallback として PPR の static shell に含まれる前提のため、
-// dynamic source を読まない sync 関数とする。
-// DefaultHeader / TabNavigation は Client Component で createContext 連鎖を持つため
-// Suspense fallback で直接呼ぶと SSR module 評価エラーになる。ここでは DefaultLayout /
-// DefaultHeader / UserInfoCardSkeleton の DOM 構造だけ inline で再現する。
+// DefaultHeader / TabNavigation を fallback で直接呼ぶと createContext 連鎖が
+// SSR module 評価で失敗するため、DOM 構造だけ inline で再現する
 export function MyPageSkeleton() {
   return (
     <div className={styles.layout}>

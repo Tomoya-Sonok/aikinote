@@ -17,14 +17,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function SocialSearchPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
+export default async function SocialSearchPage() {
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <SocialSearch />
     </AuthGate>
   );

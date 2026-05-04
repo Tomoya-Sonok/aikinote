@@ -9,7 +9,7 @@ export default async function Page({
   const { locale } = await params;
 
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <FontSizeSetting locale={locale} />
     </AuthGate>
   );

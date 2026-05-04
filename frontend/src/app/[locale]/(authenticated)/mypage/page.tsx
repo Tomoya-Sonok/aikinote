@@ -27,7 +27,7 @@ export default async function Page({
 }) {
   const { locale } = await params;
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <Suspense fallback={<MyPageSkeleton />}>
         <MyPageInitializer locale={locale} />
       </Suspense>

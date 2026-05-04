@@ -1,10 +1,6 @@
-// 各 page の page.tsx で <Suspense fallback={<XxxSkeleton />}> を定義しているため、
-// この segment レベルの loading.tsx では何も表示せず page level の Suspense fallback に
-// 表示を委ねる。Next.js の app router では segment loading.tsx が page level の
-// Suspense fallback より外側で動き、ここで Loader を返すと専用 Skeleton が
-// 上書きされて見えなくなるため null を返す。
-// cacheComponents の static shell streaming + page 内 Suspense fallback の組み合わせで
-// 各 route の特性に応じた fallback 表示が実現される。
+// segment loading.tsx は page 内の <Suspense fallback> より外側で動くため、ここで
+// 何かを返すと page ごとに用意した専用 Skeleton が上書きされてしまう。null を返して
+// page level の fallback に委ねる
 export default function PublicLoading() {
   return null;
 }

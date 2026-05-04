@@ -17,14 +17,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function PersonalPageEditPage({
-  params,
-}: {
-  params: Promise<{ locale: string; page_id: string }>;
-}) {
-  const { locale } = await params;
+export default async function PersonalPageEditPage() {
   return (
-    <AuthGate redirectTo={`/${locale}/login`}>
+    <AuthGate>
       <PageEdit />
     </AuthGate>
   );

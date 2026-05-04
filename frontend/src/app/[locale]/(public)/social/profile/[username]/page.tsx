@@ -19,6 +19,8 @@ export async function generateMetadata({
   });
 }
 
+// SocialLayout (Client) を Server から直接 wrap すると createContext 連鎖で build に
+// 失敗するため、CSS Modules だけ流用して DOM を inline 再現する (showTabNavigation=false 相当)
 export default async function SocialProfileByUsernamePage({
   params,
 }: {
@@ -26,10 +28,6 @@ export default async function SocialProfileByUsernamePage({
 }) {
   const { locale, username } = await params;
 
-  // SocialLayout コンポーネント (Client) を直接 wrap すると Next.js 16 + Turbopack の
-  // SSR module 評価で TabNavigation → useAuth → createContext のチェーンが評価され
-  // build に失敗するため、ここでは SocialLayout.module.css の DOM 構造だけ inline で再現する。
-  // showTabNavigation={false} 相当の表示で、機能的には SocialLayout と等価。
   return (
     <div className={layoutStyles.layout}>
       <div className={layoutStyles.contentWrapper}>
