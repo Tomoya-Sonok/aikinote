@@ -20,6 +20,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Cache Components モデルを有効化し、Suspense 境界 + use cache で
+  // Partial Prerendering を取れるようにする (Next.js 16 で旧 experimental.ppr は廃止)
+  cacheComponents: true,
+
   // Phosphor Icons 最適化
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react", "date-fns", "recharts"],
