@@ -260,18 +260,12 @@ describe("投稿作成 POST /api/social-posts", () => {
     expect(res.status).toBe(429);
   });
 
-  it("NGワードが検出された場合は投稿は成功するがwarningが返る", async () => {
+  it("NGワードが検出された場合は投稿が拒否される (400 + NG_WORD)", async () => {
     // Arrange
     mockContainsNgWord.mockResolvedValue({
       found: true,
       matchedWord: "禁止語",
     });
-    const mockPost = {
-      id: "post-1",
-      content: "テスト",
-      user_id: TEST_USER_ID,
-    };
-    mockCreateSocialPost.mockResolvedValue(mockPost);
     const app = createTestApp();
     const headers = await createAuthHeaders();
 
@@ -287,10 +281,11 @@ describe("投稿作成 POST /api/social-posts", () => {
     });
     const body = await res.json();
 
-    // Assert: 投稿は成功（201）、warningフィールドが存在
-    expect(res.status).toBe(201);
-    expect(body.success).toBe(true);
-    expect(body.warning).toBeDefined();
+    // Assert: 投稿は拒否（400）、code: "NG_WORD"、createSocialPost は呼ばれない
+    expect(res.status).toBe(400);
+    expect(body.success).toBe(false);
+    expect(body.code).toBe("NG_WORD");
+    expect(mockCreateSocialPost).not.toHaveBeenCalled();
   });
 
   it("ハッシュタグを含む投稿でupsertHashtagsが呼ばれる", async () => {
