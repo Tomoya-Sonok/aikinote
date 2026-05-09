@@ -2649,6 +2649,8 @@ export const getSocialProfile = async (
   total_posts_count: number;
   total_training_records_count: number;
   public_pages: { id: string; title: string; created_at: string }[];
+  is_blocked?: boolean;
+  is_blocked_by_target?: boolean;
 } | null> => {
   const { data: user, error: userError } = await supabaseClient
     .from("User")
@@ -2695,12 +2697,14 @@ export const getSocialProfile = async (
     }
   }
 
-  // 投稿フィード・投稿タイプ別カウント・公開稽古記録を並列取得
+  // 投稿フィード・投稿タイプ別カウント・公開稽古記録 + ブロック状態（双方向）を並列取得
   const [
     postsResult,
     totalPostsCountResult,
     totalTrainingRecordsCountResult,
     publicPagesResult,
+    blockedByViewerResult,
+    blockedByTargetResult,
   ] = await Promise.all([
     supabaseClient
       .from("SocialPost")
@@ -2728,17 +2732,37 @@ export const getSocialProfile = async (
       .eq("is_public", true)
       .order("created_at", { ascending: false })
       .limit(20),
+    // ブロック状態（自分→相手）
+    targetUserId !== viewerId
+      ? supabaseClient
+          .from("UserBlock")
+          .select("id")
+          .eq("blocker_user_id", viewerId)
+          .eq("blocked_user_id", targetUserId)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    // ブロック状態（相手→自分）
+    targetUserId !== viewerId
+      ? supabaseClient
+          .from("UserBlock")
+          .select("id")
+          .eq("blocker_user_id", targetUserId)
+          .eq("blocked_user_id", viewerId)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
   ]);
 
   const posts = postsResult.data;
   const publicPages = publicPagesResult.data;
+  const isBlockedByViewer = !!blockedByViewerResult.data;
+  const isBlockedByTarget = !!blockedByTargetResult.data;
 
+  // ブロック関係がある場合は投稿配列を空にする（自分自身のプロフィールは判定対象外）
   // 投稿データをエンリッチ（author, attachments, tags, hashtags, is_favorited 等を付与）
-  const enrichedPosts = await enrichSocialPosts(
-    supabaseClient,
-    posts ?? [],
-    viewerId,
-  );
+  const enrichedPosts =
+    isBlockedByViewer || isBlockedByTarget
+      ? []
+      : await enrichSocialPosts(supabaseClient, posts ?? [], viewerId);
 
   const result: {
     is_restricted: boolean;
@@ -2749,6 +2773,8 @@ export const getSocialProfile = async (
     total_posts_count: number;
     total_training_records_count: number;
     public_pages: { id: string; title: string; created_at: string }[];
+    is_blocked?: boolean;
+    is_blocked_by_target?: boolean;
   } = {
     is_restricted: false,
     user,
@@ -2756,6 +2782,8 @@ export const getSocialProfile = async (
     total_posts_count: totalPostsCountResult.count ?? 0,
     total_training_records_count: totalTrainingRecordsCountResult.count ?? 0,
     public_pages: publicPages ?? [],
+    is_blocked: isBlockedByViewer,
+    is_blocked_by_target: isBlockedByTarget,
   };
 
   // 本人のみお気に入りされた数を返却（投稿＋返信の合算）
@@ -3555,4 +3583,154 @@ export const initializeUserCategories = async (
   }
 
   return data || [];
+};
+
+// ============================================
+// UserBlock（ユーザーブロック機能）
+// Apple App Review Guideline 1.2 (UGC) 対応
+// ============================================
+
+export interface UserBlockRow {
+  id: string;
+  blocker_user_id: string;
+  blocked_user_id: string;
+  created_at: string;
+}
+
+export interface UserBlockWithBlockedUser extends UserBlockRow {
+  blocked_user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+  };
+}
+
+/**
+ * ブロック作成。既に存在する場合は ALREADY_BLOCKED を throw。
+ */
+export const createUserBlock = async (
+  supabaseClient: SupabaseClient,
+  blockerUserId: string,
+  blockedUserId: string,
+): Promise<UserBlockRow> => {
+  const { data: existing } = await supabaseClient
+    .from("UserBlock")
+    .select("id")
+    .eq("blocker_user_id", blockerUserId)
+    .eq("blocked_user_id", blockedUserId)
+    .maybeSingle();
+
+  if (existing) {
+    throw new Error("ALREADY_BLOCKED");
+  }
+
+  const { data, error } = await supabaseClient
+    .from("UserBlock")
+    .insert({
+      blocker_user_id: blockerUserId,
+      blocked_user_id: blockedUserId,
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    throw new Error(`ブロックの作成に失敗しました: ${error.message}`);
+  }
+
+  return data;
+};
+
+/**
+ * ブロック解除（指定ペアの行が無くてもエラーにしない）。
+ */
+export const deleteUserBlock = async (
+  supabaseClient: SupabaseClient,
+  blockerUserId: string,
+  blockedUserId: string,
+): Promise<void> => {
+  const { error } = await supabaseClient
+    .from("UserBlock")
+    .delete()
+    .eq("blocker_user_id", blockerUserId)
+    .eq("blocked_user_id", blockedUserId);
+
+  if (error) {
+    throw new Error(`ブロック解除に失敗しました: ${error.message}`);
+  }
+};
+
+/**
+ * 単一ペアのブロック状態確認。エラー時は false を返す（プロフィール表示など UI のフォールバックを優先）。
+ */
+export const isUserBlocked = async (
+  supabaseClient: SupabaseClient,
+  blockerUserId: string,
+  blockedUserId: string,
+): Promise<boolean> => {
+  const { data, error } = await supabaseClient
+    .from("UserBlock")
+    .select("id")
+    .eq("blocker_user_id", blockerUserId)
+    .eq("blocked_user_id", blockedUserId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("ブロック状態確認エラー:", error);
+    return false;
+  }
+
+  return !!data;
+};
+
+/**
+ * 自分がブロックしているユーザーの一覧を取得。
+ * UserBlock の FK は auth.users を参照しているため Supabase の自動 JOIN は使えず、
+ * 2 段階クエリで User テーブルから username / profile_image_url を取得して合成する。
+ */
+export const getUserBlocks = async (
+  supabaseClient: SupabaseClient,
+  userId: string,
+): Promise<UserBlockWithBlockedUser[]> => {
+  const { data: blocks, error } = await supabaseClient
+    .from("UserBlock")
+    .select("id, blocker_user_id, blocked_user_id, created_at")
+    .eq("blocker_user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`ブロック一覧の取得に失敗しました: ${error.message}`);
+  }
+
+  if (!blocks || blocks.length === 0) {
+    return [];
+  }
+
+  const blockedIds = blocks.map((b) => b.blocked_user_id);
+  const { data: users } = await supabaseClient
+    .from("User")
+    .select("id, username, profile_image_url")
+    .in("id", blockedIds);
+
+  const userMap = new Map(
+    (users ?? []).map((u) => [
+      u.id as string,
+      u as {
+        id: string;
+        username: string;
+        profile_image_url: string | null;
+      },
+    ]),
+  );
+
+  return blocks.map((b) => ({
+    id: b.id,
+    blocker_user_id: b.blocker_user_id,
+    blocked_user_id: b.blocked_user_id,
+    created_at: b.created_at,
+    blocked_user: userMap.get(b.blocked_user_id) ?? {
+      id: b.blocked_user_id,
+      username: "",
+      profile_image_url: null,
+    },
+  }));
 };
