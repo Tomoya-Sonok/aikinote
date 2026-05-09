@@ -18,7 +18,11 @@ import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
 import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupPromptModal";
 import { Tooltip } from "@/components/shared/Tooltip";
 import { useToast } from "@/contexts/ToastContext";
-import { getPublicSocialProfile, getSocialProfile } from "@/lib/api/client";
+import {
+  getPublicSocialProfile,
+  getSocialProfile,
+  reportPost,
+} from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
@@ -147,6 +151,33 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
       router.push(`/social/posts/${postId}`);
     },
     [router, isAuthenticated, handleSignupPromptOpen],
+  );
+
+  const handlePostReport = useCallback(
+    async (
+      postId: string,
+      reason:
+        | "spam"
+        | "harassment"
+        | "inappropriate"
+        | "impersonation"
+        | "other",
+      detail?: string,
+    ) => {
+      if (!currentUser?.id) return;
+      try {
+        await reportPost({
+          postId,
+          user_id: currentUser.id,
+          reason,
+          detail,
+        });
+        showToast(t("reportSuccess"), "success");
+      } catch {
+        showToast(t("reportFailed"), "error");
+      }
+    },
+    [currentUser?.id, showToast, t],
   );
 
   const handleBack = useCallback(() => {
@@ -363,6 +394,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
                 currentUserId={currentUser?.id ?? ""}
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
+                onReport={handlePostReport}
               />
             ))
           ))}
@@ -378,6 +410,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
                 currentUserId={currentUser?.id ?? ""}
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
+                onReport={handlePostReport}
               />
             ))
           ))}

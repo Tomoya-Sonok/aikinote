@@ -1,6 +1,12 @@
 "use client";
 
-import { ChatDotsIcon, HeartIcon, ShareFatIcon } from "@phosphor-icons/react";
+import {
+  ChatDotsIcon,
+  DotsThreeVerticalIcon,
+  HeartIcon,
+  ShareFatIcon,
+} from "@phosphor-icons/react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { type FC, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
@@ -13,6 +19,21 @@ import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { buildShareUrl } from "@/lib/utils/share";
 import { SocialMediaGrid } from "./SocialMediaGrid";
 import styles from "./SocialPostCard.module.css";
+
+const ReportModal = dynamic(
+  () =>
+    import("@/components/features/social/ReportModal/ReportModal").then(
+      (m) => m.ReportModal,
+    ),
+  { ssr: false },
+);
+
+type ReportReason =
+  | "spam"
+  | "harassment"
+  | "inappropriate"
+  | "impersonation"
+  | "other";
 
 interface SocialPostAuthor {
   id: string;
@@ -60,6 +81,11 @@ interface SocialPostCardProps {
   hasUnreadReplies?: boolean;
   onFavoriteToggle: (postId: string) => void;
   onClick: (postId: string) => void;
+  /**
+   * 通報送信時のハンドラ。指定された場合のみ、自分以外の投稿に kebab メニュー +
+   * 「通報する」項目が表示される。Apple App Review Guideline 1.2 (UGC) 対応。
+   */
+  onReport?: (postId: string, reason: ReportReason, detail?: string) => void;
 }
 
 export const SocialPostCard: FC<SocialPostCardProps> = memo(
@@ -69,6 +95,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     hasUnreadReplies,
     onFavoriteToggle,
     onClick,
+    onReport,
   }) {
     const t = useTranslations("socialPosts");
     const locale = useLocale();
@@ -76,7 +103,12 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     const { track } = useUmamiTrack();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTruncated, setIsTruncated] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
     const textRef = useRef<HTMLParagraphElement>(null);
+    const menuRef = useRef<HTMLDivElement>(null);
+    const isOwner = post.user_id === currentUserId;
+    const showMenuButton = !isOwner && !!onReport;
 
     // ResizeObserverでtruncation検出（layout thrashing回避）
     useEffect(() => {
@@ -91,6 +123,26 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
       observer.observe(el);
       return () => observer.disconnect();
     }, []);
+
+    // メニュー外クリックで閉じる
+    useEffect(() => {
+      if (!showMenu) return;
+      const handleClickOutside = (e: MouseEvent) => {
+        if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+          setShowMenu(false);
+        }
+      };
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }, [showMenu]);
+
+    const handleReportSubmit = useCallback(
+      (reason: ReportReason, detail?: string) => {
+        onReport?.(post.id, reason, detail);
+        setShowReportModal(false);
+      },
+      [onReport, post.id],
+    );
 
     const handleShare = useCallback(
       async (e: React.MouseEvent) => {
@@ -158,6 +210,35 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
               </span>
             </span>
           </div>
+          {showMenuButton && (
+            <div className={styles.menuWrapper} ref={menuRef}>
+              <Button
+                className={styles.menuButton}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu((prev) => !prev);
+                }}
+                aria-label={t("menuReport")}
+              >
+                <DotsThreeVerticalIcon size={16} weight="bold" />
+              </Button>
+              {showMenu && (
+                <div className={styles.menuDropdown}>
+                  <button
+                    type="button"
+                    className={styles.menuItem}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowMenu(false);
+                      setShowReportModal(true);
+                    }}
+                  >
+                    {t("menuReport")}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className={styles.content}>
@@ -257,6 +338,15 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
             <ShareFatIcon size={20} weight="regular" />
           </Button>
         </div>
+
+        {showMenuButton && (
+          <ReportModal
+            isOpen={showReportModal}
+            onClose={() => setShowReportModal(false)}
+            onSubmit={handleReportSubmit}
+            title={t("reportTitle")}
+          />
+        )}
       </div>
     );
   },
