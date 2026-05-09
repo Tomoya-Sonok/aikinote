@@ -19,6 +19,7 @@ import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/Pre
 import { PublicityConfirmDialog } from "@/components/shared/PublicityConfirmDialog/PublicityConfirmDialog";
 import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
 import { useToast } from "@/contexts/ToastContext";
+import { reportPost } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
@@ -158,6 +159,28 @@ export function SocialPostsFeed() {
     [router],
   );
 
+  const handlePostReport = useCallback(
+    async (
+      postId: string,
+      reason:
+        | "spam"
+        | "harassment"
+        | "inappropriate"
+        | "impersonation"
+        | "other",
+      detail?: string,
+    ) => {
+      if (!user?.id) return;
+      try {
+        await reportPost({ postId, user_id: user.id, reason, detail });
+        showToast(t("reportSuccess"), "success");
+      } catch {
+        showToast(t("reportFailed"), "error");
+      }
+    },
+    [user?.id, showToast, t],
+  );
+
   const emptyKey =
     activeTab === "all"
       ? "emptyAll"
@@ -222,6 +245,7 @@ export function SocialPostsFeed() {
                 hasUnreadReplies={unreadReplyPostIds.has(post.id)}
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
+                onReport={handlePostReport}
               />
             ))}
 

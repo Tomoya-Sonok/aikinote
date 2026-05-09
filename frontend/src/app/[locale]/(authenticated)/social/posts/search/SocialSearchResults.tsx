@@ -11,6 +11,7 @@ import { SocialPostCard } from "@/components/features/social/SocialPostCard/Soci
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { useToast } from "@/contexts/ToastContext";
+import { reportPost } from "@/lib/api/client";
 import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
 import { useSocialSearch } from "@/lib/hooks/useSocialSearch";
@@ -84,6 +85,28 @@ export const SocialSearchResults = forwardRef<
       router.push(`/social/posts/${postId}`);
     },
     [router],
+  );
+
+  const handlePostReport = useCallback(
+    async (
+      postId: string,
+      reason:
+        | "spam"
+        | "harassment"
+        | "inappropriate"
+        | "impersonation"
+        | "other",
+      detail?: string,
+    ) => {
+      if (!userId) return;
+      try {
+        await reportPost({ postId, user_id: userId, reason, detail });
+        showToast(t("reportSuccess"), "success");
+      } catch {
+        showToast(t("reportFailed"), "error");
+      }
+    },
+    [userId, showToast, t],
   );
 
   const handleHistoryItemClick = useCallback(
@@ -216,6 +239,7 @@ export const SocialSearchResults = forwardRef<
             currentUserId={userId ?? ""}
             onFavoriteToggle={handleFavoriteToggle}
             onClick={handlePostClick}
+            onReport={handlePostReport}
           />
         ))
       )}
