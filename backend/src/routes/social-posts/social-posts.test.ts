@@ -281,10 +281,12 @@ describe("投稿作成 POST /api/social-posts", () => {
     });
     const body = await res.json();
 
-    // Assert: 投稿は拒否（400）、code: "NG_WORD"、createSocialPost は呼ばれない
+    // Assert: 投稿は拒否（400）、code + matched_word が返り、error 文言にも反映、createSocialPost は呼ばれない
     expect(res.status).toBe(400);
     expect(body.success).toBe(false);
     expect(body.code).toBe("NG_WORD");
+    expect(body.matched_word).toBe("禁止語");
+    expect(body.error).toContain("禁止語");
     expect(mockCreateSocialPost).not.toHaveBeenCalled();
   });
 

@@ -257,8 +257,9 @@ app.post(
         return c.json(
           {
             success: false,
-            error: "不適切な表現が含まれているため投稿できません",
+            error: `不適切な表現「${ngResult.matchedWord}」が含まれているため投稿できません`,
             code: "NG_WORD",
+            matched_word: ngResult.matchedWord,
           },
           400,
         );
@@ -472,8 +473,9 @@ app.put(
           return c.json(
             {
               success: false,
-              error: "不適切な表現が含まれているため更新できません",
+              error: `不適切な表現「${ngResult.matchedWord}」が含まれているため更新できません`,
               code: "NG_WORD",
+              matched_word: ngResult.matchedWord,
             },
             400,
           );
@@ -633,8 +635,9 @@ app.post(
         return c.json(
           {
             success: false,
-            error: "不適切な表現が含まれているため返信できません",
+            error: `不適切な表現「${ngResult.matchedWord}」が含まれているため返信できません`,
             code: "NG_WORD",
+            matched_word: ngResult.matchedWord,
           },
           400,
         );
@@ -742,8 +745,9 @@ app.put(
         return c.json(
           {
             success: false,
-            error: "不適切な表現が含まれているため更新できません",
+            error: `不適切な表現「${ngResult.matchedWord}」が含まれているため更新できません`,
             code: "NG_WORD",
+            matched_word: ngResult.matchedWord,
           },
           400,
         );
