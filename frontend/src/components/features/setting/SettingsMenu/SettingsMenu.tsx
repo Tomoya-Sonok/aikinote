@@ -46,6 +46,11 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({ className = "" }) => {
       >
         {t("navigation.pushNotification")}
       </SettingItem>
+      <SettingItem
+        onClick={() => router.push(`/${locale}/settings/blocked-users`)}
+      >
+        {t("settings.blockedUsers")}
+      </SettingItem>
     </div>
   );
 };

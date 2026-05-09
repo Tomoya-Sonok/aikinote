@@ -1,5 +1,6 @@
 import { createTRPCRouter } from "./index";
 import {
+  blockUserProcedure,
   checkUsernameProcedure,
   createCategoryProcedure,
   createCheckoutSessionProcedure,
@@ -15,6 +16,7 @@ import {
   deletePageProcedure,
   deleteTagProcedure,
   deleteTitleTemplateProcedure,
+  getBlockedUsersProcedure,
   getCategoriesProcedure,
   getDailyLimitsProcedure,
   getNotificationsProcedure,
@@ -52,6 +54,7 @@ import {
   toggleFavoriteProcedure,
   togglePageVisibilityProcedure,
   toggleReplyFavoriteProcedure,
+  unblockUserProcedure,
   updateCategoryProcedure,
   updatePageProcedure,
   updatePublicityDojosProcedure,
@@ -151,6 +154,11 @@ export const appRouter = createTRPCRouter({
     createCheckout: createCheckoutSessionProcedure,
     createPortal: createPortalSessionProcedure,
     sync: syncSubscriptionProcedure,
+  }),
+  userBlocks: createTRPCRouter({
+    block: blockUserProcedure,
+    unblock: unblockUserProcedure,
+    list: getBlockedUsersProcedure,
   }),
 });
 

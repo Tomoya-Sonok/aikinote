@@ -33,6 +33,7 @@ import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupP
 import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import {
+  blockUser,
   createSocialReply,
   deleteSocialPost,
   deleteSocialReply,
@@ -324,6 +325,21 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         showToast(t("reportSuccess"), "success");
       } catch {
         showToast(t("reportFailed"), "error");
+      }
+    },
+    [user?.id, showToast, t],
+  );
+
+  const handleReplyBlock = useCallback(
+    async (blockedUserId: string) => {
+      if (!user?.id) return;
+      // 詳細画面ではメニュー側で confirm を出さず即時実行（最小実装、Phase 3 の範囲）
+      try {
+        await blockUser(blockedUserId);
+        showToast(t("blockSuccess"), "success");
+        // 詳細画面のリロードはブラウザに任せ、楽観的更新は省略
+      } catch {
+        showToast(t("blockFailed"), "error");
       }
     },
     [user?.id, showToast, t],
@@ -680,6 +696,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
                 onDelete={handleReplyDelete}
                 onFavoriteToggle={handleReplyFavoriteToggle}
                 onUnauthenticatedAction={handleSignupPromptOpen}
+                onBlock={isAuthenticated ? handleReplyBlock : undefined}
               />
             ),
           )}

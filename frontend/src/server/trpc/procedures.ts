@@ -1053,6 +1053,58 @@ export const reportReplyProcedure = authenticatedProcedure
     );
   });
 
+// ============================================
+// UserBlock (Apple App Review Guideline 1.2)
+// ============================================
+
+export interface BlockedUserListItem {
+  id: string;
+  blocker_user_id: string;
+  blocked_user_id: string;
+  created_at: string;
+  blocked_user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+  };
+}
+
+export const blockUserProcedure = authenticatedProcedure
+  .input(z.object({ blockedUserId: z.string().uuid() }))
+  .mutation(async ({ input, ctx }) => {
+    return callHonoApi<ApiResponse<unknown>>(
+      `/api/social/blocks/${input.blockedUserId}`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
+    );
+  });
+
+export const unblockUserProcedure = authenticatedProcedure
+  .input(z.object({ blockedUserId: z.string().uuid() }))
+  .mutation(async ({ input, ctx }) => {
+    return callHonoApi<ApiResponse<unknown>>(
+      `/api/social/blocks/${input.blockedUserId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
+    );
+  });
+
+export const getBlockedUsersProcedure = authenticatedProcedure.query(
+  async ({ ctx }) => {
+    return callHonoApi<ApiResponse<BlockedUserListItem[]>>(
+      `/api/social/blocks`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
+    );
+  },
+);
+
 export const toggleReplyFavoriteProcedure = authenticatedProcedure
   .input(
     z.object({

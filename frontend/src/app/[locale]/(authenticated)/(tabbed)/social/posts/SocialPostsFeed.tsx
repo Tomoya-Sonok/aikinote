@@ -13,13 +13,14 @@ import {
   type SocialTab,
   SocialTabBar,
 } from "@/components/features/social/SocialTabBar/SocialTabBar";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { FloatingActionButton } from "@/components/shared/FloatingActionButton/FloatingActionButton";
 import { Loader } from "@/components/shared/Loader/Loader";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { PublicityConfirmDialog } from "@/components/shared/PublicityConfirmDialog/PublicityConfirmDialog";
 import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
 import { useToast } from "@/contexts/ToastContext";
-import { reportPost } from "@/lib/api/client";
+import { blockUser, reportPost } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
@@ -69,6 +70,11 @@ export function SocialPostsFeed() {
     useState<string>("premiumModalBrowse");
   const { hasConfirmedPublicity } = usePublicityConfirmStore();
   const [showPublicityDialog, setShowPublicityDialog] = useState(false);
+  const [pendingBlock, setPendingBlock] = useState<{
+    userId: string;
+    username: string;
+  } | null>(null);
+  const [isBlocking, setIsBlocking] = useState(false);
 
   const updateTab = useCallback((tab: SocialTab) => {
     setActiveTab(tab);
@@ -181,6 +187,28 @@ export function SocialPostsFeed() {
     [user?.id, showToast, t],
   );
 
+  const handleBlockRequest = useCallback(
+    (blockedUserId: string, username: string) => {
+      setPendingBlock({ userId: blockedUserId, username });
+    },
+    [],
+  );
+
+  const handleBlockConfirm = useCallback(async () => {
+    if (!pendingBlock) return;
+    setIsBlocking(true);
+    try {
+      await blockUser(pendingBlock.userId);
+      showToast(t("blockSuccess"), "success");
+      setPendingBlock(null);
+      refetch();
+    } catch {
+      showToast(t("blockFailed"), "error");
+    } finally {
+      setIsBlocking(false);
+    }
+  }, [pendingBlock, refetch, showToast, t]);
+
   const emptyKey =
     activeTab === "all"
       ? "emptyAll"
@@ -246,6 +274,7 @@ export function SocialPostsFeed() {
                 onFavoriteToggle={handleFavoriteToggle}
                 onClick={handlePostClick}
                 onReport={handlePostReport}
+                onBlock={handleBlockRequest}
               />
             ))}
 
@@ -291,6 +320,17 @@ export function SocialPostsFeed() {
           setShowPublicityDialog(false);
           router.push("/social/posts/new");
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={pendingBlock !== null}
+        title={t("blockConfirmTitle")}
+        message={t("blockConfirmMessage")}
+        confirmLabel={t("menuBlock")}
+        cancelLabel={t("editCancel")}
+        onConfirm={handleBlockConfirm}
+        onCancel={() => setPendingBlock(null)}
+        isProcessing={isBlocking}
       />
     </>
   );

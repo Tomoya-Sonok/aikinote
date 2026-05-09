@@ -1,0 +1,58 @@
+.container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.description {
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.empty {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.username {
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
