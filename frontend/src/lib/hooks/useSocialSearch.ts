@@ -1,6 +1,10 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import {
@@ -19,7 +23,10 @@ interface SearchInput {
 
 interface UseSocialSearchResult {
   results: SocialFeedPostData[];
+  /** 初回ロード中（前回結果が無い状態でフェッチ中）。大きな Loader 表示用 */
   isLoading: boolean;
+  /** バックグラウンドフェッチ中（前回結果あり、新クエリ実行中）。subtle インジケータ用 */
+  isFetching: boolean;
   search: (
     query: string,
     dojoName?: string,
@@ -80,6 +87,9 @@ export function useSocialSearch(
         ? (result.data as SocialFeedPostData[])
         : [];
     },
+    // 検索条件が変わっても前回の結果リストを保持し、入力中に大きな Loader が
+    // 出て画面が空になる UX 悪化を防ぐ
+    placeholderData: keepPreviousData,
   });
 
   const search = useCallback(
@@ -117,7 +127,8 @@ export function useSocialSearch(
 
   return {
     results: enabled ? (query.data ?? []) : [],
-    isLoading: enabled && (query.isLoading || query.isFetching),
+    isLoading: enabled && query.isLoading,
+    isFetching: enabled && query.isFetching && !query.isLoading,
     search,
     updateResult,
   };

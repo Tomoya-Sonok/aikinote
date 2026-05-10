@@ -90,11 +90,9 @@ const SocialSearchBar = memo(
       [onSearch, onQueryActiveChange],
     );
 
-    const handleKeyDown = useCallback(
-      (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter") {
-          onSubmit(queryRef.current);
-        }
+    const handleSubmit = useCallback(
+      (value: string) => {
+        onSubmit(value);
       },
       [onSubmit],
     );
@@ -110,7 +108,7 @@ const SocialSearchBar = memo(
       <SearchInput
         value={query}
         onChange={handleChange}
-        onKeyDown={handleKeyDown}
+        onSubmit={handleSubmit}
         onClear={handleClear}
         placeholder={placeholder}
       />

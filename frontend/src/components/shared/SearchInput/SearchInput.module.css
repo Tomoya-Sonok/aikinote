@@ -2,6 +2,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  margin: 0;
+  width: 100%;
 }
 
 .searchIcon {
@@ -54,4 +56,11 @@
 .searchInput:focus {
   border-color: var(--primary-color);
   background-color: var(--white);
+}
+
+/* type="search" のブラウザ標準クリアボタンを非表示（独自 clearButton を使うため） */
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }
