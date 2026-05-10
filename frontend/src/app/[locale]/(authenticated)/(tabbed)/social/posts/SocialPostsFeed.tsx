@@ -326,7 +326,7 @@ export function SocialPostsFeed() {
         isOpen={pendingBlock !== null}
         title={t("blockConfirmTitle")}
         message={t("blockConfirmMessage")}
-        confirmLabel={t("menuBlock")}
+        confirmLabel={t("blockConfirmAction")}
         cancelLabel={t("editCancel")}
         onConfirm={handleBlockConfirm}
         onCancel={() => setPendingBlock(null)}

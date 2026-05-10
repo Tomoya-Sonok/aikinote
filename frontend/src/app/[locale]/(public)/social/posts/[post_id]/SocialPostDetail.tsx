@@ -50,6 +50,7 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
+import { useRemoveFromSocialFeedCache } from "@/lib/hooks/useSocialFeed";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
@@ -137,6 +138,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const [upgradeModalKey, setUpgradeModalKey] =
     useState<string>("premiumModalBrowse");
   const menuRef = useRef<HTMLDivElement>(null);
+  const removeFromFeedCache = useRemoveFromSocialFeedCache();
 
   const isAuthenticated = !!user;
 
@@ -240,6 +242,9 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     setIsDeleting(true);
     try {
       await deleteSocialPost(postId);
+      // 楽観的 UI: フィードキャッシュから即時除去（戻り先で再フェッチを待たずに反映）
+      removeFromFeedCache(postId);
+      showToast(t("deleteSuccess"), "success");
       router.replace("/social/posts");
     } catch (error) {
       showToast(getNetworkAwareErrorMessage(error, t("deleteFailed")), "error");
@@ -247,7 +252,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
     }
-  }, [postId, router, showToast, t]);
+  }, [postId, router, showToast, t, removeFromFeedCache]);
 
   const handleReplySubmit = useCallback(
     async (content: string) => {

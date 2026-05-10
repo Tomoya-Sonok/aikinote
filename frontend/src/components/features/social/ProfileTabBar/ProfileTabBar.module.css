@@ -57,10 +57,11 @@
 }
 
 @media (min-width: 768px) {
-  /* PC ビューでは中央 580px の枠に揃え、padding は statsSection と同様の calc 計算で吸収 */
+  /* PC ビューでは tabBar 自身を画面幅一杯（白背景）に伸ばし、
+     内側の .tab を flex: 1 で画面半分ずつに均等配置する。 */
   .tabBar {
+    width: 100vw;
+    margin: 0;
     padding: 0;
-    width: 580px;
-    margin: 0 auto;
   }
 }
