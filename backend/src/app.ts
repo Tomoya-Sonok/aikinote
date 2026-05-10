@@ -34,6 +34,8 @@ export type AppBindings = {
   SUPABASE_ANON_KEY?: string;
   JWT_SECRET?: string;
   NEXT_PUBLIC_APP_URL?: string;
+  RESEND_API_KEY?: string;
+  RESEND_FROM_EMAIL?: string;
 };
 
 export type AppVariables = {
