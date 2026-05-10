@@ -4,8 +4,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generateToken } from "../../lib/jwt.js";
 import socialReportsRoute from "./index.js";
 
-const mockSupabase = {} as unknown as SupabaseClient;
+// 通知準備で呼ばれる supabase.from(...).select(...).eq(...).maybeSingle() チェーンをモック化。
+// 既存の通報フローテストでは通知側の値はテスト対象外なので、空チェーンを返すだけで十分。
+const mockFrom = vi.fn().mockImplementation(() => ({
+  select: vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    }),
+  }),
+}));
+const mockSupabase = { from: mockFrom } as unknown as SupabaseClient;
 const mockCreatePostReport = vi.fn();
+const mockNotifyReportEmail = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(() => mockSupabase),
@@ -13,6 +23,10 @@ vi.mock("@supabase/supabase-js", () => ({
 
 vi.mock("../../lib/supabase.js", () => ({
   createPostReport: (...args: unknown[]) => mockCreatePostReport(...args),
+}));
+
+vi.mock("../../lib/report-notification.js", () => ({
+  notifyReportEmail: (...args: unknown[]) => mockNotifyReportEmail(...args),
 }));
 
 vi.stubEnv("SUPABASE_URL", "https://test.supabase.co");
@@ -102,5 +116,59 @@ describe("投稿通報 POST /api/social-reports/posts/:id", () => {
     // Assert
     expect(res.status).toBe(409);
     expect(body.error).toBe("既に通報済みです");
+    // 重複時は通知も送らない
+    expect(mockNotifyReportEmail).not.toHaveBeenCalled();
+  });
+
+  it("通報成功時に notifyReportEmail が呼ばれる", async () => {
+    // Arrange
+    mockCreatePostReport.mockResolvedValue({ id: "report-1" });
+    const app = createTestApp();
+    const headers = await createAuthHeaders();
+
+    // Act
+    const res = await app.request("/api/social-reports/posts/post-2", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        user_id: TEST_USER_ID,
+        reason: "inappropriate",
+        detail: "テスト詳細",
+      }),
+    });
+
+    // Assert
+    expect(res.status).toBe(201);
+    expect(mockNotifyReportEmail).toHaveBeenCalledTimes(1);
+    const [params] = mockNotifyReportEmail.mock.calls[0] as [
+      Record<string, unknown>,
+    ];
+    expect(params.type).toBe("post");
+    expect(params.reportId).toBe("report-1");
+    expect(params.reason).toBe("inappropriate");
+    expect(params.detail).toBe("テスト詳細");
+  });
+
+  it("通知でエラーが起きても通報レスポンスは201で返る", async () => {
+    // Arrange
+    mockCreatePostReport.mockResolvedValue({ id: "report-1" });
+    mockNotifyReportEmail.mockImplementationOnce(() => {
+      throw new Error("Resend down");
+    });
+    const app = createTestApp();
+    const headers = await createAuthHeaders();
+
+    // Act
+    const res = await app.request("/api/social-reports/posts/post-3", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        user_id: TEST_USER_ID,
+        reason: "spam",
+      }),
+    });
+
+    // Assert
+    expect(res.status).toBe(201);
   });
 });
