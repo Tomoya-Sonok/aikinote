@@ -57,11 +57,11 @@
 }
 
 @media (min-width: 768px) {
-  /* PC ビューでも tabBar 自身は画面幅一杯に伸ばし背景を白で塗る。
-     内側のタブは calc 計算で 580px 中央に寄せる（SP と同じパターン）。 */
+  /* PC ビューでは tabBar 自身を画面幅一杯（白背景）に伸ばし、
+     内側の .tab を flex: 1 で画面半分ずつに均等配置する。 */
   .tabBar {
     width: 100vw;
     margin: 0;
-    padding: 0 max(0px, calc((100vw - 580px) / 2));
+    padding: 0;
   }
 }
