@@ -779,6 +779,46 @@ export interface ReportReplyPayload {
   detail?: string;
 }
 
+export interface BlockedUserListItem {
+  id: string;
+  blocker_user_id: string;
+  blocked_user_id: string;
+  created_at: string;
+  blocked_user: {
+    id: string;
+    username: string;
+    profile_image_url: string | null;
+  };
+}
+
+export const blockUser = async (blockedUserId: string) => {
+  try {
+    return await trpcClient.userBlocks.block.mutate({ blockedUserId });
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "ブロックに失敗しました"));
+  }
+};
+
+export const unblockUser = async (blockedUserId: string) => {
+  try {
+    return await trpcClient.userBlocks.unblock.mutate({ blockedUserId });
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "ブロック解除に失敗しました"));
+  }
+};
+
+export const getBlockedUsers = async (): Promise<BlockedUserListItem[]> => {
+  try {
+    const result = await trpcClient.userBlocks.list.query();
+    if (result?.success && result.data) {
+      return result.data as BlockedUserListItem[];
+    }
+    return [];
+  } catch {
+    return [];
+  }
+};
+
 export const reportReply = async (payload: ReportReplyPayload) => {
   try {
     return await trpcClient.socialReplies.report.mutate(payload);

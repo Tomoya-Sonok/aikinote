@@ -86,6 +86,11 @@ interface SocialPostCardProps {
    * 「通報する」項目が表示される。Apple App Review Guideline 1.2 (UGC) 対応。
    */
   onReport?: (postId: string, reason: ReportReason, detail?: string) => void;
+  /**
+   * ユーザーブロック時のハンドラ。指定された場合のみ kebab メニューに「ブロックする」項目が表示される。
+   * 引数の username は確認ダイアログの文言用に親側で利用。Apple App Review Guideline 1.2 (UGC) 対応。
+   */
+  onBlock?: (blockedUserId: string, username: string) => void;
 }
 
 export const SocialPostCard: FC<SocialPostCardProps> = memo(
@@ -96,6 +101,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     onFavoriteToggle,
     onClick,
     onReport,
+    onBlock,
   }) {
     const t = useTranslations("socialPosts");
     const locale = useLocale();
@@ -108,7 +114,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
     const textRef = useRef<HTMLParagraphElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const isOwner = post.user_id === currentUserId;
-    const showMenuButton = !isOwner && !!onReport;
+    const showMenuButton = !isOwner && (!!onReport || !!onBlock);
 
     // ResizeObserverでtruncation検出（layout thrashing回避）
     useEffect(() => {
@@ -224,17 +230,32 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
               </Button>
               {showMenu && (
                 <div className={styles.menuDropdown}>
-                  <button
-                    type="button"
-                    className={styles.menuItem}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowMenu(false);
-                      setShowReportModal(true);
-                    }}
-                  >
-                    {t("menuReport")}
-                  </button>
+                  {onReport && (
+                    <button
+                      type="button"
+                      className={styles.menuItem}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowMenu(false);
+                        setShowReportModal(true);
+                      }}
+                    >
+                      {t("menuReport")}
+                    </button>
+                  )}
+                  {onBlock && (
+                    <button
+                      type="button"
+                      className={styles.menuItem}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowMenu(false);
+                        onBlock(post.user_id, post.author.username);
+                      }}
+                    >
+                      {t("menuBlock")}
+                    </button>
+                  )}
                 </div>
               )}
             </div>

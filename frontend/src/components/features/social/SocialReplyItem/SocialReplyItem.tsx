@@ -50,6 +50,11 @@ interface SocialReplyItemProps {
   onDelete: (replyId: string) => Promise<void>;
   onFavoriteToggle: (replyId: string) => void;
   onUnauthenticatedAction?: () => void;
+  /**
+   * 返信投稿者をブロックするハンドラ。指定された場合のみメニューに「ブロックする」項目を追加。
+   * Apple App Review Guideline 1.2 (UGC) 対応。
+   */
+  onBlock?: (blockedUserId: string, username: string) => void;
 }
 
 export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
@@ -62,6 +67,7 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
     onDelete,
     onFavoriteToggle,
     onUnauthenticatedAction,
+    onBlock,
   }) {
     const t = useTranslations("socialPosts");
     const locale = useLocale();
@@ -213,16 +219,30 @@ export const SocialReplyItem: FC<SocialReplyItemProps> = memo(
                         </button>
                       </>
                     ) : (
-                      <button
-                        type="button"
-                        className={styles.menuItem}
-                        onClick={() => {
-                          setShowMenu(false);
-                          setShowReportModal(true);
-                        }}
-                      >
-                        {t("menuReport")}
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          className={styles.menuItem}
+                          onClick={() => {
+                            setShowMenu(false);
+                            setShowReportModal(true);
+                          }}
+                        >
+                          {t("menuReport")}
+                        </button>
+                        {onBlock && (
+                          <button
+                            type="button"
+                            className={styles.menuItem}
+                            onClick={() => {
+                              setShowMenu(false);
+                              onBlock(reply.user_id, reply.user.username);
+                            }}
+                          >
+                            {t("menuBlock")}
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

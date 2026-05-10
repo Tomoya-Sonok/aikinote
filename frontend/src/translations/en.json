@@ -203,7 +203,11 @@
     "saveButton": "Save"
   },
   "settings": {
-    "email": "Email"
+    "email": "Email",
+    "blockedUsers": "Blocked users",
+    "blockedUsersDescription": "Posts from blocked users will not appear in your feed.",
+    "blockedUsersEmpty": "No blocked users",
+    "unblockButton": "Unblock"
   },
   "emailChange": {
     "title": "Email Address",
@@ -772,6 +776,18 @@
     "menuEdit": "Edit",
     "menuDelete": "Delete",
     "menuReport": "Report",
+    "menuBlock": "Block this user",
+    "menuUnblock": "Unblock",
+    "blockConfirmTitle": "Block this user?",
+    "blockConfirmMessage": "Once blocked, you and this user will no longer see each other's posts.",
+    "unblockConfirmTitle": "Unblock this user?",
+    "unblockConfirmMessage": "After unblocking, this user's posts will be visible again.",
+    "blockSuccess": "User blocked",
+    "unblockSuccess": "User unblocked",
+    "blockFailed": "Failed to block user",
+    "unblockFailed": "Failed to unblock user",
+    "blockedProfileMessage": "You have blocked this user",
+    "blockedByTargetMessage": "Posts from this user are not available",
     "postTypeFilter": "Type",
     "filterToggle": "Filter",
     "filterClose": "Close",

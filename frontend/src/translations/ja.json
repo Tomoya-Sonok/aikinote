@@ -203,7 +203,11 @@
     "saveButton": "保存する"
   },
   "settings": {
-    "email": "メール"
+    "email": "メール",
+    "blockedUsers": "ブロック中のユーザー",
+    "blockedUsersDescription": "ブロックしたユーザーの投稿はあなたのフィードに表示されなくなります。",
+    "blockedUsersEmpty": "ブロック中のユーザーはいません",
+    "unblockButton": "解除"
   },
   "emailChange": {
     "title": "メールアドレス",
@@ -774,6 +778,18 @@
     "menuEdit": "編集",
     "menuDelete": "削除",
     "menuReport": "通報",
+    "menuBlock": "このユーザーをブロック",
+    "menuUnblock": "ブロックを解除",
+    "blockConfirmTitle": "ユーザーをブロックしますか？",
+    "blockConfirmMessage": "ブロックすると、互いの投稿が表示されなくなります。",
+    "unblockConfirmTitle": "ブロックを解除しますか？",
+    "unblockConfirmMessage": "ブロックを解除すると、相手の投稿が再び表示されるようになります。",
+    "blockSuccess": "ブロックしました",
+    "unblockSuccess": "ブロックを解除しました",
+    "blockFailed": "ブロックに失敗しました",
+    "unblockFailed": "ブロック解除に失敗しました",
+    "blockedProfileMessage": "あなたはこのユーザーをブロックしています",
+    "blockedByTargetMessage": "このユーザーの投稿は表示できません",
     "postTypeFilter": "種類",
     "filterToggle": "絞り込み",
     "filterClose": "閉じる",
