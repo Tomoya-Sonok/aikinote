@@ -61,6 +61,7 @@ export function BlockedUsersSetting({ locale }: BlockedUsersSettingProps) {
     <MinimalLayout
       headerTitle={t("settings.blockedUsers")}
       backHref={`/${locale}/mypage`}
+      forceBackHref
     >
       <div className={styles.container}>
         <p className={styles.description}>
@@ -74,10 +75,7 @@ export function BlockedUsersSetting({ locale }: BlockedUsersSettingProps) {
           <ul className={styles.list}>
             {items.map((item) => (
               <li key={item.id} className={styles.item}>
-                <a
-                  href={`/${locale}/social/profile/${item.blocked_user.username}`}
-                  className={styles.userLink}
-                >
+                <div className={styles.userInfo}>
                   <ProfileImage
                     src={item.blocked_user.profile_image_url}
                     size="small"
@@ -85,7 +83,7 @@ export function BlockedUsersSetting({ locale }: BlockedUsersSettingProps) {
                   <span className={styles.username}>
                     {item.blocked_user.username || t("settings.blockedUsers")}
                   </span>
-                </a>
+                </div>
                 <Button
                   size="small"
                   onClick={() => setPendingUnblock(item)}

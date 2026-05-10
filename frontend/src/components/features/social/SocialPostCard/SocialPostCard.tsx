@@ -218,7 +218,8 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
           </div>
           {showMenuButton && (
             <div className={styles.menuWrapper} ref={menuRef}>
-              <Button
+              <button
+                type="button"
                 className={styles.menuButton}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -227,7 +228,7 @@ export const SocialPostCard: FC<SocialPostCardProps> = memo(
                 aria-label={t("menuReport")}
               >
                 <DotsThreeVerticalIcon size={16} weight="bold" />
-              </Button>
+              </button>
               {showMenu && (
                 <div className={styles.menuDropdown}>
                   {onReport && (

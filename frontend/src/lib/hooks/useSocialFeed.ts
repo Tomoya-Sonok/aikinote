@@ -171,3 +171,33 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
     updatePost,
   };
 }
+
+/**
+ * 投稿削除時の楽観的 UI 用フック。useSocialFeed を呼ばないルート（投稿詳細など）から、
+ * フィードキャッシュ上の該当投稿を即時除去できる。
+ */
+export function useRemoveFromSocialFeedCache() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    (postId: string) => {
+      for (const t of ALL_TABS) {
+        queryClient.setQueryData<InfiniteData<SocialFeedPage>>(
+          socialFeedQueryKey(user?.id, t),
+          (old) =>
+            old
+              ? {
+                  ...old,
+                  pages: old.pages.map((page) => ({
+                    ...page,
+                    posts: page.posts.filter((p) => p.id !== postId),
+                  })),
+                }
+              : old,
+        );
+      }
+    },
+    [user?.id, queryClient],
+  );
+}

@@ -518,7 +518,7 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
         isOpen={showBlockConfirm}
         title={t("blockConfirmTitle")}
         message={t("blockConfirmMessage")}
-        confirmLabel={t("menuBlock")}
+        confirmLabel={t("blockConfirmAction")}
         cancelLabel={t("editCancel")}
         onConfirm={handleBlockConfirm}
         onCancel={() => setShowBlockConfirm(false)}
