@@ -29,7 +29,7 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.39.8",
     "@tanstack/query-sync-storage-persister": "^5.99.2",
-    "@tanstack/react-query": "^5.99.2",
+    "@tanstack/react-query": "^5.100.10",
     "@tanstack/react-query-persist-client": "^5.99.2",
     "@trpc/client": "^11.16.0",
     "@trpc/server": "^11.16.0",
