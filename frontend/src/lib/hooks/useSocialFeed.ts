@@ -5,7 +5,7 @@ import {
   useInfiniteQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { type GetSocialFeedParams, getSocialFeed } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -68,7 +68,7 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
   const query = useInfiniteQuery<
     SocialFeedPage,
     Error,
-    InfiniteData<SocialFeedPage>,
+    SocialFeedPostData[],
     ReturnType<typeof socialFeedQueryKey>,
     number
   >({
@@ -80,6 +80,8 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
       return fetchSocialFeedPage(user.id, tab, pageParam);
     },
     getNextPageParam: (lastPage) => lastPage.next_offset ?? undefined,
+    // structural sharing により同一データなら同一参照が返るので、useMemo より再レンダ抑制効果が高い
+    select: (data) => data.pages.flatMap((p) => p.posts),
   });
 
   // 他タブのプリフェッチ（アクティブタブのロード完了後、idle callback で実行）
@@ -117,10 +119,7 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
     return () => clearTimeout(timeoutId);
   }, [user?.id, tab, query.isSuccess, queryClient]);
 
-  const posts = useMemo(
-    () => query.data?.pages.flatMap((p) => p.posts) ?? [],
-    [query.data],
-  );
+  const posts = query.data ?? [];
 
   const hasMore = !!query.hasNextPage;
 

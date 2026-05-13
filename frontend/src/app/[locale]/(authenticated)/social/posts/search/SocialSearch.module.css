@@ -158,6 +158,19 @@
   font-size: var(--font-size-sm);
 }
 
+.sentinel {
+  padding: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.endMessage {
+  padding: 20px 0;
+  text-align: center;
+  color: var(--text-light);
+  font-size: var(--font-size-xs);
+}
+
 /* 検索履歴セクション */
 .historySection {
   padding: 16px;
