@@ -208,6 +208,9 @@ importers:
       '@storybook/nextjs-vite':
         specifier: ^9.1.14
         version: 9.1.20(@babel/core@7.28.4)(next@16.2.2)(react-dom@19.2.3)(react@19.2.3)(storybook@9.1.20)(typescript@5.9.2)(vite@7.1.5)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.99.2
+        version: 5.99.2(@tanstack/react-query@5.99.2)(react@19.2.3)
       '@testing-library/jest-dom':
         specifier: ^6.8.0
         version: 6.8.0
@@ -3749,7 +3752,10 @@ packages:
 
   /@tanstack/query-core@5.99.2:
     resolution: {integrity: sha512-1HunU0bXVsR1ZJMZbcOPE6VtaBJxsW809RE9xPe4Gz7MlB0GWwQvuTPhMoEmQ/hIzFKJ/DWAuttIe7BOaWx0tA==}
-    dev: false
+
+  /@tanstack/query-devtools@5.99.2:
+    resolution: {integrity: sha512-TEF1d+RYO9l8oeCwgzmOHIgKwAzXQmw2s/ny2bW8qeg2OMkkLjALfVEivgCMR3OL/jVdMmeTPX56WrV+uvYJFg==}
+    dev: true
 
   /@tanstack/query-persist-client-core@5.99.2:
     resolution: {integrity: sha512-YYuLGBDGCsUbfN2LuYrfkRCpg1vOUZnK2bn4j7zAZv+m1B4CnLAv58Z3A43d5Cruxvld5udYFeYXw9F6g/pZcQ==}
@@ -3763,6 +3769,17 @@ packages:
       '@tanstack/query-core': 5.99.2
       '@tanstack/query-persist-client-core': 5.99.2
     dev: false
+
+  /@tanstack/react-query-devtools@5.99.2(@tanstack/react-query@5.99.2)(react@19.2.3):
+    resolution: {integrity: sha512-8txkK9A9XBNTB8RoxVgfp6W3qwBr25tNP10L4yu3KuyhAdEvccECfIRzesSwMVk/wpVVioAr+hbMtUkMMF+WVw==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.99.2
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-devtools': 5.99.2
+      '@tanstack/react-query': 5.99.2(react@19.2.3)
+      react: 19.2.3
+    dev: true
 
   /@tanstack/react-query-persist-client@5.99.2(@tanstack/react-query@5.99.2)(react@19.2.3):
     resolution: {integrity: sha512-7+y5+kpaR26X2gdaEv0yQSFLZjqXz4Kn7wqzuYDQrb203b9MlYS3baML1M9hJTiLgi4QGGF2eJDdW8lHAazUow==}
@@ -3782,7 +3799,6 @@ packages:
     dependencies:
       '@tanstack/query-core': 5.99.2
       react: 19.2.3
-    dev: false
 
   /@testing-library/dom@10.4.1:
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}

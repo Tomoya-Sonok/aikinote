@@ -1,0 +1,30 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: var(--z-global-fetch-indicator);
+  pointer-events: none;
+  overflow: hidden;
+  background: transparent;
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  width: 40%;
+  height: 100%;
+  background: var(--accent-color);
+  opacity: 0.7;
+  animation: slide 1.4s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}

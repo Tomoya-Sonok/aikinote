@@ -1,7 +1,7 @@
 "use client";
 
-import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { getNotifications } from "@/lib/api/client";
 
 export type NotificationTab = "all" | "reply" | "favorite";
@@ -53,7 +53,7 @@ export function useNotifications(
   const query = useInfiniteQuery<
     NotificationsPage,
     Error,
-    InfiniteData<NotificationsPage>,
+    NotificationItemData[],
     ReturnType<typeof notificationsQueryKey>,
     number
   >({
@@ -81,12 +81,11 @@ export function useNotifications(
       };
     },
     getNextPageParam: (lastPage) => lastPage.next_offset ?? undefined,
+    // structural sharing により同一データなら同一参照が返るので、useMemo より再レンダ抑制効果が高い
+    select: (data) => data.pages.flatMap((p) => p.items),
   });
 
-  const notifications = useMemo(
-    () => query.data?.pages.flatMap((p) => p.items) ?? [],
-    [query.data],
-  );
+  const notifications = query.data ?? [];
 
   const loadMore = useCallback(() => {
     if (!query.hasNextPage || query.isFetchingNextPage) return;

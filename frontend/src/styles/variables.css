@@ -87,6 +87,7 @@
   --z-fab: 10; /* FloatingActionButton, ScrollIndicator */
   --z-tab: 10; /* TabNavigation（FABと同レイヤー） */
   --z-header: 20; /* DefaultHeader, LP Header */
+  --z-global-fetch-indicator: 25; /* GlobalFetchIndicator（header と header-dropdown の間） */
   --z-header-dropdown: 30; /* ヘッダー内ドロップダウン・ツールチップ */
   --z-drawer: 30; /* NavigationDrawer オーバーレイ, LandingMenuDrawer */
   --z-drawer-panel: 31; /* NavigationDrawer パネル本体（オーバーレイより前面） */

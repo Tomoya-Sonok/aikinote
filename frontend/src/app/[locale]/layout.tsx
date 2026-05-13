@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { GlobalFetchIndicator } from "@/components/shared/GlobalFetchIndicator/GlobalFetchIndicator";
 import { OfflineBanner } from "@/components/shared/OfflineBanner/OfflineBanner";
 import { FontSizeProvider } from "@/components/shared/providers/FontSizeProvider";
 import { LocaleInitializer } from "@/components/shared/providers/LocaleInitializer";
@@ -43,6 +44,7 @@ export default async function LocaleLayout({
               単一 Context 参照に変換し、本番での getUserInfo 大量リクエスト問題を解消するため）。
             */}
             <AuthProvider>
+              <GlobalFetchIndicator />
               <OfflineBanner />
               <main
                 style={{ background: "var(--bg-base)", minHeight: "100vh" }}

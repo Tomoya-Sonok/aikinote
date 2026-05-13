@@ -7,7 +7,14 @@ import {
 } from "@phosphor-icons/react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 const ReportModal = dynamic(
   () =>
@@ -350,26 +357,47 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     [user?.id, showToast, t],
   );
 
+  // reply 編集の楽観的更新。useOptimistic は startTransition の中で addOptimisticReply を呼んだ時のみ
+  // 適用され、transition 終了時 (await mutation 完了) に real state (detail.replies) に自動で戻る。
+  // 失敗ケースは showToast で通知し、optimistic state は transition 終了で自動ロールバックされる。
+  const [optimisticReplies, addOptimisticReply] = useOptimistic(
+    detail?.replies ?? [],
+    (state: SocialReplyData[], edit: { id: string; content: string }) =>
+      state.map((r) =>
+        r.id === edit.id ? { ...r, content: edit.content } : r,
+      ),
+  );
+  const [, startReplyEditTransition] = useTransition();
+
   const handleReplyEdit = useCallback(
-    async (replyId: string, newContent: string) => {
-      try {
-        const editResult = await updateSocialReply({
-          postId,
-          replyId,
-          content: newContent,
+    (replyId: string, newContent: string): Promise<void> => {
+      // SocialReplyItem 側で await して編集 UI の閉じタイミング・処理中表示を制御するため、
+      // transition 完了を Promise で外に解決する形にする
+      return new Promise<void>((resolve) => {
+        startReplyEditTransition(async () => {
+          addOptimisticReply({ id: replyId, content: newContent });
+          try {
+            const editResult = await updateSocialReply({
+              postId,
+              replyId,
+              content: newContent,
+            });
+            if (editResult.success && editResult.warning) {
+              showToast(editResult.warning, "error");
+            }
+            const result = await getSocialPost(postId);
+            if (result.success && result.data) {
+              setDetail(result.data as PostDetailData);
+            }
+          } catch {
+            showToast(t("replyEditFailed"), "error");
+          } finally {
+            resolve();
+          }
         });
-        if (editResult.success && editResult.warning) {
-          showToast(editResult.warning, "error");
-        }
-        const result = await getSocialPost(postId);
-        if (result.success && result.data) {
-          setDetail(result.data as PostDetailData);
-        }
-      } catch {
-        showToast(t("replyEditFailed"), "error");
-      }
+      });
     },
-    [postId, showToast, t],
+    [postId, showToast, t, addOptimisticReply],
   );
 
   const handleReplyDelete = useCallback(
@@ -683,7 +711,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
       </div>
 
       <div className={styles.replies}>
-        {detail.replies
+        {optimisticReplies
           .filter(
             (r) => !r.is_deleted || isWithinDeleteDisplayWindow(r.updated_at),
           )

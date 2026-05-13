@@ -6,7 +6,13 @@ import {
   XIcon,
 } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
-import { forwardRef, useCallback, useImperativeHandle } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { SocialPostCard } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader/Loader";
@@ -56,7 +62,15 @@ export const SocialSearchResults = forwardRef<
   const t = useTranslations("socialPosts");
   const router = useRouter();
   const { showToast } = useToast();
-  const { results, isLoading, search, updateResult } = useSocialSearch(userId);
+  const {
+    results,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    search,
+    updateResult,
+  } = useSocialSearch(userId);
   const { handleToggleFavorite } = useSocialFavorite();
   const { history, addToHistory, removeFromHistory, clearHistory } =
     useSearchHistory();
@@ -70,6 +84,45 @@ export const SocialSearchResults = forwardRef<
     }),
     [search, addToHistory],
   );
+
+  // IntersectionObserver で無限スクロール。SocialPostsFeed と同じ ref-based パターン：
+  // 値の変化で observer を再生成すると検索条件変更時に取りこぼしが起きるため、
+  // loadMore / hasMore / isLoadingMore は ref 経由で参照し、observer は sentinel ノードのマウント時にのみ生成する
+  const loadMoreRef = useRef(loadMore);
+  loadMoreRef.current = loadMore;
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
+  const isLoadingMoreRef = useRef(isLoadingMore);
+  isLoadingMoreRef.current = isLoadingMore;
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const setSentinelRef = useCallback((node: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasMoreRef.current &&
+          !isLoadingMoreRef.current
+        ) {
+          loadMoreRef.current();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(node);
+    observerRef.current = observer;
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      observerRef.current?.disconnect();
+      observerRef.current = null;
+    };
+  }, []);
 
   const handleFavoriteToggle = useCallback(
     (postId: string) => {
@@ -232,16 +285,21 @@ export const SocialSearchResults = forwardRef<
       ) : isSearchActive && results.length === 0 ? (
         <p className={styles.empty}>{t("searchEmpty")}</p>
       ) : (
-        results.map((post) => (
-          <SocialPostCard
-            key={post.id}
-            post={post}
-            currentUserId={userId ?? ""}
-            onFavoriteToggle={handleFavoriteToggle}
-            onClick={handlePostClick}
-            onReport={handlePostReport}
-          />
-        ))
+        <>
+          {results.map((post) => (
+            <SocialPostCard
+              key={post.id}
+              post={post}
+              currentUserId={userId ?? ""}
+              onFavoriteToggle={handleFavoriteToggle}
+              onClick={handlePostClick}
+              onReport={handlePostReport}
+            />
+          ))}
+          <div ref={setSentinelRef} className={styles.sentinel}>
+            {isLoadingMore && <Loader size="large" centered />}
+          </div>
+        </>
       )}
     </div>
   );
