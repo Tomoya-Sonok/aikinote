@@ -400,7 +400,7 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 onChange={onImageSelect}
                 className={styles.fileInput}
               />
