@@ -1276,6 +1276,7 @@ export interface PageAttachmentRow {
   file_size_bytes: number | null; // ファイルサイズ（バイト）
   sort_order: number; // 表示順
   created_at: string; // timestamp
+  updated_at?: string; // timestamptz (migration 026 — DB 上は必須だが既存コード互換のため optional)
 }
 
 // ページ添付一覧取得関数
