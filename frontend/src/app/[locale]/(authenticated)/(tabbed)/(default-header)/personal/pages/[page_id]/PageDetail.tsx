@@ -12,7 +12,9 @@ import { Tag } from "@/components/shared/Tag/Tag";
 import { useToast } from "@/contexts/ToastContext";
 import { deletePage, togglePageVisibility } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
+import { useRequireOnline } from "@/lib/hooks/useRequireOnline";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 
 import { useRouter } from "@/lib/i18n/routing";
@@ -43,6 +45,8 @@ export function PageDetail() {
   const [isTogglingPublic, setTogglingPublic] = useState(false);
   const { isPremium } = useSubscription();
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const isOnline = useOnlineStatus();
+  const requireOnline = useRequireOnline();
 
   const handleBackToList = () => {
     router.push("/personal/pages");
@@ -50,6 +54,9 @@ export function PageDetail() {
 
   const handleTogglePublic = async () => {
     if (!pageData || !user?.id || isTogglingPublic) return;
+
+    // 公開切替は Supabase 必須操作。オフライン時は Toast で案内して中断
+    if (!requireOnline()) return;
 
     // Free ユーザーが ON にしようとした場合は PremiumUpgradeModal を表示
     if (!pageData.is_public && !isPremium) {
@@ -283,7 +290,7 @@ export function PageDetail() {
           </div>
         )}
 
-        {/* 公開範囲設定 */}
+        {/* 公開範囲設定 (Supabase 必須操作なのでオフライン時は disabled) */}
         <div className={styles.publicToggle}>
           <label className={styles.toggleLabel}>
             <span>{t("pageDetail.publicToggle")}</span>
@@ -291,8 +298,13 @@ export function PageDetail() {
               type="button"
               role="switch"
               aria-checked={pageData.is_public}
+              aria-disabled={!isOnline}
               className={`${styles.toggle} ${pageData.is_public ? styles.toggleOn : ""}`}
               onClick={handleTogglePublic}
+              disabled={!isOnline || isTogglingPublic}
+              title={
+                !isOnline ? t("offlineGuard.actionRequiresNetwork") : undefined
+              }
             >
               <span className={styles.toggleKnob} />
             </button>

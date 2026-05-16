@@ -22,6 +22,7 @@ import { updatePage } from "@/lib/api/personal-adapter";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
@@ -55,6 +56,7 @@ export function PageEdit() {
 
   // タグ管理
   const tagManagement = useTagManagement();
+  const isOnline = useOnlineStatus();
 
   // カテゴリ追加
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -347,7 +349,14 @@ export function PageEdit() {
                   variant="primary"
                   size="small"
                   onClick={handleAddCategory}
-                  disabled={isCreatingCategory || !newCategoryInput.trim()}
+                  disabled={
+                    isCreatingCategory || !newCategoryInput.trim() || !isOnline
+                  }
+                  title={
+                    !isOnline
+                      ? t("offlineGuard.actionRequiresNetwork")
+                      : undefined
+                  }
                 >
                   {t("pageModal.add")}
                 </Button>
@@ -357,7 +366,12 @@ export function PageEdit() {
                 type="button"
                 className={styles.addCategoryButton}
                 onClick={() => setShowAddCategory(true)}
-                disabled={!canAddCategory}
+                disabled={!canAddCategory || !isOnline}
+                title={
+                  !isOnline
+                    ? t("offlineGuard.actionRequiresNetwork")
+                    : undefined
+                }
               >
                 <PlusCircle size={16} weight="light" />
                 {t("tagManagement.addCategory")}

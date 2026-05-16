@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/shared/Button/Button";
 import { TagSelection } from "@/components/shared/TagSelection/TagSelection";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import type { UseTagManagementReturn } from "@/lib/hooks/useTagManagement";
 import styles from "./TagSectionWithNewInput.module.css";
 
@@ -24,6 +25,7 @@ export function TagSectionWithNewInput({
   tagManagement,
 }: TagSectionWithNewInputProps) {
   const t = useTranslations();
+  const isOnline = useOnlineStatus();
 
   const displayTitle = title ?? (titleKey ? t(titleKey) : category);
 
@@ -55,7 +57,12 @@ export function TagSectionWithNewInput({
             size="small"
             onClick={() => tagManagement.handleSubmitNewTag(category)}
             disabled={
-              tagManagement.loading || !tagManagement.newTagInput.trim()
+              tagManagement.loading ||
+              !tagManagement.newTagInput.trim() ||
+              !isOnline
+            }
+            title={
+              !isOnline ? t("offlineGuard.actionRequiresNetwork") : undefined
             }
           >
             {t("pageModal.add")}

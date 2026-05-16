@@ -1189,7 +1189,8 @@
   },
   "offlineGuard": {
     "message": "ネットワークが接続されている状態でしかご利用いただけません",
-    "retry": "再試行"
+    "retry": "再試行",
+    "actionRequiresNetwork": "この操作はネットに接続してからお試しください"
   },
   "syncStatus": {
     "running": "同期しています…",

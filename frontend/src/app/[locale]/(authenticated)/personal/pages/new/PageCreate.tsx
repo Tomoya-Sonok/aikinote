@@ -27,6 +27,7 @@ import { createPage } from "@/lib/api/personal-adapter";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
@@ -56,6 +57,7 @@ export function PageCreate() {
 
   const tagManagement = useTagManagement();
   const attachmentMgmt = useAttachmentManagement("page");
+  const isOnline = useOnlineStatus();
 
   // カテゴリ追加
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -348,7 +350,14 @@ export function PageCreate() {
                   variant="primary"
                   size="small"
                   onClick={handleAddCategory}
-                  disabled={isCreatingCategory || !newCategoryInput.trim()}
+                  disabled={
+                    isCreatingCategory || !newCategoryInput.trim() || !isOnline
+                  }
+                  title={
+                    !isOnline
+                      ? t("offlineGuard.actionRequiresNetwork")
+                      : undefined
+                  }
                 >
                   {t("pageModal.add")}
                 </Button>
@@ -358,7 +367,12 @@ export function PageCreate() {
                 type="button"
                 className={styles.addCategoryButton}
                 onClick={() => setShowAddCategory(true)}
-                disabled={!canAddCategory}
+                disabled={!canAddCategory || !isOnline}
+                title={
+                  !isOnline
+                    ? t("offlineGuard.actionRequiresNetwork")
+                    : undefined
+                }
               >
                 <PlusCircle size={16} weight="light" />
                 {t("tagManagement.addCategory")}
