@@ -1,35 +1,45 @@
-# Account Deletion Request
+# Account Deletion
 
-This page describes how to request deletion of your AikiNote account and the scope of data that is deleted or retained.
+This page describes how to delete your AikiNote account and the scope of data that is deleted or retained.
 
-## 1. How to request deletion
+## 1. Delete in the app (recommended)
 
-AikiNote's iOS / Android apps and the web version do not currently provide an in-app UI for self-service account deletion. Users who wish to delete their account can submit a request via the following procedure.
+AikiNote's iOS / Android apps and the web version allow you to fully delete your account in just a few taps. **No email or contact with our support team is required**, and all associated data is permanently removed at the same time.
+
+1. Sign in to AikiNote
+2. Open **"Settings"** from the menu at the bottom right of the screen
+3. Tap **"Delete account"** at the bottom of the settings list
+4. Review the data that will be deleted and check the consent checkbox
+5. Tap **"Delete account"**, then select **"Delete"** in the confirmation dialog
+
+Once deletion completes, you will be returned to the login screen and the same account can no longer be used to sign in.
+
+## 2. Fallback (if you cannot sign in)
+
+If you are unable to sign in to the app and therefore cannot use the in-app self-service deletion, you may request deletion via our contact form as a fallback.
 
 1. Open the [AikiNote contact form](https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog)
 2. In the subject (or at the beginning of the message), write **"Account Deletion Request"**
-3. Include the following in the body:
-   - The email address registered with AikiNote
-   - Your registered username (optional)
+3. Include the email address registered with AikiNote in the body
 4. Submit the form
 
 ※ Alternatively, you can email the same information directly to our support address **support@aikinote.com**.
 
-After verifying that the request matches the registered account, we will delete the account and associated data **within 7 business days of receipt**. A completion notice will be sent to your registered email address.
+After verifying that the request matches the registered account, we will delete the account and associated data **within 7 business days of receipt**.
 
-## 2. Data that will be deleted
+## 3. Data that will be deleted
 
-The following data will be deleted upon account deletion request:
+The following data will be deleted on account deletion (whether done in-app or via the form):
 
 - Profile information (username, display name, profile image, bio)
 - Authentication information (email address, Supabase Auth record, OAuth link information)
 - Training pages (all pages and attached images/videos created via the "Personal" feature)
-- Posts (all posts and replies created via the "Social" feature)
+- Posts (all posts, replies, and favorites created via the "Social" feature)
 - Tags, category settings, font size preferences, and other personal settings
-- Unread notifications, push notification tokens, search history
+- Unread notifications and push notification tokens
 - All image/video files stored on S3 / CloudFront
 
-## 3. Data that will be retained
+## 4. Data that will be retained
 
 The following data will be retained for a certain period after account deletion for legal compliance, fraud prevention, and accounting obligations.
 
@@ -39,17 +49,24 @@ The following data will be retained for a certain period after account deletion 
 - **Fraud records and access logs**
   - Retention period: 1 year
   - Reason: Investigation and prevention of fraudulent use
-- **Record of the deletion request itself (received via contact form)**
+- **Record of the deletion request itself (received via contact form)** (only when deletion was requested via the form)
   - Retention period: 2 years
   - Reason: Evidence that deletion was performed legitimately
 
 Retained data is either stored in an anonymized/aggregated form that cannot identify individuals, or encrypted and stored with the minimum necessary scope.
 
-## 4. Related policies
+## 5. About subscriptions
+
+If you are a Premium subscriber:
+
+- **Subscribed in-app (via Stripe)**: The subscription is cancelled at the same time as your account deletion.
+- **Subscribed via App Store / Google Play**: Billing will continue after the account deletion. Please cancel your subscription separately in the "Subscriptions" settings of the respective store.
+
+## 6. Related policies
 
 The procedures described on this page are based on Article 7 (User Rights) of the [Privacy Policy](/en/privacy). For more detailed information about how personal data is handled, please refer to the Privacy Policy.
 
-## 5. Contact
+## 7. Contact
 
 For questions about account deletion, please use the [contact form](https://docs.google.com/forms/d/e/1FAIpQLSfr11mzmwzwwXXULuoT4w8D57e9aAtUZa_9i8HDGAtDgjNxYw/viewform?usp=dialog) or email **support@aikinote.com**.
 

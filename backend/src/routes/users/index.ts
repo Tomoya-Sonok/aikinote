@@ -247,6 +247,100 @@ const sendVerificationEmail = async (
   }
 };
 
+// アカウント削除API (App Store Guideline 5.1.1(v) 対応)
+// 認証済みユーザー本人のすべてのデータと auth.users を完全削除する。
+app.delete("/me", authMiddleware, async (c) => {
+  const userId = c.get("userId");
+  const supabase = c.get("supabase");
+  if (!supabase) {
+    return c.json(
+      { success: false, error: "Supabase クライアント未初期化" },
+      500,
+    );
+  }
+
+  // 削除対象テーブルと user_id 相当カラム (FK 制約を考慮した順序)。
+  // CASCADE 効くものも明示削除して冪等性を確保する (0 件 hit でも安全)。
+  const deletionTargets: Array<{ table: string; column: string }> = [
+    { table: "Notification", column: "recipient_user_id" },
+    { table: "Notification", column: "actor_user_id" },
+    { table: "PostReport", column: "reporter_user_id" },
+    { table: "SocialFavorite", column: "user_id" },
+    { table: "SocialReply", column: "user_id" },
+    { table: "SocialPostAttachment", column: "user_id" },
+    { table: "SocialPost", column: "user_id" },
+    { table: "PageAttachment", column: "user_id" },
+    { table: "TrainingPageTag", column: "user_id" },
+    { table: "TrainingPage", column: "user_id" },
+    { table: "TrainingDate", column: "user_id" },
+    { table: "UserTag", column: "user_id" },
+    { table: "UserCategory", column: "user_id" },
+    { table: "TitleTemplate", column: "user_id" },
+    { table: "UserSubscription", column: "user_id" },
+    { table: "UserPublicityDojo", column: "user_id" },
+    { table: "UserPushToken", column: "user_id" },
+    { table: "UserNotificationPreference", column: "user_id" },
+    { table: "UserPracticeReminder", column: "user_id" },
+    { table: "UserExamGoal", column: "user_id" },
+    { table: "UserBlock", column: "blocker_user_id" },
+    { table: "UserBlock", column: "blocked_user_id" },
+  ];
+
+  const partialErrors: Array<{
+    table: string;
+    column: string;
+    message: string;
+  }> = [];
+
+  for (const { table, column } of deletionTargets) {
+    const { error } = await supabase.from(table).delete().eq(column, userId);
+    if (error) {
+      console.warn(
+        `[DELETE /users/me] ${table}.${column} 削除エラー (続行): ${error.message}`,
+      );
+      partialErrors.push({ table, column, message: error.message });
+    }
+  }
+
+  const { error: userDeleteError } = await supabase
+    .from("User")
+    .delete()
+    .eq("id", userId);
+  if (userDeleteError) {
+    console.error(
+      `[DELETE /users/me] User row 削除エラー: ${userDeleteError.message}`,
+    );
+    return c.json(
+      {
+        success: false,
+        error:
+          "アカウントの削除に失敗しました。時間をおいて再度お試しください。",
+      },
+      500,
+    );
+  }
+
+  const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+  if (authError) {
+    console.error(
+      `[DELETE /users/me] auth.admin.deleteUser エラー: ${authError.message}`,
+    );
+    return c.json(
+      {
+        success: false,
+        error: "認証情報の削除に失敗しました。サポートにお問い合わせください。",
+      },
+      500,
+    );
+  }
+
+  return c.json({
+    success: true,
+    data: { deleted_user_id: userId, partial_errors: partialErrors },
+    message: "アカウントを削除しました",
+  });
+});
+
 // ユーザー作成API
 app.post("/", async (c) => {
   let body: unknown;
