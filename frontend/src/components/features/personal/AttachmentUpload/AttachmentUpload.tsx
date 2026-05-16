@@ -5,10 +5,17 @@ import { useTranslations } from "next-intl";
 import type { FC } from "react";
 import { useCallback, useRef, useState } from "react";
 import { ATTACHMENT_MAX_COUNT } from "@/lib/aws-s3";
+import { useIsNativeApp } from "@/lib/hooks/useIsNativeApp";
 import { compressImage } from "@/lib/utils/compressImage";
 import type { AttachmentData } from "../AttachmentCard/AttachmentCard";
 import { AttachmentCard } from "../AttachmentCard/AttachmentCard";
 import styles from "./AttachmentUpload.module.css";
+
+// Web ブラウザでは画像 + 動画を受け付ける。ネイティブアプリ (Expo WebView) では
+// 動画のオフライン対応がストレージ負担の都合で未実装のため、画像のみに絞る。
+const ACCEPT_WEB =
+  "image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/quicktime,video/webm";
+const ACCEPT_NATIVE = "image/jpeg,image/jpg,image/png,image/webp";
 
 interface AttachmentUploadProps {
   attachments: AttachmentData[];
@@ -44,6 +51,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
   uploadType = "page-attachment",
 }) => {
   const t = useTranslations();
+  const isNative = useIsNativeApp();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const xhrRef = useRef<XMLHttpRequest | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -315,7 +323,7 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
         ref={fileInputRef}
         type="file"
         multiple
-        accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+        accept={isNative ? ACCEPT_NATIVE : ACCEPT_WEB}
         onChange={handleFileSelect}
         disabled={disabled || isUploading || isMaxReached}
         className={styles.hiddenInput}
@@ -328,9 +336,16 @@ export const AttachmentUpload: FC<AttachmentUploadProps> = ({
           className={styles.fileButton}
           onClick={handleUploadClick}
           disabled={disabled || isUploading || isMaxReached}
+          title={
+            isNative
+              ? t("pageModal.attachments.nativeVideoUnavailable")
+              : undefined
+          }
         >
           <ImageIcon size={16} />
-          <VideoCamera size={16} />
+          {/* ネイティブアプリでは動画アップロード未対応 (PR スコープ外) のため
+              VideoCamera アイコンは非表示にして UI を画像のみに見せる */}
+          {!isNative && <VideoCamera size={16} />}
           {t("pageModal.attachments.addFile")}
         </button>
       </div>

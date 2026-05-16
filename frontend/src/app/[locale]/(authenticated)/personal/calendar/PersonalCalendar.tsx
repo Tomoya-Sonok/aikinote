@@ -11,6 +11,7 @@ import { createPortal } from "react-dom";
 import { CalendarGrid } from "@/components/features/personal/CalendarGrid/CalendarGrid";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
+import { OfflineGuard } from "@/components/shared/OfflineGuard";
 import { useToast } from "@/contexts/ToastContext";
 import {
   getTrainingDatesMonth,
@@ -18,6 +19,8 @@ import {
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useIsNativeApp } from "@/lib/hooks/useIsNativeApp";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
@@ -141,6 +144,8 @@ export function PersonalCalendar() {
   const tRef = useRef(t);
   const { user, loading: authLoading } = useAuth();
   const { track } = useUmamiTrack();
+  const isOnline = useOnlineStatus();
+  const isNative = useIsNativeApp();
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -442,6 +447,13 @@ export function PersonalCalendar() {
   const actionTitle = selectedDateKey
     ? t("personalCalendar.actionTitle", { date: selectedDateKey })
     : "";
+
+  // ネイティブアプリ + オフライン時は専用ガード画面を表示。
+  // カレンダー操作 (出欠登録 / 試験目標 / リマインダー) はサーバー API 必須で
+  // ローカル算出に対応していないため、オフラインでは利用不可。
+  if (isNative && !isOnline) {
+    return <OfflineGuard />;
+  }
 
   return (
     <div className={styles.container}>

@@ -279,7 +279,8 @@
       "maxCountReached": "Maximum of 5 attachments allowed",
       "note": "Images: JPG/PNG/WebP (max 5MB), Videos: MP4/MOV/WebM (max 300MB), max 5 files",
       "cancelUpload": "Cancel",
-      "youtubeHint": "For long videos, upload to YouTube and paste the URL below"
+      "youtubeHint": "For long videos, upload to YouTube and paste the URL below",
+      "nativeVideoUnavailable": "The app currently supports image attachments only."
     }
   },
   "navigation": {
@@ -1183,5 +1184,9 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "processing": "Processing..."
+  },
+  "offlineGuard": {
+    "message": "This feature requires a network connection.",
+    "retry": "Retry"
   }
 }
