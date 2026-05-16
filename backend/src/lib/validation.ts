@@ -254,6 +254,7 @@ export const trainingDateResponseSchema = z.object({
   training_date: trainingDateStringSchema,
   is_attended: z.boolean(),
   created_at: z.string(),
+  updated_at: z.string().optional(),
 });
 
 export const trainingDatePageCountSchema = z.object({

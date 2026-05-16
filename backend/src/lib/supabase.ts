@@ -44,6 +44,7 @@ export interface UserTagRow {
   name: string; // text
   category: string; // text (取り、受け、技、カスタムカテゴリ)
   created_at: string; // timestamp
+  updated_at?: string; // timestamptz (migration 025 — DB 上は必須だが既存コード互換のため optional)
   sort_order: number | null; // 並び順（カテゴリ内）
 }
 
@@ -55,6 +56,7 @@ export interface UserCategoryRow {
   sort_order: number; // 並び順
   is_default: boolean; // デフォルト3カテゴリかどうか
   created_at: string; // timestamptz
+  updated_at?: string; // timestamptz (migration 025 — DB 上は必須だが既存コード互換のため optional)
 }
 
 export interface TitleTemplateRow {
@@ -70,6 +72,8 @@ export interface TrainingPageTagRow {
   id: string; // uuid PK
   training_page_id: string; // uuid FK
   user_tag_id: string; // uuid FK
+  created_at?: string; // timestamptz (migration 025 — DB DEFAULT で埋まるので insert 時は省略可)
+  updated_at?: string; // timestamptz (migration 025 — DB DEFAULT で埋まるので insert 時は省略可)
 }
 
 export interface TrainingDateRow {
@@ -78,6 +82,7 @@ export interface TrainingDateRow {
   training_date: string; // date
   is_attended: boolean; // 参加有無
   created_at: string; // timestamp
+  updated_at?: string; // timestamptz (migration 025 — DB 上は必須だが既存コード互換のため optional)
 }
 
 export interface TrainingDatePageCount {
