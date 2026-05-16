@@ -1190,5 +1190,10 @@
   "offlineGuard": {
     "message": "ネットワークが接続されている状態でしかご利用いただけません",
     "retry": "再試行"
+  },
+  "syncStatus": {
+    "running": "同期しています…",
+    "completed": "同期が完了しました",
+    "failed": "同期に失敗しました"
   }
 }

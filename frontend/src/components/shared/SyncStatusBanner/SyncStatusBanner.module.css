@@ -1,0 +1,44 @@
+.banner {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--white);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: var(--font-size-xs);
+  z-index: var(--z-toast);
+  max-width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.banner.error {
+  background: var(--white);
+  color: var(--error-color);
+  border-color: var(--error-color);
+}
+
+.message {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spinning {
+  animation: sync-banner-spin 1s linear infinite;
+}
+
+@keyframes sync-banner-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

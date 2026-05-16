@@ -69,6 +69,27 @@ type PendingResolver = (response: BridgeResponse<unknown>) => void;
 const pending = new Map<string, PendingResolver>();
 let handlerInstalled = false;
 
+// PERSONAL_SYNC_STATUS の back-channel 通知 (Native → Web) を受け取るリスナ。
+// SyncStatusBanner など UI 側で addSyncStatusListener を購読する。
+export interface SyncStatusPayload {
+  state: "idle" | "running" | "completed" | "failed";
+  scope?: "full" | "incremental" | "push-only";
+  pending?: number;
+  error?: string;
+}
+type SyncStatusListener = (status: SyncStatusPayload) => void;
+const syncStatusListeners = new Set<SyncStatusListener>();
+
+export function addSyncStatusListener(
+  listener: SyncStatusListener,
+): () => void {
+  syncStatusListeners.add(listener);
+  installResultHandler();
+  return () => {
+    syncStatusListeners.delete(listener);
+  };
+}
+
 export function isNativeApp(): boolean {
   if (typeof window === "undefined") return false;
   return !!(window as NativeWindow).__AIKINOTE_NATIVE_APP__;
@@ -118,6 +139,23 @@ function installResultHandler(): void {
           return;
         }
       }
+    }
+
+    // PERSONAL_SYNC_STATUS は back-channel (request/response 対ではない)。
+    // requestId は無いので、リスナ全員に配信する。
+    if (msg?.type === "PERSONAL_SYNC_STATUS") {
+      const status = msg.payload as SyncStatusPayload | undefined;
+      if (status) {
+        // Array.from で snapshot を作って iterate (TS の downlevelIteration 警告を回避)
+        for (const listener of Array.from(syncStatusListeners)) {
+          try {
+            listener(status);
+          } catch (error) {
+            console.warn("[native-bridge] SyncStatusListener エラー:", error);
+          }
+        }
+      }
+      return;
     }
 
     // PERSONAL 以外 (IAP / SUBSCRIPTION_STATUS / OAUTH_RESULT 等) は既存 handler に委譲
@@ -207,5 +245,6 @@ export async function callPersonalBridge<T = unknown>(
  */
 export function _resetBridgeForTest(): void {
   pending.clear();
+  syncStatusListeners.clear();
   handlerInstalled = false;
 }
