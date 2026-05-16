@@ -221,6 +221,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ネイティブ側は受信した access_token を supabase.auth.setSession に渡し、
   // SQLite ↔ Supabase の同期 (RLS 越し) で利用する。WebView ↔ Native は同一
   // プロセス間のメッセージで外部に出ないため、token をそのまま渡してよい。
+  //
+  // ⚠️ 重要: 初期化中 (isInitializing=true) の偽 null は送らない。
+  // useAuth の初期 state は user=null / isInitializing=true で始まり、その後
+  // session を取得して setUser する。本 effect の依存に user を入れているため
+  // 初期 mount 時に「user=null」の USER_INFO が一度発火してしまう。Native 側
+  // (旧版含む) はそれを「ログアウト」と誤認して supabase.auth.signOut() を
+  // 呼び、サーバー側 session を破棄するため、数秒後に WebView の token refresh
+  // が 401 になって強制ログアウトされる。Vercel に本変更が乗ると旧 build (#25)
+  // でも問題が解消する。
   useEffect(() => {
     if (typeof window === "undefined") return;
     const win = window as typeof window & {
@@ -228,6 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ReactNativeWebView?: { postMessage: (msg: string) => void };
     };
     if (!win.__AIKINOTE_NATIVE_APP__ || !win.ReactNativeWebView) return;
+    if (isInitializing) return;
 
     let cancelled = false;
     const send = async () => {
@@ -266,7 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [user, supabase]);
+  }, [user, supabase, isInitializing]);
 
   const signUp = useCallback(
     async (data: SignUpFormData): Promise<SignUpResponse> => {
