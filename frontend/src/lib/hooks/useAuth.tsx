@@ -217,24 +217,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [supabase]);
 
-  // ネイティブアプリにユーザー情報を通知（認証状態変化時）
+  // ネイティブアプリにユーザー情報を通知（認証状態変化時）。
+  // ネイティブ側は受信した access_token を supabase.auth.setSession に渡し、
+  // SQLite ↔ Supabase の同期 (RLS 越し) で利用する。WebView ↔ Native は同一
+  // プロセス間のメッセージで外部に出ないため、token をそのまま渡してよい。
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      (window as any).__AIKINOTE_NATIVE_APP__ &&
-      (window as any).ReactNativeWebView
-    ) {
-      (window as any).ReactNativeWebView.postMessage(
+    if (typeof window === "undefined") return;
+    const win = window as typeof window & {
+      __AIKINOTE_NATIVE_APP__?: boolean;
+      ReactNativeWebView?: { postMessage: (msg: string) => void };
+    };
+    if (!win.__AIKINOTE_NATIVE_APP__ || !win.ReactNativeWebView) return;
+
+    let cancelled = false;
+    const send = async () => {
+      let accessToken: string | null = null;
+      let refreshToken: string | null = null;
+      let expiresAt: number | null = null;
+      if (user) {
+        try {
+          const { data } = await supabase.auth.getSession();
+          accessToken = data.session?.access_token ?? null;
+          refreshToken = data.session?.refresh_token ?? null;
+          expiresAt = data.session?.expires_at ?? null;
+        } catch (error) {
+          console.warn(
+            "[useAuth] supabase.auth.getSession の取得に失敗:",
+            error,
+          );
+        }
+      }
+      if (cancelled || !win.ReactNativeWebView) return;
+      win.ReactNativeWebView.postMessage(
         JSON.stringify({
           type: "USER_INFO",
           payload: {
             profileImageUrl: user?.profile_image_url ?? null,
             userId: user?.id ?? null,
+            accessToken,
+            refreshToken,
+            expiresAt,
           },
         }),
       );
-    }
-  }, [user]);
+    };
+
+    void send();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, supabase]);
 
   const signUp = useCallback(
     async (data: SignUpFormData): Promise<SignUpResponse> => {
