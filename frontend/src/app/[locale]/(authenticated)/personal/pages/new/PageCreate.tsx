@@ -19,9 +19,11 @@ import { MAX_CATEGORIES, type TagLanguage } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
 import {
   type CreatePagePayload,
-  createPage,
   upsertTrainingDateAttendance,
 } from "@/lib/api/client";
+// 「ひとりで」のページ作成はネイティブ環境では SQLite (adapter 経由) に
+// 切り替わる。Web ブラウザでは isNative=false なので従来通り tRPC 経由。
+import { createPage } from "@/lib/api/personal-adapter";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";

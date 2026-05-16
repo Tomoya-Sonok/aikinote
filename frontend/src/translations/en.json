@@ -1188,5 +1188,10 @@
   "offlineGuard": {
     "message": "This feature requires a network connection.",
     "retry": "Retry"
+  },
+  "syncStatus": {
+    "running": "Syncing…",
+    "completed": "Sync completed",
+    "failed": "Sync failed"
   }
 }

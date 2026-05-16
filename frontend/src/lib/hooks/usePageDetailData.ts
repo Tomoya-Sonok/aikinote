@@ -1,7 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
-import { getAttachments, getPage } from "@/lib/api/client";
+// 「ひとりで」のページ詳細はネイティブ環境では SQLite (adapter 経由) に
+// 切り替わる。Web ブラウザでは isNative=false なので従来通り tRPC 経由。
+// 添付ファイルは PR5 (画像オフライン) と PR6 でブリッジ対応するが、現状は
+// 引き続き既存 client の getAttachments を使う (Native 環境では adapter 内で
+// remote へフォールバック)。
+import { getAttachments } from "@/lib/api/client";
+import { getPage } from "@/lib/api/personal-adapter";
 import { useAuth } from "@/lib/hooks/useAuth";
 import type { TrainingPageData } from "@/types/training";
 

@@ -16,7 +16,9 @@ import { TextArea } from "@/components/shared/TextArea/TextArea";
 import { TextInput } from "@/components/shared/TextInput/TextInput";
 import { MAX_CATEGORIES } from "@/constants/tags";
 import { useToast } from "@/contexts/ToastContext";
-import { updatePage } from "@/lib/api/client";
+// 「ひとりで」のページ更新はネイティブ環境では SQLite (adapter 経由) に
+// 切り替わる。Web ブラウザでは isNative=false なので従来通り tRPC 経由。
+import { updatePage } from "@/lib/api/personal-adapter";
 import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";

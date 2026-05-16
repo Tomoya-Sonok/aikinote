@@ -6,6 +6,7 @@ import { OfflineBanner } from "@/components/shared/OfflineBanner/OfflineBanner";
 import { FontSizeProvider } from "@/components/shared/providers/FontSizeProvider";
 import { LocaleInitializer } from "@/components/shared/providers/LocaleInitializer";
 import { QueryProvider } from "@/components/shared/providers/QueryProvider";
+import { SyncStatusBanner } from "@/components/shared/SyncStatusBanner";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { AuthProvider } from "@/lib/hooks/useAuth";
 import { routing } from "@/lib/i18n/routing";
@@ -46,6 +47,7 @@ export default async function LocaleLayout({
             <AuthProvider>
               <GlobalFetchIndicator />
               <OfflineBanner />
+              <SyncStatusBanner />
               <main
                 style={{ background: "var(--bg-base)", minHeight: "100vh" }}
               >
