@@ -4,10 +4,13 @@ import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInput";
+import { OfflineGuard } from "@/components/shared/OfflineGuard";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
 import { getCategories } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useIsNativeApp } from "@/lib/hooks/useIsNativeApp";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
 import type { UserCategory } from "@/types/category";
@@ -84,6 +87,8 @@ function computeDuration(firstDate: string | null): {
 export function PersonalStats() {
   const t = useTranslations("premiumModalStats");
   const { isPremium, loading: subLoading } = useSubscription();
+  const isOnline = useOnlineStatus();
+  const isNative = useIsNativeApp();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showPreviewLock, setShowPreviewLock] = useState(false);
 
@@ -104,6 +109,14 @@ export function PersonalStats() {
     setShowUpgradeModal(false);
     setShowPreviewLock(true);
   }, []);
+
+  // ネイティブアプリ + オフライン時は専用ガード画面を表示。
+  // 統計はサーバー集計が必須でローカル算出に対応していないため、
+  // 「ひとりで」のページ閲覧と違ってオフラインでは利用不可。
+  // 注意: すべての hooks 呼び出しの後に早期 return すること
+  if (isNative && !isOnline) {
+    return <OfflineGuard />;
+  }
 
   if (isPremium) {
     return <PersonalStatsContent />;

@@ -279,7 +279,8 @@
       "maxCountReached": "添付ファイルは5件までです",
       "note": "画像: JPG/PNG/WebP（最大5MB）、動画: MP4/MOV/WebM（最大300MB）、上限5件",
       "cancelUpload": "キャンセル",
-      "youtubeHint": "長い動画はYouTubeにアップロードしてURLを貼り付けてください"
+      "youtubeHint": "長い動画はYouTubeにアップロードしてURLを貼り付けてください",
+      "nativeVideoUnavailable": "アプリ版では現在、画像のみ添付できます"
     }
   },
   "navigation": {
@@ -1185,5 +1186,9 @@
     "confirm": "確定",
     "cancel": "キャンセル",
     "processing": "処理中..."
+  },
+  "offlineGuard": {
+    "message": "ネットワークが接続されている状態でしかご利用いただけません",
+    "retry": "再試行"
   }
 }
