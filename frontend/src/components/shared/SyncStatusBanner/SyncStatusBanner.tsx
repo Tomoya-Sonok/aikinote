@@ -8,6 +8,7 @@ import {
   type SyncStatusPayload,
 } from "@/lib/api/native-bridge";
 import { useIsNativeApp } from "@/lib/hooks/useIsNativeApp";
+import { useSyncQueryInvalidator } from "@/lib/hooks/useSyncQueryInvalidator";
 import styles from "./SyncStatusBanner.module.css";
 
 /**
@@ -22,6 +23,8 @@ import styles from "./SyncStatusBanner.module.css";
  */
 export function SyncStatusBanner() {
   const isNative = useIsNativeApp();
+  // Pull 完了で関連 TanStack Query を invalidate (race condition 対策)
+  useSyncQueryInvalidator();
   const t = useTranslations("syncStatus");
   const [status, setStatus] = useState<SyncStatusPayload | null>(null);
   const [visible, setVisible] = useState(false);
