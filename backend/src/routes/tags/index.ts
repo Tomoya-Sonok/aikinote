@@ -20,6 +20,7 @@ export const tagSchema = z.object({
   category: z.string(),
   user_id: z.string(),
   created_at: z.string(),
+  updated_at: z.string().optional(),
   sort_order: z.number().nullable().optional(),
 });
 

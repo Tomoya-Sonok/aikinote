@@ -21,6 +21,7 @@ export const categorySchema = z.object({
   sort_order: z.number(),
   is_default: z.boolean(),
   created_at: z.string(),
+  updated_at: z.string().optional(),
 });
 
 export const createCategorySchema = z.object({
