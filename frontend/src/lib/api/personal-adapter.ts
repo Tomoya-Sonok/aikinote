@@ -202,18 +202,11 @@ export async function togglePageVisibility(
   userId: string,
   isPublic: boolean,
 ) {
-  return bridgeOrRemote(
-    async () => {
-      await callPersonalBridge<{ localId: string; isPublic: boolean }>(
-        "PERSONAL_PAGES_TOGGLE_VISIBILITY",
-        { pageId, userId, isPublic },
-      );
-      return { success: true } as unknown as RemoteResult<
-        typeof remote.togglePageVisibility
-      >;
-    },
-    () => remote.togglePageVisibility(pageId, userId, isPublic),
-  );
+  // 公開切替はネットワーク必須仕様 (UI 側で useRequireOnline によりガード済み)。
+  // SQLite ローカル更新は行わず、必ず Supabase に PUT する。
+  // PERSONAL_PAGES_TOGGLE_VISIBILITY ハンドラ自体は後方互換 + 将来再利用のため
+  // Native 側に残してあるが、Web からは呼ばない。
+  return remote.togglePageVisibility(pageId, userId, isPublic);
 }
 
 // ============================== Tags ==============================

@@ -248,6 +248,11 @@
   background: var(--active-color);
 }
 
+.toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .toggleKnob {
   position: absolute;
   top: 2px;

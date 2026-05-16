@@ -29,6 +29,8 @@ import {
   updateTagOrder,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
+import { useRequireOnline } from "@/lib/hooks/useRequireOnline";
 import type { UserCategory } from "@/types/category";
 import styles from "./TagManagement.module.css";
 
@@ -106,6 +108,8 @@ export function TagManagement({ locale }: TagManagementProps) {
   const t = useTranslations();
   const { showToast } = useToast();
   const { user } = useAuth();
+  const isOnline = useOnlineStatus();
+  const requireOnline = useRequireOnline();
 
   const [categories, setCategories] = useState<UserCategory[]>([]);
   const [tagGroups, setTagGroups] = useState<TagGroupMap>({});
@@ -240,6 +244,7 @@ export function TagManagement({ locale }: TagManagementProps) {
       showToast(t("tagManagement.authRequired"), "error");
       return;
     }
+    if (!requireOnline()) return;
 
     const inputValue = (newTagInputs[category] ?? "").trim();
 
@@ -297,6 +302,7 @@ export function TagManagement({ locale }: TagManagementProps) {
     if (!user?.id || deletingTagId) {
       return;
     }
+    if (!requireOnline()) return;
 
     setDeletingTagId(tagId);
 
@@ -521,6 +527,7 @@ export function TagManagement({ locale }: TagManagementProps) {
 
   const handleSaveOrder = async (category: string) => {
     if (!user?.id || !hasOrderChanged(category)) return;
+    if (!requireOnline()) return;
 
     const payload: UpdateTagOrderPayload = {
       user_id: user.id,
@@ -560,6 +567,7 @@ export function TagManagement({ locale }: TagManagementProps) {
   // カテゴリ操作
   const handleCreateCategory = async () => {
     if (!user?.id) return;
+    if (!requireOnline()) return;
     const trimmed = newCategoryInput.trim();
     if (!trimmed) return;
     if (trimmed.length > 10) {
@@ -612,6 +620,7 @@ export function TagManagement({ locale }: TagManagementProps) {
 
   const handleSaveEditCategory = async () => {
     if (!user?.id || !editingCategoryId) return;
+    if (!requireOnline()) return;
     const trimmed = editCategoryInput.trim();
     if (!trimmed || trimmed.length > 10) return;
 
@@ -645,6 +654,7 @@ export function TagManagement({ locale }: TagManagementProps) {
 
   const handleConfirmDeleteCategory = async () => {
     if (!user?.id || !deleteCategoryTarget) return;
+    if (!requireOnline()) return;
 
     setIsDeletingCategory(true);
     try {
@@ -725,7 +735,12 @@ export function TagManagement({ locale }: TagManagementProps) {
                           variant="primary"
                           size="small"
                           onClick={handleSaveEditCategory}
-                          disabled={!editCategoryInput.trim()}
+                          disabled={!editCategoryInput.trim() || !isOnline}
+                          title={
+                            !isOnline
+                              ? t("offlineGuard.actionRequiresNetwork")
+                              : undefined
+                          }
                         >
                           {t("tagManagement.saveOrder")}
                         </Button>
@@ -743,6 +758,12 @@ export function TagManagement({ locale }: TagManagementProps) {
                             className={styles.categoryEditButton}
                             onClick={() => handleStartEditCategory(cat)}
                             aria-label={`Edit category ${cat.name}`}
+                            disabled={!isOnline}
+                            title={
+                              !isOnline
+                                ? t("offlineGuard.actionRequiresNetwork")
+                                : undefined
+                            }
                           >
                             <PencilSimple size={16} />
                           </button>
@@ -751,6 +772,12 @@ export function TagManagement({ locale }: TagManagementProps) {
                             className={styles.categoryDeleteButton}
                             onClick={() => setDeleteCategoryTarget(cat)}
                             aria-label={`Delete category ${cat.name}`}
+                            disabled={!isOnline}
+                            title={
+                              !isOnline
+                                ? t("offlineGuard.actionRequiresNetwork")
+                                : undefined
+                            }
                           >
                             <Trash size={16} color="var(--error-color)" />
                           </button>
@@ -759,7 +786,12 @@ export function TagManagement({ locale }: TagManagementProps) {
                               variant="primary"
                               size="small"
                               onClick={() => handleSaveOrder(cat.name)}
-                              disabled={!orderChanged || isSaving}
+                              disabled={!orderChanged || isSaving || !isOnline}
+                              title={
+                                !isOnline
+                                  ? t("offlineGuard.actionRequiresNetwork")
+                                  : undefined
+                              }
                             >
                               {isSaving
                                 ? t("tagManagement.orderSaving")
@@ -838,6 +870,12 @@ export function TagManagement({ locale }: TagManagementProps) {
                                   handleDeleteTag(cat.name, tag.id)
                                 }
                                 aria-label={`Delete tag ${tag.name}`}
+                                disabled={!isOnline}
+                                title={
+                                  !isOnline
+                                    ? t("offlineGuard.actionRequiresNetwork")
+                                    : undefined
+                                }
                               >
                                 <X
                                   size={12}
@@ -879,7 +917,12 @@ export function TagManagement({ locale }: TagManagementProps) {
                       variant="primary"
                       size="small"
                       onClick={() => handleCreateTag(cat.name)}
-                      disabled={isSubmitting || !inputValue.trim()}
+                      disabled={isSubmitting || !inputValue.trim() || !isOnline}
+                      title={
+                        !isOnline
+                          ? t("offlineGuard.actionRequiresNetwork")
+                          : undefined
+                      }
                     >
                       {t("pageModal.add")}
                     </Button>
@@ -910,7 +953,13 @@ export function TagManagement({ locale }: TagManagementProps) {
                   disabled={
                     isCreatingCategory ||
                     !newCategoryInput.trim() ||
-                    remainingCategories <= 0
+                    remainingCategories <= 0 ||
+                    !isOnline
+                  }
+                  title={
+                    !isOnline
+                      ? t("offlineGuard.actionRequiresNetwork")
+                      : undefined
                   }
                 >
                   {t("tagManagement.addCategory")}
