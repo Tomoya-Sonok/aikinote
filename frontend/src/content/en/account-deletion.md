@@ -6,15 +6,13 @@ This page describes how to delete your AikiNote account and the scope of data th
 
 AikiNote's iOS / Android apps and the web version allow you to fully delete your account in just a few taps. **No email or contact with our support team is required**, and all associated data is permanently removed at the same time.
 
-1. Sign in to AikiNote
-2. Open **"Settings"** from the menu at the bottom right of the screen
-3. Tap **"Delete account"** at the bottom of the settings list
-4. Review the data that will be deleted and check the consent checkbox
-5. Tap **"Delete account"**, then select **"Delete"** in the confirmation dialog
+If you are signed in, open the "Delete account" page from the link below. Follow the on-screen instructions, check the consent checkbox, and press the **"Delete account"** button to complete deletion.
+
+[**Open the account deletion page**](/en/settings/account-deletion)
 
 Once deletion completes, you will be returned to the login screen and the same account can no longer be used to sign in.
 
-## 2. Fallback (if you cannot sign in)
+## 2. If you cannot sign in
 
 If you are unable to sign in to the app and therefore cannot use the in-app self-service deletion, you may request deletion via our contact form as a fallback.
 

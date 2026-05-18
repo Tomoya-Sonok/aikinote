@@ -207,8 +207,7 @@
     "blockedUsers": "ブロック中のユーザー",
     "blockedUsersDescription": "ブロックしたユーザーの投稿はあなたのフィードに表示されなくなります。",
     "blockedUsersEmpty": "ブロック中のユーザーはいません",
-    "unblockButton": "解除",
-    "accountDeletion": "アカウント削除"
+    "unblockButton": "解除"
   },
   "accountDeletion": {
     "title": "アカウント削除",
@@ -216,14 +215,13 @@
     "dataListTitle": "削除されるデータ",
     "dataItem": {
       "profile": "プロフィール情報（ユーザー名、表示名、自己紹介、プロフィール画像）",
-      "auth": "認証情報（メールアドレス、OAuth 連携、Supabase Auth レコード）",
-      "trainingPages": "稽古ページとその添付画像・動画",
+      "auth": "メールアドレス等の認証情報",
+      "trainingPages": "稽古記録ページとその添付画像および動画",
       "socialPosts": "「みんなで」で投稿したすべての投稿および返信、いいね",
       "tagsCategories": "タグ、カテゴリ、表示設定などの個人設定",
-      "notifications": "通知履歴・プッシュ通知トークン",
-      "attachments": "S3 上のすべての画像・動画ファイル"
+      "notifications": "通知履歴・プッシュ通知トークン"
     },
-    "subscriptionWarning": "Premium プランに加入中です。アプリ内のサブスクリプション登録（Stripe 経由）は削除と同時に解除されます。App Store / Google Play 経由で加入している場合は、ご利用のストアの「サブスクリプション」設定から別途キャンセルしてください。",
+    "subscriptionWarning": "⚠️ Premium プランに加入中です。アプリ内のサブスクリプション登録（Stripe 経由）は削除と同時に解除されます。App Store / Google Play 経由で加入している場合は、ご利用のストアの「サブスクリプション」設定から別途キャンセルしてください。",
     "irreversibleNotice": "この操作は取り消せません。削除されたデータは復元できません。",
     "agreeLabel": "上記の内容を理解し、アカウントを削除することに同意します",
     "deleteButton": "アカウントを削除する",

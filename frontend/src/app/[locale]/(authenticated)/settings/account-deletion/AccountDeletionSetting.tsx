@@ -53,7 +53,6 @@ export function AccountDeletionSetting({
     t("accountDeletion.dataItem.socialPosts"),
     t("accountDeletion.dataItem.tagsCategories"),
     t("accountDeletion.dataItem.notifications"),
-    t("accountDeletion.dataItem.attachments"),
   ];
 
   const handleDelete = async () => {

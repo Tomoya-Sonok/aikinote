@@ -207,8 +207,7 @@
     "blockedUsers": "Blocked users",
     "blockedUsersDescription": "Posts from blocked users will not appear in your feed.",
     "blockedUsersEmpty": "No blocked users",
-    "unblockButton": "Unblock",
-    "accountDeletion": "Delete account"
+    "unblockButton": "Unblock"
   },
   "accountDeletion": {
     "title": "Delete account",
@@ -216,14 +215,13 @@
     "dataListTitle": "Data that will be deleted",
     "dataItem": {
       "profile": "Profile information (username, display name, bio, profile image)",
-      "auth": "Authentication info (email address, OAuth links, Supabase Auth record)",
-      "trainingPages": "Training pages and their attached images/videos",
+      "auth": "Authentication info such as your email address",
+      "trainingPages": "Training record pages and their attached images and videos",
       "socialPosts": "All social posts, replies, and favorites",
       "tagsCategories": "Tags, categories, display preferences, and other personal settings",
-      "notifications": "Notification history and push notification tokens",
-      "attachments": "All image and video files stored on S3"
+      "notifications": "Notification history and push notification tokens"
     },
-    "subscriptionWarning": "You are currently on the Premium plan. Subscriptions registered in the app (via Stripe) will be cancelled at the same time as the account deletion. If you subscribed via the App Store or Google Play, you will need to cancel that subscription separately in the store's Subscription settings.",
+    "subscriptionWarning": "⚠️ You are currently on the Premium plan. Subscriptions registered in the app (via Stripe) will be cancelled at the same time as the account deletion. If you subscribed via the App Store or Google Play, you will need to cancel that subscription separately in the store's Subscription settings.",
     "irreversibleNotice": "This action cannot be undone. Deleted data cannot be recovered.",
     "agreeLabel": "I understand the above and agree to delete my account",
     "deleteButton": "Delete account",
