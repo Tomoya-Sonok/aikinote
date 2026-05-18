@@ -1,5 +1,7 @@
 import {
   DeleteObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
@@ -130,6 +132,65 @@ export async function deleteFileFromS3(fileKey: string): Promise<void> {
   });
 
   await getS3Client().send(command);
+}
+
+// users/{userId}/ プレフィックス配下の全 S3 オブジェクトを削除。
+// App Store Guideline 5.1.1(v) アカウント削除フロー用。
+// 1000 オブジェクト/リクエスト上限を超える場合は NextContinuationToken でループ。
+export async function deleteAllUserObjects(userId: string): Promise<{
+  totalDeleted: number;
+  errors: number;
+}> {
+  if (!userId) {
+    throw new Error("userId is required");
+  }
+  const { bucketName } = loadAwsConfig();
+  const prefix = `users/${userId}/`;
+  const client = getS3Client();
+
+  let totalDeleted = 0;
+  let errors = 0;
+  let continuationToken: string | undefined;
+
+  do {
+    const listResponse = await client.send(
+      new ListObjectsV2Command({
+        Bucket: bucketName,
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+      }),
+    );
+    const objects = listResponse.Contents ?? [];
+    if (objects.length === 0) break;
+
+    const keys = objects
+      .filter((obj): obj is { Key: string } => typeof obj.Key === "string")
+      .map((obj) => ({ Key: obj.Key }));
+
+    if (keys.length > 0) {
+      const deleteResponse = await client.send(
+        new DeleteObjectsCommand({
+          Bucket: bucketName,
+          Delete: { Objects: keys, Quiet: true },
+        }),
+      );
+      const failureCount = deleteResponse.Errors?.length ?? 0;
+      totalDeleted += keys.length - failureCount;
+      errors += failureCount;
+      if (failureCount > 0) {
+        console.warn(
+          `[deleteAllUserObjects] ${failureCount} 件削除失敗`,
+          deleteResponse.Errors,
+        );
+      }
+    }
+
+    continuationToken = listResponse.IsTruncated
+      ? listResponse.NextContinuationToken
+      : undefined;
+  } while (continuationToken);
+
+  return { totalDeleted, errors };
 }
 
 // S3 URLからファイルキーを抽出

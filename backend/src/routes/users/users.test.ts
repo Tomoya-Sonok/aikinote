@@ -616,3 +616,119 @@ describe("ユーザープロフィールAPI", () => {
     });
   });
 });
+
+describe("アカウント削除API (DELETE /me)", () => {
+  let app: Hono;
+  let validToken: string;
+  let mockDeleteEq: ReturnType<typeof vi.fn>;
+  let mockUserDeleteEq: ReturnType<typeof vi.fn>;
+  let mockAuthAdminDeleteUser: ReturnType<typeof vi.fn>;
+  const testUserId = "550e8400-e29b-41d4-a716-446655440000";
+
+  beforeEach(async () => {
+    mockDeleteEq = vi.fn().mockResolvedValue({ error: null });
+    mockUserDeleteEq = vi.fn().mockResolvedValue({ error: null });
+    mockAuthAdminDeleteUser = vi.fn().mockResolvedValue({ error: null });
+
+    const mockSupabaseForDelete = {
+      from: vi.fn((table: string) => ({
+        delete: vi.fn(() => ({
+          eq: table === "User" ? mockUserDeleteEq : mockDeleteEq,
+        })),
+      })),
+      auth: {
+        admin: { deleteUser: mockAuthAdminDeleteUser },
+      },
+    } as unknown as SupabaseClient;
+
+    app = new Hono();
+    app.use("*", async (c, next) => {
+      c.set("supabase" as never, mockSupabaseForDelete);
+      await next();
+    });
+    app.route("/api/users", usersRoute);
+
+    validToken = await generateToken(
+      { userId: testUserId, email: "test@example.com" },
+      { JWT_SECRET: process.env.JWT_SECRET },
+    );
+  });
+
+  test("認証ヘッダーが無い場合は401エラーを返す", async () => {
+    // Arrange & Act
+    const response = await app.request("/api/users/me", { method: "DELETE" });
+
+    // Assert
+    expect(response.status).toBe(401);
+  });
+
+  test("認証済みリクエストで関連テーブル削除 + User row + auth.admin.deleteUser が呼ばれる", async () => {
+    // Act
+    const response = await app.request("/api/users/me", {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${validToken}` },
+    });
+
+    // Assert
+    expect(response.status).toBe(200);
+    // deletionTargets は 22 件
+    expect(mockDeleteEq).toHaveBeenCalledTimes(22);
+    expect(mockUserDeleteEq).toHaveBeenCalledWith("id", testUserId);
+    expect(mockAuthAdminDeleteUser).toHaveBeenCalledWith(testUserId);
+
+    const body = await response.json();
+    expect(body.success).toBe(true);
+    expect(body.data.deleted_user_id).toBe(testUserId);
+  });
+
+  test("User row 削除が失敗すると500エラーで auth.admin.deleteUser は呼ばれない", async () => {
+    // Arrange
+    mockUserDeleteEq.mockResolvedValueOnce({
+      error: { message: "permission denied" },
+    });
+
+    // Act
+    const response = await app.request("/api/users/me", {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${validToken}` },
+    });
+
+    // Assert
+    expect(response.status).toBe(500);
+    expect(mockAuthAdminDeleteUser).not.toHaveBeenCalled();
+  });
+
+  test("auth.admin.deleteUser が失敗すると500エラー", async () => {
+    // Arrange
+    mockAuthAdminDeleteUser.mockResolvedValueOnce({
+      error: { message: "auth admin failed" },
+    });
+
+    // Act
+    const response = await app.request("/api/users/me", {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${validToken}` },
+    });
+
+    // Assert
+    expect(response.status).toBe(500);
+  });
+
+  test("関連テーブル削除の一部が失敗しても続行され、User row 削除と auth 削除は実行される", async () => {
+    // Arrange: 最初の DELETE だけ失敗
+    mockDeleteEq.mockResolvedValueOnce({
+      error: { message: "table not found" },
+    });
+
+    // Act
+    const response = await app.request("/api/users/me", {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${validToken}` },
+    });
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(mockUserDeleteEq).toHaveBeenCalled();
+    expect(mockAuthAdminDeleteUser).toHaveBeenCalledWith(testUserId);
+  });
+});
