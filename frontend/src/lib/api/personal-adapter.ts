@@ -62,6 +62,21 @@ interface SQLiteCategoryRow {
 }
 
 /**
+ * ネイティブ側 handler が shapeAttachmentForWeb で整形して返す添付行。
+ * url は local_uri (file://) または remote_url (CloudFront) に解決済み。
+ */
+interface SQLiteAttachmentRow {
+  local_id: string;
+  server_id: string | null;
+  page_local_id: string;
+  type: "image" | "video" | "youtube";
+  url: string | null;
+  thumbnail_url: string | null;
+  original_filename: string | null;
+  file_size_bytes: number | null;
+}
+
+/**
  * Bridge が NOT_IMPLEMENTED や TIMEOUT を返したときに remote (tRPC) に
  * 暫定フォールバックする helper。
  * 同期エンジン (PR4) と画像オフライン (PR5) が揃うまでは、各種ハンドラの
@@ -96,21 +111,22 @@ type RemoteResult<F extends (...args: never[]) => unknown> = Awaited<
 export async function getPages(params: GetPagesParams) {
   return bridgeOrRemote(
     async () => {
-      const rows = await callPersonalBridge<SQLitePageRow[]>(
-        "PERSONAL_PAGES_LIST",
-        {
-          userId: params.userId,
-          limit: params.limit,
-          offset: params.offset,
-          query: params.query,
-          startDate: params.startDate,
-          endDate: params.endDate,
-          sortOrder: params.sortOrder,
-        },
-      );
-      // remote の戻り値型に合わせるためキャストする。SQLite 側ハンドラは
-      // tags/attachments を未同梱なので、PR6 で正規化を完成させる時に
-      // ハンドラ拡張 + 厳密化する予定。
+      const rows = await callPersonalBridge<
+        Array<
+          SQLitePageRow & {
+            tags?: SQLiteTagRow[];
+            attachments?: SQLiteAttachmentRow[];
+          }
+        >
+      >("PERSONAL_PAGES_LIST", {
+        userId: params.userId,
+        limit: params.limit,
+        offset: params.offset,
+        query: params.query,
+        startDate: params.startDate,
+        endDate: params.endDate,
+        sortOrder: params.sortOrder,
+      });
       return normalizePagesListResponse(
         rows,
         params,
@@ -124,14 +140,21 @@ export async function getPage(pageId: string, userId: string) {
   return bridgeOrRemote(
     async () => {
       const row = await callPersonalBridge<
-        SQLitePageRow & { tags: SQLiteTagRow[] }
+        SQLitePageRow & {
+          tags: SQLiteTagRow[];
+          attachments?: SQLiteAttachmentRow[];
+        }
       >("PERSONAL_PAGES_GET", { pageId, userId });
       return {
         success: true,
         data: {
           page: normalizePageRow(row),
-          tags: row.tags.map((tag) => ({ id: tag.local_id, name: tag.name })),
-          attachments: [],
+          tags: row.tags.map((tag) => ({
+            id: tag.local_id,
+            name: tag.name,
+            category: tag.category,
+          })),
+          attachments: (row.attachments ?? []).map(normalizeAttachmentRow),
         },
       } as unknown as RemoteResult<typeof remote.getPage>;
     },
@@ -296,7 +319,12 @@ function normalizePageRow(row: SQLitePageRow) {
 }
 
 function normalizePagesListResponse(
-  rows: SQLitePageRow[],
+  rows: Array<
+    SQLitePageRow & {
+      tags?: SQLiteTagRow[];
+      attachments?: SQLiteAttachmentRow[];
+    }
+  >,
   params: GetPagesParams,
 ) {
   return {
@@ -304,12 +332,30 @@ function normalizePagesListResponse(
     data: {
       training_pages: rows.map((row) => ({
         page: normalizePageRow(row),
-        tags: [], // PR6 で N+1 解消（ハンドラ側で JOIN）
-        attachments: [], // PR5 で実装
+        // ネイティブ ハンドラが JOIN 済みで返してくる tags / attachments を
+        // そのまま使う。後方互換のため undefined のときは空配列に倒す。
+        tags: (row.tags ?? []).map((tag) => ({
+          id: tag.local_id,
+          name: tag.name,
+          category: tag.category,
+        })),
+        attachments: (row.attachments ?? []).map(normalizeAttachmentRow),
       })),
       total_count: rows.length, // 簡易: limit 内の件数。PR6 で正確な総数取得を実装
       offset: params.offset ?? 0,
       limit: params.limit ?? rows.length,
     },
+  };
+}
+
+function normalizeAttachmentRow(row: SQLiteAttachmentRow) {
+  return {
+    id: row.server_id ?? row.local_id,
+    type: row.type,
+    // ネイティブ側 shapeAttachmentForWeb で local_uri (file://) または
+    // remote_url (CloudFront) に解決済み。null の場合は表示時に handle される
+    url: row.url ?? "",
+    thumbnail_url: row.thumbnail_url,
+    original_filename: row.original_filename,
   };
 }
