@@ -12,7 +12,7 @@ If you are signed in, open the "Delete account" page from the link below. Follow
 
 Once deletion completes, you will be returned to the login screen and the same account can no longer be used to sign in.
 
-## 2. Fallback (if you cannot sign in)
+## 2. If you cannot sign in
 
 If you are unable to sign in to the app and therefore cannot use the in-app self-service deletion, you may request deletion via our contact form as a fallback.
 
