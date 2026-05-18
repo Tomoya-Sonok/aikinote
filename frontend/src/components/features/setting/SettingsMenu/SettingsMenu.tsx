@@ -51,12 +51,6 @@ export const SettingsMenu: FC<SettingsMenuProps> = ({ className = "" }) => {
       >
         {t("settings.blockedUsers")}
       </SettingItem>
-      <SettingItem
-        onClick={() => router.push(`/${locale}/settings/account-deletion`)}
-        variant="danger"
-      >
-        {t("settings.accountDeletion")}
-      </SettingItem>
     </div>
   );
 };
