@@ -165,7 +165,7 @@
         },
         "mobileApp": {
           "question": "Is there no smartphone app?",
-          "answer": "Currently, you can access it directly from a web browser. Adding it to your smartphone's home screen lets you use it like an app. iOS and Android apps are also currently in development. We will notify you at your registered email address once they are released."
+          "answer": "Currently, you can access it directly from a web browser. Adding it to your smartphone's home screen lets you use it like an app. A mobile app is also currently in development. We will notify you at your registered email address once it is released."
         },
         "differentStyles": {
           "question": "Won't there be clashes of opinions between people from different styles or instructors?",
@@ -221,7 +221,7 @@
       "tagsCategories": "Tags, categories, display preferences, and other personal settings",
       "notifications": "Notification history and push notification tokens"
     },
-    "subscriptionWarning": "⚠️ You are currently on the Premium plan. Subscriptions registered in the app (via Stripe) will be cancelled at the same time as the account deletion. If you subscribed via the App Store or Google Play, you will need to cancel that subscription separately in the store's Subscription settings.",
+    "subscriptionWarning": "⚠️ You are currently on the Premium plan. Subscriptions registered in the app will be cancelled at the same time as the account deletion. If you subscribed via another platform, please cancel separately in that platform's subscription settings.",
     "irreversibleNotice": "This action cannot be undone. Deleted data cannot be recovered.",
     "agreeLabel": "I understand the above and agree to delete my account",
     "deleteButton": "Delete account",
@@ -1078,7 +1078,7 @@
     "tableHeaderPro": "Premium",
     "categoryPersonal": "Personal",
     "categorySocial": "Social",
-    "categoryMobile": "Push Notifications (iOS/Android App Only)",
+    "categoryMobile": "Push Notifications (Mobile App Only)",
     "featureRecord": "Create, view & search training records",
     "featureCalendar": "Calendar & training day tracking",
     "featureExam": "Exam preparation training day tracking",
@@ -1094,7 +1094,7 @@
   },
   "pushNotification": {
     "title": "Push Notifications",
-    "description": "Manage your push notification settings. To receive notifications, please use the iOS / Android app and enable notification permissions in your device settings.",
+    "description": "Manage your push notification settings. To receive notifications, please use the mobile app and enable notification permissions in your device settings.",
     "socialSection": "SNS Notifications",
     "notifyFavorite": "Like Notifications",
     "notifyFavoriteDescription": "When your post receives a like",

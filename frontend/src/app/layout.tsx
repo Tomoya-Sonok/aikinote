@@ -72,7 +72,7 @@ const jsonLd = {
   "@type": "SoftwareApplication",
   name: "AikiNote",
   description: "合気道の稽古を記録・振り返り・共有できるデジタル日誌アプリ",
-  operatingSystem: "iOS, Android, Web",
+  operatingSystem: "iOS, Web",
   applicationCategory: "SportsApplication",
   url: "https://www.aikinote.com",
   inLanguage: ["ja", "en"],

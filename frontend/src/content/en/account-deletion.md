@@ -4,7 +4,7 @@ This page describes how to delete your AikiNote account and the scope of data th
 
 ## 1. Delete in the app (recommended)
 
-AikiNote's iOS / Android apps and the web version allow you to fully delete your account in just a few taps. **No email or contact with our support team is required**, and all associated data is permanently removed at the same time.
+AikiNote's app and web version allow you to fully delete your account in just a few taps. **No email or contact with our support team is required**, and all associated data is permanently removed at the same time.
 
 If you are signed in, open the "Delete account" page from the link below. Follow the on-screen instructions, check the consent checkbox, and press the **"Delete account"** button to complete deletion.
 
@@ -41,7 +41,7 @@ The following data will be deleted on account deletion (whether done in-app or v
 
 The following data will be retained for a certain period after account deletion for legal compliance, fraud prevention, and accounting obligations.
 
-- **Payment and subscription records (via Stripe / RevenueCat)**
+- **Payment and subscription records**
   - Retention period: 7 years
   - Reason: Required by the Japanese Electronic Books Preservation Act and Corporate Tax Act
 - **Fraud records and access logs**
@@ -57,8 +57,8 @@ Retained data is either stored in an anonymized/aggregated form that cannot iden
 
 If you are a Premium subscriber:
 
-- **Subscribed in-app (via Stripe)**: The subscription is cancelled at the same time as your account deletion.
-- **Subscribed via App Store / Google Play**: Billing will continue after the account deletion. Please cancel your subscription separately in the "Subscriptions" settings of the respective store.
+- **Subscribed in-app**: The subscription is cancelled at the same time as your account deletion.
+- **Subscribed via another platform**: Billing will continue after the account deletion. Please cancel your subscription separately in that platform's subscription settings.
 
 ## 6. Related policies
 
