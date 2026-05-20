@@ -51,6 +51,11 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
     [fillParent, onImageLoad],
   );
 
+  const [imageFailed, setImageFailed] = useState(false);
+  const handleImageError = useCallback(() => {
+    setImageFailed(true);
+  }, []);
+
   const containerClass = `${styles.container} ${fillParent ? styles.fillParent : ""} ${isLandscape ? styles.containerLandscape : ""}`;
   const aspectClass = `${styles.aspectRatio} ${fillParent ? styles.fillParentAspect : ""}`;
   if (type === "youtube") {
@@ -93,6 +98,15 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
   }
 
   // image
+  if (imageFailed || !url) {
+    return (
+      <div className={containerClass}>
+        <div className={aspectClass}>
+          <div className={styles.fallback}>画像を読み込めません</div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={containerClass}>
       <div className={aspectClass} style={portraitStyle}>
@@ -103,6 +117,8 @@ export const MediaPlayer: FC<MediaPlayerProps> = ({
           className={`${styles.image} ${isLandscape ? styles.imageLandscape : ""}`}
           sizes="(max-width: 580px) 100vw, 580px"
           onLoad={handleImageLoad}
+          onError={handleImageError}
+          unoptimized={url.startsWith("data:")}
         />
       </div>
     </div>
@@ -128,6 +144,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
   aspectClass,
 }) => {
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   const setContainerRef = useCallback(
@@ -159,6 +176,16 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
     };
   }, []);
 
+  if (videoFailed || !url) {
+    return (
+      <div className={containerClass}>
+        <div className={aspectClass}>
+          <div className={styles.fallback}>動画を読み込めません</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={containerClass} ref={setContainerRef}>
       <div className={aspectClass}>
@@ -169,6 +196,7 @@ const VideoPlayer: FC<VideoPlayerProps> = ({
           controls
           preload={hasEnteredViewport ? "metadata" : "none"}
           poster={thumbnailUrl ?? undefined}
+          onError={() => setVideoFailed(true)}
         />
       </div>
     </div>
