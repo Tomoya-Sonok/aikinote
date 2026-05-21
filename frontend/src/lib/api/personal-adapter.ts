@@ -63,7 +63,10 @@ interface SQLiteCategoryRow {
 
 /**
  * ネイティブ側 handler が shapeAttachmentForWeb で整形して返す添付行。
- * url は local_uri (file://) または remote_url (CloudFront) に解決済み。
+ * url は以下のいずれかに解決済み:
+ *   - 画像でローカルキャッシュあり: `data:<mime>;base64,...` (data URI)
+ *   - 動画 / YouTube / 画像でキャッシュなし: `https://...` (CloudFront / YouTube)
+ * file:// は WebView の https origin から読めないため使わない設計。
  */
 interface SQLiteAttachmentRow {
   local_id: string;

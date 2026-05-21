@@ -53,9 +53,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 8px 16px;
   color: var(--text-light);
   font-size: var(--font-size-sm);
   font-family: var(--font-ui);
+  background-color: var(--background-light);
 }
 
 /* 親コンテナがサイズを管理する場合 */
