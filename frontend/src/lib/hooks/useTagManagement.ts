@@ -15,7 +15,6 @@ import {
   initializeUserTags,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useRequireOnline } from "@/lib/hooks/useRequireOnline";
 import { trainingTagsQueryKey } from "@/lib/hooks/useTrainingTags";
 import type { UserCategory } from "@/types/category";
 
@@ -80,9 +79,6 @@ export function useTagManagement(
   const t = useTranslations();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  // タグ/カテゴリの mutation はオフラインでは tRPC が動かないので、
-  // 関数層でも二重防御として requireOnline でガードする。
-  const requireOnline = useRequireOnline();
 
   // カテゴリ / タグは TanStack Query に任せる。
   // /personal/pages で `useTrainingTags` が事前にタグをキャッシュしていれば、
@@ -141,9 +137,6 @@ export function useTagManagement(
   const initializeTags = useCallback(
     async (language: TagLanguage) => {
       if (!user?.id) return;
-      // 初期タグ投入は現在の仕様どおりネット必須。オフライン時は requireOnline で
-      // ガードして Toast を出す。
-      if (!requireOnline()) return;
       try {
         await initializeUserTags(user.id, language);
         await invalidateTagsAndCategories();
@@ -151,7 +144,7 @@ export function useTagManagement(
         showToast(t("pageModal.tagAddFailed"), "error");
       }
     },
-    [user?.id, showToast, t, invalidateTagsAndCategories, requireOnline],
+    [user?.id, showToast, t, invalidateTagsAndCategories],
   );
 
   // タグをカテゴリ別に分類
@@ -219,7 +212,6 @@ export function useTagManagement(
 
   const handleCreateTag = useCallback(
     async (tagData: CreateTagPayload) => {
-      if (!requireOnline()) return;
       try {
         const response = await createTag(tagData);
         if (response.success && response.data) {
@@ -240,7 +232,7 @@ export function useTagManagement(
         );
       }
     },
-    [queryClient, user?.id, showToast, t, handleTagToggle, requireOnline],
+    [queryClient, user?.id, showToast, t, handleTagToggle],
   );
 
   const handleSubmitNewTag = useCallback(
@@ -277,7 +269,6 @@ export function useTagManagement(
   const handleCreateCategory = useCallback(
     async (name: string) => {
       if (!user?.id) return;
-      if (!requireOnline()) return;
       if (categories.length >= MAX_CATEGORIES) {
         showToast(
           t("tagManagement.categoryLimitReached", { max: MAX_CATEGORIES }),
@@ -314,7 +305,7 @@ export function useTagManagement(
         );
       }
     },
-    [user?.id, categories.length, queryClient, showToast, t, requireOnline],
+    [user?.id, categories.length, queryClient, showToast, t],
   );
 
   return {

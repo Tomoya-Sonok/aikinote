@@ -1,1 +1,0 @@
-export { SyncStatusBanner } from "./SyncStatusBanner";

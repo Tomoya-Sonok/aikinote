@@ -1212,10 +1212,5 @@
     "message": "This feature requires a network connection.",
     "retry": "Retry",
     "actionRequiresNetwork": "This action requires a network connection. Please reconnect and try again."
-  },
-  "syncStatus": {
-    "running": "Syncing…",
-    "completed": "Sync completed",
-    "failed": "Sync failed"
   }
 }

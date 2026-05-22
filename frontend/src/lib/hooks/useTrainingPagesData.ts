@@ -8,9 +8,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useCallback, useMemo } from "react";
 import { useToast } from "@/contexts/ToastContext";
-// 「ひとりで」のページ取得・削除はネイティブ環境では SQLite (adapter 経由) に
-// 切り替わる。Web ブラウザでは isNative=false なので従来通り tRPC 経由。
-import { deletePage, getPages } from "@/lib/api/personal-adapter";
+import { deletePage, getPages } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
