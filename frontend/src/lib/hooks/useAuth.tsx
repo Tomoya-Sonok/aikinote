@@ -239,44 +239,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!win.__AIKINOTE_NATIVE_APP__ || !win.ReactNativeWebView) return;
     if (isInitializing) return;
 
-    let cancelled = false;
-    const send = async () => {
-      let accessToken: string | null = null;
-      let refreshToken: string | null = null;
-      let expiresAt: number | null = null;
-      if (user) {
-        try {
-          const { data } = await supabase.auth.getSession();
-          accessToken = data.session?.access_token ?? null;
-          refreshToken = data.session?.refresh_token ?? null;
-          expiresAt = data.session?.expires_at ?? null;
-        } catch (error) {
-          console.warn(
-            "[useAuth] supabase.auth.getSession の取得に失敗:",
-            error,
-          );
-        }
-      }
-      if (cancelled || !win.ReactNativeWebView) return;
-      win.ReactNativeWebView.postMessage(
-        JSON.stringify({
-          type: "USER_INFO",
-          payload: {
-            profileImageUrl: user?.profile_image_url ?? null,
-            userId: user?.id ?? null,
-            accessToken,
-            refreshToken,
-            expiresAt,
-          },
-        }),
-      );
-    };
-
-    void send();
-    return () => {
-      cancelled = true;
-    };
-  }, [user, supabase, isInitializing]);
+    win.ReactNativeWebView.postMessage(
+      JSON.stringify({
+        type: "USER_INFO",
+        payload: {
+          profileImageUrl: user?.profile_image_url ?? null,
+          userId: user?.id ?? null,
+        },
+      }),
+    );
+  }, [user, isInitializing]);
 
   const signUp = useCallback(
     async (data: SignUpFormData): Promise<SignUpResponse> => {
