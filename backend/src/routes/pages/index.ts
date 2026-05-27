@@ -29,16 +29,21 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
   try {
     const input = c.req.valid("json");
 
+    // tag_based モードでは content は空文字で保存し、本文は memos に持つ
+    const isTagBased = input.content_mode === "tag_based";
+
     // Supabaseにページを保存
     const result = await createTrainingPage(
       {
         title: input.title,
-        content: input.content,
+        content: isTagBased ? "" : input.content,
         user_id: input.user_id,
         is_public: input.is_public ?? false,
         created_at: input.created_at,
+        content_mode: input.content_mode ?? "free",
       },
       resolveTagNames(input),
+      input.memos,
     );
 
     // is_public=true の場合、SocialPost を連動作成。
@@ -53,6 +58,7 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
             input.user_id,
             input.content,
             true,
+            input.content_mode ?? "free",
           );
         } catch (socialError) {
           console.error("SocialPost 連動作成エラー:", socialError);
@@ -139,11 +145,12 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
     }
 
     // レスポンス形式に変換
-    const trainingPages = pagesWithTags.map(({ page, tags }) => ({
+    const trainingPages = pagesWithTags.map(({ page, tags, memos }) => ({
       page: {
         id: page.id,
         title: page.title,
         content: page.content,
+        content_mode: page.content_mode ?? "free",
         user_id: page.user_id,
         is_public: page.is_public,
         created_at: page.created_at,
@@ -153,6 +160,16 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
         id: tag.id,
         name: tag.name,
         category: tag.category,
+      })),
+      memos: memos?.map((memo) => ({
+        id: memo.id,
+        content: memo.content,
+        sort_order: memo.sort_order,
+        tags: memo.tags.map((tag) => ({
+          id: tag.id,
+          name: tag.name,
+          category: tag.category,
+        })),
       })),
       attachments: (attachmentMap.get(page.id) ?? []).map(
         (att: {
@@ -207,6 +224,7 @@ app.get("/:id", zValidator("query", getPageSchema), async (c) => {
         id: result.page.id,
         title: result.page.title,
         content: result.page.content,
+        content_mode: result.page.content_mode ?? "free",
         user_id: result.page.user_id,
         is_public: result.page.is_public,
         created_at: result.page.created_at,
@@ -216,6 +234,16 @@ app.get("/:id", zValidator("query", getPageSchema), async (c) => {
         id: tag.id,
         name: tag.name,
         category: tag.category,
+      })),
+      memos: result.memos?.map((memo) => ({
+        id: memo.id,
+        content: memo.content,
+        sort_order: memo.sort_order,
+        tags: memo.tags.map((tag) => ({
+          id: tag.id,
+          name: tag.name,
+          category: tag.category,
+        })),
       })),
     };
 
@@ -256,15 +284,18 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
 
     // Supabaseでページを更新
     const newIsPublic = input.is_public ?? false;
+    const isTagBased = input.content_mode === "tag_based";
     const result = await updateTrainingPage(
       {
         id: input.id,
         title: input.title,
-        content: input.content,
+        content: isTagBased ? "" : input.content,
         user_id: input.user_id,
         is_public: newIsPublic,
+        content_mode: input.content_mode ?? "free",
       },
       resolveTagNames(input),
+      input.memos,
     );
 
     // is_public が明示指定されている場合のみ SocialPost を同期
@@ -276,6 +307,7 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
           input.user_id,
           input.content,
           newIsPublic,
+          input.content_mode ?? "free",
         );
       } catch (socialError) {
         console.error("SocialPost 連動更新エラー:", socialError);
@@ -340,6 +372,7 @@ app.patch(
             user_id,
             updatedPage.content,
             is_public,
+            updatedPage.content_mode ?? "free",
           );
         } catch (socialError) {
           console.error("SocialPost 連動更新エラー:", socialError);

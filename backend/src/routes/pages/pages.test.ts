@@ -132,8 +132,10 @@ describe("ページ作成API", () => {
         user_id: "test-user-id",
         is_public: false,
         created_at: "2026-03-13T00:00:00.000Z",
+        content_mode: "free",
       },
       {},
+      undefined,
     );
   });
 
@@ -235,6 +237,166 @@ describe("ページ作成API", () => {
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("データベース接続エラー");
+  });
+
+  it("tag_basedモードでmemosとcontent_modeがcreateTrainingPageに渡され、contentは空になる", async () => {
+    // Arrange
+    const createSpy = vi
+      .spyOn(supabaseModule, "createTrainingPage")
+      .mockResolvedValue({
+        page: {
+          id: "p1",
+          title: "稽古",
+          content: "",
+          user_id: "u1",
+          is_public: false,
+          created_at: "2026-05-27T00:00:00.000Z",
+          updated_at: "2026-05-27T00:00:00.000Z",
+          // biome-ignore lint/suspicious/noExplicitAny: テスト用
+        } as any,
+        tags: [],
+        memos: [],
+      });
+
+    const requestBody = {
+      title: "稽古",
+      user_id: "u1",
+      content_mode: "tag_based",
+      memos: [
+        {
+          tags: [{ name: "立技", category: "取り" }],
+          content: "入り身の角度を意識した",
+        },
+      ],
+    };
+
+    const request = new Request("http://localhost/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(201);
+    expect(createSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "稽古",
+        content: "",
+        user_id: "u1",
+        content_mode: "tag_based",
+      }),
+      expect.anything(),
+      requestBody.memos,
+    );
+  });
+
+  it("tag_basedモードでmemosが空の場合はバリデーションエラー", async () => {
+    // Arrange
+    const requestBody = {
+      title: "稽古",
+      user_id: "u1",
+      content_mode: "tag_based",
+      memos: [],
+    };
+
+    const request = new Request("http://localhost/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(400);
+  });
+
+  it("メモのタグが4個の場合はバリデーションエラー", async () => {
+    // Arrange
+    const requestBody = {
+      title: "稽古",
+      user_id: "u1",
+      content_mode: "tag_based",
+      memos: [
+        {
+          tags: [
+            { name: "a", category: "取り" },
+            { name: "b", category: "取り" },
+            { name: "c", category: "取り" },
+            { name: "d", category: "取り" },
+          ],
+          content: "メモ",
+        },
+      ],
+    };
+
+    const request = new Request("http://localhost/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(400);
+  });
+
+  it("メモ本文が500文字を超える場合はバリデーションエラー", async () => {
+    // Arrange
+    const requestBody = {
+      title: "稽古",
+      user_id: "u1",
+      content_mode: "tag_based",
+      memos: [
+        {
+          tags: [{ name: "立技", category: "取り" }],
+          content: "あ".repeat(501),
+        },
+      ],
+    };
+
+    const request = new Request("http://localhost/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(400);
+  });
+
+  it("メモが11件の場合はバリデーションエラー", async () => {
+    // Arrange
+    const requestBody = {
+      title: "稽古",
+      user_id: "u1",
+      content_mode: "tag_based",
+      memos: Array.from({ length: 11 }, () => ({
+        tags: [{ name: "立技", category: "取り" }],
+        content: "メモ",
+      })),
+    };
+
+    const request = new Request("http://localhost/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody),
+    });
+
+    // Act
+    const response = await app.fetch(request);
+
+    // Assert
+    expect(response.status).toBe(400);
   });
 });
 

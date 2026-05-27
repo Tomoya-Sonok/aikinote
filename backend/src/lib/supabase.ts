@@ -33,6 +33,7 @@ export interface TrainingPageRow {
   user_id: string; // uuid FK
   title: string; // text
   content: string; // text
+  content_mode?: "free" | "tag_based"; // #280 入力モード（migration 027、DEFAULT 'free'。既存コード互換のため optional）
   is_public: boolean; // boolean (デフォルト: false)
   created_at: string; // timestamp
   updated_at: string; // timestamp
@@ -75,6 +76,234 @@ export interface TrainingPageTagRow {
   created_at?: string; // timestamptz (migration 025 — DB DEFAULT で埋まるので insert 時は省略可)
   updated_at?: string; // timestamptz (migration 025 — DB DEFAULT で埋まるので insert 時は省略可)
 }
+
+// #280 タグごとのメモ
+export interface TrainingPageMemoRow {
+  id: string; // uuid PK
+  training_page_id: string; // uuid FK → TrainingPage
+  content: string; // text（1〜500文字）
+  sort_order: number; // 表示順
+  created_at: string; // timestamptz
+  updated_at?: string; // timestamptz
+}
+
+// 取得時に使う「メモ + 紐づくタグ」の形
+export interface TrainingPageMemoWithTags {
+  id: string;
+  content: string;
+  sort_order: number;
+  tags: UserTagRow[];
+}
+
+// 作成/更新時に受け取るメモ入力（タグは name + category で指定）
+export type TrainingPageMemoInput = {
+  tags: { name: string; category: string }[];
+  content: string;
+};
+
+// (category, name) を一意キーにするためのヘルパー
+const tagMapKey = (category: string, name: string): string =>
+  `${category}\u001f${name}`;
+
+// 指定された (name, category) のタグが無ければ作成し、キー→UserTag の Map を返す
+const ensureUserTags = async (
+  userId: string,
+  tagRefs: { name: string; category: string }[],
+): Promise<Map<string, UserTagRow>> => {
+  const map = new Map<string, UserTagRow>();
+  for (const { name, category } of tagRefs) {
+    const key = tagMapKey(category, name);
+    if (map.has(key)) continue;
+
+    const { data: existingTag } = await supabase
+      .from("UserTag")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("name", name)
+      .eq("category", category)
+      .single();
+
+    if (existingTag) {
+      map.set(key, existingTag);
+      continue;
+    }
+
+    const { data: newTag, error } = await supabase
+      .from("UserTag")
+      .insert([
+        {
+          user_id: userId,
+          name,
+          category,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select("*")
+      .single();
+
+    if (error) {
+      throw new Error(`タグの作成に失敗しました: ${error.message}`);
+    }
+    map.set(key, newTag);
+  }
+  return map;
+};
+
+// tag_based モードのメモ群を保存する。
+// - TrainingPageMemo / TrainingPageMemoTag を作成
+// - 全メモのタグ和集合を TrainingPageTag に保存（一覧のタグ絞り込み互換のため）
+const persistPageMemos = async (
+  pageId: string,
+  userId: string,
+  memos: TrainingPageMemoInput[],
+): Promise<{ tags: UserTagRow[]; memos: TrainingPageMemoWithTags[] }> => {
+  const tagMap = await ensureUserTags(
+    userId,
+    memos.flatMap((m) => m.tags),
+  );
+
+  const memosWithTags: TrainingPageMemoWithTags[] = [];
+  const unionTagIds = new Set<string>();
+
+  for (let i = 0; i < memos.length; i++) {
+    const memoInput = memos[i];
+
+    const { data: memo, error: memoError } = await supabase
+      .from("TrainingPageMemo")
+      .insert([
+        {
+          training_page_id: pageId,
+          content: memoInput.content,
+          sort_order: i,
+        },
+      ])
+      .select("*")
+      .single();
+
+    if (memoError) {
+      throw new Error(`メモの作成に失敗しました: ${memoError.message}`);
+    }
+
+    const memoTags: UserTagRow[] = [];
+    const seenTagIds = new Set<string>();
+    const memoTagRows: {
+      training_page_memo_id: string;
+      user_tag_id: string;
+    }[] = [];
+
+    for (const t of memoInput.tags) {
+      const tag = tagMap.get(tagMapKey(t.category, t.name));
+      if (!tag || seenTagIds.has(tag.id)) continue;
+      seenTagIds.add(tag.id);
+      memoTags.push(tag);
+      memoTagRows.push({
+        training_page_memo_id: memo.id,
+        user_tag_id: tag.id,
+      });
+      unionTagIds.add(tag.id);
+    }
+
+    if (memoTagRows.length > 0) {
+      const { error: memoTagError } = await supabase
+        .from("TrainingPageMemoTag")
+        .insert(memoTagRows);
+      if (memoTagError) {
+        throw new Error(
+          `メモタグの作成に失敗しました: ${memoTagError.message}`,
+        );
+      }
+    }
+
+    memosWithTags.push({
+      id: memo.id,
+      content: memo.content,
+      sort_order: memo.sort_order,
+      tags: memoTags,
+    });
+  }
+
+  // タグの和集合を TrainingPageTag に保存
+  const unionTags: UserTagRow[] = [];
+  if (unionTagIds.size > 0) {
+    const trainingPageTags = [...unionTagIds].map((id) => ({
+      training_page_id: pageId,
+      user_tag_id: id,
+    }));
+    const { error: relationError } = await supabase
+      .from("TrainingPageTag")
+      .insert(trainingPageTags);
+    if (relationError) {
+      throw new Error(`タグ関連付けに失敗しました: ${relationError.message}`);
+    }
+    for (const tag of tagMap.values()) {
+      if (unionTagIds.has(tag.id)) unionTags.push(tag);
+    }
+  }
+
+  return { tags: unionTags, memos: memosWithTags };
+};
+
+// ページに紐づく既存メモを全削除（TrainingPageMemoTag は CASCADE で消える）
+const deletePageMemos = async (pageId: string): Promise<void> => {
+  const { error } = await supabase
+    .from("TrainingPageMemo")
+    .delete()
+    .eq("training_page_id", pageId);
+  if (error) {
+    throw new Error(`既存メモの削除に失敗しました: ${error.message}`);
+  }
+};
+
+// 複数ページのメモ + タグをまとめて取得（N+1回避）
+const fetchMemosForPages = async (
+  pageIds: string[],
+): Promise<Map<string, TrainingPageMemoWithTags[]>> => {
+  const result = new Map<string, TrainingPageMemoWithTags[]>();
+  if (pageIds.length === 0) return result;
+
+  const { data: memoRows, error } = await supabase
+    .from("TrainingPageMemo")
+    .select("*")
+    .in("training_page_id", pageIds)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    console.error("メモ取得エラー:", error);
+    return result;
+  }
+  if (!memoRows || memoRows.length === 0) return result;
+
+  const memoIds = memoRows.map((m) => m.id);
+  const tagsByMemo = new Map<string, UserTagRow[]>();
+
+  const { data: memoTagRows } = await supabase
+    .from("TrainingPageMemoTag")
+    .select("training_page_memo_id, UserTag(*)")
+    .in("training_page_memo_id", memoIds);
+
+  for (const mt of (memoTagRows ?? []) as {
+    training_page_memo_id: string;
+    UserTag: UserTagRow | UserTagRow[];
+  }[]) {
+    const tag = Array.isArray(mt.UserTag) ? mt.UserTag[0] : mt.UserTag;
+    if (!tag) continue;
+    const list = tagsByMemo.get(mt.training_page_memo_id) ?? [];
+    list.push(tag);
+    tagsByMemo.set(mt.training_page_memo_id, list);
+  }
+
+  for (const m of memoRows) {
+    const list = result.get(m.training_page_id) ?? [];
+    list.push({
+      id: m.id,
+      content: m.content,
+      sort_order: m.sort_order,
+      tags: tagsByMemo.get(m.id) ?? [],
+    });
+    result.set(m.training_page_id, list);
+  }
+  return result;
+};
 
 export interface TrainingDateRow {
   id: string; // uuid PK
@@ -141,28 +370,32 @@ const resolveTagNamesForPage = (
 export const createTrainingPage = async (
   pageData: Omit<TrainingPageRow, "id" | "created_at" | "updated_at"> & {
     created_at?: string;
+    content_mode?: string;
   },
   tagNames:
     | { tori: string[]; uke: string[]; waza: string[] }
     | Record<string, string[]>,
-): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
+  memos?: TrainingPageMemoInput[],
+): Promise<{
+  page: TrainingPageRow;
+  tags: UserTagRow[];
+  memos?: TrainingPageMemoWithTags[];
+}> => {
   // トランザクションを使用してページと関連タグを作成
   try {
+    const contentMode = pageData.content_mode ?? "free";
+
     // 1. TrainingPageを作成
+    const baseInsert = {
+      title: pageData.title,
+      content: pageData.content,
+      user_id: pageData.user_id,
+      is_public: pageData.is_public ?? false,
+      content_mode: contentMode,
+    };
     const insertPageData = pageData.created_at
-      ? {
-          title: pageData.title,
-          content: pageData.content,
-          user_id: pageData.user_id,
-          is_public: pageData.is_public ?? false,
-          created_at: pageData.created_at,
-        }
-      : {
-          title: pageData.title,
-          content: pageData.content,
-          user_id: pageData.user_id,
-          is_public: pageData.is_public ?? false,
-        };
+      ? { ...baseInsert, created_at: pageData.created_at }
+      : baseInsert;
 
     const { data: newPage, error: pageError } = await supabase
       .from("TrainingPage")
@@ -172,6 +405,16 @@ export const createTrainingPage = async (
 
     if (pageError) {
       throw new Error(`ページの作成に失敗しました: ${pageError.message}`);
+    }
+
+    // タグごとのメモモード: メモ・メモタグ・タグ和集合を保存して早期 return
+    if (contentMode === "tag_based" && memos && memos.length > 0) {
+      const { tags, memos: memosWithTags } = await persistPageMemos(
+        newPage.id,
+        pageData.user_id,
+        memos,
+      );
+      return { page: newPage, tags, memos: memosWithTags };
     }
 
     // 2. すべてのタグ名を統合してカテゴリ付きで配列化
@@ -271,7 +514,11 @@ export const getTrainingPages = async ({
   date?: string;
   sortOrder?: "newest" | "oldest";
 }): Promise<{
-  pages: { page: TrainingPageRow; tags: UserTagRow[] }[];
+  pages: {
+    page: TrainingPageRow;
+    tags: UserTagRow[];
+    memos?: TrainingPageMemoWithTags[];
+  }[];
   totalCount: number;
 }> => {
   try {
@@ -332,9 +579,29 @@ export const getTrainingPages = async ({
       .select("*", { count: "exact" })
       .eq("user_id", userId);
 
-    // フリーワード検索
+    // フリーワード検索: タイトル・自由入力本文・タグごとのメモ本文を対象にする
     if (query) {
-      queryBuilder = queryBuilder.ilike("title", `%${query}%`);
+      const orConditions = [
+        `title.ilike.%${query}%`,
+        `content.ilike.%${query}%`,
+      ];
+      // tag_based ページは本文が空でメモ側に内容を持つため、
+      // メモ本文にマッチするページIDも検索対象に含める
+      const { data: memoMatches } = await supabase
+        .from("TrainingPageMemo")
+        .select("training_page_id")
+        .ilike("content", `%${query}%`);
+      const memoPageIds = [
+        ...new Set(
+          (memoMatches ?? []).map(
+            (m: { training_page_id: string }) => m.training_page_id,
+          ),
+        ),
+      ];
+      if (memoPageIds.length > 0) {
+        orConditions.push(`id.in.(${memoPageIds.join(",")})`);
+      }
+      queryBuilder = queryBuilder.or(orConditions.join(","));
     }
 
     const filters: { gte?: string; lte?: string } = {};
@@ -417,9 +684,15 @@ export const getTrainingPages = async ({
       }
     }
 
+    // tag_based ページのメモを一括取得（一覧カードの本文抜粋表示用）
+    const memosByPage = await fetchMemosForPages(
+      pages.filter((p) => p.content_mode === "tag_based").map((p) => p.id),
+    );
+
     const pagesWithTags = pages.map((page) => ({
       page,
       tags: tagMap.get(page.id) ?? [],
+      memos: memosByPage.get(page.id),
     }));
 
     return { pages: pagesWithTags, totalCount: count ?? 0 };
@@ -848,7 +1121,11 @@ export const deleteUserTag = async (
 export const getTrainingPageById = async (
   pageId: string,
   userId: string,
-): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
+): Promise<{
+  page: TrainingPageRow;
+  tags: UserTagRow[];
+  memos?: TrainingPageMemoWithTags[];
+}> => {
   try {
     // 1. ページの存在確認と権限チェック
     const { data: page, error: pageError } = await supabase
@@ -881,7 +1158,13 @@ export const getTrainingPageById = async (
         })
         .filter(Boolean) || [];
 
-    return { page, tags };
+    // tag_based ページはメモ + メモタグも取得する
+    const memos =
+      page.content_mode === "tag_based"
+        ? ((await fetchMemosForPages([pageId])).get(pageId) ?? [])
+        : undefined;
+
+    return { page, tags, memos };
   } catch (error) {
     console.error("TrainingPage詳細取得エラー:", error);
     throw error;
@@ -890,12 +1173,22 @@ export const getTrainingPageById = async (
 
 // ページ更新関数
 export const updateTrainingPage = async (
-  pageData: Omit<TrainingPageRow, "created_at" | "updated_at"> & { id: string },
+  pageData: Omit<TrainingPageRow, "created_at" | "updated_at"> & {
+    id: string;
+    content_mode?: string;
+  },
   tagNames:
     | { tori: string[]; uke: string[]; waza: string[] }
     | Record<string, string[]>,
-): Promise<{ page: TrainingPageRow; tags: UserTagRow[] }> => {
+  memos?: TrainingPageMemoInput[],
+): Promise<{
+  page: TrainingPageRow;
+  tags: UserTagRow[];
+  memos?: TrainingPageMemoWithTags[];
+}> => {
   try {
+    const contentMode = pageData.content_mode ?? "free";
+
     // 1. ページの存在確認と権限チェック
     const { data: existingPage, error: pageCheckError } = await supabase
       .from("TrainingPage")
@@ -912,6 +1205,7 @@ export const updateTrainingPage = async (
     const updateFields: Record<string, unknown> = {
       title: pageData.title,
       content: pageData.content,
+      content_mode: contentMode,
       updated_at: new Date().toISOString(),
     };
     if (pageData.is_public !== undefined) {
@@ -929,7 +1223,7 @@ export const updateTrainingPage = async (
       throw new Error(`ページの更新に失敗しました: ${pageError.message}`);
     }
 
-    // 3. 既存のタグ関連付けを削除
+    // 3. 既存のタグ関連付けとメモを削除（モード切替時も含めて作り直す）
     const { error: deleteTagsError } = await supabase
       .from("TrainingPageTag")
       .delete()
@@ -939,6 +1233,18 @@ export const updateTrainingPage = async (
       throw new Error(
         `既存のタグ関連付け削除に失敗しました: ${deleteTagsError.message}`,
       );
+    }
+
+    await deletePageMemos(pageData.id);
+
+    // タグごとのメモモード: メモ・メモタグ・タグ和集合を保存して早期 return
+    if (contentMode === "tag_based" && memos && memos.length > 0) {
+      const { tags, memos: memosWithTags } = await persistPageMemos(
+        updatedPage.id,
+        pageData.user_id,
+        memos,
+      );
+      return { page: updatedPage, tags, memos: memosWithTags };
     }
 
     // 4. 新しいタグを処理（createTrainingPageと同じロジック）
@@ -1031,6 +1337,15 @@ export const deleteTrainingPage = async (
 
     if (fetchError || !existingPage) {
       throw new Error("ページが見つからないか、削除権限がありません");
+    }
+
+    // 連動する公開投稿（SocialPost）を soft-delete する。
+    // SocialPost.source_page_id は ON DELETE SET NULL のため、ページ削除より前に
+    // 実行しないと source_page_id で当該投稿を引けなくなる（フィードに残ってしまう）。
+    try {
+      await syncSocialPostForTrainingPage(supabase, pageId, userId, "", false);
+    } catch (socialError) {
+      console.error("SocialPost 連動削除エラー:", socialError);
     }
 
     // 関連するタグ紐付けの削除
@@ -1569,12 +1884,31 @@ export const getSocialPostById = async (
 /**
  * TrainingPage の is_public 変更に連動して SocialPost を作成/更新/soft-delete する
  */
+// tag_based ページのメモ本文を、SocialPost 表示・検索用テキストに合成する
+// （各メモ本文を空行区切りで連結。タグごとの表示は詳細画面が source ページから別途行う）
+const composeMemoContentForPage = async (
+  supabaseClient: SupabaseClient,
+  pageId: string,
+): Promise<string> => {
+  const { data: memoRows } = await supabaseClient
+    .from("TrainingPageMemo")
+    .select("content, sort_order")
+    .eq("training_page_id", pageId)
+    .order("sort_order", { ascending: true });
+
+  return (memoRows ?? [])
+    .map((m: { content: string }) => m.content)
+    .filter((c: string) => c.trim().length > 0)
+    .join("\n\n");
+};
+
 export const syncSocialPostForTrainingPage = async (
   supabaseClient: SupabaseClient,
   pageId: string,
   userId: string,
   content: string,
   isPublic: boolean,
+  contentMode?: string,
 ): Promise<void> => {
   // 既存の SocialPost を検索
   const { data: existingPost } = await supabaseClient
@@ -1584,12 +1918,19 @@ export const syncSocialPostForTrainingPage = async (
     .maybeSingle();
 
   if (isPublic) {
+    // tag_based ページは本文が空のため、メモ本文を合成して SocialPost.content に持たせる
+    // （フィード表示・投稿検索が SocialPost.content を参照するため）
+    const effectiveContent =
+      contentMode === "tag_based"
+        ? await composeMemoContentForPage(supabaseClient, pageId)
+        : content;
+
     if (existingPost) {
       // 既存の SocialPost を更新（再公開含む）
       await supabaseClient
         .from("SocialPost")
         .update({
-          content,
+          content: effectiveContent,
           is_deleted: false,
           updated_at: new Date().toISOString(),
         })
@@ -1604,7 +1945,7 @@ export const syncSocialPostForTrainingPage = async (
 
       await createSocialPost(supabaseClient, {
         user_id: userId,
-        content,
+        content: effectiveContent,
         post_type: "training_record",
         author_dojo_style_id: userData?.dojo_style_id ?? null,
         author_dojo_name: userData?.dojo_style_name ?? null,
@@ -1633,11 +1974,18 @@ export const getSourcePageData = async (
   id: string;
   title: string;
   content: string;
+  content_mode: "free" | "tag_based";
   tags: { name: string; category: string }[];
+  // tag_based のときのみ要素を持つ（タグごとに入力したメモ）
+  memos: {
+    content: string;
+    sort_order: number;
+    tags: { name: string; category: string }[];
+  }[];
 } | null> => {
   const { data: pageData } = await supabaseClient
     .from("TrainingPage")
-    .select("id, title, content")
+    .select("id, title, content, content_mode")
     .eq("id", sourcePageId)
     .single();
 
@@ -1648,13 +1996,66 @@ export const getSourcePageData = async (
     .select("UserTag(name, category)")
     .eq("training_page_id", sourcePageId);
 
+  const contentMode: "free" | "tag_based" =
+    pageData.content_mode === "tag_based" ? "tag_based" : "free";
+
+  // tag_based のページはメモ（本文 + タグ）も取得する
+  let memos: {
+    content: string;
+    sort_order: number;
+    tags: { name: string; category: string }[];
+  }[] = [];
+  if (contentMode === "tag_based") {
+    const { data: memoRows } = await supabaseClient
+      .from("TrainingPageMemo")
+      .select("id, content, sort_order")
+      .eq("training_page_id", sourcePageId)
+      .order("sort_order", { ascending: true });
+
+    if (memoRows && memoRows.length > 0) {
+      const memoIds = memoRows.map((m: { id: string }) => m.id);
+      const { data: memoTagRows } = await supabaseClient
+        .from("TrainingPageMemoTag")
+        .select("training_page_memo_id, UserTag(name, category)")
+        .in("training_page_memo_id", memoIds);
+
+      const tagsByMemo = new Map<
+        string,
+        { name: string; category: string }[]
+      >();
+      for (const row of (memoTagRows ?? []) as {
+        training_page_memo_id: string;
+        // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+        UserTag: any;
+      }[]) {
+        const tag = Array.isArray(row.UserTag) ? row.UserTag[0] : row.UserTag;
+        if (!tag?.name) continue;
+        const list = tagsByMemo.get(row.training_page_memo_id) ?? [];
+        list.push({ name: tag.name, category: tag.category ?? "" });
+        tagsByMemo.set(row.training_page_memo_id, list);
+      }
+
+      memos = memoRows.map(
+        (m: { id: string; content: string; sort_order: number }) => ({
+          content: m.content,
+          sort_order: m.sort_order,
+          tags: tagsByMemo.get(m.id) ?? [],
+        }),
+      );
+    }
+  }
+
   return {
-    ...pageData,
+    id: pageData.id,
+    title: pageData.title,
+    content: pageData.content,
+    content_mode: contentMode,
     // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
     tags: (pageTagsData ?? []).map((row: any) => ({
       name: row.UserTag?.name ?? "",
       category: row.UserTag?.category ?? "",
     })),
+    memos,
   };
 };
 
@@ -2512,24 +2913,39 @@ export const searchSocialPosts = async (
     hashtagPostIds = mergedIds;
   }
 
-  // キーワード検索の場合: content に加えて稽古記録の title もヒット対象にする
-  // TrainingPage.title にマッチする source_page_id を先に取得
+  // キーワード検索の場合: SocialPost.content に加えて、稽古記録の title と
+  // タグごとのメモ本文（tag_based ページは content が空）もヒット対象にする。
+  // TrainingPage.title / TrainingPageMemo.content にマッチする source_page_id を先に取得。
   let titleMatchPostIds: string[] | null = null;
   if (params.query) {
-    const { data: matchingPages } = await supabaseClient
-      .from("TrainingPage")
-      .select("id")
-      .ilike("title", `%${params.query}%`);
+    const [titlePagesRes, memoPagesRes] = await Promise.all([
+      supabaseClient
+        .from("TrainingPage")
+        .select("id")
+        .ilike("title", `%${params.query}%`),
+      supabaseClient
+        .from("TrainingPageMemo")
+        .select("training_page_id")
+        .ilike("content", `%${params.query}%`),
+    ]);
 
-    if (matchingPages && matchingPages.length > 0) {
-      const pageIds = matchingPages.map((p) => p.id);
-      const { data: titlePosts } = await supabaseClient
+    const pageIds = [
+      ...new Set([
+        ...(titlePagesRes.data ?? []).map((p: { id: string }) => p.id),
+        ...(memoPagesRes.data ?? []).map(
+          (m: { training_page_id: string }) => m.training_page_id,
+        ),
+      ]),
+    ];
+
+    if (pageIds.length > 0) {
+      const { data: matchPosts } = await supabaseClient
         .from("SocialPost")
         .select("id")
         .eq("is_deleted", false)
         .eq("post_type", "training_record")
         .in("source_page_id", pageIds);
-      titleMatchPostIds = (titlePosts ?? []).map((p) => p.id);
+      titleMatchPostIds = (matchPosts ?? []).map((p) => p.id);
     }
   }
 

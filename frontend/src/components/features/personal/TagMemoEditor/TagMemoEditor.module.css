@@ -1,0 +1,100 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.memoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-base);
+}
+
+.memoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.memoLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+}
+
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 4px;
+  transition: color 0.3s ease-out;
+}
+
+.removeButton:hover {
+  color: var(--error-color);
+}
+
+.tagsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tagDisabled {
+  opacity: 0.4;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  padding: 10px;
+  min-height: 40px;
+  transition: border-color 0.3s ease-out;
+}
+
+.addButton:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.addButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding: 20px;
+  border: 0.5px dashed var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-base);
+}
+
+.emptyMessage {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--error-color);
+  margin: 0;
+  text-align: center;
+}

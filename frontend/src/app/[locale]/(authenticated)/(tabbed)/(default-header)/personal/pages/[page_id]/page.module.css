@@ -94,6 +94,19 @@
   word-break: break-word;
 }
 
+/* タグごとに入力したメモの、本文の上に並ぶタグ */
+.memoTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+/* メモ同士の区切り（空行1つ分） */
+.memoGap {
+  height: 30.5px;
+}
+
 .skeletonContent {
   display: flex;
   flex-direction: column;

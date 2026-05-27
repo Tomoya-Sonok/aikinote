@@ -4,15 +4,21 @@ import { type FC, type KeyboardEvent, memo } from "react";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { linkifyText } from "@/lib/utils/linkifyText";
-import type { TrainingPageAttachment } from "@/types/training";
+import type {
+  PageInputMode,
+  TrainingPageAttachment,
+  TrainingPageMemo,
+} from "@/types/training";
 import styles from "./TrainingCard.module.css";
 
 interface TrainingCardProps {
   id: string;
   title: string;
   content: string;
+  content_mode?: PageInputMode;
   date: string;
   tags: string[];
+  memos?: TrainingPageMemo[];
   attachments?: TrainingPageAttachment[];
   onEdit?: () => void;
   onDelete?: () => void;
@@ -20,8 +26,24 @@ interface TrainingCardProps {
 }
 
 export const TrainingCard: FC<TrainingCardProps> = memo(
-  ({ title, content, date, tags, attachments, onEdit, onDelete, onClick }) => {
+  ({
+    title,
+    content,
+    content_mode,
+    date,
+    tags,
+    memos,
+    attachments,
+    onEdit,
+    onDelete,
+    onClick,
+  }) => {
     const t = useTranslations();
+    // tag_based のページは本文が空なので、全メモの本文を空行区切りで表示する
+    const snippet =
+      content_mode === "tag_based"
+        ? (memos ?? []).map((m) => m.content).join("\n\n")
+        : content;
     const handleEdit = () => {
       onEdit?.();
     };
@@ -84,7 +106,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
           ))}
         </div>
 
-        <p className={styles.content}>{linkifyText(content)}</p>
+        <p className={styles.content}>{linkifyText(snippet)}</p>
 
         {attachments && attachments.length > 0 && (
           <SocialMediaGrid attachments={attachments} />

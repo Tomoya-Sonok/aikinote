@@ -678,7 +678,18 @@
     "save": "保存",
     "success": "ページを作成しました",
     "titlePlaceholder": "例: {date} 稽古記録",
-    "contentPlaceholder": "稽古を通して学んだことや気づきを自由に入力してみましょう！"
+    "contentPlaceholder": "稽古を通して学んだことや気づきを自由に入力してみましょう！",
+    "inputModeLabel": "入力方法",
+    "modeFree": "自由入力",
+    "modeTagBased": "タグごとに入力",
+    "selectTagFirst": "先にタグを選択してください",
+    "addMemo": "メモを追加",
+    "memoLabel": "メモ{index}",
+    "removeMemo": "このメモを削除",
+    "memoContentPlaceholder": "タグを選択し、そのタグに関連した学びや気づきを入力してみましょう！",
+    "memoRequired": "タグごとのメモを1件以上入力してください",
+    "memoIncomplete": "各メモにはタグと本文の両方を入力してください",
+    "requiredOnBlur": "ページを作成するには、{field}を入力してください"
   },
   "titleTemplate": {
     "modalTitle": "テンプレートの選択",
@@ -861,6 +872,7 @@
     "update": "更新",
     "deleteConfirm": "このページを削除してもよろしいですか？",
     "content": "内容",
+    "requiredOnBlur": "ページを更新するには、{field}を入力してください",
     "updateFailed": "ページの更新に失敗しました",
     "deleteFailed": "ページの削除に失敗しました",
     "publicToggle": "他のユーザーに公開",
