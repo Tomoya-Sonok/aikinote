@@ -1339,6 +1339,15 @@ export const deleteTrainingPage = async (
       throw new Error("ページが見つからないか、削除権限がありません");
     }
 
+    // 連動する公開投稿（SocialPost）を soft-delete する。
+    // SocialPost.source_page_id は ON DELETE SET NULL のため、ページ削除より前に
+    // 実行しないと source_page_id で当該投稿を引けなくなる（フィードに残ってしまう）。
+    try {
+      await syncSocialPostForTrainingPage(supabase, pageId, userId, "", false);
+    } catch (socialError) {
+      console.error("SocialPost 連動削除エラー:", socialError);
+    }
+
     // 関連するタグ紐付けの削除
     const { error: deleteRelationsError } = await supabase
       .from("TrainingPageTag")
