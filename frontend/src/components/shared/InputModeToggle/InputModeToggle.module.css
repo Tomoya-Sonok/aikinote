@@ -1,0 +1,30 @@
+.toggle {
+  display: flex;
+  width: 100%;
+  border: 0.5px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+.option {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  transition:
+    background-color 0.3s ease-out,
+    color 0.3s ease-out;
+  /* タップ領域を確保（SPファースト） */
+  min-height: 40px;
+}
+
+.active {
+  background: var(--primary-color);
+  color: var(--white);
+  font-weight: 600;
+}

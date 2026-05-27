@@ -676,7 +676,17 @@
     "save": "Save",
     "success": "Page created successfully",
     "titlePlaceholder": "e.g.) {date} Practice Record",
-    "contentPlaceholder": "Feel free to enter what you learned and noticed through your practice!"
+    "contentPlaceholder": "Feel free to enter what you learned and noticed through your practice!",
+    "inputModeLabel": "Input method",
+    "modeFree": "Free text",
+    "modeTagBased": "Memo per tag",
+    "selectTagFirst": "Please select tags first",
+    "addMemo": "Add memo",
+    "memoLabel": "Memo {index}",
+    "removeMemo": "Remove this memo",
+    "memoContentPlaceholder": "Enter what you learned for this tag combination",
+    "memoRequired": "Please enter at least one tag-based memo",
+    "memoIncomplete": "Each memo needs both tags and text"
   },
   "titleTemplate": {
     "modalTitle": "Select Template",

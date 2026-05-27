@@ -21,6 +21,20 @@
   flex-direction: column;
 }
 
+.contentLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.errorText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+  margin-top: 6px;
+}
+
 .titleRow {
   display: flex;
   align-items: flex-end;

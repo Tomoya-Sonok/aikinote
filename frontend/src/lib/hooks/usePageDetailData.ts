@@ -27,9 +27,16 @@ export function usePageDetailData(pageId: string) {
         id: response.data.page.id,
         title: response.data.page.title,
         content: response.data.page.content,
+        content_mode: response.data.page.content_mode ?? "free",
         is_public: response.data.page.is_public ?? false,
         date: response.data.page.created_at,
         tags: response.data.tags.map((tag) => tag.name),
+        memos: (response.data.memos ?? []).map((memo) => ({
+          id: memo.id,
+          content: memo.content,
+          sort_order: memo.sort_order,
+          tags: memo.tags,
+        })),
         attachments: response.data.attachments ?? [],
       };
     },

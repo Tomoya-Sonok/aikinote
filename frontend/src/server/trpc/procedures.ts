@@ -26,6 +26,7 @@ type Page = {
   id: string;
   title: string;
   content: string;
+  content_mode?: "free" | "tag_based";
   user_id: string;
   is_public: boolean;
   created_at: string;
@@ -36,6 +37,14 @@ type PageTag = {
   id: string;
   name: string;
   category: string;
+};
+
+// #280 タグごとのメモ
+type PageMemo = {
+  id: string;
+  content: string;
+  sort_order: number;
+  tags: PageTag[];
 };
 
 type PageAttachment = {
@@ -49,6 +58,7 @@ type PageAttachment = {
 type PageWithTags = {
   page: Page;
   tags: PageTag[];
+  memos?: PageMemo[];
   attachments?: PageAttachment[];
 };
 
@@ -208,6 +218,15 @@ export const getPageProcedure = publicProcedure
     );
   });
 
+// #280 タグごとのメモ入力（タグは name + category で指定）
+const memoInputSchema = z.object({
+  tags: z
+    .array(z.object({ name: z.string().min(1), category: z.string().min(1) }))
+    .min(1)
+    .max(3),
+  content: z.string().min(1).max(500),
+});
+
 export const createPageProcedure = publicProcedure
   .input(
     z.object({
@@ -216,7 +235,9 @@ export const createPageProcedure = publicProcedure
       tori: z.array(z.string()).optional(),
       uke: z.array(z.string()).optional(),
       waza: z.array(z.string()).optional(),
-      content: z.string(),
+      content: z.string().optional(),
+      content_mode: z.enum(["free", "tag_based"]).optional(),
+      memos: z.array(memoInputSchema).max(10).optional(),
       user_id: z.string(),
       is_public: z.boolean().optional(),
       created_at: z
@@ -244,7 +265,9 @@ export const updatePageProcedure = publicProcedure
       tori: z.array(z.string()).optional(),
       uke: z.array(z.string()).optional(),
       waza: z.array(z.string()).optional(),
-      content: z.string(),
+      content: z.string().optional(),
+      content_mode: z.enum(["free", "tag_based"]).optional(),
+      memos: z.array(memoInputSchema).max(10).optional(),
       user_id: z.string(),
       is_public: z.boolean().optional(),
     }),

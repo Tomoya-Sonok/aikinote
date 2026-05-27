@@ -4,11 +4,17 @@ import { ClipboardText, PlusCircle } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
+import {
+  createEmptyMemo,
+  type MemoDraft,
+  TagMemoEditor,
+} from "@/components/features/personal/TagMemoEditor/TagMemoEditor";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { InitialTagLanguageDialog } from "@/components/shared/InitialTagLanguageDialog/InitialTagLanguageDialog";
+import { InputModeToggle } from "@/components/shared/InputModeToggle/InputModeToggle";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
 import { OfflineHint } from "@/components/shared/OfflineHint/OfflineHint";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
@@ -30,6 +36,16 @@ import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
+import {
+  buildAvailableTags,
+  memoStatusOf,
+  pruneMemoTags,
+  toMemoPayloads,
+} from "@/lib/utils/tagMemo";
+import {
+  type PageInputMode,
+  usePageInputModeStore,
+} from "@/stores/pageInputModeStore";
 import styles from "./PageCreate.module.css";
 
 export function PageCreate() {
@@ -46,6 +62,11 @@ export function PageCreate() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  // #280 入力モード（前回選択を記憶）とタグごとのメモ下書き
+  const lastMode = usePageInputModeStore((s) => s.lastMode);
+  const setLastMode = usePageInputModeStore((s) => s.setLastMode);
+  const [mode, setMode] = useState<PageInputMode>(lastMode);
+  const [memos, setMemos] = useState<MemoDraft[]>(() => [createEmptyMemo()]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBackConfirmOpen, setIsBackConfirmOpen] = useState(false);
@@ -56,6 +77,21 @@ export function PageCreate() {
   const tagManagement = useTagManagement();
   const attachmentMgmt = useAttachmentManagement("page");
   const isOnline = useOnlineStatus();
+
+  // タグごとのメモの候補タグ（カテゴリ側で選択済みのタグ）
+  const availableTags = useMemo(
+    () =>
+      buildAvailableTags(
+        tagManagement.categories,
+        tagManagement.selectedByCategory,
+      ),
+    [tagManagement.categories, tagManagement.selectedByCategory],
+  );
+
+  // カテゴリ側でタグ選択が解除されたら、メモからもそのタグを取り除く
+  useEffect(() => {
+    setMemos((prev) => pruneMemoTags(prev, availableTags));
+  }, [availableTags]);
 
   // カテゴリ追加
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -117,8 +153,9 @@ export function PageCreate() {
       !isNavigatingRef.current &&
       (title.trim() !== "" ||
         content.trim() !== "" ||
+        memos.some((m) => m.content.trim() !== "" || m.tags.length > 0) ||
         attachmentMgmt.attachments.length > 0),
-    [title, content, attachmentMgmt.attachments],
+    [title, content, memos, attachmentMgmt.attachments],
   );
   useBeforeUnload(hasUnsavedChanges);
 
@@ -130,14 +167,21 @@ export function PageCreate() {
     } else if (title.length > 35) {
       newErrors.title = t("pageModal.titleTooLong");
     }
-    if (!content.trim()) {
+    if (mode === "tag_based") {
+      const statuses = memos.map(memoStatusOf);
+      if (statuses.includes("partial")) {
+        newErrors.memos = t("pageCreate.memoIncomplete");
+      } else if (!statuses.includes("complete")) {
+        newErrors.memos = t("pageCreate.memoRequired");
+      }
+    } else if (!content.trim()) {
       newErrors.content = t("pageModal.contentRequired");
     } else if (content.length > 3000) {
       newErrors.content = t("pageModal.contentTooLong");
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [title, content, t]);
+  }, [title, content, mode, memos, t]);
 
   const handleSubmit = useCallback(async () => {
     if (!user?.id || isSubmitting) return;
@@ -145,25 +189,45 @@ export function PageCreate() {
 
     setIsSubmitting(true);
     try {
-      // 動的カテゴリからtagsペイロードを構築
-      const tags: Record<string, string[]> = {};
-      for (const cat of tagManagement.categories) {
-        const selected = tagManagement.selectedByCategory[cat.name] ?? [];
-        if (selected.length > 0) tags[cat.name] = selected;
-      }
+      const createdAtField = dateParam
+        ? { created_at: `${dateParam}T00:00:00.000Z` }
+        : {};
 
-      const pagePayload: CreatePagePayload = {
-        title: title.trim(),
-        tags,
-        content: content.trim(),
-        user_id: user.id,
-        is_public: false,
-        ...(dateParam ? { created_at: `${dateParam}T00:00:00.000Z` } : {}),
-      };
+      let pagePayload: CreatePagePayload;
+      if (mode === "tag_based") {
+        // tag_based: 本文は memos に持つ（content は空でバックエンドが '' を保存）
+        pagePayload = {
+          title: title.trim(),
+          content_mode: "tag_based",
+          memos: toMemoPayloads(memos),
+          user_id: user.id,
+          is_public: false,
+          ...createdAtField,
+        };
+      } else {
+        // free: 動的カテゴリから tags ペイロードを構築
+        const tags: Record<string, string[]> = {};
+        for (const cat of tagManagement.categories) {
+          const selected = tagManagement.selectedByCategory[cat.name] ?? [];
+          if (selected.length > 0) tags[cat.name] = selected;
+        }
+        pagePayload = {
+          title: title.trim(),
+          tags,
+          content: content.trim(),
+          content_mode: "free",
+          user_id: user.id,
+          is_public: false,
+          ...createdAtField,
+        };
+      }
 
       const result = await createPage(pagePayload);
 
       if (result.success) {
+        // 次回の新規作成で同じモードを初期表示する
+        setLastMode(mode);
+
         const pageId = result.data?.page?.id;
         if (pageId) {
           await attachmentMgmt.saveNewAttachments(pageId);
@@ -210,6 +274,9 @@ export function PageCreate() {
     validateForm,
     title,
     content,
+    mode,
+    memos,
+    setLastMode,
     tagManagement.categories,
     tagManagement.selectedByCategory,
     attachmentMgmt,
@@ -235,7 +302,14 @@ export function PageCreate() {
     router.replace(returnUrl);
   }, [returnUrl, router]);
 
-  const isDisabled = isSubmitting || !title.trim() || !content.trim();
+  const hasCompleteMemo = memos.some((m) => memoStatusOf(m) === "complete");
+  const hasPartialMemo = memos.some((m) => memoStatusOf(m) === "partial");
+  const isDisabled =
+    isSubmitting ||
+    !title.trim() ||
+    (mode === "tag_based"
+      ? availableTags.length === 0 || !hasCompleteMemo || hasPartialMemo
+      : !content.trim());
 
   return (
     <div className={styles.layout}>
@@ -385,31 +459,47 @@ export function PageCreate() {
         </div>
 
         <div className={styles.section}>
-          <TextArea
-            label={t("pageModal.content")}
-            required
-            value={content}
-            placeholder={t("pageCreate.contentPlaceholder")}
-            onChange={(e) => {
-              const v = e.target.value;
-              setContent(v);
-              if (v.length > 3000) {
-                setErrors((prev) => ({
-                  ...prev,
-                  content: t("pageModal.contentTooLong"),
-                }));
-              } else {
-                setErrors((prev) => {
-                  const next = { ...prev };
-                  delete next.content;
-                  return next;
-                });
-              }
-            }}
-            error={errors.content}
-            rows={5}
-          />
+          <span className={styles.contentLabel}>{t("pageModal.content")}</span>
+          <InputModeToggle mode={mode} onChange={setMode} />
         </div>
+
+        {mode === "tag_based" ? (
+          <div className={styles.section}>
+            <TagMemoEditor
+              availableTags={availableTags}
+              memos={memos}
+              onChange={setMemos}
+            />
+            {errors.memos && (
+              <span className={styles.errorText}>{errors.memos}</span>
+            )}
+          </div>
+        ) : (
+          <div className={styles.section}>
+            <TextArea
+              value={content}
+              placeholder={t("pageCreate.contentPlaceholder")}
+              onChange={(e) => {
+                const v = e.target.value;
+                setContent(v);
+                if (v.length > 3000) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    content: t("pageModal.contentTooLong"),
+                  }));
+                } else {
+                  setErrors((prev) => {
+                    const next = { ...prev };
+                    delete next.content;
+                    return next;
+                  });
+                }
+              }}
+              error={errors.content}
+              rows={5}
+            />
+          </div>
+        )}
 
         <div className={styles.section}>
           <AttachmentUpload

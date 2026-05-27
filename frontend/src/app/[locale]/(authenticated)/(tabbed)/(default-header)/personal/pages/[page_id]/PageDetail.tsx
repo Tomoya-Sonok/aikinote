@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
+import { TagMemoList } from "@/components/features/personal/TagMemoList/TagMemoList";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
@@ -263,7 +264,11 @@ export function PageDetail() {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("pageDetail.content")}</h2>
           <div className={styles.divider} />
-          <div className={styles.content}>{linkifyText(trainingContent)}</div>
+          {pageData.content_mode === "tag_based" ? (
+            <TagMemoList memos={pageData.memos} />
+          ) : (
+            <div className={styles.content}>{linkifyText(trainingContent)}</div>
+          )}
         </div>
 
         {/* 添付ファイルセクション */}
