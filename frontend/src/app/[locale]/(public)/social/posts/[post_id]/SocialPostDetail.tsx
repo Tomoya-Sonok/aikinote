@@ -87,7 +87,14 @@ interface SourcePageData {
   id: string;
   title: string;
   content: string;
+  content_mode?: "free" | "tag_based";
   tags: { name: string; category: string }[];
+  // tag_based のときのみ要素を持つ（タグごとに入力したメモ）
+  memos?: {
+    content: string;
+    sort_order: number;
+    tags: { name: string; category: string }[];
+  }[];
 }
 
 interface PostDetailData {
@@ -668,7 +675,25 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               </div>
             )}
             <div className={styles.notebookContent}>
-              {linkifyText(detail.source_page.content)}
+              {detail.source_page.content_mode === "tag_based" &&
+              detail.source_page.memos &&
+              detail.source_page.memos.length > 0
+                ? detail.source_page.memos.map((memo, index) => (
+                    <div key={`${memo.sort_order}-${index}`}>
+                      {index > 0 && (
+                        <div className={styles.memoGap} aria-hidden="true" />
+                      )}
+                      <div className={styles.memoTags}>
+                        {memo.tags.map((tag) => (
+                          <Tag key={`${tag.category}-${tag.name}`}>
+                            {tag.name}
+                          </Tag>
+                        ))}
+                      </div>
+                      {linkifyText(memo.content)}
+                    </div>
+                  ))
+                : linkifyText(detail.source_page.content)}
             </div>
           </div>
         ) : (

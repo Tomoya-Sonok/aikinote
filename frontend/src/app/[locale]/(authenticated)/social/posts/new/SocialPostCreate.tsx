@@ -4,12 +4,25 @@ import { ClipboardText, PlusCircle } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
+import {
+  createEmptyMemo,
+  type MemoDraft,
+  TagMemoEditor,
+} from "@/components/features/personal/TagMemoEditor/TagMemoEditor";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { HashtagTextarea } from "@/components/shared/HashtagTextarea/HashtagTextarea";
 import { InitialTagLanguageDialog } from "@/components/shared/InitialTagLanguageDialog/InitialTagLanguageDialog";
+import { InputModeToggle } from "@/components/shared/InputModeToggle/InputModeToggle";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout/SocialHeader";
 import { OfflineHint } from "@/components/shared/OfflineHint/OfflineHint";
 import { TagSectionWithNewInput } from "@/components/shared/TagSectionWithNewInput/TagSectionWithNewInput";
@@ -32,6 +45,16 @@ import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
+import {
+  buildAvailableTags,
+  memoStatusOf,
+  pruneMemoTags,
+  toMemoPayloads,
+} from "@/lib/utils/tagMemo";
+import {
+  type PageInputMode,
+  usePageInputModeStore,
+} from "@/stores/pageInputModeStore";
 import styles from "./SocialPostCreate.module.css";
 
 type CreateMode = "post" | "training";
@@ -66,6 +89,13 @@ export function SocialPostCreate() {
   });
   const [trainingTitle, setTrainingTitle] = useState("");
   const [trainingContent, setTrainingContent] = useState("");
+  // #280 入力モード（前回選択を記憶。ひとりでのページ作成と共有）とタグごとのメモ
+  const lastMode = usePageInputModeStore((s) => s.lastMode);
+  const setLastMode = usePageInputModeStore((s) => s.setLastMode);
+  const [inputMode, setInputMode] = useState<PageInputMode>(lastMode);
+  const [trainingMemos, setTrainingMemos] = useState<MemoDraft[]>(() => [
+    createEmptyMemo(),
+  ]);
   const trainingAttachmentMgmt = useAttachmentManagement("page");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,6 +107,21 @@ export function SocialPostCreate() {
   const tagManagement = useTagManagement({
     enabled: mode === "training",
   });
+
+  // タグごとのメモの候補タグ（カテゴリ側で選択済みのタグ）
+  const availableTags = useMemo(
+    () =>
+      buildAvailableTags(
+        tagManagement.categories,
+        tagManagement.selectedByCategory,
+      ),
+    [tagManagement.categories, tagManagement.selectedByCategory],
+  );
+
+  // カテゴリ側でタグ選択が解除されたら、メモからもそのタグを取り除く
+  useEffect(() => {
+    setTrainingMemos((prev) => pruneMemoTags(prev, availableTags));
+  }, [availableTags]);
 
   // カテゴリ追加
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -131,6 +176,7 @@ export function SocialPostCreate() {
     return (
       trainingTitle.trim() !== "" ||
       trainingContent.trim() !== "" ||
+      trainingMemos.some((m) => m.content.trim() !== "" || m.tags.length > 0) ||
       trainingAttachmentMgmt.attachments.length > 0
     );
   }, [
@@ -139,6 +185,7 @@ export function SocialPostCreate() {
     postAttachmentMgmt.attachments,
     trainingTitle,
     trainingContent,
+    trainingMemos,
     trainingAttachmentMgmt.attachments,
   ]);
   const isNavigatingRef = useRef(false);
@@ -159,7 +206,14 @@ export function SocialPostCreate() {
       } else if (trainingTitle.length > 35) {
         newErrors.title = t("pageModal.titleTooLong");
       }
-      if (!trainingContent.trim()) {
+      if (inputMode === "tag_based") {
+        const statuses = trainingMemos.map(memoStatusOf);
+        if (statuses.includes("partial")) {
+          newErrors.memos = t("pageCreate.memoIncomplete");
+        } else if (!statuses.includes("complete")) {
+          newErrors.memos = t("pageCreate.memoRequired");
+        }
+      } else if (!trainingContent.trim()) {
         newErrors.content = t("pageModal.contentRequired");
       } else if (trainingContent.length > 3000) {
         newErrors.content = t("pageModal.contentTooLong");
@@ -222,22 +276,38 @@ export function SocialPostCreate() {
     if (!user?.id || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      // 動的カテゴリからtagsペイロードを構築
-      const tags: Record<string, string[]> = {};
-      for (const cat of tagManagement.categories) {
-        const selected = tagManagement.selectedByCategory[cat.name] ?? [];
-        if (selected.length > 0) tags[cat.name] = selected;
-      }
-
-      const result = await createPage({
-        title: trainingTitle.trim(),
-        tags,
-        content: trainingContent.trim(),
-        user_id: user.id,
-        is_public: true,
-      });
+      const result = await createPage(
+        inputMode === "tag_based"
+          ? {
+              title: trainingTitle.trim(),
+              content_mode: "tag_based",
+              memos: toMemoPayloads(trainingMemos),
+              user_id: user.id,
+              is_public: true,
+            }
+          : (() => {
+              // 動的カテゴリからtagsペイロードを構築
+              const tags: Record<string, string[]> = {};
+              for (const cat of tagManagement.categories) {
+                const selected =
+                  tagManagement.selectedByCategory[cat.name] ?? [];
+                if (selected.length > 0) tags[cat.name] = selected;
+              }
+              return {
+                title: trainingTitle.trim(),
+                tags,
+                content: trainingContent.trim(),
+                content_mode: "free" as const,
+                user_id: user.id,
+                is_public: true,
+              };
+            })(),
+      );
 
       if (result.success) {
+        // 次回の作成で同じ入力モードを初期表示する
+        setLastMode(inputMode);
+
         const pageId = result.data?.page?.id;
         if (pageId) {
           await trainingAttachmentMgmt.saveNewAttachments(pageId);
@@ -279,6 +349,9 @@ export function SocialPostCreate() {
     isSubmitting,
     trainingTitle,
     trainingContent,
+    inputMode,
+    trainingMemos,
+    setLastMode,
     tagManagement.categories,
     tagManagement.selectedByCategory,
     trainingAttachmentMgmt,
@@ -324,11 +397,22 @@ export function SocialPostCreate() {
     router.replace("/social/posts");
   }, [router]);
 
+  const trainingHasCompleteMemo = trainingMemos.some(
+    (m) => memoStatusOf(m) === "complete",
+  );
+  const trainingHasPartialMemo = trainingMemos.some(
+    (m) => memoStatusOf(m) === "partial",
+  );
   const isDisabled =
     isSubmitting ||
     (mode === "post"
       ? !postContent.trim()
-      : !trainingTitle.trim() || !trainingContent.trim());
+      : !trainingTitle.trim() ||
+        (inputMode === "tag_based"
+          ? availableTags.length === 0 ||
+            !trainingHasCompleteMemo ||
+            trainingHasPartialMemo
+          : !trainingContent.trim()));
 
   return (
     <div className={styles.layout}>
@@ -457,6 +541,19 @@ export function SocialPostCreate() {
                       });
                     }
                   }}
+                  onBlur={() => {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      if (!trainingTitle.trim()) {
+                        next.title = t("pageCreate.requiredOnBlur", {
+                          field: t("pageModal.title"),
+                        });
+                      } else if (trainingTitle.length <= 35) {
+                        delete next.title;
+                      }
+                      return next;
+                    });
+                  }}
                   error={errors.title}
                   className={styles.titleInput}
                 />
@@ -549,31 +646,68 @@ export function SocialPostCreate() {
             </div>
 
             <div className={styles.section}>
-              <TextArea
-                label={t("pageModal.content")}
-                required
-                value={trainingContent}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setTrainingContent(v);
-                  if (v.length > 3000) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      content: t("pageModal.contentTooLong"),
-                    }));
-                  } else {
+              <span className={styles.contentLabel}>
+                {t("pageModal.content")}
+                <span className={styles.required} aria-hidden="true">
+                  *
+                </span>
+              </span>
+              <InputModeToggle mode={inputMode} onChange={setInputMode} />
+            </div>
+
+            {inputMode === "tag_based" ? (
+              <div className={styles.section}>
+                <TagMemoEditor
+                  availableTags={availableTags}
+                  memos={trainingMemos}
+                  onChange={setTrainingMemos}
+                  contentRequiredMessage={t("pageCreate.requiredOnBlur", {
+                    field: t("pageModal.content"),
+                  })}
+                />
+                {errors.memos && (
+                  <span className={styles.errorText}>{errors.memos}</span>
+                )}
+              </div>
+            ) : (
+              <div className={styles.section}>
+                <TextArea
+                  value={trainingContent}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setTrainingContent(v);
+                    if (v.length > 3000) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        content: t("pageModal.contentTooLong"),
+                      }));
+                    } else {
+                      setErrors((prev) => {
+                        const next = { ...prev };
+                        delete next.content;
+                        return next;
+                      });
+                    }
+                  }}
+                  onBlur={() => {
                     setErrors((prev) => {
                       const next = { ...prev };
-                      delete next.content;
+                      if (!trainingContent.trim()) {
+                        next.content = t("pageCreate.requiredOnBlur", {
+                          field: t("pageModal.content"),
+                        });
+                      } else if (trainingContent.length <= 3000) {
+                        delete next.content;
+                      }
                       return next;
                     });
-                  }
-                }}
-                placeholder={t("pageCreate.contentPlaceholder")}
-                error={errors.content}
-                rows={5}
-              />
-            </div>
+                  }}
+                  placeholder={t("pageCreate.contentPlaceholder")}
+                  error={errors.content}
+                  rows={5}
+                />
+              </div>
+            )}
 
             <div className={styles.section}>
               <AttachmentUpload
@@ -602,7 +736,16 @@ export function SocialPostCreate() {
       <TitleTemplateModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
-        onInsert={(value) => setTrainingTitle(value)}
+        onInsert={(value) => {
+          setTrainingTitle(value);
+          setErrors((prev) => {
+            const next = { ...prev };
+            if (value.trim() && value.length <= 35) {
+              delete next.title;
+            }
+            return next;
+          });
+        }}
       />
 
       <InitialTagLanguageDialog

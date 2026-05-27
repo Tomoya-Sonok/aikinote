@@ -58,6 +58,7 @@ app.post("/", zValidator("json", createPageSchema), async (c) => {
             input.user_id,
             input.content,
             true,
+            input.content_mode ?? "free",
           );
         } catch (socialError) {
           console.error("SocialPost 連動作成エラー:", socialError);
@@ -306,6 +307,7 @@ app.put("/:id", zValidator("json", updatePageSchema), async (c) => {
           input.user_id,
           input.content,
           newIsPublic,
+          input.content_mode ?? "free",
         );
       } catch (socialError) {
         console.error("SocialPost 連動更新エラー:", socialError);
@@ -370,6 +372,7 @@ app.patch(
             user_id,
             updatedPage.content,
             is_public,
+            updatedPage.content_mode ?? "free",
           );
         } catch (socialError) {
           console.error("SocialPost 連動更新エラー:", socialError);

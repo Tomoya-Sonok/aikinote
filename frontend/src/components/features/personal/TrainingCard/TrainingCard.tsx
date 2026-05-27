@@ -39,9 +39,11 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
     onClick,
   }) => {
     const t = useTranslations();
-    // tag_based のページは本文が空なので、先頭メモを抜粋として表示する
+    // tag_based のページは本文が空なので、全メモの本文を空行区切りで表示する
     const snippet =
-      content_mode === "tag_based" ? (memos?.[0]?.content ?? "") : content;
+      content_mode === "tag_based"
+        ? (memos ?? []).map((m) => m.content).join("\n\n")
+        : content;
     const handleEdit = () => {
       onEdit?.();
     };

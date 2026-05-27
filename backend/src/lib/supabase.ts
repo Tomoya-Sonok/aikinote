@@ -1875,12 +1875,31 @@ export const getSocialPostById = async (
 /**
  * TrainingPage の is_public 変更に連動して SocialPost を作成/更新/soft-delete する
  */
+// tag_based ページのメモ本文を、SocialPost 表示・検索用テキストに合成する
+// （各メモ本文を空行区切りで連結。タグごとの表示は詳細画面が source ページから別途行う）
+const composeMemoContentForPage = async (
+  supabaseClient: SupabaseClient,
+  pageId: string,
+): Promise<string> => {
+  const { data: memoRows } = await supabaseClient
+    .from("TrainingPageMemo")
+    .select("content, sort_order")
+    .eq("training_page_id", pageId)
+    .order("sort_order", { ascending: true });
+
+  return (memoRows ?? [])
+    .map((m: { content: string }) => m.content)
+    .filter((c: string) => c.trim().length > 0)
+    .join("\n\n");
+};
+
 export const syncSocialPostForTrainingPage = async (
   supabaseClient: SupabaseClient,
   pageId: string,
   userId: string,
   content: string,
   isPublic: boolean,
+  contentMode?: string,
 ): Promise<void> => {
   // 既存の SocialPost を検索
   const { data: existingPost } = await supabaseClient
@@ -1890,12 +1909,19 @@ export const syncSocialPostForTrainingPage = async (
     .maybeSingle();
 
   if (isPublic) {
+    // tag_based ページは本文が空のため、メモ本文を合成して SocialPost.content に持たせる
+    // （フィード表示・投稿検索が SocialPost.content を参照するため）
+    const effectiveContent =
+      contentMode === "tag_based"
+        ? await composeMemoContentForPage(supabaseClient, pageId)
+        : content;
+
     if (existingPost) {
       // 既存の SocialPost を更新（再公開含む）
       await supabaseClient
         .from("SocialPost")
         .update({
-          content,
+          content: effectiveContent,
           is_deleted: false,
           updated_at: new Date().toISOString(),
         })
@@ -1910,7 +1936,7 @@ export const syncSocialPostForTrainingPage = async (
 
       await createSocialPost(supabaseClient, {
         user_id: userId,
-        content,
+        content: effectiveContent,
         post_type: "training_record",
         author_dojo_style_id: userData?.dojo_style_id ?? null,
         author_dojo_name: userData?.dojo_style_name ?? null,
@@ -1939,11 +1965,18 @@ export const getSourcePageData = async (
   id: string;
   title: string;
   content: string;
+  content_mode: "free" | "tag_based";
   tags: { name: string; category: string }[];
+  // tag_based のときのみ要素を持つ（タグごとに入力したメモ）
+  memos: {
+    content: string;
+    sort_order: number;
+    tags: { name: string; category: string }[];
+  }[];
 } | null> => {
   const { data: pageData } = await supabaseClient
     .from("TrainingPage")
-    .select("id, title, content")
+    .select("id, title, content, content_mode")
     .eq("id", sourcePageId)
     .single();
 
@@ -1954,13 +1987,66 @@ export const getSourcePageData = async (
     .select("UserTag(name, category)")
     .eq("training_page_id", sourcePageId);
 
+  const contentMode: "free" | "tag_based" =
+    pageData.content_mode === "tag_based" ? "tag_based" : "free";
+
+  // tag_based のページはメモ（本文 + タグ）も取得する
+  let memos: {
+    content: string;
+    sort_order: number;
+    tags: { name: string; category: string }[];
+  }[] = [];
+  if (contentMode === "tag_based") {
+    const { data: memoRows } = await supabaseClient
+      .from("TrainingPageMemo")
+      .select("id, content, sort_order")
+      .eq("training_page_id", sourcePageId)
+      .order("sort_order", { ascending: true });
+
+    if (memoRows && memoRows.length > 0) {
+      const memoIds = memoRows.map((m: { id: string }) => m.id);
+      const { data: memoTagRows } = await supabaseClient
+        .from("TrainingPageMemoTag")
+        .select("training_page_memo_id, UserTag(name, category)")
+        .in("training_page_memo_id", memoIds);
+
+      const tagsByMemo = new Map<
+        string,
+        { name: string; category: string }[]
+      >();
+      for (const row of (memoTagRows ?? []) as {
+        training_page_memo_id: string;
+        // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
+        UserTag: any;
+      }[]) {
+        const tag = Array.isArray(row.UserTag) ? row.UserTag[0] : row.UserTag;
+        if (!tag?.name) continue;
+        const list = tagsByMemo.get(row.training_page_memo_id) ?? [];
+        list.push({ name: tag.name, category: tag.category ?? "" });
+        tagsByMemo.set(row.training_page_memo_id, list);
+      }
+
+      memos = memoRows.map(
+        (m: { id: string; content: string; sort_order: number }) => ({
+          content: m.content,
+          sort_order: m.sort_order,
+          tags: tagsByMemo.get(m.id) ?? [],
+        }),
+      );
+    }
+  }
+
   return {
-    ...pageData,
+    id: pageData.id,
+    title: pageData.title,
+    content: pageData.content,
+    content_mode: contentMode,
     // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
     tags: (pageTagsData ?? []).map((row: any) => ({
       name: row.UserTag?.name ?? "",
       category: row.UserTag?.category ?? "",
     })),
+    memos,
   };
 };
 
