@@ -356,14 +356,18 @@ export function PageCreate() {
                 }
               }}
               onBlur={() => {
-                if (!title.trim()) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    title: t("pageCreate.requiredOnBlur", {
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  if (!title.trim()) {
+                    next.title = t("pageCreate.requiredOnBlur", {
                       field: t("pageModal.title"),
-                    }),
-                  }));
-                }
+                    });
+                  } else if (title.length <= 35) {
+                    // 入力済みで文字数も適正ならエラー・赤枠を解除
+                    delete next.title;
+                  }
+                  return next;
+                });
               }}
               error={errors.title}
               className={styles.titleInput}
@@ -484,6 +488,9 @@ export function PageCreate() {
               availableTags={availableTags}
               memos={memos}
               onChange={setMemos}
+              contentRequiredMessage={t("pageCreate.requiredOnBlur", {
+                field: t("pageModal.content"),
+              })}
             />
             {errors.memos && (
               <span className={styles.errorText}>{errors.memos}</span>
@@ -511,14 +518,17 @@ export function PageCreate() {
                 }
               }}
               onBlur={() => {
-                if (!content.trim()) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    content: t("pageCreate.requiredOnBlur", {
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  if (!content.trim()) {
+                    next.content = t("pageCreate.requiredOnBlur", {
                       field: t("pageModal.content"),
-                    }),
-                  }));
-                }
+                    });
+                  } else if (content.length <= 3000) {
+                    delete next.content;
+                  }
+                  return next;
+                });
               }}
               error={errors.content}
               rows={5}
@@ -549,7 +559,17 @@ export function PageCreate() {
       <TitleTemplateModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
-        onInsert={(value) => setTitle(value)}
+        onInsert={(value) => {
+          setTitle(value);
+          // テンプレート挿入でタイトルが入ったら、空時に出した必須エラー・赤枠を解除する
+          setErrors((prev) => {
+            const next = { ...prev };
+            if (value.trim() && value.length <= 35) {
+              delete next.title;
+            }
+            return next;
+          });
+        }}
         dateOverride={dateParam || undefined}
       />
 

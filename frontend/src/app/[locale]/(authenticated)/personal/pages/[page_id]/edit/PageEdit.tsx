@@ -387,14 +387,17 @@ export function PageEdit() {
               }
             }}
             onBlur={() => {
-              if (!title.trim()) {
-                setErrors((prev) => ({
-                  ...prev,
-                  title: t("pageDetail.requiredOnBlur", {
+              setErrors((prev) => {
+                const next = { ...prev };
+                if (!title.trim()) {
+                  next.title = t("pageDetail.requiredOnBlur", {
                     field: t("pageModal.title"),
-                  }),
-                }));
-              }
+                  });
+                } else if (title.length <= 35) {
+                  delete next.title;
+                }
+                return next;
+              });
             }}
             error={errors.title}
           />
@@ -497,6 +500,9 @@ export function PageEdit() {
               availableTags={memoAvailableTags}
               memos={memos}
               onChange={setMemos}
+              contentRequiredMessage={t("pageDetail.requiredOnBlur", {
+                field: t("pageModal.content"),
+              })}
             />
             {errors.memos && (
               <span className={styles.errorText}>{errors.memos}</span>
@@ -523,14 +529,17 @@ export function PageEdit() {
                 }
               }}
               onBlur={() => {
-                if (!content.trim()) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    content: t("pageDetail.requiredOnBlur", {
+                setErrors((prev) => {
+                  const next = { ...prev };
+                  if (!content.trim()) {
+                    next.content = t("pageDetail.requiredOnBlur", {
                       field: t("pageModal.content"),
-                    }),
-                  }));
-                }
+                    });
+                  } else if (content.length <= 3000) {
+                    delete next.content;
+                  }
+                  return next;
+                });
               }}
               error={errors.content}
               rows={5}

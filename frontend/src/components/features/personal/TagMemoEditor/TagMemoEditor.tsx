@@ -2,6 +2,7 @@
 
 import { PlusCircle, XCircle } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Tag } from "@/components/shared/Tag/Tag";
 import { TextArea } from "@/components/shared/TextArea/TextArea";
 import styles from "./TagMemoEditor.module.css";
@@ -19,6 +20,8 @@ interface TagMemoEditorProps {
   availableTags: MemoTagRef[];
   memos: MemoDraft[];
   onChange: (memos: MemoDraft[]) => void;
+  // メモ本文が空のままフォーカスを外したときに表示するエラーメッセージ
+  contentRequiredMessage?: string;
   maxMemos?: number;
   maxTagsPerMemo?: number;
   maxContentLength?: number;
@@ -39,11 +42,37 @@ export function TagMemoEditor({
   availableTags,
   memos,
   onChange,
+  contentRequiredMessage,
   maxMemos = 10,
   maxTagsPerMemo = 3,
   maxContentLength = 500,
 }: TagMemoEditorProps) {
   const t = useTranslations();
+  // 本文が空のままフォーカスを外したメモのID（onBlur エラー表示用）
+  const [blurredEmptyIds, setBlurredEmptyIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+
+  const clearBlurred = (id: string) => {
+    setBlurredEmptyIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const handleContentBlur = (id: string, content: string) => {
+    setBlurredEmptyIds((prev) => {
+      const next = new Set(prev);
+      if (content.trim()) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   // タグ未選択時はメモを入力できない（エラーメッセージ + 非活性）
   if (availableTags.length === 0) {
@@ -76,6 +105,7 @@ export function TagMemoEditor({
   };
 
   const removeMemo = (id: string) => {
+    clearBlurred(id);
     onChange(memos.filter((m) => m.id !== id));
   };
 
@@ -128,10 +158,16 @@ export function TagMemoEditor({
             <TextArea
               value={memo.content}
               placeholder={t("pageCreate.memoContentPlaceholder")}
-              onChange={(e) =>
-                updateMemo(memo.id, {
-                  content: e.target.value.slice(0, maxContentLength),
-                })
+              onChange={(e) => {
+                const v = e.target.value.slice(0, maxContentLength);
+                updateMemo(memo.id, { content: v });
+                if (v.trim()) clearBlurred(memo.id);
+              }}
+              onBlur={() => handleContentBlur(memo.id, memo.content)}
+              error={
+                blurredEmptyIds.has(memo.id)
+                  ? contentRequiredMessage
+                  : undefined
               }
               maxLength={maxContentLength}
               showCharCount
