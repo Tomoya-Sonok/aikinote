@@ -118,7 +118,16 @@ public.User
 
 ### 1. ログインページアクセス
 **場所**: `app/[locale]/(public)/login/page.tsx`
-既にログイン済みの場合はマイページへリダイレクトされます。
+既にログイン済みの場合はマイページへリダイレクトされます。この判定は `GuestGate`
+（`components/shared/auth/GuestGate.tsx`）が担います。
+
+> **⚠️ Cache Components(PPR) 環境での注意**: `GuestGate` は冒頭で `connection()` を呼び、
+> リクエスト毎に必ず認証状態を評価させています。これを怠ると、`cacheComponents: true` 下で
+> 認証チェックを含む公開ページが**未認証状態の静的シェルとしてプリレンダリング**され、
+> ログイン Cookie が有効でも「新規登録 / ログイン画面」が表示されてしまいます
+> （ネイティブアプリは起動時に必ず `/signup` を開くため、再起動の度に新規登録画面が出る不具合に直結しました）。
+> signup / login / forgot-password / reset-password / verify-email / error の各公開認証ページが
+> `GuestGate` でラップされています（認証ロジックが異なる `social/profile` は `connection()` を直接呼んで動的化）。
 
 ### 2. 認証処理 (Supabase)
 Supabase Auth API を叩き、アクセストークンとリフレッシュトークンを取得します。これらは `HttpOnly` Cookie に安全に保存されます。
@@ -375,6 +384,8 @@ if (!user) return <Redirect to="/login" />; // 確定後に判定
 | `frontend/src/lib/supabase/server.ts` | サーバーサイド用 Supabase クライアント |
 | `frontend/src/lib/utils/returnTo.ts` | 認証後リダイレクト（returnTo）ユーティリティ |
 | `frontend/src/lib/hooks/useAuth.tsx` | 認証フック / Context Provider（ログイン・ログアウト・OAuth・3 秒タイムアウト） |
+| `frontend/src/components/shared/auth/AuthGate.tsx` | 認証必須ページ用ゲート。未認証なら `/login` へリダイレクト |
+| `frontend/src/components/shared/auth/GuestGate.tsx` | 公開認証ページ用ゲート。認証済みなら `/personal/pages` へリダイレクト。冒頭の `connection()` で PPR の静的シェル化を抑止 |
 | `frontend/src/server/trpc/index.ts` | tRPC `authenticatedProcedure` — `getUser()` 検証 + 自前 JWT 発行 |
 | `frontend/src/app/auth/callback/route.ts` | OAuth コールバック（セッション交換 + returnTo リダイレクト） |
 | `frontend/src/proxy.ts` | ルーティング保護ミドルウェア (旧 `middleware.ts`)。RSC リクエスト時は getSession スキップ |

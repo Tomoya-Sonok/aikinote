@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { GuestGate } from "@/components/shared/auth";
 import { NotLoggedInLayout } from "@/components/shared/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser } from "@/lib/server/auth";
 import { SignUp } from "./SignUp";
 
 interface SignupPageProps {
@@ -16,15 +15,12 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function Page({ params }: SignupPageProps) {
   const { locale } = await params;
-  const user = await getCurrentUser();
-
-  if (user) {
-    redirect(`/${locale}/personal/pages`);
-  }
 
   return (
-    <NotLoggedInLayout>
-      <SignUp locale={locale} />
-    </NotLoggedInLayout>
+    <GuestGate>
+      <NotLoggedInLayout>
+        <SignUp locale={locale} />
+      </NotLoggedInLayout>
+    </GuestGate>
   );
 }

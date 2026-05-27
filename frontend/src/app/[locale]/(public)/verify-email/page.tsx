@@ -1,13 +1,12 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { EmailVerificationForm } from "@/components/features/auth/EmailVerificationForm";
+import { GuestGate } from "@/components/shared/auth";
 import { Loader } from "@/components/shared/Loader";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 interface VerifyEmailPageProps {
@@ -75,12 +74,6 @@ export default async function VerifyEmailPage({
     params,
     searchParams,
   ]);
-  const user = await getCurrentUser();
-
-  if (user) {
-    redirect(`/${locale}/personal/pages`);
-  }
-
   const t = await getTranslations({
     locale,
     namespace: "auth",
@@ -88,13 +81,17 @@ export default async function VerifyEmailPage({
   const signupHref = `/${locale}/signup`;
 
   return (
-    <MinimalLayout headerTitle={t("emailVerification")} backHref={signupHref}>
-      <Suspense fallback={<Loader size="large" centered text={t("loading")} />}>
-        <EmailVerificationContent
-          searchParams={{ ...resolvedSearchParams, locale }}
-          locale={locale}
-        />
-      </Suspense>
-    </MinimalLayout>
+    <GuestGate>
+      <MinimalLayout headerTitle={t("emailVerification")} backHref={signupHref}>
+        <Suspense
+          fallback={<Loader size="large" centered text={t("loading")} />}
+        >
+          <EmailVerificationContent
+            searchParams={{ ...resolvedSearchParams, locale }}
+            locale={locale}
+          />
+        </Suspense>
+      </MinimalLayout>
+    </GuestGate>
   );
 }

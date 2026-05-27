@@ -1,14 +1,13 @@
 import { WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { ResetPasswordForm } from "@/components/features/auth/ResetPasswordForm";
+import { GuestGate } from "@/components/shared/auth";
 import { Loader } from "@/components/shared/Loader";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser } from "@/lib/server/auth";
 import styles from "./page.module.css";
 
 export async function generateMetadata({
@@ -64,32 +63,28 @@ export default async function ResetPasswordPage({
     params,
     searchParams,
   ]);
-  const user = await getCurrentUser();
-
-  if (user) {
-    redirect(`/${locale}/personal/pages`);
-  }
-
   const t = await getTranslations({ locale });
   const loginHref = `/${locale}/login`;
 
   return (
-    <MinimalLayout
-      headerTitle={t("auth.newPasswordTitle")}
-      backHref={loginHref}
-    >
-      <Suspense
-        fallback={
-          <div className={styles.formCard}>
-            <Loader size="large" centered text={t("auth.loading")} />
-          </div>
-        }
+    <GuestGate>
+      <MinimalLayout
+        headerTitle={t("auth.newPasswordTitle")}
+        backHref={loginHref}
       >
-        <ResetPasswordContent
-          searchParams={resolvedSearchParams}
-          locale={locale}
-        />
-      </Suspense>
-    </MinimalLayout>
+        <Suspense
+          fallback={
+            <div className={styles.formCard}>
+              <Loader size="large" centered text={t("auth.loading")} />
+            </div>
+          }
+        >
+          <ResetPasswordContent
+            searchParams={resolvedSearchParams}
+            locale={locale}
+          />
+        </Suspense>
+      </MinimalLayout>
+    </GuestGate>
   );
 }
