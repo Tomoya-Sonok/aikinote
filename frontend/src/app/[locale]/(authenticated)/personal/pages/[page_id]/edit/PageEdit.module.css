@@ -21,6 +21,28 @@
   flex-direction: column;
 }
 
+.contentLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.required {
+  color: var(--error-color);
+  font-size: var(--font-size-xs);
+  padding-left: 4px;
+}
+
+.errorText {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+  margin-top: 6px;
+}
+
 .addCategoryArea {
   border-bottom: 1px solid var(--text-light);
 }

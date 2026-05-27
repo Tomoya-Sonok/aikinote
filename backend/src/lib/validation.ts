@@ -1,31 +1,86 @@
 import { z } from "zod";
 
-// ページ作成のバリデーションスキーマ
-export const createPageSchema = z.object({
-  title: z
-    .string()
-    .min(1, "タイトルは必須です")
-    .max(100, "タイトルは100文字以内で入力してください"),
-  // 新形式: 動的カテゴリ対応
-  tags: z.record(z.string(), z.array(z.string())).optional(),
-  // 旧形式: 後方互換
-  tori: z.array(z.string()).optional().default([]),
-  uke: z.array(z.string()).optional().default([]),
-  waza: z.array(z.string()).optional().default([]),
+// #280 タグごとのメモ入力: 1メモ = タグ1〜3個 + 本文（最大500字）
+export const trainingPageMemoInputSchema = z.object({
+  tags: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        category: z.string().min(1),
+      }),
+    )
+    .min(1, "メモには1〜3個のタグを選択してください")
+    .max(3, "メモのタグは3個までです"),
   content: z
     .string()
-    .min(1, "内容は必須です")
-    .max(3000, "内容は3000文字以内で入力してください"),
-  user_id: z.string().min(1, "ユーザーIDは必須です"),
-  is_public: z.boolean().optional().default(false),
-  created_at: z
-    .string()
-    .regex(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
-      "created_atはISO 8601形式(YYYY-MM-DDTHH:mm:ss.sssZ)で指定してください",
-    )
-    .optional(),
+    .min(1, "メモ内容は必須です")
+    .max(500, "メモは500文字以内で入力してください"),
 });
+
+export type TrainingPageMemoInput = z.infer<typeof trainingPageMemoInputSchema>;
+
+// 入力モード（free: 自由入力 / tag_based: タグごとのメモ）と本文/メモの整合性チェック
+const refineContentMode = (
+  val: {
+    content_mode?: "free" | "tag_based";
+    content?: string;
+    memos?: TrainingPageMemoInput[];
+  },
+  ctx: z.RefinementCtx,
+) => {
+  if (val.content_mode === "tag_based") {
+    if (!val.memos || val.memos.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["memos"],
+        message: "タグごとのメモを1件以上入力してください",
+      });
+    }
+  } else if (!val.content || val.content.trim().length === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["content"],
+      message: "内容は必須です",
+    });
+  }
+};
+
+// ページ作成のバリデーションスキーマ
+export const createPageSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, "タイトルは必須です")
+      .max(100, "タイトルは100文字以内で入力してください"),
+    // 新形式: 動的カテゴリ対応
+    tags: z.record(z.string(), z.array(z.string())).optional(),
+    // 旧形式: 後方互換
+    tori: z.array(z.string()).optional().default([]),
+    uke: z.array(z.string()).optional().default([]),
+    waza: z.array(z.string()).optional().default([]),
+    // 自由入力本文（tag_based モードでは空文字を許容）
+    content: z
+      .string()
+      .max(3000, "内容は3000文字以内で入力してください")
+      .optional()
+      .default(""),
+    // #280 入力モードとタグごとのメモ
+    content_mode: z.enum(["free", "tag_based"]).optional().default("free"),
+    memos: z
+      .array(trainingPageMemoInputSchema)
+      .max(10, "メモは10件までです")
+      .optional(),
+    user_id: z.string().min(1, "ユーザーIDは必須です"),
+    is_public: z.boolean().optional().default(false),
+    created_at: z
+      .string()
+      .regex(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        "created_atはISO 8601形式(YYYY-MM-DDTHH:mm:ss.sssZ)で指定してください",
+      )
+      .optional(),
+  })
+  .superRefine(refineContentMode);
 
 export type CreatePageInput = z.infer<typeof createPageSchema>;
 
@@ -52,25 +107,33 @@ export const resolveTagNames = (input: {
 };
 
 // ページ更新のバリデーションスキーマ
-export const updatePageSchema = z.object({
-  id: z.string().min(1, "ページIDは必須です"),
-  title: z
-    .string()
-    .min(1, "タイトルは必須です")
-    .max(100, "タイトルは100文字以内で入力してください"),
-  // 新形式: 動的カテゴリ対応
-  tags: z.record(z.string(), z.array(z.string())).optional(),
-  // 旧形式: 後方互換
-  tori: z.array(z.string()).optional().default([]),
-  uke: z.array(z.string()).optional().default([]),
-  waza: z.array(z.string()).optional().default([]),
-  content: z
-    .string()
-    .min(1, "内容は必須です")
-    .max(3000, "内容は3000文字以内で入力してください"),
-  user_id: z.string().min(1, "ユーザーIDは必須です"),
-  is_public: z.boolean().optional(),
-});
+export const updatePageSchema = z
+  .object({
+    id: z.string().min(1, "ページIDは必須です"),
+    title: z
+      .string()
+      .min(1, "タイトルは必須です")
+      .max(100, "タイトルは100文字以内で入力してください"),
+    // 新形式: 動的カテゴリ対応
+    tags: z.record(z.string(), z.array(z.string())).optional(),
+    // 旧形式: 後方互換
+    tori: z.array(z.string()).optional().default([]),
+    uke: z.array(z.string()).optional().default([]),
+    waza: z.array(z.string()).optional().default([]),
+    content: z
+      .string()
+      .max(3000, "内容は3000文字以内で入力してください")
+      .optional()
+      .default(""),
+    content_mode: z.enum(["free", "tag_based"]).optional().default("free"),
+    memos: z
+      .array(trainingPageMemoInputSchema)
+      .max(10, "メモは10件までです")
+      .optional(),
+    user_id: z.string().min(1, "ユーザーIDは必須です"),
+    is_public: z.boolean().optional(),
+  })
+  .superRefine(refineContentMode);
 
 export type UpdatePageInput = z.infer<typeof updatePageSchema>;
 
@@ -89,10 +152,26 @@ export const pageResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
   content: z.string(),
+  // #280 入力モード（既存ページは未指定 = free 扱い）
+  content_mode: z.enum(["free", "tag_based"]).optional(),
   user_id: z.string(),
   is_public: z.boolean().default(false),
   created_at: z.string(),
   updated_at: z.string(),
+});
+
+// #280 タグごとのメモのレスポンス型
+export const trainingPageMemoResponseSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  sort_order: z.number().int(),
+  tags: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      category: z.string(),
+    }),
+  ),
 });
 
 // タグ情報を含むページレスポンスの型
@@ -105,6 +184,8 @@ export const pageWithTagsResponseSchema = z.object({
       category: z.string(),
     }),
   ),
+  // tag_based モードのページのみ。free モードでは undefined
+  memos: z.array(trainingPageMemoResponseSchema).optional(),
   attachments: z
     .array(
       z.object({

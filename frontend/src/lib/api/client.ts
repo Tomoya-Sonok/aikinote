@@ -112,6 +112,12 @@ export const deleteTitleTemplate = async (
   }
 };
 
+// #280 タグごとのメモ入力（タグは name + category で指定）
+export interface MemoPayload {
+  tags: { name: string; category: string }[];
+  content: string;
+}
+
 // ページ作成の型定義（フロントエンド用）
 export interface CreatePagePayload {
   title: string;
@@ -119,7 +125,9 @@ export interface CreatePagePayload {
   tori?: string[];
   uke?: string[];
   waza?: string[];
-  content: string;
+  content?: string;
+  content_mode?: "free" | "tag_based";
+  memos?: MemoPayload[];
   user_id: string;
   is_public?: boolean;
   created_at?: string;
@@ -303,7 +311,9 @@ export interface UpdatePagePayload {
   tori?: string[];
   uke?: string[];
   waza?: string[];
-  content: string;
+  content?: string;
+  content_mode?: "free" | "tag_based";
+  memos?: MemoPayload[];
   user_id: string;
   is_public?: boolean;
 }

@@ -87,7 +87,14 @@ interface SourcePageData {
   id: string;
   title: string;
   content: string;
+  content_mode?: "free" | "tag_based";
   tags: { name: string; category: string }[];
+  // tag_based のときのみ要素を持つ（タグごとに入力したメモ）
+  memos?: {
+    content: string;
+    sort_order: number;
+    tags: { name: string; category: string }[];
+  }[];
 }
 
 interface PostDetailData {
@@ -473,8 +480,19 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleStartEdit = useCallback(() => {
     setShowMenu(false);
-    router.push(`/social/posts/${postId}/edit`);
-  }, [router, postId]);
+    // 稽古記録投稿は実体が TrainingPage なので、「ひとりで」と同じ PageEdit で編集する。
+    // 保存・戻る後は投稿一覧へ戻す（編集直後の投稿が一覧最上部に反映される）。
+    if (
+      detail?.post.post_type === "training_record" &&
+      detail.post.source_page_id
+    ) {
+      router.push(
+        `/personal/pages/${detail.post.source_page_id}/edit?returnUrl=/social/posts`,
+      );
+    } else {
+      router.push(`/social/posts/${postId}/edit`);
+    }
+  }, [router, postId, detail]);
 
   const handleShare = useCallback(async () => {
     if (!detail) return;
@@ -660,15 +678,35 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         {detail.source_page && detail.post.post_type === "training_record" ? (
           <div className={styles.notebookArea}>
             <h2 className={styles.notebookTitle}>{detail.source_page.title}</h2>
-            {detail.source_page.tags.length > 0 && (
-              <div className={styles.tags}>
-                {detail.source_page.tags.map((tag) => (
-                  <Tag key={`${tag.category}-${tag.name}`}>{tag.name}</Tag>
-                ))}
-              </div>
-            )}
+            {/* tag_based はメモごとにタグを表示するため、ここでの全タグ表示は省略 */}
+            {detail.source_page.content_mode !== "tag_based" &&
+              detail.source_page.tags.length > 0 && (
+                <div className={styles.tags}>
+                  {detail.source_page.tags.map((tag) => (
+                    <Tag key={`${tag.category}-${tag.name}`}>{tag.name}</Tag>
+                  ))}
+                </div>
+              )}
             <div className={styles.notebookContent}>
-              {linkifyText(detail.source_page.content)}
+              {detail.source_page.content_mode === "tag_based" &&
+              detail.source_page.memos &&
+              detail.source_page.memos.length > 0
+                ? detail.source_page.memos.map((memo, index) => (
+                    <div key={`${memo.sort_order}-${index}`}>
+                      {index > 0 && (
+                        <div className={styles.memoGap} aria-hidden="true" />
+                      )}
+                      <div className={styles.memoTags}>
+                        {memo.tags.map((tag) => (
+                          <Tag key={`${tag.category}-${tag.name}`}>
+                            {tag.name}
+                          </Tag>
+                        ))}
+                      </div>
+                      {linkifyText(memo.content)}
+                    </div>
+                  ))
+                : linkifyText(detail.source_page.content)}
             </div>
           </div>
         ) : (

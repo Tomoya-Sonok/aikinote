@@ -115,9 +115,16 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
           id: item.page.id,
           title: item.page.title,
           content: item.page.content,
+          content_mode: item.page.content_mode ?? "free",
           is_public: item.page.is_public ?? false,
           date: formatToLocalDateString(item.page.created_at),
           tags: item.tags.map((tag) => tag.name),
+          memos: (item.memos ?? []).map((memo) => ({
+            id: memo.id,
+            content: memo.content,
+            sort_order: memo.sort_order,
+            tags: memo.tags,
+          })),
           attachments: item.attachments ?? [],
         }));
 

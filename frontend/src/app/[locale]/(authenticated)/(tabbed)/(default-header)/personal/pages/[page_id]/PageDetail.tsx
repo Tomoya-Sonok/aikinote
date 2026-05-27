@@ -251,19 +251,41 @@ export function PageDetail() {
         <div className={styles.header}>
           <h1 className={styles.title}>{pageData.title}</h1>
 
-          {/* タグ表示 */}
-          <div className={styles.tagsContainer}>
-            {pageData.tags.map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-          </div>
+          {/* タグ表示: tag_based はメモごとにタグを表示するため、ここでの全タグ表示は省略 */}
+          {pageData.content_mode !== "tag_based" && (
+            <div className={styles.tagsContainer}>
+              {pageData.tags.map((tag) => (
+                <Tag key={tag}>{tag}</Tag>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 内容セクション */}
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("pageDetail.content")}</h2>
           <div className={styles.divider} />
-          <div className={styles.content}>{linkifyText(trainingContent)}</div>
+          {pageData.content_mode === "tag_based" ? (
+            // 自由入力と同じノート罫線コンテナ内に「タグ + 本文」を描画し、
+            // メモ間は空行1つで区切る
+            <div className={styles.content}>
+              {pageData.memos.map((memo, index) => (
+                <div key={memo.id}>
+                  {index > 0 && (
+                    <div className={styles.memoGap} aria-hidden="true" />
+                  )}
+                  <div className={styles.memoTags}>
+                    {memo.tags.map((tag) => (
+                      <Tag key={tag.id}>{tag.name}</Tag>
+                    ))}
+                  </div>
+                  {linkifyText(memo.content)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.content}>{linkifyText(trainingContent)}</div>
+          )}
         </div>
 
         {/* 添付ファイルセクション */}
