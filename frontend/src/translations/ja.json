@@ -356,6 +356,49 @@
     "processing": "処理中...",
     "close": "自分で探すからいい"
   },
+  "premiumModalAiCoach": {
+    "badge": "PREMIUM",
+    "title": "AIコーチに、\nもっと相談しませんか？",
+    "description": "あなたの稽古記録をもとに、振り返りや上達のアドバイス、自由技の提案までAIコーチがサポートします。",
+    "upgradeMain": "AIコーチをもっと使う",
+    "upgradeSub": "月額 ¥380",
+    "close": "また今度にする"
+  },
+  "aiCoach": {
+    "title": "AIコーチ",
+    "openButton": "AIコーチに相談する",
+    "back": "戻る",
+    "newConversation": "新しい会話",
+    "noConversations": "会話がありません",
+    "untitled": "無題の会話",
+    "deleteConversation": "この会話を削除",
+    "loading": "読み込み中...",
+    "loadFailed": "会話の読み込みに失敗しました",
+    "createFailed": "会話の作成に失敗しました",
+    "deleteFailed": "会話の削除に失敗しました",
+    "sendFailed": "送信に失敗しました",
+    "emptyHint": "稽古記録をもとに、振り返りや上達のヒント、自由技のアイデアなどを聞いてみましょう。",
+    "inputPlaceholder": "AIコーチに質問・相談する",
+    "send": "送信",
+    "quickActions": {
+      "weeklyReview": {
+        "label": "今週の振り返り",
+        "prompt": "直近1週間の稽古記録をもとに、今週の稽古を振り返ってください。"
+      },
+      "weakPoints": {
+        "label": "苦手な技の分析",
+        "prompt": "これまでの稽古記録から、私が苦手にしていそうな技や課題を分析してください。"
+      },
+      "freeTechnique": {
+        "label": "自由技を提案",
+        "prompt": "これまでに稽古した技をもとに、練習すると良さそうな自由技の流れを提案してください。"
+      },
+      "improvementAdvice": {
+        "label": "上達のアドバイス",
+        "prompt": "私の稽古記録を踏まえて、これから上達するためのアドバイスをください。"
+      }
+    }
+  },
   "premiumModalCalendar": {
     "badge": "PREMIUM",
     "title": "稽古の目標を、\n明確にしよう",

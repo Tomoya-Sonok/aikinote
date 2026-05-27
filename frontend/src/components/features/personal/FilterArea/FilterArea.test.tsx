@@ -4,6 +4,11 @@ import { describe, expect, it, vi } from "vitest";
 import { I18nTestProvider } from "@/test-utils/i18n-test-provider";
 import { FilterArea } from "./FilterArea";
 
+// AIコーチ起動ボタンが使う useUmamiTrack（内部で useAuth を呼ぶ）をスタブ化
+vi.mock("@/lib/hooks/useUmamiTrack", () => ({
+  useUmamiTrack: () => ({ track: vi.fn() }),
+}));
+
 vi.mock("../DatePickerModal", () => ({
   DatePickerModal: ({
     isOpen,

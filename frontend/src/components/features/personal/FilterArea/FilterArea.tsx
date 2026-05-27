@@ -2,6 +2,7 @@ import {
   CalendarDotsIcon,
   CaretRightIcon,
   FunnelXIcon,
+  SparkleIcon,
   TagIcon,
 } from "@phosphor-icons/react";
 import { format, isValid, parse } from "date-fns";
@@ -10,6 +11,8 @@ import type { ChangeEvent, FC } from "react";
 import { useRef, useState } from "react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { type DateRange } from "@/lib/hooks/useTrainingPageFilters";
+import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
+import { useRouter } from "@/lib/i18n/routing";
 import { DatePickerModal } from "../DatePickerModal";
 import styles from "./FilterArea.module.css";
 
@@ -42,8 +45,16 @@ export const FilterArea: FC<FilterAreaProps> = ({
   userId,
 }) => {
   const t = useTranslations();
+  const router = useRouter();
+  const { track } = useUmamiTrack();
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // AIコーチ起動: Umami にイベント送信してから全画面チャットへ遷移
+  const handleOpenAiCoach = () => {
+    track("ai_coach_chat_start", { source: "page_list_filter" });
+    router.push("/personal/ai-coach/chat");
+  };
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isLongPressActiveRef = useRef(false);
 
@@ -145,6 +156,15 @@ export const FilterArea: FC<FilterAreaProps> = ({
             placeholder={t("filter.searchPlaceholder")}
           />
         </div>
+        <button
+          type="button"
+          className={styles.aiCoachButton}
+          onClick={handleOpenAiCoach}
+          aria-label={t("aiCoach.openButton")}
+          title={t("aiCoach.openButton")}
+        >
+          <SparkleIcon size={22} weight="light" color="var(--primary-color)" />
+        </button>
         {hasFilters && (
           <div className={styles.clearButtonContainer}>
             <button
