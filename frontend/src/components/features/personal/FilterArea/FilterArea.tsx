@@ -164,6 +164,7 @@ export const FilterArea: FC<FilterAreaProps> = ({
           title={t("aiCoach.openButton")}
         >
           <SparkleIcon size={22} weight="light" color="var(--primary-color)" />
+          <span className={styles.aiCoachLabel}>{t("aiCoach.title")}</span>
         </button>
         {hasFilters && (
           <div className={styles.clearButtonContainer}>

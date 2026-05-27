@@ -26,22 +26,25 @@
 .aiCoachButton {
   flex-shrink: 0;
   background: none;
-  border: 0.5px solid var(--border-color);
-  padding: 8px;
-  border-radius: 50%;
+  border: none;
+  padding: 2px 4px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   cursor: pointer;
-  transition: border-color 0.2s;
   -webkit-tap-highlight-color: transparent;
   /* タップ領域確保（SPファースト） */
-  width: 40px;
-  height: 40px;
+  min-width: 44px;
 }
 
-.aiCoachButton:hover {
-  border-color: var(--primary-color);
+.aiCoachLabel {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  color: var(--primary-color);
+  white-space: nowrap;
 }
 
 .clearButtonContainer {

@@ -63,7 +63,7 @@ export async function fetchUserTrainingRecords(
 ): Promise<TrainingRecordForContext[]> {
   const { data: pages } = await supabase
     .from("TrainingPage")
-    .select("id, title, content, created_at")
+    .select("id, title, content, content_mode, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -89,15 +89,46 @@ export async function fetchUserTrainingRecords(
     tagsByPage.set(row.training_page_id, list);
   }
 
+  // tag_based のページは TrainingPage.content が空のため、メモ本文を連結して
+  // RAG コンテキストに含める（sort_order 昇順、空行区切り）
+  const tagBasedIds = pages
+    .filter((p: { content_mode?: string }) => p.content_mode === "tag_based")
+    .map((p: { id: string }) => p.id);
+  const memoContentByPage = new Map<string, string>();
+  if (tagBasedIds.length > 0) {
+    const { data: memoRows } = await supabase
+      .from("TrainingPageMemo")
+      .select("training_page_id, content, sort_order")
+      .in("training_page_id", tagBasedIds)
+      .order("sort_order", { ascending: true });
+
+    for (const m of (memoRows ?? []) as {
+      training_page_id: string;
+      content: string;
+    }[]) {
+      const piece = m.content?.trim();
+      if (!piece) continue;
+      const prev = memoContentByPage.get(m.training_page_id);
+      memoContentByPage.set(
+        m.training_page_id,
+        prev ? `${prev}\n\n${piece}` : piece,
+      );
+    }
+  }
+
   return pages.map(
     (p: {
       id: string;
       title: string;
       content: string;
+      content_mode?: string;
       created_at: string;
     }) => ({
       title: p.title,
-      content: p.content,
+      content:
+        p.content_mode === "tag_based"
+          ? (memoContentByPage.get(p.id) ?? "")
+          : p.content,
       date: p.created_at,
       tags: tagsByPage.get(p.id) ?? [],
     }),
