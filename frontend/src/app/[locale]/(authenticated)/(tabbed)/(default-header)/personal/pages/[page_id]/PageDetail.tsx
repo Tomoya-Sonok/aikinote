@@ -251,12 +251,14 @@ export function PageDetail() {
         <div className={styles.header}>
           <h1 className={styles.title}>{pageData.title}</h1>
 
-          {/* タグ表示 */}
-          <div className={styles.tagsContainer}>
-            {pageData.tags.map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-          </div>
+          {/* タグ表示: tag_based はメモごとにタグを表示するため、ここでの全タグ表示は省略 */}
+          {pageData.content_mode !== "tag_based" && (
+            <div className={styles.tagsContainer}>
+              {pageData.tags.map((tag) => (
+                <Tag key={tag}>{tag}</Tag>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 内容セクション */}

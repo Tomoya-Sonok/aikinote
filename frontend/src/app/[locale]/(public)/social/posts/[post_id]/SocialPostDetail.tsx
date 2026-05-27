@@ -667,13 +667,15 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         {detail.source_page && detail.post.post_type === "training_record" ? (
           <div className={styles.notebookArea}>
             <h2 className={styles.notebookTitle}>{detail.source_page.title}</h2>
-            {detail.source_page.tags.length > 0 && (
-              <div className={styles.tags}>
-                {detail.source_page.tags.map((tag) => (
-                  <Tag key={`${tag.category}-${tag.name}`}>{tag.name}</Tag>
-                ))}
-              </div>
-            )}
+            {/* tag_based はメモごとにタグを表示するため、ここでの全タグ表示は省略 */}
+            {detail.source_page.content_mode !== "tag_based" &&
+              detail.source_page.tags.length > 0 && (
+                <div className={styles.tags}>
+                  {detail.source_page.tags.map((tag) => (
+                    <Tag key={`${tag.category}-${tag.name}`}>{tag.name}</Tag>
+                  ))}
+                </div>
+              )}
             <div className={styles.notebookContent}>
               {detail.source_page.content_mode === "tag_based" &&
               detail.source_page.memos &&
