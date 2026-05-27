@@ -679,7 +679,7 @@
     "contentPlaceholder": "Feel free to enter what you learned and noticed through your practice!",
     "inputModeLabel": "Input method",
     "modeFree": "Free text",
-    "modeTagBased": "Memo per tag",
+    "modeTagBased": "Input per tag",
     "selectTagFirst": "Please select tags first",
     "addMemo": "Add memo",
     "memoLabel": "Memo {index}",

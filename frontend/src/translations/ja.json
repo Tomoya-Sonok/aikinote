@@ -681,7 +681,7 @@
     "contentPlaceholder": "稽古を通して学んだことや気づきを自由に入力してみましょう！",
     "inputModeLabel": "入力方法",
     "modeFree": "自由入力",
-    "modeTagBased": "タグごとにメモ",
+    "modeTagBased": "タグごとに入力",
     "selectTagFirst": "先にタグを選択してください",
     "addMemo": "メモを追加",
     "memoLabel": "メモ{index}",

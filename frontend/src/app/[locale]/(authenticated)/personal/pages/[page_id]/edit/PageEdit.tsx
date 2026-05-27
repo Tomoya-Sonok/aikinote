@@ -472,7 +472,12 @@ export function PageEdit() {
         </div>
 
         <div className={styles.section}>
-          <span className={styles.contentLabel}>{t("pageModal.content")}</span>
+          <span className={styles.contentLabel}>
+            {t("pageModal.content")}
+            <span className={styles.required} aria-hidden="true">
+              *
+            </span>
+          </span>
           <InputModeToggle mode={mode} onChange={setMode} />
         </div>
 

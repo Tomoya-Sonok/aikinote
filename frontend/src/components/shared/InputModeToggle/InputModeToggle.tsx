@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useId } from "react";
 import type { PageInputMode } from "@/stores/pageInputModeStore";
 import styles from "./InputModeToggle.module.css";
 
@@ -9,9 +10,11 @@ interface InputModeToggleProps {
   onChange: (mode: PageInputMode) => void;
 }
 
-// #280 「自由入力」と「タグごとにメモ」を切り替えるセグメントトグル
+// #280 「自由入力」と「タグごとに入力」を切り替えるトグル。
+// 見た目は投稿作成画面（/social/posts/new）の「投稿」「稽古記録」トグルに揃えている。
 export function InputModeToggle({ mode, onChange }: InputModeToggleProps) {
   const t = useTranslations();
+  const groupId = useId();
 
   const options: { value: PageInputMode; label: string }[] = [
     { value: "free", label: t("pageCreate.modeFree") },
@@ -19,23 +22,32 @@ export function InputModeToggle({ mode, onChange }: InputModeToggleProps) {
   ];
 
   return (
-    // biome-ignore lint/a11y/useSemanticElements: fieldset だとデフォルト枠線やレイアウトの調整が増えるため、role="group" で軽量に表現する
-    <div
-      className={styles.toggle}
-      role="group"
-      aria-label={t("pageCreate.inputModeLabel")}
-    >
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          className={`${styles.option} ${mode === option.value ? styles.active : ""}`}
-          aria-pressed={mode === option.value}
-          onClick={() => onChange(option.value)}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
+    <>
+      <span id={groupId} className={styles.srOnly}>
+        {t("pageCreate.inputModeLabel")}
+      </span>
+      <div
+        className={styles.modeSelector}
+        role="radiogroup"
+        aria-labelledby={groupId}
+      >
+        {options.map((option) => (
+          <label
+            key={option.value}
+            className={`${styles.modeButton} ${mode === option.value ? styles.modeActive : ""}`}
+          >
+            <input
+              type="radio"
+              name="pageInputMode"
+              value={option.value}
+              checked={mode === option.value}
+              onChange={() => onChange(option.value)}
+              className={styles.modeRadio}
+            />
+            <span className={styles.modeText}>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    </>
   );
 }
