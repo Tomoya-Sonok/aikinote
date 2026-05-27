@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { GuestGate } from "@/components/shared/auth";
 import { NotLoggedInLayout } from "@/components/shared/layouts/NotLoggedInLayout";
 import { buildMetadata } from "@/lib/metadata";
-import { getCurrentUser } from "@/lib/server/auth";
 import { Login } from "./Login";
 
 export async function generateMetadata({
@@ -25,15 +24,12 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const user = await getCurrentUser();
-
-  if (user) {
-    redirect(`/${locale}/personal/pages`);
-  }
 
   return (
-    <NotLoggedInLayout>
-      <Login locale={locale} />
-    </NotLoggedInLayout>
+    <GuestGate>
+      <NotLoggedInLayout>
+        <Login locale={locale} />
+      </NotLoggedInLayout>
+    </GuestGate>
   );
 }
