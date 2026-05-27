@@ -43,8 +43,18 @@
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   line-height: 1;
-  color: var(--primary-color);
   white-space: nowrap;
+  /* アイコンと同じ青→紫→ピンクのグラデーションを文字に適用 */
+  background: linear-gradient(
+    135deg,
+    var(--ai-coach-gradient-start),
+    var(--ai-coach-gradient-mid),
+    var(--ai-coach-gradient-end)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .clearButtonContainer {
