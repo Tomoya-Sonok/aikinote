@@ -2,7 +2,7 @@
 
 import { PlusCircle } from "@phosphor-icons/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AttachmentUpload } from "@/components/features/personal/AttachmentUpload/AttachmentUpload";
@@ -48,6 +48,10 @@ export function PageEdit() {
   const { showToast } = useToast();
   const params = useParams();
   const pageId = params.page_id as string;
+  const searchParams = useSearchParams();
+  // 「みんなで」稽古記録投稿などからの編集では returnUrl が渡る。無指定はページ詳細へ。
+  const returnUrl =
+    searchParams.get("returnUrl") || `/personal/pages/${pageId}`;
   const titleInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -257,9 +261,11 @@ export function PageEdit() {
           queryKey: ["page-detail", pageId],
         });
         queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+        // 公開ページの編集は連動 SocialPost にも反映されるため、投稿一覧も無効化する
+        queryClient.invalidateQueries({ queryKey: ["social-feed"] });
 
         isNavigatingRef.current = true;
-        router.replace(`/personal/pages/${pageId}`);
+        router.replace(returnUrl);
       } else {
         throw new Error(
           "error" in response ? response.error : "更新に失敗しました",
@@ -289,6 +295,7 @@ export function PageEdit() {
     showToast,
     t,
     router,
+    returnUrl,
     queryClient,
   ]);
 
@@ -296,14 +303,14 @@ export function PageEdit() {
     if (hasUnsavedChanges()) {
       setIsBackConfirmOpen(true);
     } else {
-      router.replace(`/personal/pages/${pageId}`);
+      router.replace(returnUrl);
     }
-  }, [hasUnsavedChanges, router, pageId]);
+  }, [hasUnsavedChanges, router, returnUrl]);
 
   const handleConfirmBack = useCallback(() => {
     setIsBackConfirmOpen(false);
-    router.replace(`/personal/pages/${pageId}`);
-  }, [router, pageId]);
+    router.replace(returnUrl);
+  }, [router, returnUrl]);
 
   if (pageLoading || !initialized) {
     return (

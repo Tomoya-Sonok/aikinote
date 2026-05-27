@@ -480,8 +480,19 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const handleStartEdit = useCallback(() => {
     setShowMenu(false);
-    router.push(`/social/posts/${postId}/edit`);
-  }, [router, postId]);
+    // 稽古記録投稿は実体が TrainingPage なので、「ひとりで」と同じ PageEdit で編集する。
+    // 保存・戻る後は投稿一覧へ戻す（編集直後の投稿が一覧最上部に反映される）。
+    if (
+      detail?.post.post_type === "training_record" &&
+      detail.post.source_page_id
+    ) {
+      router.push(
+        `/personal/pages/${detail.post.source_page_id}/edit?returnUrl=/social/posts`,
+      );
+    } else {
+      router.push(`/social/posts/${postId}/edit`);
+    }
+  }, [router, postId, detail]);
 
   const handleShare = useCallback(async () => {
     if (!detail) return;

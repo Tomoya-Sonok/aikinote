@@ -46,7 +46,11 @@ export function SocialPostEdit() {
         const result = await getSocialPost(postId);
         if (result.success && result.data) {
           const postData = result.data as {
-            post: { content: string };
+            post: {
+              content: string;
+              post_type?: string;
+              source_page_id?: string | null;
+            };
             attachments: Array<{
               id: string;
               type: string;
@@ -55,6 +59,19 @@ export function SocialPostEdit() {
               original_filename?: string | null;
             }>;
           };
+
+          // 稽古記録投稿は実体が TrainingPage なので、「ひとりで」と同じ PageEdit で編集する。
+          // （通常はこの画面に来ないが、旧URL・直接遷移への防御）
+          if (
+            postData.post.post_type === "training_record" &&
+            postData.post.source_page_id
+          ) {
+            router.replace(
+              `/personal/pages/${postData.post.source_page_id}/edit?returnUrl=/social/posts`,
+            );
+            return; // ローダー表示のままリダイレクト
+          }
+
           setContent(postData.post.content);
           setInitialContent(postData.post.content);
           const atts = postData.attachments.map((a) => ({
@@ -67,14 +84,14 @@ export function SocialPostEdit() {
           attachmentMgmt.setAttachments(atts);
           initialAttachmentCountRef.current = atts.length;
         }
+        setLoading(false);
       } catch {
         showToast(t("editFailed"), "error");
-      } finally {
         setLoading(false);
       }
     };
     fetchPost();
-  }, [postId, showToast, t, attachmentMgmt.setAttachments]);
+  }, [postId, showToast, t, attachmentMgmt.setAttachments, router]);
 
   // 未保存データの保護
   const hasUnsavedChanges = useCallback(() => {
