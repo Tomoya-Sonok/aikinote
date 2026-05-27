@@ -8,7 +8,7 @@ import {
 import { format, isValid, parse } from "date-fns";
 import { useTranslations } from "next-intl";
 import type { ChangeEvent, FC } from "react";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { SearchInput } from "@/components/shared/SearchInput/SearchInput";
 import { type DateRange } from "@/lib/hooks/useTrainingPageFilters";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
@@ -47,6 +47,8 @@ export const FilterArea: FC<FilterAreaProps> = ({
   const t = useTranslations();
   const router = useRouter();
   const { track } = useUmamiTrack();
+  // SVG の url(#id) 参照に使うため、useId のコロンを除去した一意IDを使う
+  const aiGradientId = `ai-coach-gradient-${useId().replace(/:/g, "")}`;
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -163,7 +165,43 @@ export const FilterArea: FC<FilterAreaProps> = ({
           aria-label={t("aiCoach.openButton")}
           title={t("aiCoach.openButton")}
         >
-          <SparkleIcon size={22} weight="light" color="var(--primary-color)" />
+          {/* AIらしい配色のグラデーションをアイコンの fill に適用するための定義 */}
+          <svg
+            width="0"
+            height="0"
+            aria-hidden="true"
+            focusable="false"
+            style={{ position: "absolute" }}
+          >
+            <title>AIコーチアイコン用グラデーション</title>
+            <defs>
+              <linearGradient
+                id={aiGradientId}
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop
+                  offset="0%"
+                  style={{ stopColor: "var(--ai-coach-gradient-start)" }}
+                />
+                <stop
+                  offset="50%"
+                  style={{ stopColor: "var(--ai-coach-gradient-mid)" }}
+                />
+                <stop
+                  offset="100%"
+                  style={{ stopColor: "var(--ai-coach-gradient-end)" }}
+                />
+              </linearGradient>
+            </defs>
+          </svg>
+          <SparkleIcon
+            size={22}
+            weight="fill"
+            color={`url(#${aiGradientId})`}
+          />
           <span className={styles.aiCoachLabel}>{t("aiCoach.title")}</span>
         </button>
         {hasFilters && (
