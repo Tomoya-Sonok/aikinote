@@ -355,6 +355,16 @@ export function PageCreate() {
                   });
                 }
               }}
+              onBlur={() => {
+                if (!title.trim()) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    title: t("pageCreate.requiredOnBlur", {
+                      field: t("pageModal.title"),
+                    }),
+                  }));
+                }
+              }}
               error={errors.title}
               className={styles.titleInput}
             />
@@ -498,6 +508,16 @@ export function PageCreate() {
                     delete next.content;
                     return next;
                   });
+                }
+              }}
+              onBlur={() => {
+                if (!content.trim()) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    content: t("pageCreate.requiredOnBlur", {
+                      field: t("pageModal.content"),
+                    }),
+                  }));
                 }
               }}
               error={errors.content}

@@ -684,9 +684,10 @@
     "addMemo": "Add memo",
     "memoLabel": "Memo {index}",
     "removeMemo": "Remove this memo",
-    "memoContentPlaceholder": "Enter what you learned for this tag combination",
+    "memoContentPlaceholder": "Select tags and enter what you learned related to them!",
     "memoRequired": "Please enter at least one tag-based memo",
-    "memoIncomplete": "Each memo needs both tags and text"
+    "memoIncomplete": "Each memo needs both tags and text",
+    "requiredOnBlur": "Please enter {field} to create the page"
   },
   "titleTemplate": {
     "modalTitle": "Select Template",
@@ -869,6 +870,7 @@
     "update": "Update",
     "deleteConfirm": "Are you sure you want to delete this page?",
     "content": "Training Content",
+    "requiredOnBlur": "Please enter {field} to update the page",
     "updateFailed": "Failed to update page",
     "deleteFailed": "Failed to delete page",
     "publicToggle": "Share with other users",

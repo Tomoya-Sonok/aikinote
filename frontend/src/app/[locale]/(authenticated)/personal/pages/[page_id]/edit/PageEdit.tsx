@@ -386,6 +386,16 @@ export function PageEdit() {
                 });
               }
             }}
+            onBlur={() => {
+              if (!title.trim()) {
+                setErrors((prev) => ({
+                  ...prev,
+                  title: t("pageDetail.requiredOnBlur", {
+                    field: t("pageModal.title"),
+                  }),
+                }));
+              }
+            }}
             error={errors.title}
           />
         </div>
@@ -510,6 +520,16 @@ export function PageEdit() {
                     delete next.content;
                     return next;
                   });
+                }
+              }}
+              onBlur={() => {
+                if (!content.trim()) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    content: t("pageDetail.requiredOnBlur", {
+                      field: t("pageModal.content"),
+                    }),
+                  }));
                 }
               }}
               error={errors.content}

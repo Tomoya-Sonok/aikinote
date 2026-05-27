@@ -579,9 +579,29 @@ export const getTrainingPages = async ({
       .select("*", { count: "exact" })
       .eq("user_id", userId);
 
-    // フリーワード検索
+    // フリーワード検索: タイトル・自由入力本文・タグごとのメモ本文を対象にする
     if (query) {
-      queryBuilder = queryBuilder.ilike("title", `%${query}%`);
+      const orConditions = [
+        `title.ilike.%${query}%`,
+        `content.ilike.%${query}%`,
+      ];
+      // tag_based ページは本文が空でメモ側に内容を持つため、
+      // メモ本文にマッチするページIDも検索対象に含める
+      const { data: memoMatches } = await supabase
+        .from("TrainingPageMemo")
+        .select("training_page_id")
+        .ilike("content", `%${query}%`);
+      const memoPageIds = [
+        ...new Set(
+          (memoMatches ?? []).map(
+            (m: { training_page_id: string }) => m.training_page_id,
+          ),
+        ),
+      ];
+      if (memoPageIds.length > 0) {
+        orConditions.push(`id.in.(${memoPageIds.join(",")})`);
+      }
+      queryBuilder = queryBuilder.or(orConditions.join(","));
     }
 
     const filters: { gte?: string; lte?: string } = {};
@@ -2798,24 +2818,39 @@ export const searchSocialPosts = async (
     hashtagPostIds = mergedIds;
   }
 
-  // キーワード検索の場合: content に加えて稽古記録の title もヒット対象にする
-  // TrainingPage.title にマッチする source_page_id を先に取得
+  // キーワード検索の場合: SocialPost.content に加えて、稽古記録の title と
+  // タグごとのメモ本文（tag_based ページは content が空）もヒット対象にする。
+  // TrainingPage.title / TrainingPageMemo.content にマッチする source_page_id を先に取得。
   let titleMatchPostIds: string[] | null = null;
   if (params.query) {
-    const { data: matchingPages } = await supabaseClient
-      .from("TrainingPage")
-      .select("id")
-      .ilike("title", `%${params.query}%`);
+    const [titlePagesRes, memoPagesRes] = await Promise.all([
+      supabaseClient
+        .from("TrainingPage")
+        .select("id")
+        .ilike("title", `%${params.query}%`),
+      supabaseClient
+        .from("TrainingPageMemo")
+        .select("training_page_id")
+        .ilike("content", `%${params.query}%`),
+    ]);
 
-    if (matchingPages && matchingPages.length > 0) {
-      const pageIds = matchingPages.map((p) => p.id);
-      const { data: titlePosts } = await supabaseClient
+    const pageIds = [
+      ...new Set([
+        ...(titlePagesRes.data ?? []).map((p: { id: string }) => p.id),
+        ...(memoPagesRes.data ?? []).map(
+          (m: { training_page_id: string }) => m.training_page_id,
+        ),
+      ]),
+    ];
+
+    if (pageIds.length > 0) {
+      const { data: matchPosts } = await supabaseClient
         .from("SocialPost")
         .select("id")
         .eq("is_deleted", false)
         .eq("post_type", "training_record")
         .in("source_page_id", pageIds);
-      titleMatchPostIds = (titlePosts ?? []).map((p) => p.id);
+      titleMatchPostIds = (matchPosts ?? []).map((p) => p.id);
     }
   }
 

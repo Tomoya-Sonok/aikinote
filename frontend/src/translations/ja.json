@@ -686,9 +686,10 @@
     "addMemo": "メモを追加",
     "memoLabel": "メモ{index}",
     "removeMemo": "このメモを削除",
-    "memoContentPlaceholder": "このタグの組み合わせで学んだことや気づきを入力",
+    "memoContentPlaceholder": "タグを選択し、そのタグに関連した学びや気づきを入力してみましょう！",
     "memoRequired": "タグごとのメモを1件以上入力してください",
-    "memoIncomplete": "各メモにはタグと本文の両方を入力してください"
+    "memoIncomplete": "各メモにはタグと本文の両方を入力してください",
+    "requiredOnBlur": "ページを作成するには、{field}を入力してください"
   },
   "titleTemplate": {
     "modalTitle": "テンプレートの選択",
@@ -871,6 +872,7 @@
     "update": "更新",
     "deleteConfirm": "このページを削除してもよろしいですか？",
     "content": "内容",
+    "requiredOnBlur": "ページを更新するには、{field}を入力してください",
     "updateFailed": "ページの更新に失敗しました",
     "deleteFailed": "ページの削除に失敗しました",
     "publicToggle": "他のユーザーに公開",
