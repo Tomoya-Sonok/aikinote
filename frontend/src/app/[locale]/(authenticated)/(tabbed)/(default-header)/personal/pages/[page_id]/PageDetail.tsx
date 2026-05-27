@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { AttachmentCard } from "@/components/features/personal/AttachmentCard/AttachmentCard";
-import { TagMemoList } from "@/components/features/personal/TagMemoList/TagMemoList";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
@@ -265,7 +264,23 @@ export function PageDetail() {
           <h2 className={styles.sectionTitle}>{t("pageDetail.content")}</h2>
           <div className={styles.divider} />
           {pageData.content_mode === "tag_based" ? (
-            <TagMemoList memos={pageData.memos} />
+            // 自由入力と同じノート罫線コンテナ内に「タグ + 本文」を描画し、
+            // メモ間は空行1つで区切る
+            <div className={styles.content}>
+              {pageData.memos.map((memo, index) => (
+                <div key={memo.id}>
+                  {index > 0 && (
+                    <div className={styles.memoGap} aria-hidden="true" />
+                  )}
+                  <div className={styles.memoTags}>
+                    {memo.tags.map((tag) => (
+                      <Tag key={tag.id}>{tag.name}</Tag>
+                    ))}
+                  </div>
+                  {linkifyText(memo.content)}
+                </div>
+              ))}
+            </div>
           ) : (
             <div className={styles.content}>{linkifyText(trainingContent)}</div>
           )}
