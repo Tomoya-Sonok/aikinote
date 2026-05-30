@@ -40,15 +40,13 @@
   cursor: pointer;
 }
 
-.titleButton {
+.title {
   flex: 1;
-  border: none;
-  background: transparent;
+  text-align: center;
   font-family: var(--font-ui);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--black);
-  cursor: pointer;
 }
 
 .conversationList {

@@ -380,6 +380,16 @@
     "emptyHint": "Ask about reflecting on your training, improvement tips, or free technique ideas based on your records.",
     "inputPlaceholder": "Ask the AI coach",
     "send": "Send",
+    "history": "Past chats",
+    "deleteAll": "Delete all",
+    "deleteAllConfirm": "Delete all past chats. Are you sure?",
+    "dateGroups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "older": "Older"
+    },
     "quickActions": {
       "weeklyReview": {
         "label": "Weekly review",

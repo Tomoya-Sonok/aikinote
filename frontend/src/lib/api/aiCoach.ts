@@ -62,3 +62,20 @@ export async function fetchAiCoachUsage(): Promise<AiCoachUsage> {
   if (!res.ok) throw new Error("利用状況の取得に失敗しました");
   return (await res.json()) as AiCoachUsage;
 }
+
+// 初回応答完了後にタイトルを Gemini で要約生成する（fire-and-forget 想定）。
+export async function generateConversationTitle(
+  conversationId: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `/api/ai-coach/conversations/${conversationId}/title`,
+      { method: "POST" },
+    );
+    if (!res.ok) return null;
+    const json = (await res.json()) as { title?: string };
+    return json.title ?? null;
+  } catch {
+    return null;
+  }
+}

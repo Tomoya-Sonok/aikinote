@@ -5,11 +5,11 @@ import {
   ArrowLeftIcon,
   PaperPlaneRightIcon,
   PlusCircleIcon,
-  TrashIcon,
 } from "@phosphor-icons/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { useToast } from "@/contexts/ToastContext";
 import {
@@ -19,10 +19,12 @@ import {
   fetchAiCoachUsage,
   fetchConversationMessages,
   fetchConversations,
+  generateConversationTitle,
 } from "@/lib/api/aiCoach";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import styles from "./AiCoachChat.module.css";
+import { AiCoachHistory } from "./AiCoachHistory";
 import { MessageBubble } from "./MessageBubble";
 import { QuickActionButtons } from "./QuickActionButtons";
 
@@ -43,19 +45,27 @@ const toUiMessages = (
     parts: [{ type: "text", text: m.content }],
   }));
 
-// 1会話分のチャット。会話切替時は key で remount して useChat を初期化する。
+// 1会話分のチャット。useChat を保有し、メッセージリスト＋composer＋quickActions を描画。
 function ChatSession({
   conversationId,
   initialMessages,
+  pendingFirstMessage,
+  onPendingConsumed,
   onBeforeSend,
+  onTitleGenerated,
 }: {
   conversationId: string;
   initialMessages: UIMessage[];
+  pendingFirstMessage: string | null;
+  onPendingConsumed: () => void;
   onBeforeSend: (charCount: number, isQuickAction: boolean) => Promise<boolean>;
+  onTitleGenerated: () => void;
 }) {
   const t = useTranslations();
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
+  // 初回応答完了時のタイトル生成を1回だけにするためのガード
+  const titleGenStartedRef = useRef(false);
 
   const transport = useMemo(
     () => new DefaultChatTransport({ api: "/api/ai-coach/chat" }),
@@ -66,16 +76,34 @@ function ChatSession({
     id: conversationId,
     messages: initialMessages,
     transport,
+    onFinish: () => {
+      if (titleGenStartedRef.current) return;
+      titleGenStartedRef.current = true;
+      // fire-and-forget。完了後に親へ通知して一覧をリフレッシュ。
+      void generateConversationTitle(conversationId).then((title) => {
+        if (title) onTitleGenerated();
+      });
+    },
   });
 
   const isBusy = status === "submitted" || status === "streaming";
+  const isStreaming = status === "streaming";
 
-  // 新着メッセージ（ストリーミング更新含む）で最下部へスクロール。
-  // messages はスクロールのトリガーとして意図的に依存に含める。
+  // 新着メッセージ（ストリーミング更新含む）で最下部へスクロール
   // biome-ignore lint/correctness/useExhaustiveDependencies: messages 変更時に発火させたい
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages]);
+
+  // landing から遷移時、pendingFirstMessage を一度だけ送信
+  useEffect(() => {
+    if (!pendingFirstMessage) return;
+    void sendMessage(
+      { text: pendingFirstMessage },
+      { body: { conversationId } },
+    );
+    onPendingConsumed();
+  }, [pendingFirstMessage, sendMessage, conversationId, onPendingConsumed]);
 
   const send = useCallback(
     async (text: string, isQuickAction: boolean) => {
@@ -95,9 +123,18 @@ function ChatSession({
         {messages.length === 0 ? (
           <p className={styles.emptyHint}>{t("aiCoach.emptyHint")}</p>
         ) : (
-          messages.map((m) => (
-            <MessageBubble key={m.id} role={m.role} text={messageText(m)} />
-          ))
+          messages.map((m, i) => {
+            const isLast = i === messages.length - 1;
+            const isAssistant = m.role === "assistant";
+            return (
+              <MessageBubble
+                key={m.id}
+                role={m.role}
+                text={messageText(m)}
+                isStreaming={isStreaming && isLast && isAssistant}
+              />
+            );
+          })
         )}
       </div>
 
@@ -142,6 +179,85 @@ function ChatSession({
   );
 }
 
+// 会話を開いていない landing 状態。過去チャット一覧（または emptyHint）＋ composer を描画。
+function LandingView({
+  conversations,
+  onSelect,
+  onDelete,
+  onDeleteAll,
+  onSend,
+  isBusy,
+}: {
+  conversations: AiCoachConversation[];
+  onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
+  onDeleteAll: () => void;
+  onSend: (text: string, isQuickAction: boolean) => void;
+  isBusy: boolean;
+}) {
+  const t = useTranslations();
+  const [input, setInput] = useState("");
+
+  const handleSend = useCallback(
+    (text: string, isQuickAction: boolean) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      setInput("");
+      onSend(trimmed, isQuickAction);
+    },
+    [onSend],
+  );
+
+  return (
+    <>
+      <div className={styles.messages}>
+        <AiCoachHistory
+          conversations={conversations}
+          onSelect={onSelect}
+          onDelete={onDelete}
+          onDeleteAll={onDeleteAll}
+        />
+      </div>
+
+      <div className={styles.composer}>
+        <QuickActionButtons
+          disabled={isBusy}
+          onSelect={(prompt) => handleSend(prompt, true)}
+        />
+        <div className={styles.inputRow}>
+          <textarea
+            className={styles.input}
+            value={input}
+            placeholder={t("aiCoach.inputPlaceholder")}
+            rows={1}
+            disabled={isBusy}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (
+                e.key === "Enter" &&
+                !e.shiftKey &&
+                !e.nativeEvent.isComposing
+              ) {
+                e.preventDefault();
+                handleSend(input, false);
+              }
+            }}
+          />
+          <button
+            type="button"
+            className={styles.sendButton}
+            disabled={isBusy || !input.trim()}
+            onClick={() => handleSend(input, false)}
+            aria-label={t("aiCoach.send")}
+          >
+            <PaperPlaneRightIcon size={22} weight="fill" />
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function AiCoachChat() {
   const t = useTranslations();
   const router = useRouter();
@@ -151,31 +267,22 @@ export function AiCoachChat() {
   const [conversations, setConversations] = useState<AiCoachConversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
+  const [pendingFirstMessage, setPendingFirstMessage] = useState<string | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
-  const [listOpen, setListOpen] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const [isCreatingFromLanding, setIsCreatingFromLanding] = useState(false);
 
-  // 初期化: 会話一覧を取得。無ければ1件作成して開く。
+  // 初期化: 会話一覧の取得のみ（自動オープンしない＝常に landing から開始）
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const list = await fetchConversations();
         if (cancelled) return;
-        if (list.length === 0) {
-          const created = await apiCreateConversation("");
-          if (cancelled) return;
-          setConversations([created]);
-          setActiveId(created.id);
-          setInitialMessages([]);
-        } else {
-          setConversations(list);
-          const first = list[0];
-          setActiveId(first.id);
-          const msgs = await fetchConversationMessages(first.id);
-          if (cancelled) return;
-          setInitialMessages(toUiMessages(msgs));
-        }
+        setConversations(list);
       } catch {
         if (!cancelled) showToast(t("aiCoach.loadFailed"), "error");
       } finally {
@@ -187,33 +294,35 @@ export function AiCoachChat() {
     };
   }, [showToast, t]);
 
+  const refreshConversations = useCallback(async () => {
+    try {
+      const list = await fetchConversations();
+      setConversations(list);
+    } catch {
+      // 無視（次回マウントで再取得）
+    }
+  }, []);
+
   const selectConversation = useCallback(
     async (id: string) => {
-      setListOpen(false);
-      if (id === activeId) return;
-      setActiveId(id);
-      setInitialMessages([]);
       try {
         const msgs = await fetchConversationMessages(id);
         setInitialMessages(toUiMessages(msgs));
+        setPendingFirstMessage(null);
+        setActiveId(id);
       } catch {
         showToast(t("aiCoach.loadFailed"), "error");
       }
     },
-    [activeId, showToast, t],
+    [showToast, t],
   );
 
-  const handleNewConversation = useCallback(async () => {
-    try {
-      const created = await apiCreateConversation("");
-      setConversations((prev) => [created, ...prev]);
-      setActiveId(created.id);
-      setInitialMessages([]);
-      setListOpen(false);
-    } catch {
-      showToast(t("aiCoach.createFailed"), "error");
-    }
-  }, [showToast, t]);
+  // ヘッダーの「＋」: landing に戻す（DB 行は最初のメッセージ送信時に遅延作成）
+  const handleNewConversation = useCallback(() => {
+    setActiveId(null);
+    setInitialMessages([]);
+    setPendingFirstMessage(null);
+  }, []);
 
   const handleDeleteConversation = useCallback(
     async (id: string) => {
@@ -223,6 +332,7 @@ export function AiCoachChat() {
         if (id === activeId) {
           setActiveId(null);
           setInitialMessages([]);
+          setPendingFirstMessage(null);
         }
       } catch {
         showToast(t("aiCoach.deleteFailed"), "error");
@@ -230,6 +340,19 @@ export function AiCoachChat() {
     },
     [activeId, showToast, t],
   );
+
+  const handleDeleteAll = useCallback(async () => {
+    setShowDeleteAllConfirm(false);
+    try {
+      await Promise.all(conversations.map((c) => apiDeleteConversation(c.id)));
+      setConversations([]);
+      setActiveId(null);
+      setInitialMessages([]);
+      setPendingFirstMessage(null);
+    } catch {
+      showToast(t("aiCoach.deleteFailed"), "error");
+    }
+  }, [conversations, showToast, t]);
 
   // 送信前の利用可否チェック + Umami 計測
   const handleBeforeSend = useCallback(
@@ -254,6 +377,28 @@ export function AiCoachChat() {
     [track, showToast, t],
   );
 
+  // landing から送信: 利用可否チェック → 会話の遅延作成 → ChatSession マウントへ pending を渡す
+  const handleLandingSend = useCallback(
+    async (text: string, isQuickAction: boolean) => {
+      if (isCreatingFromLanding) return;
+      const allowed = await handleBeforeSend(text.length, isQuickAction);
+      if (!allowed) return;
+      setIsCreatingFromLanding(true);
+      try {
+        const created = await apiCreateConversation("");
+        setConversations((prev) => [created, ...prev]);
+        setInitialMessages([]);
+        setActiveId(created.id);
+        setPendingFirstMessage(text);
+      } catch {
+        showToast(t("aiCoach.createFailed"), "error");
+      } finally {
+        setIsCreatingFromLanding(false);
+      }
+    },
+    [isCreatingFromLanding, handleBeforeSend, showToast, t],
+  );
+
   return (
     <div className={styles.layout}>
       <header className={styles.header}>
@@ -265,13 +410,7 @@ export function AiCoachChat() {
         >
           <ArrowLeftIcon size={24} weight="light" />
         </button>
-        <button
-          type="button"
-          className={styles.titleButton}
-          onClick={() => setListOpen((v) => !v)}
-        >
-          {t("aiCoach.title")}
-        </button>
+        <span className={styles.title}>{t("aiCoach.title")}</span>
         <button
           type="button"
           className={styles.iconButton}
@@ -282,51 +421,28 @@ export function AiCoachChat() {
         </button>
       </header>
 
-      {listOpen && (
-        <div className={styles.conversationList}>
-          {conversations.length === 0 ? (
-            <p className={styles.listEmpty}>{t("aiCoach.noConversations")}</p>
-          ) : (
-            conversations.map((c) => (
-              <div
-                key={c.id}
-                className={`${styles.conversationItem} ${c.id === activeId ? styles.conversationActive : ""}`}
-              >
-                <button
-                  type="button"
-                  className={styles.conversationSelect}
-                  onClick={() => selectConversation(c.id)}
-                >
-                  {c.title || t("aiCoach.untitled")}
-                </button>
-                <button
-                  type="button"
-                  className={styles.conversationDelete}
-                  onClick={() => handleDeleteConversation(c.id)}
-                  aria-label={t("aiCoach.deleteConversation")}
-                >
-                  <TrashIcon
-                    size={16}
-                    weight="light"
-                    color="var(--error-color)"
-                  />
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {loading || !activeId ? (
+      {loading ? (
         <div className={styles.messages}>
           <p className={styles.emptyHint}>{t("aiCoach.loading")}</p>
         </div>
-      ) : (
+      ) : activeId ? (
         <ChatSession
           key={activeId}
           conversationId={activeId}
           initialMessages={initialMessages}
+          pendingFirstMessage={pendingFirstMessage}
+          onPendingConsumed={() => setPendingFirstMessage(null)}
           onBeforeSend={handleBeforeSend}
+          onTitleGenerated={refreshConversations}
+        />
+      ) : (
+        <LandingView
+          conversations={conversations}
+          onSelect={selectConversation}
+          onDelete={handleDeleteConversation}
+          onDeleteAll={() => setShowDeleteAllConfirm(true)}
+          onSend={handleLandingSend}
+          isBusy={isCreatingFromLanding}
         />
       )}
 
@@ -334,6 +450,16 @@ export function AiCoachChat() {
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
         translationKey="premiumModalAiCoach"
+      />
+
+      <ConfirmDialog
+        isOpen={showDeleteAllConfirm}
+        title={t("aiCoach.deleteAll")}
+        message={t("aiCoach.deleteAllConfirm")}
+        confirmLabel={t("aiCoach.deleteAll")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={handleDeleteAll}
+        onCancel={() => setShowDeleteAllConfirm(false)}
       />
     </div>
   );

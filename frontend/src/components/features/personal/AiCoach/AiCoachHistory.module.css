@@ -1,0 +1,128 @@
+/* 投稿検索の「最近の検索」UI に揃えたスタイル */
+
+.historySection {
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 8px 16px 24px;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sectionTitle {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--black);
+}
+
+.clearAllButton {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.clearAllButton:hover {
+  background: var(--background-light);
+}
+
+.group {
+  margin-top: 12px;
+}
+
+.groupLabel {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  margin: 4px 0 4px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  min-height: 44px;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.historyItem:last-child {
+  border-bottom: none;
+}
+
+.historyItem:hover {
+  background: var(--background-light);
+}
+
+.historyIcon {
+  color: var(--text-light);
+  flex-shrink: 0;
+}
+
+.historyText {
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historyDeleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--light-gray);
+  border-radius: 50%;
+  flex-shrink: 0;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.historyDeleteButton:hover {
+  color: var(--text-light);
+}
+
+/* empty 状態（過去チャットがゼロ件） */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 200px;
+  padding: 16px;
+}
+
+.emptyHint {
+  margin: auto;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  line-height: 1.8;
+}

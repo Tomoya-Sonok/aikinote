@@ -380,6 +380,16 @@
     "emptyHint": "稽古記録をもとに、振り返りや上達のヒント、自由技のアイデアなどを聞いてみましょう。",
     "inputPlaceholder": "AIコーチに質問・相談する",
     "send": "送信",
+    "history": "過去のチャット",
+    "deleteAll": "すべて削除",
+    "deleteAllConfirm": "すべての過去チャットを削除します。よろしいですか？",
+    "dateGroups": {
+      "today": "今日",
+      "yesterday": "昨日",
+      "last7": "過去7日",
+      "last30": "過去30日",
+      "older": "それ以前"
+    },
     "quickActions": {
       "weeklyReview": {
         "label": "今週の振り返り",
