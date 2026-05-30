@@ -1,0 +1,120 @@
+.row {
+  display: flex;
+  width: 100%;
+}
+
+.rowUser {
+  justify-content: flex-end;
+}
+
+.rowAssistant {
+  justify-content: flex-start;
+}
+
+.bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.user {
+  background: var(--primary-color);
+  color: var(--white);
+  border-bottom-right-radius: 4px;
+  white-space: pre-wrap;
+}
+
+.assistant {
+  background: var(--bg-base);
+  color: var(--black);
+  border-bottom-left-radius: 4px;
+}
+
+/* Markdown 要素の表示調整（react-markdown が描画する標準タグ） */
+.assistant p {
+  margin: 0 0 8px;
+}
+
+.assistant p:last-child {
+  margin-bottom: 0;
+}
+
+.assistant ul,
+.assistant ol {
+  margin: 0 0 8px;
+  padding-left: 24px;
+}
+
+.assistant li {
+  margin: 2px 0;
+}
+
+.assistant strong {
+  font-weight: 700;
+}
+
+.assistant em {
+  font-style: italic;
+}
+
+.assistant code {
+  font-family: ui-monospace, "SF Mono", "Consolas", "Menlo", monospace;
+  font-size: 0.95em;
+  background: var(--bg-white);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.assistant pre {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  background: var(--bg-white);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.assistant pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.assistant blockquote {
+  margin: 0 0 8px;
+  padding-left: 12px;
+  border-left: 3px solid var(--border-color);
+  color: var(--text-light);
+}
+
+.assistant a {
+  color: var(--info-color);
+  text-decoration: underline;
+}
+
+.assistant h1,
+.assistant h2,
+.assistant h3,
+.assistant h4 {
+  font-weight: 600;
+  margin: 8px 0;
+}
+
+.assistant table {
+  border-collapse: collapse;
+  margin: 0 0 8px;
+}
+
+.assistant th,
+.assistant td {
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+}
+
+.assistant hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 8px 0;
+}

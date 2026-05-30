@@ -356,6 +356,60 @@
     "processing": "Processing...",
     "close": "I'll find it myself"
   },
+  "premiumModalAiCoach": {
+    "badge": "PREMIUM",
+    "title": "Want to ask your\nAI coach more?",
+    "description": "Based on your training records, the AI coach helps you reflect, gives improvement advice, and even suggests free techniques.",
+    "upgradeMain": "Use the AI coach more",
+    "upgradeSub": "¥380 / month",
+    "close": "Maybe later"
+  },
+  "aiCoach": {
+    "title": "AI Coach",
+    "beta": "BETA",
+    "openButton": "Ask the AI coach",
+    "back": "Back",
+    "newConversation": "New conversation",
+    "noConversations": "No conversations",
+    "untitled": "Untitled conversation",
+    "deleteConversation": "Delete this conversation",
+    "loading": "Loading...",
+    "loadFailed": "Failed to load conversation",
+    "createFailed": "Failed to create conversation",
+    "deleteFailed": "Failed to delete conversation",
+    "sendFailed": "Failed to send",
+    "emptyHint": "An AI coach that answers based on your training records.\nUse it for reflection support or free technique ideas.",
+    "inputPlaceholder": "Ask the AI coach",
+    "send": "Send",
+    "history": "Past chats",
+    "deleteAll": "Delete all",
+    "deleteAllConfirm": "Delete all past chats. Are you sure?",
+    "dateGroups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "last7": "Last 7 days",
+      "last30": "Last 30 days",
+      "older": "Older"
+    },
+    "quickActions": {
+      "weeklyReview": {
+        "label": "Weekly review",
+        "prompt": "Based on my training records from the past week, please help me review this week's practice."
+      },
+      "weakPoints": {
+        "label": "Analyze weak points",
+        "prompt": "From my training records so far, please analyze techniques or areas I seem to struggle with."
+      },
+      "freeTechnique": {
+        "label": "Suggest free technique",
+        "prompt": "Based on the techniques I've practiced, please suggest a good free-technique flow to practice."
+      },
+      "improvementAdvice": {
+        "label": "Improvement advice",
+        "prompt": "Considering my training records, please give me advice on how to improve going forward."
+      }
+    }
+  },
   "premiumModalCalendar": {
     "badge": "PREMIUM",
     "title": "Set clear goals\nfor your practice",

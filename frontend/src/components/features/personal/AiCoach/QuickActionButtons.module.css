@@ -1,0 +1,28 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.action {
+  padding: 8px 12px;
+  border: 0.5px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--primary-dark);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  min-height: 36px;
+  transition: border-color 0.3s ease-out;
+}
+
+.action:hover:not(:disabled) {
+  border-color: var(--primary-color);
+}
+
+.action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
