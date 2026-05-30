@@ -4,11 +4,12 @@
  *
  * モバイルでソフトキーボードが開いたときの挙動制御:
  *   - position: fixed + inset: 0 でページ自体をスクロール不能にする
- *   - height: 100dvh は dynamic viewport height（キーボード分を除いた可視高）
- *   - ページ側で viewport の interactive-widget=resizes-content を指定しているため、
- *     キーボード展開時に dvh が縮み、ヘッダーは画面上端に残ったまま composer のみが
- *     キーボード直上に押し上がる（resizes-visual のデフォルトだとページ全体が上に
- *     スクロールし、ヘッダーや過去チャット一覧が画面外へ消えてしまう）
+ *   - height: 100dvh は JS 非対応環境向けのフォールバック
+ *   - 実際の追従は AiCoachChat.tsx 側で visualViewport API を購読し、
+ *     インラインスタイルで .layout の top/height をキーボード除外後の
+ *     可視領域に合わせて書き換える方式（iOS Safari / WKWebView は
+ *     viewport の interactive-widget=resizes-content を未サポートのため、
+ *     CSS だけだとヘッダーや過去チャット一覧が画面外へ消えてしまう）
  */
 .layout {
   position: fixed;

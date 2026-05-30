@@ -306,6 +306,37 @@ export function AiCoachChat() {
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [isCreatingFromLanding, setIsCreatingFromLanding] = useState(false);
+  const layoutRef = useRef<HTMLDivElement>(null);
+
+  // iOS Safari / WKWebView は viewport の interactive-widget=resizes-content をサポートしておらず、
+  // キーボード展開時に layout viewport は full height のまま visual viewport だけ縮む。
+  // 結果として position: fixed + inset:0 のレイアウト上端（ヘッダー）が画面外へ押し出されてしまうので、
+  // visualViewport API でキーボード除外後の可視領域に追従させ、ヘッダー・過去チャット一覧を画面内に保持する。
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const updateLayout = () => {
+      const el = layoutRef.current;
+      if (!el) return;
+      el.style.top = `${vv.offsetTop}px`;
+      el.style.height = `${vv.height}px`;
+    };
+
+    updateLayout();
+    vv.addEventListener("resize", updateLayout);
+    vv.addEventListener("scroll", updateLayout);
+
+    return () => {
+      vv.removeEventListener("resize", updateLayout);
+      vv.removeEventListener("scroll", updateLayout);
+      const el = layoutRef.current;
+      if (el) {
+        el.style.top = "";
+        el.style.height = "";
+      }
+    };
+  }, []);
 
   // 初期化: 会話一覧の取得のみ（自動オープンしない＝常に landing から開始）
   useEffect(() => {
@@ -449,7 +480,7 @@ export function AiCoachChat() {
   );
 
   return (
-    <div className={styles.layout}>
+    <div ref={layoutRef} className={styles.layout}>
       <header className={styles.header}>
         <button
           type="button"
