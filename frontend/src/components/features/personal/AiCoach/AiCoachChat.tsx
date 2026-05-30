@@ -66,6 +66,8 @@ function ChatSession({
   const listRef = useRef<HTMLDivElement>(null);
   // 初回応答完了時のタイトル生成を1回だけにするためのガード
   const titleGenStartedRef = useRef(false);
+  // React 19 Strict Mode（dev）の useEffect 二重発火による pending メッセージ二重送信を防ぐガード
+  const pendingSentRef = useRef(false);
 
   const transport = useMemo(
     () => new DefaultChatTransport({ api: "/api/ai-coach/chat" }),
@@ -95,9 +97,11 @@ function ChatSession({
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages]);
 
-  // landing から遷移時、pendingFirstMessage を一度だけ送信
+  // landing から遷移時、pendingFirstMessage を一度だけ送信。
+  // ref ガードで StrictMode の二重発火と将来の再レンダリングによる重複送信を防ぐ。
   useEffect(() => {
-    if (!pendingFirstMessage) return;
+    if (!pendingFirstMessage || pendingSentRef.current) return;
+    pendingSentRef.current = true;
     void sendMessage(
       { text: pendingFirstMessage },
       { body: { conversationId } },
