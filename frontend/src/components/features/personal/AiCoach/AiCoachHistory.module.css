@@ -108,21 +108,13 @@
   color: var(--text-light);
 }
 
-/* empty 状態（過去チャットがゼロ件） */
-.empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 200px;
-  padding: 16px;
-}
-
-.emptyHint {
-  margin: auto;
+/* ウェルカムテキスト（landing 上部、件数に関わらず常時表示） */
+.welcome {
   text-align: center;
   font-family: var(--font-ui);
   font-size: var(--font-size-sm);
   color: var(--text-light);
   line-height: 1.8;
+  margin: 8px 0 16px;
+  padding: 0 8px;
 }

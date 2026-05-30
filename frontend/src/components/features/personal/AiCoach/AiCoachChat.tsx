@@ -201,6 +201,13 @@ function LandingView({
 }) {
   const t = useTranslations();
   const [input, setInput] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // landing マウント時に入力欄へ自動フォーカスし、スマホではキーボードをそのまま開けるようにする。
+  // 過去チャットを開いた場合は ChatSession 側で textarea を描画するため、こちらは発火しない。
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
 
   const handleSend = useCallback(
     (text: string, isQuickAction: boolean) => {
@@ -230,6 +237,7 @@ function LandingView({
         />
         <div className={styles.inputRow}>
           <textarea
+            ref={textareaRef}
             className={styles.input}
             value={input}
             placeholder={t("aiCoach.inputPlaceholder")}

@@ -35,72 +35,71 @@ export const AiCoachHistory: FC<AiCoachHistoryProps> = ({
     (c) => c.title && c.title.trim().length > 0,
   );
 
-  if (visible.length === 0) {
-    return (
-      <div className={styles.empty}>
-        <p className={styles.emptyHint}>{t("aiCoach.emptyHint")}</p>
-      </div>
-    );
-  }
-
   const groups = groupConversationsByDate(visible);
 
   return (
     <div className={styles.historySection}>
-      <div className={styles.historyHeader}>
-        <span className={styles.sectionTitle}>{t("aiCoach.history")}</span>
-        <button
-          type="button"
-          className={styles.clearAllButton}
-          onClick={onDeleteAll}
-        >
-          {t("aiCoach.deleteAll")}
-        </button>
-      </div>
+      {/* 件数に関わらず、landing 状態では常にウェルカムテキストを上部に表示する */}
+      <p className={styles.welcome}>{t("aiCoach.emptyHint")}</p>
 
-      {groups.map((group) => (
-        <div key={group.key} className={styles.group}>
-          <span className={styles.groupLabel}>
-            {t(groupLabelKey(group.key))}
-          </span>
-          <div className={styles.historyList}>
-            {group.conversations.map((c) => (
-              // biome-ignore lint/a11y/useSemanticElements: 行に削除ボタンを内包するため <button> は使えず、role=button で代替する
-              <div
-                key={c.id}
-                className={styles.historyItem}
-                role="button"
-                tabIndex={0}
-                onClick={() => onSelect(c.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onSelect(c.id);
-                  }
-                }}
-              >
-                <ClockCounterClockwiseIcon
-                  size={18}
-                  className={styles.historyIcon}
-                  weight="light"
-                />
-                <span className={styles.historyText}>{c.title}</span>
-                <button
-                  type="button"
-                  className={styles.historyDeleteButton}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(c.id);
-                  }}
-                  aria-label={t("aiCoach.deleteConversation")}
-                >
-                  <XIcon size={16} weight="light" />
-                </button>
-              </div>
-            ))}
+      {visible.length === 0 ? null : (
+        <>
+          <div className={styles.historyHeader}>
+            <span className={styles.sectionTitle}>{t("aiCoach.history")}</span>
+            <button
+              type="button"
+              className={styles.clearAllButton}
+              onClick={onDeleteAll}
+            >
+              {t("aiCoach.deleteAll")}
+            </button>
           </div>
-        </div>
-      ))}
+
+          {groups.map((group) => (
+            <div key={group.key} className={styles.group}>
+              <span className={styles.groupLabel}>
+                {t(groupLabelKey(group.key))}
+              </span>
+              <div className={styles.historyList}>
+                {group.conversations.map((c) => (
+                  // biome-ignore lint/a11y/useSemanticElements: 行に削除ボタンを内包するため <button> は使えず、role=button で代替する
+                  <div
+                    key={c.id}
+                    className={styles.historyItem}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => onSelect(c.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelect(c.id);
+                      }
+                    }}
+                  >
+                    <ClockCounterClockwiseIcon
+                      size={18}
+                      className={styles.historyIcon}
+                      weight="light"
+                    />
+                    <span className={styles.historyText}>{c.title}</span>
+                    <button
+                      type="button"
+                      className={styles.historyDeleteButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(c.id);
+                      }}
+                      aria-label={t("aiCoach.deleteConversation")}
+                    >
+                      <XIcon size={16} weight="light" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 };
