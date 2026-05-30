@@ -366,7 +366,7 @@
   },
   "aiCoach": {
     "title": "AIコーチ",
-    "beta": "β版",
+    "beta": "β版(BETA)",
     "openButton": "AIコーチに相談する",
     "back": "戻る",
     "newConversation": "新しい会話",
