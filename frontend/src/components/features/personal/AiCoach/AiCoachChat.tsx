@@ -12,6 +12,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { useToast } from "@/contexts/ToastContext";
+import type { AiCoachQuickActionId } from "@/lib/aiCoach/constants";
 import {
   type AiCoachConversation,
   createConversation as apiCreateConversation,
@@ -52,13 +53,21 @@ function ChatSession({
   pendingFirstMessage,
   onPendingConsumed,
   onBeforeSend,
+  onQuickActionClick,
   onTitleGenerated,
 }: {
   conversationId: string;
   initialMessages: UIMessage[];
   pendingFirstMessage: string | null;
   onPendingConsumed: () => void;
-  onBeforeSend: (charCount: number, isQuickAction: boolean) => Promise<boolean>;
+  onBeforeSend: (
+    charCount: number,
+    quickActionId: AiCoachQuickActionId | null,
+  ) => Promise<boolean>;
+  onQuickActionClick: (
+    id: AiCoachQuickActionId,
+    source: "landing" | "in_chat",
+  ) => void;
   onTitleGenerated: () => void;
 }) {
   const t = useTranslations();
@@ -110,10 +119,10 @@ function ChatSession({
   }, [pendingFirstMessage, sendMessage, conversationId, onPendingConsumed]);
 
   const send = useCallback(
-    async (text: string, isQuickAction: boolean) => {
+    async (text: string, quickActionId: AiCoachQuickActionId | null) => {
       const trimmed = text.trim();
       if (!trimmed || isBusy) return;
-      const allowed = await onBeforeSend(trimmed.length, isQuickAction);
+      const allowed = await onBeforeSend(trimmed.length, quickActionId);
       if (!allowed) return;
       setInput("");
       void sendMessage({ text: trimmed }, { body: { conversationId } });
@@ -146,7 +155,10 @@ function ChatSession({
         {messages.length === 0 && (
           <QuickActionButtons
             disabled={isBusy}
-            onSelect={(prompt) => send(prompt, true)}
+            onSelect={(id, prompt) => {
+              onQuickActionClick(id, "in_chat");
+              void send(prompt, id);
+            }}
           />
         )}
         <div className={styles.inputRow}>
@@ -164,7 +176,7 @@ function ChatSession({
                 !e.nativeEvent.isComposing
               ) {
                 e.preventDefault();
-                void send(input, false);
+                void send(input, null);
               }
             }}
           />
@@ -172,7 +184,7 @@ function ChatSession({
             type="button"
             className={styles.sendButton}
             disabled={isBusy || !input.trim()}
-            onClick={() => void send(input, false)}
+            onClick={() => void send(input, null)}
             aria-label={t("aiCoach.send")}
           >
             <PaperPlaneRightIcon size={22} weight="fill" />
@@ -190,13 +202,18 @@ function LandingView({
   onDelete,
   onDeleteAll,
   onSend,
+  onQuickActionClick,
   isBusy,
 }: {
   conversations: AiCoachConversation[];
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onDeleteAll: () => void;
-  onSend: (text: string, isQuickAction: boolean) => void;
+  onSend: (text: string, quickActionId: AiCoachQuickActionId | null) => void;
+  onQuickActionClick: (
+    id: AiCoachQuickActionId,
+    source: "landing" | "in_chat",
+  ) => void;
   isBusy: boolean;
 }) {
   const t = useTranslations();
@@ -210,11 +227,11 @@ function LandingView({
   }, []);
 
   const handleSend = useCallback(
-    (text: string, isQuickAction: boolean) => {
+    (text: string, quickActionId: AiCoachQuickActionId | null) => {
       const trimmed = text.trim();
       if (!trimmed) return;
       setInput("");
-      onSend(trimmed, isQuickAction);
+      onSend(trimmed, quickActionId);
     },
     [onSend],
   );
@@ -233,7 +250,10 @@ function LandingView({
       <div className={styles.composer}>
         <QuickActionButtons
           disabled={isBusy}
-          onSelect={(prompt) => handleSend(prompt, true)}
+          onSelect={(id, prompt) => {
+            onQuickActionClick(id, "landing");
+            handleSend(prompt, id);
+          }}
         />
         <div className={styles.inputRow}>
           <textarea
@@ -251,7 +271,7 @@ function LandingView({
                 !e.nativeEvent.isComposing
               ) {
                 e.preventDefault();
-                handleSend(input, false);
+                handleSend(input, null);
               }
             }}
           />
@@ -259,7 +279,7 @@ function LandingView({
             type="button"
             className={styles.sendButton}
             disabled={isBusy || !input.trim()}
-            onClick={() => handleSend(input, false)}
+            onClick={() => handleSend(input, null)}
             aria-label={t("aiCoach.send")}
           >
             <PaperPlaneRightIcon size={22} weight="fill" />
@@ -366,9 +386,14 @@ export function AiCoachChat() {
     }
   }, [conversations, showToast, t]);
 
-  // 送信前の利用可否チェック + Umami 計測
+  // 送信前の利用可否チェック + Umami 計測。
+  // quickActionId は固定プロンプト由来のときに識別子（weeklyReview など）が入り、
+  // フリー入力では null。message_send イベントへブレイクダウン用に同梱する。
   const handleBeforeSend = useCallback(
-    async (charCount: number, isQuickAction: boolean): Promise<boolean> => {
+    async (
+      charCount: number,
+      quickActionId: AiCoachQuickActionId | null,
+    ): Promise<boolean> => {
       try {
         const usage = await fetchAiCoachUsage();
         if (!usage.allowed) {
@@ -377,7 +402,8 @@ export function AiCoachChat() {
           return false;
         }
         track("ai_coach_message_send", {
-          is_quick_action: isQuickAction,
+          is_quick_action: quickActionId !== null,
+          quick_action_id: quickActionId,
           char_count: charCount,
         });
         return true;
@@ -389,11 +415,22 @@ export function AiCoachChat() {
     [track, showToast, t],
   );
 
+  // クイックアクションのクリックを利用制限チェック前に計測（クリック意図と送信完遂を分離）
+  const handleQuickActionClick = useCallback(
+    (id: AiCoachQuickActionId, source: "landing" | "in_chat") => {
+      track("ai_coach_quick_action_click", {
+        quick_action_id: id,
+        source,
+      });
+    },
+    [track],
+  );
+
   // landing から送信: 利用可否チェック → 会話の遅延作成 → ChatSession マウントへ pending を渡す
   const handleLandingSend = useCallback(
-    async (text: string, isQuickAction: boolean) => {
+    async (text: string, quickActionId: AiCoachQuickActionId | null) => {
       if (isCreatingFromLanding) return;
-      const allowed = await handleBeforeSend(text.length, isQuickAction);
+      const allowed = await handleBeforeSend(text.length, quickActionId);
       if (!allowed) return;
       setIsCreatingFromLanding(true);
       try {
@@ -448,6 +485,7 @@ export function AiCoachChat() {
           pendingFirstMessage={pendingFirstMessage}
           onPendingConsumed={() => setPendingFirstMessage(null)}
           onBeforeSend={handleBeforeSend}
+          onQuickActionClick={handleQuickActionClick}
           onTitleGenerated={refreshConversations}
         />
       ) : (
@@ -457,6 +495,7 @@ export function AiCoachChat() {
           onDelete={handleDeleteConversation}
           onDeleteAll={() => setShowDeleteAllConfirm(true)}
           onSend={handleLandingSend}
+          onQuickActionClick={handleQuickActionClick}
           isBusy={isCreatingFromLanding}
         />
       )}
