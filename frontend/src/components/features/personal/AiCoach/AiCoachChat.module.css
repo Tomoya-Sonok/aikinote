@@ -1,23 +1,22 @@
 /*
  * AIコーチのチャットは PC でも全画面幅を使う特例レイアウト（他画面は 580px 中央寄せ）。
- * 共通レイアウトの max-width を取り消し、SP/PC ともに親要素いっぱいに広げる。
+ * SP/PC ともに親要素いっぱいに広げる。
+ *
+ * モバイルでソフトキーボードが開いたときの挙動制御:
+ *   - position: fixed + inset: 0 でページ自体をスクロール不能にする
+ *   - height: 100dvh は dynamic viewport height（キーボード分を除いた可視高）
+ *   - ページ側で viewport の interactive-widget=resizes-content を指定しているため、
+ *     キーボード展開時に dvh が縮み、ヘッダーは画面上端に残ったまま composer のみが
+ *     キーボード直上に押し上がる（resizes-visual のデフォルトだとページ全体が上に
+ *     スクロールし、ヘッダーや過去チャット一覧が画面外へ消えてしまう）
  */
 .layout {
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   height: 100dvh;
   background: var(--white);
-}
-
-/*
- * PWA standalone ではアドレスバーが無く 100dvh==100vh となり body スクロールで
- * フッター（入力欄）が画面外に隠れることがあるため、fixed で固定する。
- */
-@media all and (display-mode: standalone) {
-  .layout {
-    position: fixed;
-    inset: 0;
-  }
 }
 
 .header {
