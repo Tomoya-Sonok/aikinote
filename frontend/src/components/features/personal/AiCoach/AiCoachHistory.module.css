@@ -108,7 +108,8 @@
   color: var(--text-light);
 }
 
-/* ウェルカムテキスト（landing 上部、件数に関わらず常時表示） */
+/* ウェルカムテキスト（landing 上部、件数に関わらず常時表示）
+   翻訳文字列に含まれる "\n" を改行として描画するため pre-line を指定 */
 .welcome {
   text-align: center;
   font-family: var(--font-ui);
@@ -117,4 +118,5 @@
   line-height: 1.8;
   margin: 8px 0 16px;
   padding: 0 8px;
+  white-space: pre-line;
 }

@@ -1,9 +1,11 @@
+/*
+ * AIコーチのチャットは PC でも全画面幅を使う特例レイアウト（他画面は 580px 中央寄せ）。
+ * 共通レイアウトの max-width を取り消し、SP/PC ともに親要素いっぱいに広げる。
+ */
 .layout {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  max-width: 580px;
-  margin: 0 auto;
   background: var(--white);
 }
 
@@ -15,7 +17,6 @@
   .layout {
     position: fixed;
     inset: 0;
-    max-width: 100%;
   }
 }
 
@@ -115,6 +116,7 @@
   font-size: var(--font-size-sm);
   color: var(--text-light);
   line-height: 1.8;
+  white-space: pre-line;
 }
 
 .composer {

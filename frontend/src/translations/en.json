@@ -377,7 +377,7 @@
     "createFailed": "Failed to create conversation",
     "deleteFailed": "Failed to delete conversation",
     "sendFailed": "Failed to send",
-    "emptyHint": "Ask about reflecting on your training, improvement tips, or free technique ideas based on your records.",
+    "emptyHint": "An AI coach that answers based on your training records.\nUse it for reflection support or free technique ideas.",
     "inputPlaceholder": "Ask the AI coach",
     "send": "Send",
     "history": "Past chats",
