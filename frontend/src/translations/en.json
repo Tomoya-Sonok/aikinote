@@ -366,6 +366,7 @@
   },
   "aiCoach": {
     "title": "AI Coach",
+    "beta": "BETA",
     "openButton": "Ask the AI coach",
     "back": "Back",
     "newConversation": "New conversation",

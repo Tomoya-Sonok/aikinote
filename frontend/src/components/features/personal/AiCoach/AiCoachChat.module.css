@@ -41,13 +41,43 @@
   cursor: pointer;
 }
 
-.title {
+.titleWrap {
   flex: 1;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.title {
   font-family: var(--font-ui);
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--black);
+}
+
+/* β版バッジ：AIコーチのグラデーションを身にまとった、少し近未来的なピル形ラベル */
+.betaBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  line-height: 1.4;
+  color: var(--white);
+  background: linear-gradient(
+    135deg,
+    var(--ai-coach-gradient-start) 0%,
+    var(--ai-coach-gradient-mid) 50%,
+    var(--ai-coach-gradient-end) 100%
+  );
+  border-radius: 999px;
+  box-shadow:
+    0 1px 2px var(--ai-coach-glow),
+    inset 0 1px 0 var(--ai-coach-badge-highlight);
+  text-shadow: 0 1px 1px var(--ai-coach-badge-text-shadow);
 }
 
 .conversationList {

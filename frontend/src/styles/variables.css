@@ -15,6 +15,10 @@
   --ai-coach-gradient-start: #6fb8f5;
   --ai-coach-gradient-mid: #a98ef0;
   --ai-coach-gradient-end: #f08fc4;
+  /* β版バッジ等のグロー・ハイライト・文字影（mid と同系のパープルにアルファをかけたもの） */
+  --ai-coach-glow: rgba(169, 142, 240, 0.4);
+  --ai-coach-badge-highlight: rgba(255, 255, 255, 0.35);
+  --ai-coach-badge-text-shadow: rgba(0, 0, 0, 0.15);
 
   /* 警告/オフライン通知（Apple HIG / Material Design の caution yellow 系） */
   --warning-bg: #fff4d6;

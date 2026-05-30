@@ -422,7 +422,10 @@ export function AiCoachChat() {
         >
           <ArrowLeftIcon size={24} weight="light" />
         </button>
-        <span className={styles.title}>{t("aiCoach.title")}</span>
+        <div className={styles.titleWrap}>
+          <span className={styles.title}>{t("aiCoach.title")}</span>
+          <span className={styles.betaBadge}>{t("aiCoach.beta")}</span>
+        </div>
         <button
           type="button"
           className={styles.iconButton}
