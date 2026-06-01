@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { EmailVerificationWaitingForm } from "@/components/features/auth/EmailVerificationWaitingForm";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
+import { StoreBadges } from "@/components/shared/StoreBadges/StoreBadges";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { generateUsernameFromEmail } from "@/lib/utils/auth-client";
@@ -369,6 +370,12 @@ export function SignUp({ locale, onSuccess }: SignUpProps) {
           </Link>
         </span>
       </div>
+
+      <StoreBadges
+        trackPrefix="signup"
+        heading={t("auth.appPromoHeading")}
+        className={styles.storeBadges}
+      />
     </div>
   );
 

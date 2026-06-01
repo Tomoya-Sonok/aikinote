@@ -332,6 +332,13 @@
   margin-top: 8px;
 }
 
+/* ─── ストアバッジ ─── */
+
+.storeBadges {
+  margin-top: 32px;
+  max-width: 450px;
+}
+
 .signupPromptText {
   font-family: var(--font-ui);
   font-size: 12px;

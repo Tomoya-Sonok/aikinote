@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
+import { StoreBadges } from "@/components/shared/StoreBadges/StoreBadges";
 import { CtaButton } from "../CtaButton";
 import styles from "./Hero.module.css";
 
@@ -53,6 +54,7 @@ export async function Hero({ locale, signupHref }: HeroProps) {
           <Link href={loginHref} className={styles.loginLink}>
             {t("cta.loginPrompt")}
           </Link>
+          <StoreBadges trackPrefix="landing_page_hero" />
         </div>
 
         <ScrollFadeIn

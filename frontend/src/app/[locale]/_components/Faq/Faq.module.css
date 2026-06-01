@@ -141,6 +141,12 @@
   margin: 24px 0;
 }
 
+/* ── ストアバッジ ── */
+
+.storeBadges {
+  margin-top: 32px;
+}
+
 /* ── CTA グループ ── */
 
 .ctaGroup {
