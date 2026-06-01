@@ -164,8 +164,8 @@
           "answer": "International users are also welcome. The app is available in both Japanese and English."
         },
         "mobileApp": {
-          "question": "Is there no smartphone app?",
-          "answer": "Currently, you can access it directly from a web browser. Adding it to your smartphone's home screen lets you use it like an app. A mobile app is also currently in development. We will notify you at your registered email address once it is released."
+          "question": "Is there a smartphone app?",
+          "answer": "Yes, you can download it from the links below. Unlike the web version, the app supports push notifications, making it even more convenient to use."
         },
         "differentStyles": {
           "question": "Won't there be clashes of opinions between people from different styles or instructors?",
@@ -474,6 +474,7 @@
     "passwordPlaceholder": "Enter password",
     "noAccountYet": "Don't have an account yet?",
     "alreadyHaveAccount": "Already have an account?",
+    "appPromoHeading": "Get more out of AikiNote with the app!",
     "loginTitle": "Login",
     "loginDescription": "Please login to your account to use the service",
     "passwordReset": "Password Reset",

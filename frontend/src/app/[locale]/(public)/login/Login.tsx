@@ -7,6 +7,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
+import { StoreBadges } from "@/components/shared/StoreBadges/StoreBadges";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import {
@@ -269,6 +270,12 @@ export function Login({ locale, onSuccess }: LoginProps) {
           </Link>
         </span>
       </div>
+
+      <StoreBadges
+        trackPrefix="login"
+        heading={t("auth.appPromoHeading")}
+        className={styles.storeBadges}
+      />
     </div>
   );
 }

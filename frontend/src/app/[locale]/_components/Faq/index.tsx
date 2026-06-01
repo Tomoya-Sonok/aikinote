@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Fragment } from "react";
 import { ScrollFadeIn } from "@/components/shared/ScrollFadeIn/ScrollFadeIn";
+import { StoreBadges } from "@/components/shared/StoreBadges/StoreBadges";
 import { CtaButton } from "../CtaButton";
 import styles from "./Faq.module.css";
 
@@ -72,6 +73,11 @@ export async function Faq({ locale, signupHref }: FaqProps) {
             </ScrollFadeIn>
           ))}
         </dl>
+
+        <StoreBadges
+          trackPrefix="landing_page_faq"
+          className={styles.storeBadges}
+        />
       </div>
 
       <div className={styles.ctaGroup}>

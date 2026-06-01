@@ -446,6 +446,13 @@
   max-width: 450px;
 }
 
+/* ─── ストアバッジ ─── */
+
+.storeBadges {
+  margin-top: 32px;
+  max-width: 450px;
+}
+
 .loginPromptText {
   font-family: var(--font-ui);
   font-size: 12px;
