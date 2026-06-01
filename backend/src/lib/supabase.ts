@@ -3619,20 +3619,18 @@ export const updateSocialPostHashtags = async (
 };
 
 /**
- * 直近7日間のトレンドハッシュタグを取得する
+ * 直近 30 日間のトレンドハッシュタグを取得する。
+ * 集計は Supabase RPC `get_trending_hashtags` (migrations/029) に委譲し、
+ * 同率タイは全件含めて top_n 位までを返す既存仕様を再現する。
  */
 export const getTrendingHashtags = async (
   supabaseClient: SupabaseClient,
   limit: number,
 ): Promise<{ name: string; count: number }[]> => {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-  const { data, error } = await supabaseClient
-    .from("SocialPostHashtag")
-    .select("hashtag_id, Hashtag(name), SocialPost!inner(is_deleted)")
-    .eq("SocialPost.is_deleted", false)
-    .gte("created_at", thirtyDaysAgo.toISOString());
+  const { data, error } = await supabaseClient.rpc("get_trending_hashtags", {
+    days_back: 30,
+    top_n: limit,
+  });
 
   if (error) {
     throw new Error(
@@ -3640,28 +3638,12 @@ export const getTrendingHashtags = async (
     );
   }
 
-  // 集計: hashtag_id ごとにカウント
-  const countMap = new Map<string, { name: string; count: number }>();
-  for (const row of data ?? []) {
-    // biome-ignore lint/suspicious/noExplicitAny: Supabase join result
-    const r = row as any;
-    const name = r.Hashtag?.name;
-    if (!name) continue;
-
-    const entry = countMap.get(name);
-    if (entry) {
-      entry.count++;
-    } else {
-      countMap.set(name, { name, count: 1 });
-    }
-  }
-
-  // カウント降順でソートし、上位N位までを返す（同率含む）
-  const sorted = [...countMap.values()].sort((a, b) => b.count - a.count);
-  if (sorted.length === 0) return [];
-  const cutoffCount =
-    sorted[Math.min(limit - 1, sorted.length - 1)]?.count ?? 0;
-  return sorted.filter((item) => item.count >= cutoffCount);
+  return (data ?? []).map(
+    (row: { name: string; count: number | string | bigint }) => ({
+      name: row.name,
+      count: Number(row.count),
+    }),
+  );
 };
 
 // ============================================================
