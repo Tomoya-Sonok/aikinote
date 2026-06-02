@@ -1158,7 +1158,7 @@
     "featurePublish": "One-tap training record publish",
     "featurePush": "Notifications for replies and favorites",
     "featureReminder": "Reminders",
-    "aiCoachNote": "*AI Coach (Beta) is limited to 2 total uses on the Free plan and 20 uses per day on the Premium plan."
+    "aiCoachNote": "*AI Coach (Beta) is available on the Premium plan, with a limit of 20 uses per day."
   },
   "pushNotification": {
     "title": "Push Notifications",

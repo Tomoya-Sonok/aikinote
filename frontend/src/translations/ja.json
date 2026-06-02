@@ -1160,7 +1160,7 @@
     "featurePublish": "稽古記録の1タップ公開",
     "featurePush": "返信やお気に入りの通知",
     "featureReminder": "リマインダー登録・通知",
-    "aiCoachNote": "*AIコーチ(ベータ版)は、Freeプランでは合計2回まで、Premiumプランでは1日あたり20回までご利用いただけます。"
+    "aiCoachNote": "*AIコーチ(ベータ版)は、Premiumプランで1日あたり20回までご利用いただけます。"
   },
   "pushNotification": {
     "title": "プッシュ通知",

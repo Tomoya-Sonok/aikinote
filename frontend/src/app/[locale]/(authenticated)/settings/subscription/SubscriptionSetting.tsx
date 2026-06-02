@@ -34,7 +34,7 @@ const FEATURE_MATRIX = [
       { nameKey: "featureStats" as const, free: false, pro: true },
       {
         nameKey: "featureAiCoach" as const,
-        free: true,
+        free: false,
         pro: true,
         hasNote: true,
       },
