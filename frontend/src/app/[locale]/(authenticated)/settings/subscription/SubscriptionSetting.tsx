@@ -32,6 +32,12 @@ const FEATURE_MATRIX = [
       { nameKey: "featureCalendar" as const, free: true, pro: true },
       { nameKey: "featureExam" as const, free: false, pro: true },
       { nameKey: "featureStats" as const, free: false, pro: true },
+      {
+        nameKey: "featureAiCoach" as const,
+        free: false,
+        pro: true,
+        hasNote: true,
+      },
     ],
   },
   {
@@ -346,6 +352,9 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
                 <div key={feature.nameKey} className={styles.featureRow}>
                   <span className={styles.featureName}>
                     {t(feature.nameKey)}
+                    {"hasNote" in feature && feature.hasNote && (
+                      <sup className={styles.featureAsterisk}>*</sup>
+                    )}
                   </span>
                   <span
                     className={
@@ -365,7 +374,7 @@ export function SubscriptionSetting({ locale }: SubscriptionSettingProps) {
               ))}
             </div>
           ))}
-          <p className={styles.mobileNote}>{t("mobileNote")}</p>
+          <p className={styles.tableNote}>{t("aiCoachNote")}</p>
         </div>
       </div>
     </SubscriptionLayout>

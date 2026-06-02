@@ -1,7 +1,10 @@
 // #281 AIコーチ（RAG）の設定値
 
 // 利用回数（1メッセージ = 1カウント）
-// Free: 生涯合計まで。Premium: 1日あたり。
+// Free: 生涯合計までの「お試し」（マトリクスでは Premium 機能として表示）。
+// Premium: 1日あたり。
+// AI_COACH_PREMIUM_DAILY_LIMIT を変更する際は subscriptionPage.aiCoachNote
+// （ja.json / en.json）の数値もあわせて更新する。
 export const AI_COACH_FREE_LIFETIME_LIMIT = 2;
 export const AI_COACH_PREMIUM_DAILY_LIMIT = 20;
 

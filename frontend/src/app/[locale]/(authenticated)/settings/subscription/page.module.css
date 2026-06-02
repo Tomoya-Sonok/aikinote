@@ -335,8 +335,16 @@
   color: var(--text-light);
 }
 
-/* 注意書き */
-.mobileNote {
+/* 機能行ラベル末尾のアスタリスク */
+.featureAsterisk {
+  margin-left: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  vertical-align: super;
+}
+
+/* マトリクス下の脚注 */
+.tableNote {
   font-family: var(--font-ui);
   font-size: var(--font-size-xs);
   color: var(--text-light);
