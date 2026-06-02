@@ -2,6 +2,7 @@
 
 // 利用回数（1メッセージ = 1カウント）
 // Free: 生涯合計まで。Premium: 1日あたり。
+// 変更時は subscriptionPage.aiCoachNote（ja.json / en.json）の数値もあわせて更新する。
 export const AI_COACH_FREE_LIFETIME_LIMIT = 2;
 export const AI_COACH_PREMIUM_DAILY_LIMIT = 20;
 

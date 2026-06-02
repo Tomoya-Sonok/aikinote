@@ -1145,11 +1145,12 @@
     "tableHeaderPro": "Premium",
     "categoryPersonal": "Personal",
     "categorySocial": "Social",
-    "categoryMobile": "Push Notifications (Mobile App Only)",
+    "categoryMobile": "Push Notifications (App Only)",
     "featureRecord": "Create, view & search training records",
     "featureCalendar": "Calendar & training day tracking",
     "featureExam": "Exam preparation training day tracking",
     "featureStats": "Stats & analytics",
+    "featureAiCoach": "AI Coach (Beta)",
     "featureBrowse": "Browse posts & training records",
     "featurePostLimit": "Post, reply & favorite\n(daily limits apply)",
     "featureFavorite": "Save & browse favorites",
@@ -1157,7 +1158,7 @@
     "featurePublish": "One-tap training record publish",
     "featurePush": "Notifications for replies and favorites",
     "featureReminder": "Reminders",
-    "mobileNote": "*The mobile app is currently under development. We will notify you at your registered email address once the release date is confirmed."
+    "aiCoachNote": "*AI Coach (Beta) is limited to 2 total uses on the Free plan and 20 uses per day on the Premium plan."
   },
   "pushNotification": {
     "title": "Push Notifications",
