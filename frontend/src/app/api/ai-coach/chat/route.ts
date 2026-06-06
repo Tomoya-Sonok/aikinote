@@ -2,10 +2,11 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { type NextRequest, NextResponse } from "next/server";
 import {
-  AI_COACH_SYSTEM_PROMPT,
   buildRecordsContext,
+  buildSystemPrompt,
 } from "@/lib/aiCoach/buildContext";
 import { AI_COACH_MODEL } from "@/lib/aiCoach/constants";
+import { detectPromptInjection } from "@/lib/aiCoach/injectionGuard";
 import { checkAiCoachUsageAllowed } from "@/lib/aiCoach/usageLimit";
 import {
   assertConversationOwned,
@@ -92,12 +93,15 @@ export async function POST(request: NextRequest) {
     const records = await fetchUserTrainingRecords(supabase, user.id);
     const context = buildRecordsContext(records);
 
-    // 安定したプレフィックス（システム指示 + 記録コーパス）→ 会話履歴 の順で、
-    // Gemini の暗黙的キャッシュ割引が効きやすい構成にする。
-    const system = `${AI_COACH_SYSTEM_PROMPT}\n\n${context.text}`;
     const userText = extractText(
       [...messages].reverse().find((m) => m.role === "user"),
     );
+    // 軽量なインジェクション検知（soft）。検知してもブロックはせず、
+    // system 末尾に注記を補強して LLM 側の判断を後押しするのみ。
+    const suspicious = detectPromptInjection(userText);
+    // 安定したプレフィックス（システム指示 + 記録コーパス）→ 会話履歴 の順で、
+    // Gemini の暗黙的キャッシュ割引が効きやすい構成にする。
+    const system = buildSystemPrompt(context.text, { suspicious });
 
     const googleProvider = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY,
