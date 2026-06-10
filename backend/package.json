@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
-    "@hono/zod-validator": "^0.7.2",
+    "@hono/zod-validator": "^0.7.6",
     "@supabase/supabase-js": "^2.49.4",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",
