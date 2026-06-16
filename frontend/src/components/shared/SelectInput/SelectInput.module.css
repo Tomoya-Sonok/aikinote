@@ -24,7 +24,7 @@
 
 .select {
   font-family: var(--font-ui);
-  font-size: var(--font-size-xs);
+  font-size: var(--input-font-size);
   line-height: 1.45;
   padding: 10px 32px 10px 14px;
   border: 0.5px solid var(--border-color);

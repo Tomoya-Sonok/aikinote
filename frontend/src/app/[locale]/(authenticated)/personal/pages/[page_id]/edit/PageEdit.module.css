@@ -78,7 +78,7 @@
   padding: 8px 10px;
   border: 0.5px solid var(--border-color);
   border-radius: 4px;
-  font-size: var(--font-size-xs);
+  font-size: var(--input-font-size);
   font-family: var(--font-ui);
   background: var(--white);
   color: var(--black);

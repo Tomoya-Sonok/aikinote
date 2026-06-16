@@ -72,7 +72,7 @@
   padding: 6px 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  font-size: var(--font-size-xs);
+  font-size: var(--input-font-size);
   font-family: var(--font-ui);
   height: 32px;
 }

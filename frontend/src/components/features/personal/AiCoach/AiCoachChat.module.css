@@ -172,7 +172,7 @@
   border: 0.5px solid var(--border-color);
   border-radius: 18px;
   font-family: var(--font-ui);
-  font-size: var(--font-size-base);
+  font-size: var(--input-font-size);
   background: var(--white);
   color: var(--black);
   outline: none;

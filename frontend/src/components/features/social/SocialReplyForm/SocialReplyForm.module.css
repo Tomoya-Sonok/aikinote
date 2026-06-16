@@ -15,7 +15,7 @@
   flex: 1;
   padding: 10px 12px;
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: var(--input-font-size);
   color: var(--black);
   border: 1px solid var(--border-color);
   border-radius: 20px;
