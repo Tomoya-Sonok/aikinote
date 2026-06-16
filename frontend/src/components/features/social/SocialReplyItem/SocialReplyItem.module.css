@@ -149,7 +149,7 @@
   min-height: 60px;
   padding: 8px;
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: var(--input-font-size);
   color: var(--black);
   border: 1px solid var(--border-color);
   border-radius: 8px;

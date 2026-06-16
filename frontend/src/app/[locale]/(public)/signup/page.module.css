@@ -343,7 +343,7 @@
   border-radius: 4px;
   padding: 6px 12px;
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: var(--input-font-size);
   color: var(--black);
   outline: none;
   transition: border-color 0.4s ease-out;

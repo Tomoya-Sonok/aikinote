@@ -97,7 +97,7 @@
   border: 1px solid #e1e1e1;
   border-radius: 12px;
   padding: 8px 10px;
-  font-size: 0.95rem;
+  font-size: var(--input-font-size);
   background: #fff;
 }
 

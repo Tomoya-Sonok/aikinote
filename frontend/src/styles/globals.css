@@ -59,6 +59,15 @@ select {
   letter-spacing: inherit;
 }
 
+/* iOS WebKit のフォーカス時自動ズーム防止：入力要素の computed font-size を
+   最小 16px に底上げする（className 未指定・今後追加される入力欄のデフォルト）。
+   既存の各 CSS Module はクラスセレクタで詳細度が上のため、各所も var(--input-font-size) に揃える。 */
+input,
+textarea,
+select {
+  font-size: var(--input-font-size);
+}
+
 /* 7. Avoid text overflows */
 p,
 h1,

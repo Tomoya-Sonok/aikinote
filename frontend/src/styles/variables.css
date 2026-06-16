@@ -112,6 +112,11 @@
   --font-size-xl: calc(var(--current-font-size) * 1.25);
   --font-size-2xl: calc(var(--current-font-size) * 1.5);
   --font-size-3xl: calc(var(--current-font-size) * 1.875);
+
+  /* 入力要素専用フォントサイズ。iOS WebKit は input/textarea/select の computed
+     font-size が 16px 未満だとフォーカス時に自動ズームするため、最小 16px を保証する。
+     large 設定時は 20px まで拡大し、フォントサイズ設定（拡大）の意図を維持する。 */
+  --input-font-size: max(16px, var(--font-size-base));
 }
 
 /* フォントサイズ切り替え用のデータ属性 */

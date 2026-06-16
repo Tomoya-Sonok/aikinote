@@ -109,7 +109,7 @@
   border-radius: 6px;
   text-align: center;
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: var(--input-font-size);
   color: var(--black);
   background: var(--white);
 }
@@ -170,7 +170,7 @@
   border-radius: 6px;
   padding: 0 8px;
   font-family: var(--font-ui);
-  font-size: var(--font-size-sm);
+  font-size: var(--input-font-size);
   color: var(--black);
   background: var(--white);
 }
