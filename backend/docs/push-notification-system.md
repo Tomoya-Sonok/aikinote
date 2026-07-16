@@ -169,7 +169,7 @@ Cloudflare Workers の Cron Trigger（5分間隔、`backend/wrangler.toml` の `
 | 通知 | タイミング | 対象 | 実装 |
 |---|---|---|---|
 | 稽古記録リマインダー | ユーザー設定の曜日・時刻（5分枠） | `reminder_enabled = true` のユーザー | `reminder.ts` `processReminders()` |
-| 稽古継続リマインダー（ストリーク） | 毎週土曜 18:00 JST | `notify_streak = true` かつ今週（月〜土）の稽古参加が0日 | `reminder.ts` `processStreakNotifications()` |
+| 稽古継続リマインダー（ストリーク） | 毎週土曜 18:00 JST | `notify_streak = true` かつ今週（月〜土）の稽古参加が0日 かつ 稽古記録（`TrainingPage`）を1件以上作成済み | `reminder.ts` `processStreakNotifications()` |
 | リテンション通知 | 毎日 20:00 JST | 最終利用から7日以上経過したユーザー | `retention.ts` `processRetentionNotifications()` |
 
 ### リテンション通知

@@ -180,7 +180,8 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
 /**
  * ストリーク途切れ通知。
  * 毎週土曜 18:00 JST に、その週（月〜土）の稽古参加が0日のユーザーに通知。
- * notify_streak = true のユーザーのみ対象。
+ * notify_streak = true かつ稽古記録（TrainingPage）を1件以上
+ * 作成したことがあるユーザーのみ対象。
  */
 async function processStreakNotifications(
   supabase: SupabaseClient,
@@ -245,7 +246,27 @@ async function processStreakNotifications(
     return;
   }
 
-  // 5. プッシュトークンを取得して送信（バッチ対応）
+  // 5. 一度でも稽古記録（TrainingPage）を作成したことがあるユーザーに絞り込む（バッチ対応）。
+  // 一度も記録したことがないユーザーに「今週まだ稽古記録がありません」は不自然なため対象外とする
+  const pageRecords = await batchIn(async (ids) => {
+    const { data, error } = await supabase
+      .from("TrainingPage")
+      .select("user_id")
+      .in("user_id", ids);
+    if (error) {
+      console.error("[Streak] 稽古記録データ取得エラー:", error);
+      return [];
+    }
+    return data ?? [];
+  }, targetUserIds);
+
+  const userIdsWithPage = new Set(pageRecords.map((r) => r.user_id));
+  const finalUserIds = targetUserIds.filter((id) => userIdsWithPage.has(id));
+  if (finalUserIds.length === 0) {
+    return;
+  }
+
+  // 6. プッシュトークンを取得して送信（バッチ対応）
   const tokens = await batchIn(async (ids) => {
     const { data, error } = await supabase
       .from("UserPushToken")
@@ -253,7 +274,7 @@ async function processStreakNotifications(
       .in("user_id", ids);
     if (error) return [];
     return data ?? [];
-  }, targetUserIds);
+  }, finalUserIds);
 
   if (tokens.length === 0) {
     return;
@@ -270,7 +291,7 @@ async function processStreakNotifications(
   const success = await sendExpoPushMessages(messages);
   if (success) {
     console.log(
-      `[Streak] ${targetUserIds.length} ユーザーにストリーク途切れ通知を送信`,
+      `[Streak] ${finalUserIds.length} ユーザーにストリーク途切れ通知を送信`,
     );
   }
 }
