@@ -1,9 +1,15 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { batchIn } from "./batch-query.js";
 import {
+  buildTimeSlot,
+  getNowInTimezone,
+  roundToFiveMinSlot,
+} from "./cron-time.js";
+import {
   type ExpoPushMessage,
   sendExpoPushMessages,
 } from "./push-notification.js";
+import { processRetentionNotifications } from "./retention.js";
 
 interface ReminderEnv {
   SUPABASE_URL?: string;
@@ -16,79 +22,6 @@ interface PracticeReminder {
   reminder_time: string; // "HH:MM:SS" (TIME型)
   reminder_days: number[]; // 0=日, 1=月, ..., 6=土
   timezone: string;
-}
-
-/**
- * reminder_time の HH:MM を5分枠に丸めた値と、
- * 現在時刻を5分枠に丸めた値を比較する。
- */
-function roundToFiveMinSlot(minutes: number): number {
-  return Math.floor(minutes / 5) * 5;
-}
-
-/**
- * 指定タイムゾーンでの現在時刻（時・分・曜日）を取得する。
- */
-function getNowInTimezone(timezone: string): {
-  hours: number;
-  minutes: number;
-  dayOfWeek: number;
-} {
-  const now = new Date();
-
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: timezone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-  const timeParts = formatter.formatToParts(now);
-  const hours = Number(timeParts.find((p) => p.type === "hour")?.value ?? "0");
-  const minutes = Number(
-    timeParts.find((p) => p.type === "minute")?.value ?? "0",
-  );
-
-  const dayFormatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: timezone,
-    weekday: "short",
-  });
-  const dayString = dayFormatter.format(now);
-  const dayMap: Record<string, number> = {
-    Sun: 0,
-    Mon: 1,
-    Tue: 2,
-    Wed: 3,
-    Thu: 4,
-    Fri: 5,
-    Sat: 6,
-  };
-  const dayOfWeek = dayMap[dayString] ?? 0;
-
-  return { hours, minutes, dayOfWeek };
-}
-
-/**
- * 5分枠の開始・終了時刻文字列を生成する。
- */
-function buildTimeSlot(
-  hours: number,
-  minutes: number,
-): {
-  slotStart: string;
-  slotEnd: string;
-} {
-  const roundedMin = roundToFiveMinSlot(minutes);
-  const slotStart = `${String(hours).padStart(2, "0")}:${String(roundedMin).padStart(2, "0")}:00`;
-
-  let endHours = hours;
-  let endMin = roundedMin + 5;
-  if (endMin >= 60) {
-    endMin = 0;
-    endHours = (endHours + 1) % 24;
-  }
-  const slotEnd = `${String(endHours).padStart(2, "0")}:${String(endMin).padStart(2, "0")}:00`;
-
-  return { slotStart, slotEnd };
 }
 
 /**
@@ -234,6 +167,13 @@ export async function processReminders(env: ReminderEnv): Promise<void> {
     await processStreakNotifications(supabase);
   } catch (err) {
     console.error("[Streak] ストリーク処理エラー:", err);
+  }
+
+  // リテンション通知（毎日 20:00 JST に1回実行、7日以上未利用のユーザーが対象）
+  try {
+    await processRetentionNotifications(supabase);
+  } catch (err) {
+    console.error("[Retention] リテンション通知処理エラー:", err);
   }
 }
 
