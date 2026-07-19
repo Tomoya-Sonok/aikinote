@@ -62,13 +62,20 @@ export const SocialFeedHeader: FC = () => {
 
   return (
     <SocialHeader>
-      <Link
-        href={`/social/profile/${user?.username ?? ""}`}
-        className={styles.profileLink}
-        aria-label={t("profile")}
-      >
-        <ProfileImage src={profileImageUrl} size="small" />
-      </Link>
+      {user?.username ? (
+        <Link
+          href={`/social/profile/${user.username}`}
+          className={styles.profileLink}
+          aria-label={t("profile")}
+        >
+          <ProfileImage src={profileImageUrl} size="small" />
+        </Link>
+      ) : (
+        // username 未取得（プロフィール読み込み中）の間はリンクにしない
+        <span className={styles.profileLink}>
+          <ProfileImage src={profileImageUrl} size="small" />
+        </span>
+      )}
       <h1 className={styles.title}>{t("title")}</h1>
       <div className={styles.rightActions}>
         <nav className={styles.desktopNav}>

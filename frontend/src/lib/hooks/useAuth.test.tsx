@@ -83,7 +83,8 @@ describe("useAuth hook - セッション監視機能", () => {
     );
   });
 
-  it("認証状態変更中にエラーが発生した場合の処理", async () => {
+  it("認証状態変更中にプロフィール取得が失敗しても暫定ユーザーで継続する", async () => {
+    // Arrange
     (userApi.fetchUserProfile as Mock).mockRejectedValue(
       new Error("ネットワークエラー"),
     );
@@ -96,16 +97,21 @@ describe("useAuth hook - セッション監視機能", () => {
 
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
-    // 認証状態変更をシミュレート（エラーケース）
+    await waitFor(() => {
+      expect(result.current.isInitializing).toBe(false);
+    });
+
+    // Act: 認証状態変更をシミュレート（プロフィール取得はエラー）
     await act(async () => {
       authStateChangeCallback("SIGNED_IN", {
         user: { id: "user-123", email: "test@example.com" },
       });
     });
 
+    // Assert: セッション由来の暫定ユーザーは維持され、エラー状態にもならない
     await waitFor(() => {
-      expect(result.current.user).toBeNull();
-      expect(result.current.error).toBeNull(); // ネットワークエラーはエラー状態に設定されない
+      expect(result.current.user?.id).toBe("user-123");
+      expect(result.current.error).toBeNull();
     });
   });
 
@@ -221,7 +227,8 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
     });
   });
 
-  it("ユーザープロフィール取得失敗時の処理", async () => {
+  it("ユーザープロフィール取得失敗時はセッション由来の暫定ユーザーを維持する", async () => {
+    // Arrange
     (userApi.fetchUserProfile as Mock).mockResolvedValue(null);
 
     mockSupabaseClient.auth.getSession.mockResolvedValue({
@@ -233,14 +240,21 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
       error: null,
     });
 
+    // Act
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
-    await waitFor(
-      () => {
-        expect(result.current.user).toBeNull();
-      },
-      { timeout: 2000 },
-    );
+    // Assert: 暫定ユーザーが即時セットされる
+    await waitFor(() => {
+      expect(result.current.user?.id).toBe("user-123");
+    });
+
+    // Act: 全リトライ（200ms × 2回）が失敗するまで待つ
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 700));
+    });
+
+    // Assert: 失敗後も null に戻らず暫定ユーザーのまま継続する
+    expect(result.current.user?.id).toBe("user-123");
   });
 
   it("ユーザープロフィール取得が遅延してもリトライで成功する", async () => {
@@ -270,6 +284,102 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
       await new Promise((resolve) => setTimeout(resolve, 700));
     });
 
+    expect(result.current.user).toEqual(mockUser);
+  });
+
+  it("プロフィール取得の完了を待たずに暫定ユーザーで初期化が完了する", async () => {
+    // Arrange: プロフィール取得は解決させずに保留したままにする
+    let resolveProfile: (value: unknown) => void = () => {};
+    (userApi.fetchUserProfile as Mock).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveProfile = resolve;
+        }),
+    );
+
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: {
+        session: {
+          user: {
+            id: "user-123",
+            email: "test@example.com",
+            user_metadata: { username: "session-user" },
+          },
+        },
+      },
+      error: null,
+    });
+
+    mockSupabaseClient.auth.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    });
+
+    // Act
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    // Assert: プロフィール API が未解決でも user.id が確定し、初期化が完了している
+    await waitFor(() => {
+      expect(result.current.isInitializing).toBe(false);
+      expect(result.current.user?.id).toBe("user-123");
+      expect(result.current.user?.username).toBe("session-user");
+    });
+
+    // Act: 裏で取得していたフルプロフィールが到着する
+    const fullProfile = {
+      id: "user-123",
+      email: "test@example.com",
+      username: "full-user",
+      profile_image_url: "https://example.com/avatar.png",
+    };
+    await act(async () => {
+      resolveProfile(fullProfile);
+    });
+
+    // Assert: フルプロフィールへ置き換わる
+    await waitFor(() => {
+      expect(result.current.user).toEqual(fullProfile);
+    });
+  });
+
+  it("同一ユーザーのトークンリフレッシュでは再初期化もプロフィール再取得もしない", async () => {
+    // Arrange
+    const mockUser = {
+      id: "user-123",
+      email: "test@example.com",
+      username: "testuser",
+      profile_image_url: null,
+    };
+    (userApi.fetchUserProfile as Mock).mockResolvedValue(mockUser);
+
+    const session = {
+      user: { id: "user-123", email: "test@example.com" },
+    };
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session },
+      error: null,
+    });
+
+    let authStateChangeCallback: AuthStateChangeHandler = () => {};
+    mockSupabaseClient.auth.onAuthStateChange.mockImplementation((callback) => {
+      authStateChangeCallback = callback;
+      return { data: { subscription: { unsubscribe: vi.fn() } } };
+    });
+
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    await waitFor(() => {
+      expect(result.current.user).toEqual(mockUser);
+    });
+    (userApi.fetchUserProfile as Mock).mockClear();
+
+    // Act: 同一ユーザーのままトークンリフレッシュが発生
+    await act(async () => {
+      authStateChangeCallback("TOKEN_REFRESHED", session);
+    });
+
+    // Assert: 再初期化もプロフィール再取得も行われない
+    expect(userApi.fetchUserProfile).not.toHaveBeenCalled();
+    expect(result.current.isInitializing).toBe(false);
     expect(result.current.user).toEqual(mockUser);
   });
 });
