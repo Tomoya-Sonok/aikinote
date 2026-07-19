@@ -1,7 +1,34 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Noto_Sans_JP, Zen_Old_Mincho } from "next/font/google";
 import Script from "next/script";
 import { ServiceWorkerRegister } from "@/components/shared/ServiceWorkerRegister/ServiceWorkerRegister";
 import "../styles/globals.css";
+
+// Google Fonts の render-blocking <link rel="stylesheet"> を next/font のセルフホスト配信に置換。
+// woff2 は _next/static/media から同一オリジンで配信され、クリティカルパスの外部 CSS が消える。
+// 各 variable は variables.css の --font-* スタック先頭で参照される。
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--next-font-inter",
+});
+
+// 日本語フォントはサブセットが多数の woff2 に分割されるため preload せず、
+// unicode-range による必要範囲のみのオンデマンド取得に任せる
+const notoSansJP = Noto_Sans_JP({
+  weight: ["400", "500", "700"],
+  display: "swap",
+  preload: false,
+  variable: "--next-font-noto-sans-jp",
+});
+
+const zenOldMincho = Zen_Old_Mincho({
+  weight: ["400", "700"],
+  display: "swap",
+  preload: false,
+  variable: "--next-font-zen-old-mincho",
+});
 
 const cloudFrontDomain = process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN;
 
@@ -93,14 +120,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" suppressHydrationWarning>
+    <html
+      lang="ja"
+      suppressHydrationWarning
+      className={`${inter.variable} ${notoSansJP.variable} ${zenOldMincho.variable}`}
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
         {/* CloudFront（添付画像・動画・プロフィール画像の配信元）への接続を事前確立し、初回リソースの DNS/TLS 待ちを短縮 */}
         {cloudFrontDomain && (
           <>
@@ -112,10 +137,6 @@ export default function RootLayout({
             <link rel="dns-prefetch" href={`https://${cloudFrontDomain}`} />
           </>
         )}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body suppressHydrationWarning>
         <script

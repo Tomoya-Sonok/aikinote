@@ -60,21 +60,26 @@
   --lp-cta-inquiry-text: #2c2c2c;
   --lp-border: #2c2c2c;
 
-  /* ── フォント変数 ── */
+  /* ── フォント変数 ──
+     先頭の var(--next-font-*) は next/font（app/layout.tsx）が <html> に注入する
+     セルフホストフォント。next/font を通らない環境（Storybook 等）でも
+     font-family が無効化されないよう、第2引数に従来のファミリー名を残す */
   --font-zen-old-mincho:
-    "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
+    var(--next-font-zen-old-mincho, "Zen Old Mincho"), "Times New Roman",
+    "Noto Serif JP", serif;
   --font-noto-sans-jp:
-    "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Meiryo",
-    sans-serif;
+    var(--next-font-noto-sans-jp, "Noto Sans JP"), "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
   --font-inter:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Helvetica Neue", Arial, sans-serif;
+    var(--next-font-inter, "Inter"), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
 
   /* ── デザイントークン（フォントファミリー） ── */
-  --font-brand: "Zen Old Mincho", "Times New Roman", "Noto Serif JP", serif;
+  --font-brand: var(--font-zen-old-mincho);
   --font-ui:
-    "Inter", "Noto Sans JP", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
-    "Meiryo", sans-serif;
+    var(--next-font-inter, "Inter"),
+    var(--next-font-noto-sans-jp, "Noto Sans JP"), "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
 
   /* ── フォントサイズ変数 ── */
   --font-size-small: 14px;
