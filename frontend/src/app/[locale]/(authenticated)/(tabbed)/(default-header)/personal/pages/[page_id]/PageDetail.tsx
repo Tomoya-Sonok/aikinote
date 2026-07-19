@@ -36,7 +36,7 @@ export function PageDetail() {
     attachments,
     isErrorWithoutCache,
     refetch,
-  } = usePageDetailData(pageId);
+  } = usePageDetailData(pageId, { seedFromListCache: true });
 
   const { showToast } = useToast();
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);

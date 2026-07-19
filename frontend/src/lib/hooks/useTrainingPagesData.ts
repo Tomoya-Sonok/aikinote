@@ -235,8 +235,8 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
       );
     },
     onSettled: () => {
-      // 全ての training-pages キャッシュを無効化（フィルタ違いも含めて次回参照時に最新化）
-      queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+      // 自ユーザーの training-pages キャッシュのみ無効化（フィルタ違いも含めて次回参照時に最新化）
+      queryClient.invalidateQueries({ queryKey: ["training-pages", user?.id] });
     },
   });
 

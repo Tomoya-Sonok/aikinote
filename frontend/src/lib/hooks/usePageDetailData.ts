@@ -1,4 +1,8 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  type InfiniteData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useCallback } from "react";
 import type { AttachmentData } from "@/components/features/personal/AttachmentCard/AttachmentCard";
 import { getAttachments, getPage } from "@/lib/api/client";
@@ -13,12 +17,48 @@ export const pageDetailQueryKey = (
 export const pageAttachmentsQueryKey = (pageId: string) =>
   ["page-attachments", pageId] as const;
 
-export function usePageDetailData(pageId: string) {
+// useTrainingPagesData の無限スクロールキャッシュ（["training-pages", userId, options]）の
+// 1ページ分。placeholder 探索に必要な部分だけを構造的に型定義する
+type TrainingPagesListPage = {
+  training_pages: TrainingPageData[];
+};
+
+interface UsePageDetailDataOptions {
+  /**
+   * 一覧キャッシュに同じページがあれば placeholderData として即表示する
+   * （詳細 API の往復を待たずに一覧→詳細の遷移を待機ゼロにする）。
+   * placeholder はキャッシュに書き込まれないため他画面には影響しないが、
+   * 編集画面（PageEdit）はフォーム初期値をサーバー取得値で確定させる必要が
+   * あるため有効化しないこと。
+   */
+  seedFromListCache?: boolean;
+}
+
+export function usePageDetailData(
+  pageId: string,
+  { seedFromListCache = false }: UsePageDetailDataOptions = {},
+) {
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
 
+  // 一覧キャッシュ（フィルタ違いを含む全エントリ）から該当ページを探す
+  const findPageInListCache = useCallback((): TrainingPageData | undefined => {
+    if (!seedFromListCache || !pageId || !user?.id) return undefined;
+    const entries = queryClient.getQueriesData<
+      InfiniteData<TrainingPagesListPage>
+    >({ queryKey: ["training-pages", user.id] });
+    for (const [, data] of entries) {
+      const found = data?.pages
+        ?.flatMap((listPage) => listPage.training_pages)
+        .find((listPage) => listPage.id === pageId);
+      if (found) return found;
+    }
+    return undefined;
+  }, [seedFromListCache, pageId, user?.id, queryClient]);
+
   const pageQuery = useQuery({
     queryKey: pageDetailQueryKey(pageId, user?.id),
+    placeholderData: () => findPageInListCache(),
     queryFn: async (): Promise<TrainingPageData | null> => {
       if (!pageId || !user?.id) return null;
       const response = await getPage(pageId, user.id);
@@ -45,6 +85,10 @@ export function usePageDetailData(pageId: string) {
 
   const attachmentsQuery = useQuery({
     queryKey: pageAttachmentsQueryKey(pageId),
+    // 一覧レスポンスは添付も含むため、同じページの添付を placeholder に使う
+    // （type はリテラル union へ狭める。値は同一 API 由来で "image"|"video"|"youtube" のみ）
+    placeholderData: () =>
+      findPageInListCache()?.attachments as AttachmentData[] | undefined,
     queryFn: async (): Promise<AttachmentData[]> => {
       if (!pageId) return [];
       const attachJson = await getAttachments(pageId);
