@@ -33,7 +33,11 @@ export function useDailyLimits() {
 
   const query = useQuery<DailyLimitsData, Error>({
     queryKey: dailyLimitsQueryKey(user?.id),
-    enabled: !!user?.id && !subLoading && !isPremium,
+    // subscription の完了を待たずに並列で取得する（auth → subscription → dailyLimits の
+    // 3段直列を解消）。subscription 解決前に Premium ユーザーへ 1 回だけ無駄な取得が
+    // 走り得るが、結果は使われないため表示への影響はない（loading は従来どおり
+    // subLoading を含むので、Premium 判定前に Free 用の値が見えることもない）
+    enabled: !!user?.id && !isPremium,
     queryFn: async () => {
       try {
         return await getDailyLimits();
