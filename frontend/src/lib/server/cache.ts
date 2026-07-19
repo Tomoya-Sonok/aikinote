@@ -1,7 +1,6 @@
-import type { User } from "@supabase/supabase-js";
 import { cacheLife, cacheTag, revalidateTag } from "next/cache";
 import type { UserSession } from "@/lib/auth";
-import { fetchUserInfoFromHono } from "@/lib/server/auth";
+import { type AuthTokenUser, fetchUserInfoFromHono } from "@/lib/server/auth";
 
 export const CACHE_TAG_USER_INFO = "user-info";
 
@@ -21,7 +20,7 @@ async function getCachedUserInfoInner(
   "use cache";
   cacheLife({ revalidate: 604800 });
   cacheTag(getUserInfoCacheTag(userId));
-  return fetchUserInfoFromHono(userId, { id: userId, email } as User);
+  return fetchUserInfoFromHono(userId, { id: userId, email });
 }
 
 /**
@@ -29,7 +28,7 @@ async function getCachedUserInfoInner(
  */
 export const getCachedUserInfo = async (
   userId: string,
-  user: User,
+  user: AuthTokenUser,
 ): Promise<UserSession | null> => {
   return getCachedUserInfoInner(userId, user.email ?? "");
 };

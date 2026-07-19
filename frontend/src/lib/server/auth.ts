@@ -1,4 +1,3 @@
-import type { User } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import type { UserSession } from "@/lib/auth";
 import { getCachedUserInfo } from "@/lib/server/cache";
@@ -34,7 +33,63 @@ export const buildApiUrl = (path: string) => {
   return `${HONO_API_BASE_URL}${normalizedPath}`;
 };
 
-const createBackendAuthTokenFromUser = (user: User | null) => {
+/** バックエンド用 JWT の発行に必要な最小限のユーザー情報 */
+export type AuthTokenUser = {
+  id: string;
+  email?: string | null;
+};
+
+/** 検証済みの認証ユーザー（アクセストークンの claims 由来） */
+export type VerifiedAuthUser = {
+  id: string;
+  email: string;
+};
+
+/**
+ * 現在のリクエストの認証ユーザーを検証して返す。
+ *
+ * `auth.getUser()` は毎回 Supabase Auth サーバーへの HTTP 往復が発生するため、
+ * まず `auth.getClaims()` で検証する。非対称署名キーのプロジェクトでは JWKS による
+ * ローカル検証となり（JWKS はモジュールレベルでキャッシュされ初回のみ取得）、
+ * HS256 等の対称キーの場合は getClaims 内部で getUser() に自動フォールバックする
+ * ため、どちらの構成でも挙動退行はない。
+ * getClaims が失敗した場合のみ、@supabase/ssr のトークンリフレッシュ経路を温存する
+ * ため getUser() を 1 回だけ試す。
+ */
+export const getVerifiedAuthUser =
+  async (): Promise<VerifiedAuthUser | null> => {
+    const supabase = await getServerSupabase();
+
+    try {
+      const { data, error } = await supabase.auth.getClaims();
+      if (!error && data?.claims?.sub) {
+        return {
+          id: data.claims.sub,
+          email: typeof data.claims.email === "string" ? data.claims.email : "",
+        };
+      }
+    } catch (claimsError) {
+      console.error(
+        "getVerifiedAuthUser: getClaims に失敗、getUser にフォールバックします:",
+        claimsError,
+      );
+    }
+
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error || !user) {
+        return null;
+      }
+      return { id: user.id, email: user.email ?? "" };
+    } catch {
+      return null;
+    }
+  };
+
+const createBackendAuthTokenFromUser = (user: AuthTokenUser | null) => {
   if (!user) {
     return null;
   }
@@ -52,16 +107,13 @@ const createBackendAuthTokenFromUser = (user: User | null) => {
 };
 
 export const createBackendAuthToken = async () => {
-  const supabase = await getServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getVerifiedAuthUser();
   return createBackendAuthTokenFromUser(user);
 };
 
 export const fetchUserInfoFromHono = async (
   userId: string,
-  userOverride?: User | null,
+  userOverride?: AuthTokenUser | null,
 ): Promise<UserSession | null> => {
   const token =
     createBackendAuthTokenFromUser(userOverride ?? null) ||
@@ -113,15 +165,10 @@ export const fetchUserInfoFromHono = async (
 };
 
 export async function getCurrentUser(): Promise<UserSession | null> {
-  const supabase = await getServerSupabase();
-
   try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+    const user = await getVerifiedAuthUser();
 
-    if (error || !user) {
+    if (!user) {
       return null;
     }
 
