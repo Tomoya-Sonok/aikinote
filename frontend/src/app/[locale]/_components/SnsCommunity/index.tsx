@@ -22,6 +22,7 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
       <div className={styles.decoBottomLeft} aria-hidden="true" />
       {/* ヒーローエリア（カプセル型背景 + ヘッダー） */}
       <div className={styles.hero}>
+        {/* 折返し下のセクションのため priority は付けない（Hero の LCP 画像と帯域を奪い合う） */}
         <Image
           src="/images/lp/sp-sns-global-connection.png"
           alt={t("snsCommunity.heroImageAlt")}
@@ -29,7 +30,6 @@ export async function SnsCommunity({ locale, signupHref }: SnsCommunityProps) {
           height={486}
           sizes="100vw"
           className={`${styles.heroBgImage} ${styles.heroBgImageSp}`}
-          priority
         />
         <Image
           src="/images/lp/sns-global-connection.png"
