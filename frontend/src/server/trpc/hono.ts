@@ -29,11 +29,17 @@ const extractErrorMessage = (payload: unknown): string | null => {
 
 export async function callHonoApi<T>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit & {
+    /**
+     * 指定時は cache: "no-store" の代わりに Next.js Data Cache へ載せる（秒）。
+     * 道場マスタ検索のようなユーザー非依存・準静的な GET のみで使うこと
+     */
+    revalidate?: number;
+  } = {},
 ): Promise<T> {
   const url = buildApiUrl(path);
 
-  const { headers: customHeaders, ...otherOptions } = options;
+  const { headers: customHeaders, revalidate, ...otherOptions } = options;
 
   let response: Response;
   try {
@@ -43,7 +49,9 @@ export async function callHonoApi<T>(
         "X-App-Url": getBaseUrl(),
         ...customHeaders,
       },
-      cache: "no-store",
+      ...(revalidate != null
+        ? { next: { revalidate } }
+        : { cache: "no-store" as const }),
       ...otherOptions,
     });
   } catch (err) {

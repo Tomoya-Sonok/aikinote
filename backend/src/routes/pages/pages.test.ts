@@ -682,6 +682,46 @@ describe("ページ一覧取得API", () => {
     expect(responseBody.data.training_pages[1].tags).toHaveLength(0);
   });
 
+  it("一覧レスポンスでは500文字を超えるcontentが先頭500文字に切り詰められる", async () => {
+    // Arrange
+    const longContent = "あ".repeat(600);
+    vi.spyOn(supabaseModule, "getTrainingPages").mockResolvedValue({
+      pages: [
+        {
+          page: {
+            id: "test-page-id-long",
+            title: "長文ページ",
+            content: longContent,
+            user_id: "test-user-id",
+            is_public: false,
+            created_at: "2023-01-01T00:00:00.000Z",
+            updated_at: "2023-01-01T00:00:00.000Z",
+          },
+          tags: [],
+        },
+      ],
+      totalCount: 1,
+    });
+
+    const request = new Request(
+      "http://localhost/?user_id=test-user-id&limit=20",
+      {
+        method: "GET",
+      },
+    );
+
+    // Act
+    const response = await app.fetch(request);
+    const responseBody = await response.json();
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(responseBody.data.training_pages[0].page.content).toHaveLength(500);
+    expect(responseBody.data.training_pages[0].page.content).toBe(
+      longContent.slice(0, 500),
+    );
+  });
+
   it("user_idが未指定の場合にバリデーションエラーが返されること", async () => {
     // Arrange & Act
     const request = new Request("http://localhost/?limit=20", {

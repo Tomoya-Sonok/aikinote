@@ -509,6 +509,8 @@ export const searchDojoStylesProcedure = publicProcedure
 
     return callHonoApi<ApiResponse<DojoStyleSearchResult[]>>(
       `/api/dojo-styles/search?${query.toString()}`,
+      // 道場マスタはユーザー非依存の準静的データのため Data Cache で 1 時間共有する
+      { revalidate: 3600 },
     );
   });
 

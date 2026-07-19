@@ -105,47 +105,64 @@ export type TrainingPageMemoInput = {
 const tagMapKey = (category: string, name: string): string =>
   `${category}\u001f${name}`;
 
-// 指定された (name, category) のタグが無ければ作成し、キー→UserTag の Map を返す
+// 指定された (name, category) のタグが無ければ作成し、キー→UserTag の Map を返す。
+// 既存チェックは .in() の一括 SELECT、不足分は一括 INSERT の計2クエリで解決する
+// （従来はタグ毎に SELECT + INSERT を発行する N+1 で、タグ6個の保存で最大12往復だった）
 const ensureUserTags = async (
   userId: string,
   tagRefs: { name: string; category: string }[],
 ): Promise<Map<string, UserTagRow>> => {
   const map = new Map<string, UserTagRow>();
+  if (tagRefs.length === 0) {
+    return map;
+  }
+
+  const { data: existingTags, error: selectError } = await supabase
+    .from("UserTag")
+    .select("*")
+    .eq("user_id", userId)
+    .in("name", [...new Set(tagRefs.map((t) => t.name))]);
+
+  if (selectError) {
+    throw new Error(`タグの検索に失敗しました: ${selectError.message}`);
+  }
+
+  for (const tag of existingTags ?? []) {
+    map.set(tagMapKey(tag.category, tag.name), tag);
+  }
+
+  const missingKeys = new Set<string>();
+  const missing: { name: string; category: string }[] = [];
   for (const { name, category } of tagRefs) {
     const key = tagMapKey(category, name);
-    if (map.has(key)) continue;
+    if (map.has(key) || missingKeys.has(key)) continue;
+    missingKeys.add(key);
+    missing.push({ name, category });
+  }
 
-    const { data: existingTag } = await supabase
+  if (missing.length > 0) {
+    const createdAt = new Date().toISOString();
+    const { data: newTags, error: insertError } = await supabase
       .from("UserTag")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("name", name)
-      .eq("category", category)
-      .single();
-
-    if (existingTag) {
-      map.set(key, existingTag);
-      continue;
-    }
-
-    const { data: newTag, error } = await supabase
-      .from("UserTag")
-      .insert([
-        {
+      .insert(
+        missing.map(({ name, category }) => ({
           user_id: userId,
           name,
           category,
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select("*")
-      .single();
+          created_at: createdAt,
+        })),
+      )
+      .select("*");
 
-    if (error) {
-      throw new Error(`タグの作成に失敗しました: ${error.message}`);
+    if (insertError) {
+      throw new Error(`タグの作成に失敗しました: ${insertError.message}`);
     }
-    map.set(key, newTag);
+
+    for (const tag of newTags ?? []) {
+      map.set(tagMapKey(tag.category, tag.name), tag);
+    }
   }
+
   return map;
 };
 
@@ -424,53 +441,18 @@ export const createTrainingPage = async (
       ([category, names]) => names.map((name) => ({ name, category })),
     );
 
+    // 3. タグを一括解決（既存は取得・不足分は作成）し、リレーションを準備
+    const tagMap = await ensureUserTags(pageData.user_id, categories);
+
     const associatedTags: UserTagRow[] = [];
     const trainingPageTags: Omit<TrainingPageTagRow, "id">[] = [];
-
-    // 3. 各タグを処理
     for (const { name, category } of categories) {
-      // 既存のタグをチェック
-      const { data: existingTag } = await supabase
-        .from("UserTag")
-        .select("*")
-        .eq("user_id", pageData.user_id)
-        .eq("name", name)
-        .eq("category", category)
-        .single();
-
-      let tagId: string;
-
-      if (existingTag) {
-        // 既存のタグを使用
-        tagId = existingTag.id;
-        associatedTags.push(existingTag);
-      } else {
-        // 新しいタグを作成
-        const { data: newTag, error: tagError } = await supabase
-          .from("UserTag")
-          .insert([
-            {
-              user_id: pageData.user_id,
-              name,
-              category,
-              created_at: new Date().toISOString(),
-            },
-          ])
-          .select("*")
-          .single();
-
-        if (tagError) {
-          throw new Error(`タグの作成に失敗しました: ${tagError.message}`);
-        }
-
-        tagId = newTag.id;
-        associatedTags.push(newTag);
-      }
-
-      // TrainingPageTagのリレーションを準備
+      const tag = tagMap.get(tagMapKey(category, name));
+      if (!tag) continue;
+      associatedTags.push(tag);
       trainingPageTags.push({
         training_page_id: newPage.id,
-        user_tag_id: tagId,
+        user_tag_id: tag.id,
       });
     }
 
@@ -1253,53 +1235,18 @@ export const updateTrainingPage = async (
       ([category, names]) => names.map((name) => ({ name, category })),
     );
 
+    // 5. タグを一括解決（既存は取得・不足分は作成）し、リレーションを準備
+    const tagMap = await ensureUserTags(pageData.user_id, categories);
+
     const associatedTags: UserTagRow[] = [];
     const trainingPageTags: Omit<TrainingPageTagRow, "id">[] = [];
-
-    // 5. 各タグを処理
     for (const { name, category } of categories) {
-      // 既存のタグをチェック
-      const { data: existingTag } = await supabase
-        .from("UserTag")
-        .select("*")
-        .eq("user_id", pageData.user_id)
-        .eq("name", name)
-        .eq("category", category)
-        .single();
-
-      let tagId: string;
-
-      if (existingTag) {
-        // 既存のタグを使用
-        tagId = existingTag.id;
-        associatedTags.push(existingTag);
-      } else {
-        // 新しいタグを作成
-        const { data: newTag, error: tagError } = await supabase
-          .from("UserTag")
-          .insert([
-            {
-              user_id: pageData.user_id,
-              name,
-              category,
-              created_at: new Date().toISOString(),
-            },
-          ])
-          .select("*")
-          .single();
-
-        if (tagError) {
-          throw new Error(`タグの作成に失敗しました: ${tagError.message}`);
-        }
-
-        tagId = newTag.id;
-        associatedTags.push(newTag);
-      }
-
-      // TrainingPageTagのリレーションを準備
+      const tag = tagMap.get(tagMapKey(category, name));
+      if (!tag) continue;
+      associatedTags.push(tag);
       trainingPageTags.push({
         training_page_id: updatedPage.id,
-        user_tag_id: tagId,
+        user_tag_id: tag.id,
       });
     }
 
