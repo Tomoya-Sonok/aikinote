@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { cache } from "react";
 import type { UserSession } from "@/lib/auth";
 import { getCachedUserInfo } from "@/lib/server/cache";
 import { getServerSupabase } from "@/lib/supabase/server";
@@ -164,7 +165,10 @@ export const fetchUserInfoFromHono = async (
   };
 };
 
-export async function getCurrentUser(): Promise<UserSession | null> {
+// React の cache() で同一 RSC レンダー内の呼び出しを 1 回にまとめる。
+// 例: mypage は AuthGate と MyPageInitializer の両方が getCurrentUser を呼ぶため、
+// ラップしないと認証検証とユーザー情報取得が二重に走る（Route Handler では no-op）。
+export const getCurrentUser = cache(async (): Promise<UserSession | null> => {
   try {
     const user = await getVerifiedAuthUser();
 
@@ -178,7 +182,7 @@ export async function getCurrentUser(): Promise<UserSession | null> {
     console.error("Unexpected error in getCurrentUser:", error);
     return null;
   }
-}
+});
 
 export async function getUserInfo(userId: string) {
   try {
