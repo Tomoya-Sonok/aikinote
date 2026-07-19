@@ -74,12 +74,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isInitializingRef = useRef(true);
+  const currentUserIdRef = useRef<string | null>(null);
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("auth");
   const { showToast } = useToast();
   const supabase = useMemo(() => {
     return getClientSupabase();
+  }, []);
+
+  // setUser と currentUserIdRef を常に同期させるためのラッパー。
+  // ref は onAuthStateChange の同一ユーザー判定と、
+  // 裏で走るプロフィール取得の「取得中にユーザーが変わっていないか」判定に使う。
+  const applyUser = useCallback((nextUser: UserSession | null) => {
+    currentUserIdRef.current = nextUser?.id ?? null;
+    setUser(nextUser);
   }, []);
 
   useEffect(() => {
@@ -117,21 +126,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return null;
     };
 
-    const applySession = async (session: Session | null) => {
+    // セッションのユーザー情報から即時利用できる暫定プロフィールを組み立てる。
+    // getUserInfo API の往復を待たずに user.id を確定させ、
+    // 各画面のデータ取得（enabled: !!user?.id）を先に発火させるための1段階目。
+    const buildProvisionalUser = (
+      sessionUser: Session["user"],
+    ): UserSession => {
+      const metadata = (sessionUser.user_metadata ?? {}) as {
+        username?: string;
+        avatar_url?: string;
+      };
+      return {
+        id: sessionUser.id,
+        email: sessionUser.email ?? "",
+        username: metadata.username ?? "",
+        profile_image_url: metadata.avatar_url ?? null,
+        dojo_style_name: null,
+        aikido_rank: null,
+        full_name: null,
+      };
+    };
+
+    const applySession = (session: Session | null) => {
       if (!isMounted) return;
 
-      if (session?.user) {
-        const userProfile = await fetchUserProfileWithRetry(session.user.id);
-
-        if (userProfile && isMounted) {
-          setUser(userProfile);
-          return;
-        }
+      if (!session?.user) {
+        applyUser(null);
+        return;
       }
 
-      if (isMounted) {
-        setUser(null);
-      }
+      const sessionUserId = session.user.id;
+      applyUser(buildProvisionalUser(session.user));
+
+      // 2段階目: フルプロフィールは裏で取得し、到着次第置き換える
+      void fetchUserProfileWithRetry(sessionUserId)
+        .then((profile) => {
+          if (!isMounted) return;
+          // 取得中にサインアウトやユーザー切替が起きていたら反映しない
+          if (currentUserIdRef.current !== sessionUserId) return;
+          if (profile) {
+            applyUser(profile);
+          } else {
+            // 全リトライ失敗でも暫定ユーザーを維持する。null に戻すと発火済みの
+            // クエリが一斉に無効化されて画面がちらつくため
+            // （未認証からのページ保護はサーバー側の AuthGate が担っている）
+            console.error(
+              "useAuth: プロフィール取得に失敗しました。セッション情報で継続します",
+            );
+          }
+        })
+        .catch((profileError) => {
+          console.error("useAuth: プロフィール取得中にエラー:", profileError);
+        });
     };
 
     const initializeSession = async () => {
@@ -158,17 +204,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           console.error("セッション取得エラー:", error);
-          setUser(null);
+          applyUser(null);
           return;
         }
 
         if (isMounted) {
-          await applySession(session);
+          // applySession は暫定ユーザーのセットまでを同期的に行うため、
+          // プロフィール API の往復を待たずに初期化を完了できる
+          applySession(session);
         }
       } catch (error) {
         console.error("セッション初期化中に予期せぬエラー:", error);
         if (isMounted) {
-          setUser(null);
+          applyUser(null);
         }
       } finally {
         if (isMounted) {
@@ -183,31 +231,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // セッション変更の監視を有効化（改善されたエラーハンドリング付き）
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
       // 初期化中でない場合のみ処理
-      if (!isInitializingRef.current && isMounted) {
-        isInitializingRef.current = true;
-        setIsInitializing(true);
-        try {
-          await applySession(session);
-        } catch (error) {
-          console.error("認証状態変更処理中にエラー:", error);
-          if (isMounted) {
-            setUser(null);
-            // ネットワークエラー以外の場合はエラー状態を設定
-            if (
-              error instanceof Error &&
-              !error.message.includes("ネットワーク")
-            ) {
-              setError("認証状態の更新中にエラーが発生しました");
-            }
-          }
-        } finally {
-          if (isMounted) {
-            isInitializingRef.current = false;
-            setIsInitializing(false);
-          }
+      if (isInitializingRef.current || !isMounted) return;
+
+      // 同一ユーザーのままのイベント（約50分毎の TOKEN_REFRESHED 等）では
+      // 状態を再構築しない。以前は毎回 isInitializing=true → プロフィール再取得が
+      // 走り、全画面のクエリ停止と表示のちらつきが発生していた
+      if (session?.user?.id && session.user.id === currentUserIdRef.current) {
+        return;
+      }
+
+      isInitializingRef.current = true;
+      setIsInitializing(true);
+      try {
+        applySession(session);
+      } catch (error) {
+        console.error("認証状態変更処理中にエラー:", error);
+        applyUser(null);
+        // ネットワークエラー以外の場合はエラー状態を設定
+        if (error instanceof Error && !error.message.includes("ネットワーク")) {
+          setError("認証状態の更新中にエラーが発生しました");
         }
+      } finally {
+        isInitializingRef.current = false;
+        setIsInitializing(false);
       }
     });
 
@@ -215,7 +263,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, applyUser]);
 
   // ネイティブアプリにユーザー情報を通知（認証状態変化時）。
   // ネイティブ側は受信した access_token を supabase.auth.setSession に渡し、
@@ -459,7 +507,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
-      setUser(null);
+      applyUser(null);
 
       // PC幅・SP幅に応じて適切に表示されるように Toast にスタイルを渡す
       const isWide = window.matchMedia("(min-width: 431px)").matches;
@@ -479,7 +527,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         err,
       );
       // エラーが発生してもユーザー状態をクリアしてリダイレクト
-      setUser(null);
+      applyUser(null);
       const isWide = window.matchMedia("(min-width: 431px)").matches;
       const toastStyle: React.CSSProperties = isWide
         ? {}
@@ -500,7 +548,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsProcessing(false);
     }
-  }, [supabase.auth, router, showToast, t]);
+  }, [supabase.auth, router, showToast, t, applyUser]);
 
   const forgotPassword = useCallback(async (data: ResetPasswordFormData) => {
     setIsProcessing(true);
@@ -583,18 +631,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userProfile = await fetchUserProfile(session.user.id);
 
         if (userProfile) {
-          setUser(userProfile);
+          applyUser(userProfile);
           return userProfile;
         }
       }
 
-      setUser(null);
+      applyUser(null);
       return null;
     } catch (error) {
       console.error("refreshUser: ユーザー情報の再取得エラー:", error);
       return null;
     }
-  }, [supabase.auth]);
+  }, [supabase.auth, applyUser]);
 
   const verifyEmail = useCallback(
     async (token: string) => {
@@ -631,7 +679,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           await refreshUser();
         } else if (responseUser) {
-          setUser(responseUser);
+          applyUser(responseUser);
         }
 
         return result;
@@ -644,7 +692,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsProcessing(false);
       }
     },
-    [supabase.auth, refreshUser],
+    [supabase.auth, refreshUser, applyUser],
   );
 
   const clearError = useCallback(() => setError(null), []);
