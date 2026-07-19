@@ -24,6 +24,10 @@ import {
 
 const app = new Hono();
 
+// 一覧レスポンスの本文プレビュー長。一覧カードは CSS line-clamp のスニペット表示のため
+// 全文は不要（長文ページでペイロードが肥大するのを防ぐ）。詳細 GET /:id は全文を返す
+const LIST_CONTENT_PREVIEW_LENGTH = 500;
+
 // ページ作成API
 app.post("/", zValidator("json", createPageSchema), async (c) => {
   try {
@@ -149,7 +153,7 @@ app.get("/", zValidator("query", getPagesSchema), async (c) => {
       page: {
         id: page.id,
         title: page.title,
-        content: page.content,
+        content: page.content.slice(0, LIST_CONTENT_PREVIEW_LENGTH),
         content_mode: page.content_mode ?? "free",
         user_id: page.user_id,
         is_public: page.is_public,
