@@ -137,6 +137,8 @@ export async function fetchUserTrainingRecords(
 
 export type AiChatRole = "user" | "assistant";
 
+export type AiChatFeedbackValue = "good" | "neutral" | "bad";
+
 // 会話の所有チェック（RLS 前提だが念のため user_id も確認）
 export async function assertConversationOwned(
   supabase: SupabaseClient,
@@ -150,6 +152,49 @@ export async function assertConversationOwned(
     .eq("user_id", userId)
     .maybeSingle();
   return !!data;
+}
+
+// 会話の所有チェックを兼ねてフィードバック状態を取得する（未所有・不存在なら null）
+export async function getOwnedConversationFeedback(
+  supabase: SupabaseClient,
+  conversationId: string,
+  userId: string,
+): Promise<{
+  feedback: AiChatFeedbackValue | null;
+  is_feedback_visible: boolean;
+} | null> {
+  const { data } = await supabase
+    .from("AiChatConversation")
+    .select("feedback, is_feedback_visible")
+    .eq("id", conversationId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return (
+    (data as {
+      feedback: AiChatFeedbackValue | null;
+      is_feedback_visible: boolean;
+    } | null) ?? null
+  );
+}
+
+// フィードバックを保存し、以後この会話ではフィードバック UI を表示しない。
+// 既に回答済み（feedback 非 NULL）の場合は上書きせず、最初の回答を優先する
+export async function saveConversationFeedback(
+  supabase: SupabaseClient,
+  userId: string,
+  conversationId: string,
+  feedback: AiChatFeedbackValue,
+): Promise<void> {
+  const { error } = await supabase
+    .from("AiChatConversation")
+    .update({ feedback, is_feedback_visible: false })
+    .eq("id", conversationId)
+    .eq("user_id", userId)
+    .is("feedback", null);
+
+  if (error) {
+    throw new Error(`フィードバックの保存に失敗しました: ${error.message}`);
+  }
 }
 
 // メッセージを保存し、会話の updated_at とタイトル（空なら先頭発話から）を更新

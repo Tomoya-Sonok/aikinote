@@ -13,6 +13,14 @@ export type AiCoachStoredMessage = {
   created_at: string;
 };
 
+export type AiCoachFeedbackValue = "good" | "neutral" | "bad";
+
+export type AiCoachConversationDetail = {
+  messages: AiCoachStoredMessage[];
+  /** フィードバック UI を表示してよいか（回答済みの会話では常に false） */
+  isFeedbackVisible: boolean;
+};
+
 export type AiCoachUsage = {
   allowed: boolean;
   reason: AiCoachLimitReason | null;
@@ -41,11 +49,33 @@ export async function createConversation(
 
 export async function fetchConversationMessages(
   conversationId: string,
-): Promise<AiCoachStoredMessage[]> {
+): Promise<AiCoachConversationDetail> {
   const res = await fetch(`/api/ai-coach/conversations/${conversationId}`);
   if (!res.ok) throw new Error("メッセージの取得に失敗しました");
-  const json = (await res.json()) as { messages: AiCoachStoredMessage[] };
-  return json.messages;
+  const json = (await res.json()) as {
+    messages: AiCoachStoredMessage[];
+    isFeedbackVisible?: boolean;
+  };
+  return {
+    messages: json.messages,
+    isFeedbackVisible: json.isFeedbackVisible ?? false,
+  };
+}
+
+// 会話へのフィードバック登録（回答後は同じ会話で二度と表示されない）
+export async function submitConversationFeedback(
+  conversationId: string,
+  feedback: AiCoachFeedbackValue,
+): Promise<void> {
+  const res = await fetch(
+    `/api/ai-coach/conversations/${conversationId}/feedback`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ feedback }),
+    },
+  );
+  if (!res.ok) throw new Error("フィードバックの送信に失敗しました");
 }
 
 export async function deleteConversation(

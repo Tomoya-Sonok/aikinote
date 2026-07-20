@@ -25,6 +25,7 @@ import {
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import styles from "./AiCoachChat.module.css";
+import { AiCoachFeedback } from "./AiCoachFeedback";
 import { AiCoachHistory } from "./AiCoachHistory";
 import { MessageBubble } from "./MessageBubble";
 import { QuickActionButtons } from "./QuickActionButtons";
@@ -50,6 +51,7 @@ const toUiMessages = (
 function ChatSession({
   conversationId,
   initialMessages,
+  initialFeedbackVisible,
   pendingFirstMessage,
   onPendingConsumed,
   onBeforeSend,
@@ -58,6 +60,7 @@ function ChatSession({
 }: {
   conversationId: string;
   initialMessages: UIMessage[];
+  initialFeedbackVisible: boolean;
   pendingFirstMessage: string | null;
   onPendingConsumed: () => void;
   onBeforeSend: (
@@ -72,6 +75,11 @@ function ChatSession({
 }) {
   const t = useTranslations();
   const [input, setInput] = useState("");
+  // フィードバック UI の表示可否。回答すると false になり（DB にも保存）、
+  // 同じ会話では二度と表示されない
+  const [feedbackVisible, setFeedbackVisible] = useState(
+    initialFeedbackVisible,
+  );
   const listRef = useRef<HTMLDivElement>(null);
   // 初回応答完了時のタイトル生成を1回だけにするためのガード
   const titleGenStartedRef = useRef(false);
@@ -100,11 +108,15 @@ function ChatSession({
   const isBusy = status === "submitted" || status === "streaming";
   const isStreaming = status === "streaming";
 
-  // 新着メッセージ（ストリーミング更新含む）で最下部へスクロール
-  // biome-ignore lint/correctness/useExhaustiveDependencies: messages 変更時に発火させたい
+  // AI の応答が1件以上あり、応答中でないときだけフィードバック UI を出す
+  const hasAssistantReply = messages.some((m) => m.role === "assistant");
+  const shouldShowFeedback = feedbackVisible && hasAssistantReply && !isBusy;
+
+  // 新着メッセージ（ストリーミング更新含む）と応答完了（フィードバック UI の出現）で最下部へスクロール
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages / status 変更時に発火させたい
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
-  }, [messages]);
+  }, [messages, status]);
 
   // landing から遷移時、pendingFirstMessage を一度だけ送信。
   // ref ガードで StrictMode の二重発火と将来の再レンダリングによる重複送信を防ぐ。
@@ -136,18 +148,26 @@ function ChatSession({
         {messages.length === 0 ? (
           <p className={styles.emptyHint}>{t("aiCoach.emptyHint")}</p>
         ) : (
-          messages.map((m, i) => {
-            const isLast = i === messages.length - 1;
-            const isAssistant = m.role === "assistant";
-            return (
-              <MessageBubble
-                key={m.id}
-                role={m.role}
-                text={messageText(m)}
-                isStreaming={isStreaming && isLast && isAssistant}
+          <>
+            {messages.map((m, i) => {
+              const isLast = i === messages.length - 1;
+              const isAssistant = m.role === "assistant";
+              return (
+                <MessageBubble
+                  key={m.id}
+                  role={m.role}
+                  text={messageText(m)}
+                  isStreaming={isStreaming && isLast && isAssistant}
+                />
+              );
+            })}
+            {shouldShowFeedback && (
+              <AiCoachFeedback
+                conversationId={conversationId}
+                onCompleted={() => setFeedbackVisible(false)}
               />
-            );
-          })
+            )}
+          </>
         )}
       </div>
 
@@ -299,6 +319,8 @@ export function AiCoachChat() {
   const [conversations, setConversations] = useState<AiCoachConversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
+  // 開いた会話のフィードバック UI 表示可否（DB の値。新規会話は常に true）
+  const [initialFeedbackVisible, setInitialFeedbackVisible] = useState(true);
   const [pendingFirstMessage, setPendingFirstMessage] = useState<string | null>(
     null,
   );
@@ -369,8 +391,9 @@ export function AiCoachChat() {
   const selectConversation = useCallback(
     async (id: string) => {
       try {
-        const msgs = await fetchConversationMessages(id);
-        setInitialMessages(toUiMessages(msgs));
+        const detail = await fetchConversationMessages(id);
+        setInitialMessages(toUiMessages(detail.messages));
+        setInitialFeedbackVisible(detail.isFeedbackVisible);
         setPendingFirstMessage(null);
         setActiveId(id);
       } catch {
@@ -468,6 +491,7 @@ export function AiCoachChat() {
         const created = await apiCreateConversation("");
         setConversations((prev) => [created, ...prev]);
         setInitialMessages([]);
+        setInitialFeedbackVisible(true);
         setActiveId(created.id);
         setPendingFirstMessage(text);
       } catch {
@@ -513,6 +537,7 @@ export function AiCoachChat() {
           key={activeId}
           conversationId={activeId}
           initialMessages={initialMessages}
+          initialFeedbackVisible={initialFeedbackVisible}
           pendingFirstMessage={pendingFirstMessage}
           onPendingConsumed={() => setPendingFirstMessage(null)}
           onBeforeSend={handleBeforeSend}

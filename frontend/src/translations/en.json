@@ -381,6 +381,14 @@
     "emptyHint": "An AI coach that answers based on your training records.\nUse it for reflection support or free technique ideas.",
     "inputPlaceholder": "Ask the AI coach",
     "send": "Send",
+    "feedback": {
+      "prompt": "How is the AI coach so far?",
+      "good": "Helpful!",
+      "neutral": "Not sure",
+      "bad": "Not great...",
+      "thanks": "Thanks for your feedback!",
+      "failed": "Failed to send feedback"
+    },
     "history": "Past chats",
     "deleteAll": "Delete all",
     "deleteAllConfirm": "Delete all past chats. Are you sure?",
