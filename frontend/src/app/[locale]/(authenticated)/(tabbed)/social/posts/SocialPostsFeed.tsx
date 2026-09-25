@@ -24,7 +24,10 @@ import { blockUser, reportPost } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
 import { useSocialFavorite } from "@/lib/hooks/useSocialFavorite";
-import { useSocialFeed } from "@/lib/hooks/useSocialFeed";
+import {
+  useRemoveUserPostsFromSocialFeedCache,
+  useSocialFeed,
+} from "@/lib/hooks/useSocialFeed";
 import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useUnreadReplyPostIds } from "@/lib/hooks/useUnreadNotificationCount";
@@ -187,6 +190,8 @@ export function SocialPostsFeed() {
     [user?.id, showToast, t],
   );
 
+  const removeUserPostsFromFeed = useRemoveUserPostsFromSocialFeedCache();
+
   const handleBlockRequest = useCallback(
     (blockedUserId: string, username: string) => {
       setPendingBlock({ userId: blockedUserId, username });
@@ -199,6 +204,8 @@ export function SocialPostsFeed() {
     setIsBlocking(true);
     try {
       await blockUser(pendingBlock.userId);
+      // 再取得を待たずに、ブロックしたユーザーの投稿を一覧から消す（再取得は裏で行う）
+      removeUserPostsFromFeed(pendingBlock.userId);
       showToast(t("blockSuccess"), "success");
       setPendingBlock(null);
       refetch();
@@ -207,7 +214,7 @@ export function SocialPostsFeed() {
     } finally {
       setIsBlocking(false);
     }
-  }, [pendingBlock, refetch, showToast, t]);
+  }, [pendingBlock, refetch, showToast, t, removeUserPostsFromFeed]);
 
   const emptyKey =
     activeTab === "all"

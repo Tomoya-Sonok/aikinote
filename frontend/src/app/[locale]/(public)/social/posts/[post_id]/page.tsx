@@ -50,11 +50,8 @@ export async function generateMetadata({
   });
 }
 
-export default async function SocialPostDetailPage({
-  params,
-}: {
-  params: Promise<{ post_id: string }>;
-}) {
-  const { post_id } = await params;
-  return <SocialPostDetail postId={post_id} />;
+// 投稿 ID は SocialPostDetail が useParams で読む。ここで params を await すると
+// ページ全体が動的扱いになり、一覧から開くたびに loading.tsx を挟んでサーバー応答を待つため
+export default function SocialPostDetailPage() {
+  return <SocialPostDetail />;
 }

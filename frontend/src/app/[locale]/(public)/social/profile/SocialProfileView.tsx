@@ -1,6 +1,7 @@
 "use client";
 
 import { DotsThreeVerticalIcon, InfoIcon } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ProfileCard } from "@/components/features/social/ProfileCard/ProfileCard";
@@ -14,7 +15,6 @@ import {
 } from "@/components/features/social/SocialPostCard/SocialPostCard";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
-import { Loader } from "@/components/shared/Loader/Loader";
 import { SocialHeader } from "@/components/shared/layouts/SocialLayout";
 import { SignupPromptModal } from "@/components/shared/SignupPromptModal/SignupPromptModal";
 import { Tooltip } from "@/components/shared/Tooltip";
@@ -32,7 +32,13 @@ import { useSwipeNavigation } from "@/lib/hooks/useSwipeNavigation";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import { buildShareUrl } from "@/lib/utils/share";
+import { SocialProfileSkeleton } from "./[username]/SocialProfileSkeleton";
 import styles from "./SocialProfile.module.css";
+
+export const socialProfileQueryKey = (
+  username: string,
+  viewerId: string | undefined,
+) => ["social-profile", username, viewerId ?? null] as const;
 
 const PROFILE_TABS: ProfileTab[] = ["posts", "training"];
 
@@ -67,9 +73,27 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
   const t = useTranslations("socialPosts");
   const { showToast } = useToast();
   const { track } = useUmamiTrack();
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [posts, setPosts] = useState<SocialFeedPostData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // プロフィールはキャッシュし、2 回目以降は開いた瞬間に表示する（裏で最新化）
+  const queryClient = useQueryClient();
+  const profileKey = useMemo(
+    () => socialProfileQueryKey(username, currentUser?.id),
+    [username, currentUser?.id],
+  );
+  const profileQuery = useQuery({
+    queryKey: profileKey,
+    enabled: !isInitializing || !!currentUser,
+    queryFn: async (): Promise<ProfileData | null> => {
+      const result = currentUser?.id
+        ? await getSocialProfile(username)
+        : await getPublicSocialProfile(username);
+      return result.success && result.data
+        ? (result.data as ProfileData)
+        : null;
+    },
+  });
+  const profile = profileQuery.data ?? null;
+  const posts = useMemo(() => profile?.posts ?? [], [profile]);
+  const isLoading = profileQuery.isPending;
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -94,36 +118,33 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [showMenu]);
 
-  const fetchProfile = useCallback(async () => {
-    try {
-      const result = currentUser?.id
-        ? await getSocialProfile(username)
-        : await getPublicSocialProfile(username);
-      if (result.success && result.data) {
-        const data = result.data as ProfileData;
-        setProfile(data);
-        setPosts(data.posts);
-      }
-    } catch (error) {
-      console.error("プロフィール取得エラー:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [currentUser?.id, username]);
-
   useEffect(() => {
-    if (isInitializing) return;
-    fetchProfile();
-  }, [fetchProfile, isInitializing]);
+    if (profileQuery.error) {
+      console.error("プロフィール取得エラー:", profileQuery.error);
+    }
+  }, [profileQuery.error]);
+
+  // ブロック状態の変更後などに最新のプロフィールを取り直す
+  const fetchProfile = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: profileKey }),
+    [queryClient, profileKey],
+  );
 
   const updatePost = useCallback(
     (
       postId: string,
       updater: (post: SocialFeedPostData) => SocialFeedPostData,
     ) => {
-      setPosts((prev) => prev.map((p) => (p.id === postId ? updater(p) : p)));
+      queryClient.setQueryData<ProfileData | null>(profileKey, (prev) =>
+        prev
+          ? {
+              ...prev,
+              posts: prev.posts.map((p) => (p.id === postId ? updater(p) : p)),
+            }
+          : prev,
+      );
     },
-    [],
+    [queryClient, profileKey],
   );
 
   const handleSignupPromptOpen = useCallback(() => {
@@ -285,8 +306,8 @@ export function SocialProfileView({ username }: SocialProfileViewProps) {
 
   // SocialLayout は呼び出し側 (page.tsx) でラップ済み。
   // ここで再度ラップすると DOM が二重になり PPR の static shell 効果も弱まる。
-  if (isLoading || isInitializing) {
-    return <Loader centered size="large" />;
+  if (isLoading || (isInitializing && !currentUser && !profile)) {
+    return <SocialProfileSkeleton />;
   }
 
   if (!profile) {

@@ -2,6 +2,7 @@
 
 import {
   type InfiniteData,
+  type QueryClient,
   useInfiniteQuery,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -172,6 +173,26 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
 }
 
 /**
+ * フィードのキャッシュ（全タブ・全ページ）から投稿を探す。
+ * 投稿詳細を開いたとき、詳細 API の応答を待たずに本文を表示するための仮データに使う。
+ */
+export function findPostInSocialFeedCache(
+  queryClient: QueryClient,
+  postId: string,
+): SocialFeedPostData | undefined {
+  const entries = queryClient.getQueriesData<InfiniteData<SocialFeedPage>>({
+    queryKey: ["social-feed"],
+  });
+  for (const [, data] of entries) {
+    for (const page of data?.pages ?? []) {
+      const found = page.posts.find((p) => p.id === postId);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+/**
  * 投稿削除時の楽観的 UI 用フック。useSocialFeed を呼ばないルート（投稿詳細など）から、
  * フィードキャッシュ上の該当投稿を即時除去できる。
  */
@@ -191,6 +212,36 @@ export function useRemoveFromSocialFeedCache() {
                   pages: old.pages.map((page) => ({
                     ...page,
                     posts: page.posts.filter((p) => p.id !== postId),
+                  })),
+                }
+              : old,
+        );
+      }
+    },
+    [user?.id, queryClient],
+  );
+}
+
+/**
+ * ユーザーをブロックしたとき、そのユーザーの投稿をフィードキャッシュ（全タブ）から即時除去する。
+ * 再取得を待たずに一覧から消すための楽観的 UI 用。
+ */
+export function useRemoveUserPostsFromSocialFeedCache() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useCallback(
+    (authorId: string) => {
+      for (const t of ALL_TABS) {
+        queryClient.setQueryData<InfiniteData<SocialFeedPage>>(
+          socialFeedQueryKey(user?.id, t),
+          (old) =>
+            old
+              ? {
+                  ...old,
+                  pages: old.pages.map((page) => ({
+                    ...page,
+                    posts: page.posts.filter((p) => p.user_id !== authorId),
                   })),
                 }
               : old,

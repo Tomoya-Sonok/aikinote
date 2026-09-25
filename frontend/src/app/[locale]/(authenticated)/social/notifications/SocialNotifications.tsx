@@ -1,11 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NotificationList } from "@/components/features/social/NotificationList/NotificationList";
 import { NotificationTabBar } from "@/components/features/social/NotificationTabBar/NotificationTabBar";
-import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout/MinimalLayout";
 import { RefetchErrorBanner } from "@/components/shared/RefetchErrorBanner/RefetchErrorBanner";
 import { markNotificationsRead } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -19,7 +17,6 @@ import styles from "./SocialNotifications.module.css";
 const TABS: NotificationTab[] = ["all", "reply", "favorite"];
 
 export function SocialNotifications() {
-  const t = useTranslations("socialPosts");
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as NotificationTab) || "all";
@@ -62,11 +59,9 @@ export function SocialNotifications() {
     void markNotificationsRead({ markAll: true });
   }, [user?.id]);
 
+  // ヘッダー（MinimalLayout）は page.tsx 側で描画する（静的シェルに残すため）
   return (
-    <MinimalLayout
-      headerTitle={t("notificationsTitle")}
-      backHref="/social/posts"
-    >
+    <>
       <NotificationTabBar
         activeTab={activeTab}
         onTabChange={(tab) => handleTabChange(tab)}
@@ -82,6 +77,6 @@ export function SocialNotifications() {
           loadMore={loadMore}
         />
       </div>
-    </MinimalLayout>
+    </>
   );
 }
