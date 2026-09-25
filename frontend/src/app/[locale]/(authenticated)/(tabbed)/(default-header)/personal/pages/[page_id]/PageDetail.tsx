@@ -14,8 +14,8 @@ import { deletePage, togglePageVisibility } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
+import { invalidateCalendarQueries } from "@/lib/hooks/usePersonalCalendarData";
 import { useSubscription } from "@/lib/hooks/useSubscription";
-
 import { useRouter } from "@/lib/i18n/routing";
 import { linkifyText } from "@/lib/utils/linkifyText";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
@@ -74,6 +74,8 @@ export function PageDetail() {
       await togglePageVisibility(pageData.id, user.id, newValue);
       // 一覧の is_public 表示を最新化（楽観的更新は page-detail のみ反映済み）
       queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+      // 稽古ページの件数はカレンダーにも表示されるため、月ごとのキャッシュも無効化する
+      void invalidateCalendarQueries(queryClient);
     } catch (error) {
       // ロールバック
       setPageData(previousPageData);
@@ -124,6 +126,8 @@ export function PageDetail() {
       if (response.success) {
         // 削除した行が一覧で staleTime=2 分間残らないよう無効化
         queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+        // 稽古ページの件数はカレンダーにも表示されるため、月ごとのキャッシュも無効化する
+        void invalidateCalendarQueries(queryClient);
         setDeleteDialogOpen(false);
         router.push("/personal/pages");
       } else {

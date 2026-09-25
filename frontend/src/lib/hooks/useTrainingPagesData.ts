@@ -10,6 +10,7 @@ import { useCallback, useMemo } from "react";
 import { useToast } from "@/contexts/ToastContext";
 import { deletePage, getPages } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { invalidateCalendarQueries } from "@/lib/hooks/usePersonalCalendarData";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import type { TrainingPageData } from "@/types/training";
@@ -237,6 +238,8 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
     onSettled: () => {
       // 自ユーザーの training-pages キャッシュのみ無効化（フィルタ違いも含めて次回参照時に最新化）
       queryClient.invalidateQueries({ queryKey: ["training-pages", user?.id] });
+      // 稽古ページの件数はカレンダーにも表示されるため、月ごとのキャッシュも無効化する
+      void invalidateCalendarQueries(queryClient);
     },
   });
 

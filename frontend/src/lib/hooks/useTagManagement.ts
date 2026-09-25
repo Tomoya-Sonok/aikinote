@@ -25,6 +25,28 @@ export { trainingTagsQueryKey };
 export const trainingCategoriesQueryKey = (userId: string | undefined) =>
   ["training-categories", userId] as const;
 
+/** カテゴリ一覧の取得（タグ管理画面とキャッシュを共有するため export） */
+export const fetchTrainingCategories = async (
+  userId: string,
+): Promise<UserCategory[]> => {
+  const response = await getCategories(userId);
+  if (response?.success && response.data) {
+    return response.data as UserCategory[];
+  }
+  return [];
+};
+
+/** タグ一覧の取得（タグ管理画面とキャッシュを共有するため export） */
+export const fetchTrainingTags = async <T = TagEntity>(
+  userId: string,
+): Promise<T[]> => {
+  const response = await getTags(userId);
+  if (response.success && response.data) {
+    return response.data as T[];
+  }
+  return [];
+};
+
 interface UseTagManagementOptions {
   /** フックを有効にするか（ページ遷移後に有効化する用途） */
   enabled?: boolean;
@@ -86,27 +108,13 @@ export function useTagManagement(
   const categoriesQuery = useQuery<UserCategory[], Error>({
     queryKey: trainingCategoriesQueryKey(user?.id),
     enabled: enabled && !!user?.id,
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const response = await getCategories(user.id);
-      if (response?.success && response.data) {
-        return response.data as UserCategory[];
-      }
-      return [];
-    },
+    queryFn: async () => (user?.id ? fetchTrainingCategories(user.id) : []),
   });
 
   const tagsQuery = useQuery<TagEntity[], Error>({
     queryKey: trainingTagsQueryKey(user?.id),
     enabled: enabled && !!user?.id,
-    queryFn: async () => {
-      if (!user?.id) return [];
-      const response = await getTags(user.id);
-      if (response.success && response.data) {
-        return response.data as TagEntity[];
-      }
-      return [];
-    },
+    queryFn: async () => (user?.id ? fetchTrainingTags(user.id) : []),
   });
 
   const categories = categoriesQuery.data ?? [];

@@ -6,6 +6,7 @@ import {
   PaperPlaneRightIcon,
   PlusCircleIcon,
 } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -22,6 +23,7 @@ import {
   fetchConversations,
   generateConversationTitle,
 } from "@/lib/api/aiCoach";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import styles from "./AiCoachChat.module.css";
@@ -29,6 +31,9 @@ import { AiCoachFeedback } from "./AiCoachFeedback";
 import { AiCoachHistory } from "./AiCoachHistory";
 import { MessageBubble } from "./MessageBubble";
 import { QuickActionButtons } from "./QuickActionButtons";
+
+export const aiCoachConversationsQueryKey = (userId: string | undefined) =>
+  ["ai-coach-conversations", userId] as const;
 
 const messageText = (message: UIMessage): string =>
   message.parts
@@ -316,7 +321,32 @@ export function AiCoachChat() {
   const { showToast } = useToast();
   const { track } = useUmamiTrack();
 
-  const [conversations, setConversations] = useState<AiCoachConversation[]>([]);
+  // 会話一覧はキャッシュし、2 回目以降は開いた瞬間に表示する（裏で最新化）
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const conversationsKey = useMemo(
+    () => aiCoachConversationsQueryKey(user?.id),
+    [user?.id],
+  );
+  const conversationsQuery = useQuery({
+    queryKey: conversationsKey,
+    enabled: !!user?.id,
+    queryFn: fetchConversations,
+  });
+  const conversations: AiCoachConversation[] = conversationsQuery.data ?? [];
+  const setConversations = useCallback(
+    (
+      updater:
+        | AiCoachConversation[]
+        | ((prev: AiCoachConversation[]) => AiCoachConversation[]),
+    ) =>
+      queryClient.setQueryData<AiCoachConversation[]>(
+        conversationsKey,
+        (prev) =>
+          typeof updater === "function" ? updater(prev ?? []) : updater,
+      ),
+    [queryClient, conversationsKey],
+  );
   const [activeId, setActiveId] = useState<string | null>(null);
   const [initialMessages, setInitialMessages] = useState<UIMessage[]>([]);
   // 開いた会話のフィードバック UI 表示可否（DB の値。新規会話は常に true）
@@ -324,7 +354,7 @@ export function AiCoachChat() {
   const [pendingFirstMessage, setPendingFirstMessage] = useState<string | null>(
     null,
   );
-  const [loading, setLoading] = useState(true);
+  const loading = !conversationsQuery.data && !conversationsQuery.error;
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
   const [isCreatingFromLanding, setIsCreatingFromLanding] = useState(false);
@@ -360,33 +390,14 @@ export function AiCoachChat() {
     };
   }, []);
 
-  // 初期化: 会話一覧の取得のみ（自動オープンしない＝常に landing から開始）
+  // 会話一覧の取得失敗を通知（自動オープンはしない＝常に landing から開始）
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const list = await fetchConversations();
-        if (cancelled) return;
-        setConversations(list);
-      } catch {
-        if (!cancelled) showToast(t("aiCoach.loadFailed"), "error");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [showToast, t]);
+    if (conversationsQuery.error) showToast(t("aiCoach.loadFailed"), "error");
+  }, [conversationsQuery.error, showToast, t]);
 
   const refreshConversations = useCallback(async () => {
-    try {
-      const list = await fetchConversations();
-      setConversations(list);
-    } catch {
-      // 無視（次回マウントで再取得）
-    }
-  }, []);
+    await queryClient.invalidateQueries({ queryKey: conversationsKey });
+  }, [queryClient, conversationsKey]);
 
   const selectConversation = useCallback(
     async (id: string) => {
@@ -424,7 +435,7 @@ export function AiCoachChat() {
         showToast(t("aiCoach.deleteFailed"), "error");
       }
     },
-    [activeId, showToast, t],
+    [activeId, showToast, t, setConversations],
   );
 
   const handleDeleteAll = useCallback(async () => {
@@ -438,7 +449,7 @@ export function AiCoachChat() {
     } catch {
       showToast(t("aiCoach.deleteFailed"), "error");
     }
-  }, [conversations, showToast, t]);
+  }, [conversations, showToast, t, setConversations]);
 
   // 送信前の利用可否チェック + Umami 計測。
   // quickActionId は固定プロンプト由来のときに識別子（weeklyReview など）が入り、
@@ -500,7 +511,7 @@ export function AiCoachChat() {
         setIsCreatingFromLanding(false);
       }
     },
-    [isCreatingFromLanding, handleBeforeSend, showToast, t],
+    [isCreatingFromLanding, handleBeforeSend, showToast, t, setConversations],
   );
 
   return (

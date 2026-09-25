@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { AuthGate } from "@/components/shared/auth";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
+import { Skeleton } from "@/components/shared/Skeleton";
 import { buildMetadata } from "@/lib/metadata";
 import { PersonalCalendar } from "./PersonalCalendar";
 
@@ -33,7 +35,10 @@ export default async function Page({
         backHref={`/${locale}/personal/pages`}
         headerTitle={t("title")}
       >
-        <PersonalCalendar />
+        {/* ヘッダー（MinimalLayout）は静的シェルに残し、本体だけを待たせる */}
+        <Suspense fallback={<Skeleton height="360px" borderRadius="12px" />}>
+          <PersonalCalendar />
+        </Suspense>
       </MinimalLayout>
     </AuthGate>
   );

@@ -13,51 +13,21 @@ import { Button } from "@/components/shared/Button/Button";
 import { Loader } from "@/components/shared/Loader";
 import { OfflineGuard } from "@/components/shared/OfflineGuard";
 import { useToast } from "@/contexts/ToastContext";
-import {
-  getTrainingDatesMonth,
-  removeTrainingDateAttendance,
-  upsertTrainingDateAttendance,
-} from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useIsNativeApp } from "@/lib/hooks/useIsNativeApp";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
+import { usePersonalCalendarData } from "@/lib/hooks/usePersonalCalendarData";
 import { useUmamiTrack } from "@/lib/hooks/useUmamiTrack";
 import { useRouter } from "@/lib/i18n/routing";
 import { getNetworkAwareErrorMessage } from "@/lib/utils/offlineError";
 import { CalendarFooter } from "./CalendarFooter";
 import styles from "./page.module.css";
 
-import type { DayStatus } from "./types";
-
 const formatDateKey = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
-};
-
-const buildDayStatusMap = (
-  attendanceDates: string[],
-  pageCounts: Array<{ training_date: string; page_count: number }>,
-): Record<string, DayStatus> => {
-  const nextMap: Record<string, DayStatus> = {};
-
-  for (const item of pageCounts) {
-    nextMap[item.training_date] = {
-      isAttended: false,
-      pageCount: item.page_count,
-    };
-  }
-
-  for (const trainingDate of attendanceDates) {
-    const current = nextMap[trainingDate];
-    nextMap[trainingDate] = {
-      isAttended: true,
-      pageCount: current?.pageCount ?? 0,
-    };
-  }
-
-  return nextMap;
 };
 
 interface ActionModalProps {
@@ -150,25 +120,28 @@ export function PersonalCalendar() {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
-  const [dayStatusMap, setDayStatusMap] = useState<Record<string, DayStatus>>(
-    {},
-  );
-  const [loading, setLoading] = useState(true);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
-  const [reminderEnabled, setReminderEnabled] = useState(false);
-  const [reminders, setReminders] = useState<
-    Array<{ reminder_time: string; reminder_days: number[] }>
-  >([]);
-  const [examGoal, setExamGoal] = useState<{
-    exam_rank: string;
-    exam_date: string;
-    prev_exam_date: string | null;
-    target_attendance: number;
-  } | null>(null);
-  const [examAttendanceCount, setExamAttendanceCount] = useState(0);
-  const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null);
+  const {
+    dayStatusMap,
+    isMonthLoading,
+    monthError,
+    monthlyGoal,
+    setMonthlyGoal,
+    reminderEnabled,
+    reminders,
+    examGoal,
+    examAttendanceCount,
+    refetchExamGoal,
+    toggleAttendance,
+    isTogglingAttendance,
+  } = usePersonalCalendarData(
+    user?.id,
+    currentMonth.getFullYear(),
+    currentMonth.getMonth() + 1,
+  );
+  // 月データがまだ無いときだけローダーを出す（キャッシュ済み・前の月を表示中は出さない）
+  const showMonthLoader = (authLoading && !user) || isMonthLoading;
 
   useEffect(() => {
     showToastRef.current = showToast;
@@ -206,138 +179,26 @@ export function PersonalCalendar() {
     [t],
   );
 
-  const fetchMonthData = useCallback(async () => {
-    if (authLoading) {
-      return;
-    }
-
-    if (!user?.id) {
-      setDayStatusMap({});
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth() + 1;
-
-      const response = await getTrainingDatesMonth({
-        userId: user.id,
-        year,
-        month,
-      });
-
-      if (!response.success || !response.data) {
-        throw new Error(tRef.current("personalCalendar.dataFetchFailed"));
-      }
-
-      const attendanceDates = response.data.training_dates
-        .filter((item) => item.is_attended)
-        .map((item) => item.training_date);
-      const map = buildDayStatusMap(attendanceDates, response.data.page_counts);
-      setDayStatusMap(map);
-    } catch (error) {
-      console.error("Failed to fetch calendar data:", error);
-      showToastRef.current(
-        getNetworkAwareErrorMessage(
-          error,
-          tRef.current("personalCalendar.dataFetchFailed"),
-        ),
-        "error",
-      );
-      setDayStatusMap({});
-    } finally {
-      setLoading(false);
-    }
-  }, [authLoading, currentMonth, user?.id]);
-
   useEffect(() => {
-    void fetchMonthData();
-  }, [fetchMonthData]);
+    if (!monthError) return;
+    console.error("Failed to fetch calendar data:", monthError);
+    showToastRef.current(
+      getNetworkAwareErrorMessage(
+        monthError,
+        tRef.current("personalCalendar.dataFetchFailed"),
+      ),
+      "error",
+    );
+  }, [monthError]);
 
   const handleGoalChanged = useCallback(
     (goal: number | null) => setMonthlyGoal(goal),
-    [],
+    [setMonthlyGoal],
   );
 
-  // 審査目標データ取得（handleExamGoalSaved から再呼び出しされるため個別に定義）
-  const fetchExamGoal = useCallback(async () => {
-    if (!user?.id) return;
-    try {
-      const res = await fetch("/api/exam-goals", { credentials: "include" });
-      if (!res.ok) {
-        setExamGoal(null);
-        setExamAttendanceCount(0);
-        return;
-      }
-      const json = await res.json();
-      if (json?.data) {
-        setExamGoal(json.data);
-        const params = new URLSearchParams({ to: json.data.exam_date });
-        if (json.data.prev_exam_date) {
-          params.set("from", json.data.prev_exam_date);
-        }
-        const countRes = await fetch(
-          `/api/training-dates-count?${params.toString()}`,
-          { credentials: "include" },
-        );
-        if (countRes.ok) {
-          const countJson = await countRes.json();
-          setExamAttendanceCount(countJson?.data?.count ?? 0);
-        }
-      } else {
-        setExamGoal(null);
-        setExamAttendanceCount(0);
-      }
-    } catch {
-      setExamGoal(null);
-      setExamAttendanceCount(0);
-    }
-  }, [user?.id]);
-
-  // 月間目標・リマインダー・審査目標を並列フェッチ
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const fetchSideData = async () => {
-      const [goalResult, reminderResult] = await Promise.allSettled([
-        fetch("/api/training-goals", { credentials: "include" }).then((r) =>
-          r.ok ? r.json() : null,
-        ),
-        fetch("/api/notification-preferences", {
-          credentials: "include",
-        }).then((r) => (r.ok ? r.json() : null)),
-      ]);
-
-      if (
-        goalResult.status === "fulfilled" &&
-        goalResult.value?.data?.goal != null
-      ) {
-        setMonthlyGoal(goalResult.value.data.goal);
-      }
-
-      if (reminderResult.status === "fulfilled" && reminderResult.value?.data) {
-        const data = reminderResult.value.data;
-        setReminderEnabled(data.preferences?.reminder_enabled ?? false);
-        setReminders(
-          (data.reminders ?? []).map(
-            (r: { reminder_time: string; reminder_days: number[] }) => ({
-              reminder_time: r.reminder_time,
-              reminder_days: r.reminder_days,
-            }),
-          ),
-        );
-      }
-    };
-
-    void fetchSideData();
-    void fetchExamGoal();
-  }, [user?.id, fetchExamGoal]);
-
   const handleExamGoalSaved = useCallback(() => {
-    void fetchExamGoal();
-  }, [fetchExamGoal]);
+    void refetchExamGoal();
+  }, [refetchExamGoal]);
 
   const navigateMonth = (direction: "prev" | "next") => {
     setCurrentMonth((prev) => {
@@ -382,41 +243,13 @@ export function PersonalCalendar() {
     }
 
     track("calendar_toggle_attendance");
-    setIsProcessing(true);
+    // 表示は toggleAttendance 内で楽観的に更新されるので、モーダルはすぐ閉じる
+    setIsActionModalOpen(false);
     try {
-      if (isSelectedDateAttended) {
-        await removeTrainingDateAttendance({
-          userId: user.id,
-          trainingDate: selectedDateKey,
-        });
-      } else {
-        await upsertTrainingDateAttendance({
-          userId: user.id,
-          trainingDate: selectedDateKey,
-        });
-      }
-
-      setDayStatusMap((prev) => {
-        const currentStatus = prev[selectedDateKey] ?? {
-          isAttended: false,
-          pageCount: 0,
-        };
-
-        if (isSelectedDateAttended && currentStatus.pageCount === 0) {
-          const { [selectedDateKey]: _removed, ...rest } = prev;
-          return rest;
-        }
-
-        return {
-          ...prev,
-          [selectedDateKey]: {
-            isAttended: !isSelectedDateAttended,
-            pageCount: currentStatus.pageCount,
-          },
-        };
+      await toggleAttendance({
+        dateKey: selectedDateKey,
+        attend: !isSelectedDateAttended,
       });
-
-      setIsActionModalOpen(false);
     } catch (error) {
       console.error("Failed to update attendance:", error);
       showToast(
@@ -426,8 +259,6 @@ export function PersonalCalendar() {
         ),
         "error",
       );
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -490,7 +321,7 @@ export function PersonalCalendar() {
         <div className={styles.calendarArea}>
           <div
             style={
-              loading || authLoading
+              showMonthLoader
                 ? { opacity: 0.4, pointerEvents: "none" as const }
                 : undefined
             }
@@ -513,7 +344,7 @@ export function PersonalCalendar() {
               examDate={examGoal?.exam_date}
             />
           </div>
-          {(loading || authLoading) && (
+          {showMonthLoader && (
             <div className={styles.calendarLoader}>
               <Loader size="large" centered />
             </div>
@@ -563,7 +394,7 @@ export function PersonalCalendar() {
         }
         createPageLabel={t("personalCalendar.createPage")}
         cancelLabel={t("personalCalendar.cancel")}
-        isProcessing={isProcessing}
+        isProcessing={isTogglingAttendance}
         onClose={() => setIsActionModalOpen(false)}
         onToggleAttendance={handleToggleAttendance}
         onCreatePage={handleOpenCreatePage}

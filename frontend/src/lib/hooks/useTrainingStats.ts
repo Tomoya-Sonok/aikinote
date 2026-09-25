@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getTrainingStats } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 
@@ -49,6 +49,8 @@ export function useTrainingStats(options?: UseTrainingStatsOptions) {
       options?.endDate ?? null,
     ),
     enabled: !!user?.id,
+    // 期間を切り替えたとき、新しい期間のデータが届くまで前の期間の表示を残す（スケルトンに戻さない）
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       if (!user?.id) throw new Error("ユーザー未ログイン");
       const response = await getTrainingStats({
@@ -68,6 +70,8 @@ export function useTrainingStats(options?: UseTrainingStatsOptions) {
 
   return {
     loading: (authLoading && !user) || query.isLoading,
+    /** 前の期間の表示を残したまま、新しい期間を取得中 */
+    isRefreshing: query.isPlaceholderData,
     error: query.error?.message ?? null,
     data: query.data ?? null,
     refetch: query.refetch,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -7,13 +8,15 @@ import { DateRangeInput } from "@/components/shared/DateRangeInput/DateRangeInpu
 import { OfflineGuard } from "@/components/shared/OfflineGuard";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { Skeleton } from "@/components/shared/Skeleton";
-import { getCategories } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useIsNativeApp } from "@/lib/hooks/useIsNativeApp";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import {
+  fetchTrainingCategories,
+  trainingCategoriesQueryKey,
+} from "@/lib/hooks/useTagManagement";
 import { useTrainingStats } from "@/lib/hooks/useTrainingStats";
-import type { UserCategory } from "@/types/category";
 import styles from "./page.module.css";
 
 const TagTrendChart = dynamic(
@@ -221,7 +224,6 @@ function PersonalStatsContent() {
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [customStartDate, setCustomStartDate] = useState<string | null>(null);
   const [customEndDate, setCustomEndDate] = useState<string | null>(null);
-  const [categories, setCategories] = useState<UserCategory[]>([]);
 
   const { startDate, endDate } = useMemo(() => {
     if (period === "custom") {
@@ -235,23 +237,12 @@ function PersonalStatsContent() {
     endDate,
   });
 
-  useEffect(() => {
-    if (!user?.id) return;
-    let cancelled = false;
-    getCategories(user.id)
-      .then((res) => {
-        if (cancelled) return;
-        if (res?.success && res.data) {
-          setCategories(res.data as UserCategory[]);
-        }
-      })
-      .catch((err) => {
-        console.error("[stats] failed to fetch categories", err);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.id]);
+  // カテゴリはタグ管理・ページ作成と同じキャッシュから読む（開くたびに取得しない）
+  const { data: categories = [] } = useQuery({
+    queryKey: trainingCategoriesQueryKey(user?.id),
+    enabled: !!user?.id,
+    queryFn: () => fetchTrainingCategories(user?.id as string),
+  });
 
   const handlePeriodChange = useCallback((preset: PeriodPreset) => {
     setPeriod(preset);
