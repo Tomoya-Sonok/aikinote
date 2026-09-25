@@ -1,12 +1,13 @@
 "use client";
 
 import { PlusCircle, X } from "@phosphor-icons/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
 import { PremiumUpgradeModal } from "@/components/shared/PremiumUpgradeModal/PremiumUpgradeModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 import styles from "./PushNotificationSetting.module.css";
 
@@ -42,6 +43,55 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   reminders: [],
 };
 
+type PreferencesResponse = {
+  data?: {
+    preferences?: Record<string, boolean | undefined>;
+    reminders?: ApiReminder[];
+  };
+  reminders?: ApiReminder[];
+} & Record<string, unknown>;
+
+type ApiReminder = {
+  id: string;
+  reminder_time: string;
+  reminder_days: number[];
+};
+
+/** API 応答をフォーム用の形に変換する（初期表示と保存後の再取得で共通） */
+const toPreferences = (json: PreferencesResponse): NotificationPreferences => {
+  const pref = (json.data?.preferences ?? json) as Record<
+    string,
+    boolean | undefined
+  >;
+  const rems = json.data?.reminders ?? json.reminders ?? [];
+  return {
+    notify_favorite: pref.notify_favorite ?? true,
+    notify_reply: pref.notify_reply ?? true,
+    notify_reply_to_thread: pref.notify_reply_to_thread ?? true,
+    notify_streak: pref.notify_streak ?? true,
+    reminder_enabled: pref.reminder_enabled ?? false,
+    reminders: rems.map((r) => ({
+      id: r.id,
+      time: r.reminder_time?.slice(0, 5) ?? "21:00",
+      days_of_week: r.reminder_days ?? [],
+    })),
+  };
+};
+
+const fetchPreferences = async (): Promise<NotificationPreferences> => {
+  try {
+    const res = await fetch("/api/notification-preferences");
+    if (!res.ok) return { ...DEFAULT_PREFERENCES };
+    return toPreferences(await res.json());
+  } catch {
+    return { ...DEFAULT_PREFERENCES };
+  }
+};
+
+export const notificationPreferencesFormQueryKey = (
+  userId: string | undefined,
+) => ["notification-preferences-form", userId] as const;
+
 export function PushNotificationSetting({
   locale,
 }: PushNotificationSettingProps) {
@@ -69,51 +119,26 @@ export function PushNotificationSetting({
     setShowPreviewLock(true);
   }, []);
 
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [preferences, setPreferences] =
     useState<NotificationPreferences | null>(null);
 
-  // 初期値ロード
-  useEffect(() => {
-    const fetchPreferences = async () => {
-      try {
-        const res = await fetch("/api/notification-preferences");
-        if (res.ok) {
-          const json = await res.json();
-          const pref = json.data?.preferences ?? json;
-          const rems = json.data?.reminders ?? json.reminders ?? [];
-          setPreferences({
-            notify_favorite: pref.notify_favorite ?? true,
-            notify_reply: pref.notify_reply ?? true,
-            notify_reply_to_thread: pref.notify_reply_to_thread ?? true,
-            notify_streak: pref.notify_streak ?? true,
-            reminder_enabled: pref.reminder_enabled ?? false,
-            reminders: rems.map(
-              (r: {
-                id: string;
-                reminder_time: string;
-                reminder_days: number[];
-              }) => ({
-                id: r.id,
-                time: r.reminder_time?.slice(0, 5) ?? "21:00",
-                days_of_week: r.reminder_days ?? [],
-              }),
-            ),
-          });
-        } else {
-          setPreferences({ ...DEFAULT_PREFERENCES });
-        }
-      } catch {
-        setPreferences({ ...DEFAULT_PREFERENCES });
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 初期値はキャッシュし、2 回目以降は開いた瞬間にフォームを出す（裏で最新化）
+  const preferencesKey = notificationPreferencesFormQueryKey(user?.id);
+  const preferencesQuery = useQuery({
+    queryKey: preferencesKey,
+    enabled: !!user?.id,
+    queryFn: fetchPreferences,
+  });
 
-    fetchPreferences();
-  }, []);
+  // 取得データが変わったときだけフォームに反映する
+  useEffect(() => {
+    if (preferencesQuery.data) setPreferences(preferencesQuery.data);
+  }, [preferencesQuery.data]);
+
+  const loading = !preferences;
 
   const updatePreference = useCallback(
     <K extends keyof NotificationPreferences>(
@@ -239,31 +264,10 @@ export function PushNotificationSetting({
 
       await Promise.all(reminderPromises);
 
-      // 保存後にリロードして最新状態を反映
-      const refreshRes = await fetch("/api/notification-preferences");
-      if (refreshRes.ok) {
-        const json = await refreshRes.json();
-        const pref = json.data?.preferences ?? json;
-        const rems = json.data?.reminders ?? json.reminders ?? [];
-        setPreferences({
-          notify_favorite: pref.notify_favorite ?? true,
-          notify_reply: pref.notify_reply ?? true,
-          notify_reply_to_thread: pref.notify_reply_to_thread ?? true,
-          notify_streak: pref.notify_streak ?? true,
-          reminder_enabled: pref.reminder_enabled ?? false,
-          reminders: rems.map(
-            (r: {
-              id: string;
-              reminder_time: string;
-              reminder_days: number[];
-            }) => ({
-              id: r.id,
-              time: r.reminder_time?.slice(0, 5) ?? "21:00",
-              days_of_week: r.reminder_days ?? [],
-            }),
-          ),
-        });
-      }
+      // 保存後に取り直して最新状態を反映（キャッシュも更新）
+      const refreshed = await fetchPreferences();
+      setPreferences(refreshed);
+      queryClient.setQueryData(preferencesKey, refreshed);
 
       // カレンダーのリマインダー表示（曜日のハイライト）もキャッシュしているので無効化する
       void queryClient.invalidateQueries({ queryKey: ["reminder-settings"] });
