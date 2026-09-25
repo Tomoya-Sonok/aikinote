@@ -52,3 +52,38 @@ export const premiumMiddleware = createMiddleware<Env>(async (c, next) => {
 
   await next();
 });
+
+/**
+ * JWT 認証 + 所有者チェックミドルウェア。
+ * リクエストの `user_id`（クエリ、なければ JSON ボディ）がトークンのユーザーと一致する場合のみ通す。
+ * `user_id` を信用してデータを読み書きする既存ルートを、ハンドラーを変えずに保護するために使う。
+ */
+export const ownerAuthMiddleware = createMiddleware<{
+  Bindings: { JWT_SECRET?: string };
+  Variables: { userId: string };
+}>(async (c, next) => {
+  let userId: string;
+  try {
+    const token = extractTokenFromHeader(c.req.header("Authorization"));
+    const payload = await verifyToken(token, c.env);
+    userId = payload.userId;
+  } catch {
+    return c.json({ success: false, error: "認証エラー" }, 401);
+  }
+
+  let claimedUserId: unknown = c.req.query("user_id");
+  if (claimedUserId === undefined && c.req.method !== "GET") {
+    // c.req.json() はパース結果がキャッシュされるため、後続の zValidator でも再利用できる
+    const body = await c.req.json().catch(() => null);
+    if (body && typeof body === "object" && "user_id" in body) {
+      claimedUserId = body.user_id;
+    }
+  }
+
+  if (claimedUserId !== undefined && claimedUserId !== userId) {
+    return c.json({ success: false, error: "権限がありません" }, 403);
+  }
+
+  c.set("userId", userId);
+  await next();
+});

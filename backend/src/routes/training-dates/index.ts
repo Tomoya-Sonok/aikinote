@@ -16,7 +16,7 @@ import {
   type TrainingDateResponse,
   upsertTrainingDateSchema,
 } from "../../lib/validation.js";
-import { authMiddleware } from "../../middleware/auth.js";
+import { authMiddleware, ownerAuthMiddleware } from "../../middleware/auth.js";
 
 type TrainingDatesBindings = {
   JWT_SECRET?: string;
@@ -31,6 +31,9 @@ const app = new Hono<{
   Bindings: TrainingDatesBindings;
   Variables: TrainingDatesVariables;
 }>();
+
+// 所有者本人のトークンでのみ操作できるようにする（user_id とトークンの一致を検証）
+app.use("/", ownerAuthMiddleware);
 
 // 月間目標の更新スキーマ
 const updateGoalSchema = z.object({

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as supabaseModule from "../../lib/supabase.js";
+import { authenticateTestRequestsAs } from "../../test-utils/auth.js";
 import pagesRoute from "./index.js";
 
 describe("ページ作成API", () => {
@@ -8,6 +9,7 @@ describe("ページ作成API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "test-user-id");
     app.route("/", pagesRoute);
     vi.clearAllMocks();
   });
@@ -248,7 +250,7 @@ describe("ページ作成API", () => {
           id: "p1",
           title: "稽古",
           content: "",
-          user_id: "u1",
+          user_id: "test-user-id",
           is_public: false,
           created_at: "2026-05-27T00:00:00.000Z",
           updated_at: "2026-05-27T00:00:00.000Z",
@@ -260,7 +262,7 @@ describe("ページ作成API", () => {
 
     const requestBody = {
       title: "稽古",
-      user_id: "u1",
+      user_id: "test-user-id",
       content_mode: "tag_based",
       memos: [
         {
@@ -285,7 +287,7 @@ describe("ページ作成API", () => {
       expect.objectContaining({
         title: "稽古",
         content: "",
-        user_id: "u1",
+        user_id: "test-user-id",
         content_mode: "tag_based",
       }),
       expect.anything(),
@@ -297,7 +299,7 @@ describe("ページ作成API", () => {
     // Arrange
     const requestBody = {
       title: "稽古",
-      user_id: "u1",
+      user_id: "test-user-id",
       content_mode: "tag_based",
       memos: [],
     };
@@ -319,7 +321,7 @@ describe("ページ作成API", () => {
     // Arrange
     const requestBody = {
       title: "稽古",
-      user_id: "u1",
+      user_id: "test-user-id",
       content_mode: "tag_based",
       memos: [
         {
@@ -351,7 +353,7 @@ describe("ページ作成API", () => {
     // Arrange
     const requestBody = {
       title: "稽古",
-      user_id: "u1",
+      user_id: "test-user-id",
       content_mode: "tag_based",
       memos: [
         {
@@ -378,7 +380,7 @@ describe("ページ作成API", () => {
     // Arrange
     const requestBody = {
       title: "稽古",
-      user_id: "u1",
+      user_id: "test-user-id",
       content_mode: "tag_based",
       memos: Array.from({ length: 11 }, () => ({
         tags: [{ name: "立技", category: "取り" }],
@@ -405,6 +407,7 @@ describe("ページ詳細取得API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "test-user-id");
     app.route("/", pagesRoute);
     vi.clearAllMocks();
   });
@@ -521,11 +524,9 @@ describe("ページ詳細取得API", () => {
     const responseBody = await response.json();
 
     // Assert
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(403);
     expect(responseBody.success).toBe(false);
-    expect(responseBody.error).toBe(
-      "ページが見つからないか、アクセス権限がありません",
-    );
+    expect(supabaseModule.getTrainingPageById).not.toHaveBeenCalled();
   });
 
   it("データベースエラーが発生した場合にサーバーエラーが返されること", async () => {
@@ -614,6 +615,7 @@ describe("ページ一覧取得API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "test-user-id");
     app.route("/", pagesRoute);
     vi.clearAllMocks();
   });
@@ -995,6 +997,7 @@ describe("ページ削除API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "test-user-id");
     app.route("/", pagesRoute);
     vi.clearAllMocks();
   });
@@ -1056,5 +1059,41 @@ describe("ページ削除API", () => {
     expect(response.status).toBe(500);
     expect(responseBody.success).toBe(false);
     expect(responseBody.error).toBe("削除に失敗しました");
+  });
+});
+
+describe("公開フィードAPI", () => {
+  it("認証なしでも GET /public/feed にアクセスできる", async () => {
+    // Arrange
+    const app = new Hono();
+    app.route("/", pagesRoute);
+    vi.spyOn(supabaseModule, "getPublicTrainingPages").mockResolvedValue({
+      pages: [],
+      totalCount: 0,
+    } as never);
+
+    // Act
+    const response = await app.fetch(
+      new Request("http://localhost/public/feed"),
+    );
+
+    // Assert
+    expect(response.status).toBe(200);
+  });
+
+  it("認証なしでページ一覧を取得しようとした場合は401を返す", async () => {
+    // Arrange
+    const app = new Hono();
+    app.route("/", pagesRoute);
+    const getPagesSpy = vi.spyOn(supabaseModule, "getTrainingPages");
+
+    // Act
+    const response = await app.fetch(
+      new Request("http://localhost/?user_id=test-user-id"),
+    );
+
+    // Assert
+    expect(response.status).toBe(401);
+    expect(getPagesSpy).not.toHaveBeenCalled();
   });
 });

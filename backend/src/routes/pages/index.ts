@@ -21,8 +21,14 @@ import {
   togglePageVisibilitySchema,
   updatePageSchema,
 } from "../../lib/validation.js";
+import { ownerAuthMiddleware } from "../../middleware/auth.js";
 
 const app = new Hono();
+
+// 所有者本人のトークンでのみ操作できるようにする（user_id とトークンの一致を検証）
+app.use("/", ownerAuthMiddleware);
+app.use("/:id", ownerAuthMiddleware);
+app.use("/:id/visibility", ownerAuthMiddleware);
 
 // 一覧レスポンスの本文プレビュー長。一覧カードは CSS line-clamp のスニペット表示のため
 // 全文は不要（長文ページでペイロードが肥大するのを防ぐ）。詳細 GET /:id は全文を返す
