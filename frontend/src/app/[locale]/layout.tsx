@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { GlobalFetchIndicator } from "@/components/shared/GlobalFetchIndicator/GlobalFetchIndicator";
+import { NativeNavigationBridge } from "@/components/shared/NativeNavigationBridge/NativeNavigationBridge";
 import { OfflineBanner } from "@/components/shared/OfflineBanner/OfflineBanner";
 import { FontSizeProvider } from "@/components/shared/providers/FontSizeProvider";
 import { LocaleInitializer } from "@/components/shared/providers/LocaleInitializer";
@@ -45,6 +46,7 @@ export default async function LocaleLayout({
             */}
             <AuthProvider>
               <GlobalFetchIndicator />
+              <NativeNavigationBridge />
               <OfflineBanner />
               <main
                 style={{ background: "var(--bg-base)", minHeight: "100vh" }}
