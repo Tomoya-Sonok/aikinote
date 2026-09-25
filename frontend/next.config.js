@@ -27,6 +27,13 @@ const nextConfig = {
   // Phosphor Icons 最適化
   experimental: {
     optimizePackageImports: ["@phosphor-icons/react", "date-fns", "recharts"],
+    // クライアントのルーターキャッシュで、一度表示した動的ページを 30 秒間再利用する。
+    // 既定の 0 秒だと、タブの往復や「戻る」のたびにサーバーへ問い合わせて待ちが発生する。
+    // サーバーで描画したユーザー固有データ（マイページ・プロフィール編集）は、更新後に
+    // router.refresh() でキャッシュを破棄すること（ProfileEdit / useAuth のサインアウト）。
+    staleTimes: {
+      dynamic: 30,
+    },
   },
 
   // SSGを完全に無効化し、すべてをSSRに変更

@@ -1,15 +1,12 @@
 // Minimal Service Worker for PWA installability
-// オフラインキャッシュは行わず、ホーム画面追加（A2HS）のみを有効化する
-// fetch ハンドラの存在が PWA インストール条件を満たす
-// respondWith を呼ばないことでブラウザのデフォルト動作に委譲する
+// オフラインキャッシュは行わず、ホーム画面追加（A2HS）のみを有効化する。
+// 以前は PWA インストール条件のために何もしない fetch ハンドラを置いていたが、
+// 現行のブラウザでは不要になっており、全リクエストで Service Worker の起動を
+// 待たせるだけなので置かない。
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(clients.claim());
-});
-
-self.addEventListener("fetch", () => {
-  // no-op: PWA installability requires a fetch handler to exist
 });

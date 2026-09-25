@@ -1,3 +1,4 @@
+import { TrainingCardSkeleton } from "@/components/features/personal/TrainingCard/TrainingCardSkeleton";
 import { AuthGate } from "@/components/shared/auth";
 import { buildMetadata } from "@/lib/metadata";
 import { PersonalPages } from "./PersonalPages";
@@ -9,7 +10,7 @@ export const metadata = buildMetadata({
 
 export default async function Page() {
   return (
-    <AuthGate>
+    <AuthGate fallback={<TrainingCardSkeleton count={3} />}>
       <PersonalPages />
     </AuthGate>
   );

@@ -23,6 +23,8 @@ interface TrainingCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onClick?: () => void;
+  /** タップ／クリックを押し始めた時点で呼ばれる。遷移先の先読みに使う */
+  onPressStart?: () => void;
 }
 
 export const TrainingCard: FC<TrainingCardProps> = memo(
@@ -37,6 +39,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
     onEdit,
     onDelete,
     onClick,
+    onPressStart,
   }) => {
     const t = useTranslations();
     // tag_based のページは本文が空なので、全メモの本文を空行区切りで表示する
@@ -124,6 +127,7 @@ export const TrainingCard: FC<TrainingCardProps> = memo(
         <div
           className={`${styles.card} ${styles.clickable}`}
           onClick={handleCardClick}
+          onPointerDown={onPressStart}
           onKeyDown={handleCardKeyDown}
           role="button"
           tabIndex={0}
