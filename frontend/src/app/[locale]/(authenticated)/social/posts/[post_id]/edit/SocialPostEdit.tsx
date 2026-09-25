@@ -39,11 +39,17 @@ export function SocialPostEdit() {
   const attachmentMgmt = useAttachmentManagement("social-post");
   const initialAttachmentCountRef = useRef(0);
 
-  // 投稿データを取得
+  // 投稿データを取得。直前に見ていた投稿詳細のキャッシュがあれば、それで即座にフォームを出す
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const result = await getSocialPost(postId);
+        const cached = queryClient
+          .getQueriesData({ queryKey: ["social-post-detail", postId] })
+          .map(([, data]) => data)
+          .find(Boolean);
+        const result = cached
+          ? { success: true as const, data: cached }
+          : await getSocialPost(postId);
         if (result.success && result.data) {
           const postData = result.data as {
             post: {
@@ -91,7 +97,14 @@ export function SocialPostEdit() {
       }
     };
     fetchPost();
-  }, [postId, showToast, t, attachmentMgmt.setAttachments, router]);
+  }, [
+    postId,
+    showToast,
+    t,
+    attachmentMgmt.setAttachments,
+    router,
+    queryClient,
+  ]);
 
   // 未保存データの保護
   const hasUnsavedChanges = useCallback(() => {
@@ -123,6 +136,10 @@ export function SocialPostEdit() {
       // 一覧キャッシュ (useSocialFeed) を無効化して、戻り先で staleTime=2 分内でも
       // 編集内容が反映されるようにする（PageEdit と同じ理由、PR #273 staleTime 延長対応）
       queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      // 戻り先の投稿詳細もキャッシュしているため、編集内容で取り直させる
+      queryClient.invalidateQueries({
+        queryKey: ["social-post-detail", postId],
+      });
 
       isNavigatingRef.current = true;
       router.replace(`/social/posts/${postId}`);

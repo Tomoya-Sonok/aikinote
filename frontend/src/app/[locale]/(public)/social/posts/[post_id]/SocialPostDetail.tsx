@@ -5,11 +5,14 @@ import {
   HeartIcon,
   ShareFatIcon,
 } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
+import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useOptimistic,
   useRef,
   useState,
@@ -26,6 +29,8 @@ const ReportModal = dynamic(
 
 import { DeletedReplyItem } from "@/components/features/social/DeletedReplyItem/DeletedReplyItem";
 import { SocialMediaGrid } from "@/components/features/social/SocialPostCard/SocialMediaGrid";
+import type { SocialFeedPostData } from "@/components/features/social/SocialPostCard/SocialPostCard";
+import { SocialPostCardSkeleton } from "@/components/features/social/SocialPostCard/SocialPostCardSkeleton";
 import { SocialReplyForm } from "@/components/features/social/SocialReplyForm/SocialReplyForm";
 import { SocialReplyItem } from "@/components/features/social/SocialReplyItem/SocialReplyItem";
 import { Button } from "@/components/shared/Button/Button";
@@ -57,7 +62,10 @@ import {
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
-import { useRemoveFromSocialFeedCache } from "@/lib/hooks/useSocialFeed";
+import {
+  findPostInSocialFeedCache,
+  useRemoveFromSocialFeedCache,
+} from "@/lib/hooks/useSocialFeed";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToRelativeTime } from "@/lib/utils/dateUtils";
 import { linkifyText } from "@/lib/utils/linkifyText";
@@ -129,11 +137,46 @@ interface PostDetailData {
   source_page?: SourcePageData | null;
 }
 
+export const socialPostDetailQueryKey = (
+  postId: string,
+  userId: string | undefined,
+) => ["social-post-detail", postId, userId ?? null] as const;
+
+/**
+ * フィードの投稿から、詳細 API の応答が届くまでの仮表示データを作る。
+ * 返信と元ページの詳細はフィードに含まれないため、取得完了後に埋まる。
+ */
+const toPlaceholderDetail = (post: SocialFeedPostData): PostDetailData => ({
+  post: {
+    id: post.id,
+    user_id: post.user_id,
+    content: post.content,
+    post_type: post.post_type,
+    author_dojo_name: post.author_dojo_name,
+    favorite_count: post.favorite_count,
+    reply_count: post.reply_count,
+    created_at: post.created_at,
+    updated_at: post.created_at,
+    source_page_id: post.source_page_id ?? null,
+  },
+  attachments: post.attachments,
+  tags: post.tags,
+  author: post.author,
+  replies: [],
+  is_favorited: post.is_favorited,
+  source_page: null,
+});
+
 interface SocialPostDetailProps {
-  postId: string;
+  /** 未指定時は URL（/social/posts/[post_id]）から読む */
+  postId?: string;
 }
 
-export function SocialPostDetail({ postId }: SocialPostDetailProps) {
+export function SocialPostDetail({
+  postId: postIdProp,
+}: SocialPostDetailProps) {
+  const params = useParams<{ post_id: string }>();
+  const postId = postIdProp ?? params.post_id;
   const { user, isInitializing } = useAuth();
   const { canReply, incrementReplyCount } = useDailyLimits();
   const locale = useLocale();
@@ -141,8 +184,46 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
   const t = useTranslations("socialPosts");
 
   const { showToast } = useToast();
-  const [detail, setDetail] = useState<PostDetailData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // 投稿詳細はキャッシュし、フィードから開いた場合はフィードの投稿を仮表示に使う
+  // （開いた瞬間に本文が出て、返信だけ後から埋まる）
+  const queryClient = useQueryClient();
+  const detailKey = useMemo(
+    () => socialPostDetailQueryKey(postId, user?.id),
+    [postId, user?.id],
+  );
+  const detailQuery = useQuery({
+    queryKey: detailKey,
+    enabled: !!postId && (!isInitializing || !!user),
+    placeholderData: () => {
+      const feedPost = user
+        ? findPostInSocialFeedCache(queryClient, postId)
+        : undefined;
+      return feedPost ? toPlaceholderDetail(feedPost) : undefined;
+    },
+    queryFn: async (): Promise<PostDetailData | null> => {
+      const result = user
+        ? await getSocialPost(postId)
+        : await getPublicSocialPost(postId);
+      return result.success && result.data
+        ? (result.data as PostDetailData)
+        : null;
+    },
+  });
+  const detail = detailQuery.data ?? null;
+  const isLoading = detailQuery.isPending && !detail;
+  const isDetailPlaceholder = detailQuery.isPlaceholderData;
+  const setDetail = useCallback(
+    (
+      next:
+        | PostDetailData
+        | null
+        | ((prev: PostDetailData | null) => PostDetailData | null),
+    ) =>
+      queryClient.setQueryData<PostDetailData | null>(detailKey, (prev) =>
+        typeof next === "function" ? next(prev ?? null) : next,
+      ),
+    [queryClient, detailKey],
+  );
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -156,28 +237,22 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
 
   const isAuthenticated = !!user;
 
+  // 詳細を実際に取得できたら、この投稿の通知を既読にする（投稿ごとに 1 回）
+  const markedReadPostIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (isInitializing) return;
+    if (!user || isDetailPlaceholder || !detailQuery.isSuccess || !detail) {
+      return;
+    }
+    if (markedReadPostIdRef.current === postId) return;
+    markedReadPostIdRef.current = postId;
+    markNotificationsRead({ postId }).catch(() => {});
+  }, [user, isDetailPlaceholder, detailQuery.isSuccess, detail, postId]);
 
-    const fetchDetail = async () => {
-      try {
-        const result = user
-          ? await getSocialPost(postId)
-          : await getPublicSocialPost(postId);
-        if (result.success && result.data) {
-          setDetail(result.data as PostDetailData);
-          if (user) {
-            markNotificationsRead({ postId }).catch(() => {});
-          }
-        }
-      } catch (error) {
-        console.error("投稿詳細取得エラー:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchDetail();
-  }, [postId, user, isInitializing]);
+  useEffect(() => {
+    if (detailQuery.error) {
+      console.error("投稿詳細取得エラー:", detailQuery.error);
+    }
+  }, [detailQuery.error]);
 
   // メニュー外クリックで閉じる
   useEffect(() => {
@@ -250,7 +325,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         );
       }
     }
-  }, [detail, postId, isAuthenticated, showToast, t]);
+  }, [detail, postId, isAuthenticated, showToast, t, setDetail]);
 
   const handleDelete = useCallback(async () => {
     setIsDeleting(true);
@@ -292,7 +367,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         showToast(getNetworkAwareErrorMessage(error, fallback), "error");
       }
     },
-    [postId, user?.id, showToast, t, incrementReplyCount],
+    [postId, user?.id, showToast, t, incrementReplyCount, setDetail],
   );
 
   const handleReportSubmit = useCallback(
@@ -404,7 +479,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         });
       });
     },
-    [postId, showToast, t, addOptimisticReply],
+    [postId, showToast, t, addOptimisticReply, setDetail],
   );
 
   const handleReplyDelete = useCallback(
@@ -419,7 +494,7 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         showToast(t("replyDeleteFailed"), "error");
       }
     },
-    [postId, showToast, t],
+    [postId, showToast, t, setDetail],
   );
 
   const handleReplyFavoriteToggle = useCallback(
@@ -475,7 +550,12 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
         }
       });
     },
-    [detail, showToast, t],
+    [
+      detail,
+      showToast,
+      t, // 楽観的更新
+      setDetail,
+    ],
   );
 
   const handleStartEdit = useCallback(() => {
@@ -521,10 +601,10 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
     setShowSignupPrompt(true);
   }, []);
 
-  if (isLoading || isInitializing) {
+  if (isLoading || (isInitializing && !user && !detail)) {
     return (
       <ChatLayout>
-        <Loader centered size="large" />
+        <SocialPostCardSkeleton />
       </ChatLayout>
     );
   }
@@ -771,6 +851,10 @@ export function SocialPostDetail({ postId }: SocialPostDetailProps) {
               />
             ),
           )}
+        {/* フィードの投稿を仮表示している間は返信が未取得なので、返信欄だけ読み込み表示にする */}
+        {isDetailPlaceholder && detail.post.reply_count > 0 && (
+          <Loader centered size="small" />
+        )}
       </div>
 
       <ConfirmDialog
