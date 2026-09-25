@@ -1,4 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { getVerifiedAuthUser } from "@/lib/server/auth";
 import { initializeUserTagsIfNeeded } from "@/lib/server/tag";
 import type { ApiResponse } from "@/types/api";
 import { callHonoApi } from "./hono";
@@ -169,7 +171,7 @@ export const honoBridgeTodoProcedure = publicProcedure
     };
   });
 
-export const getPagesProcedure = publicProcedure
+export const getPagesProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -182,7 +184,7 @@ export const getPagesProcedure = publicProcedure
       sortOrder: z.enum(["newest", "oldest"]).optional(),
     }),
   )
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -198,23 +200,29 @@ export const getPagesProcedure = publicProcedure
 
     return callHonoApi<ApiResponse<PagesList>>(
       `/api/pages?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
     );
   });
 
-export const getPageProcedure = publicProcedure
+export const getPageProcedure = authenticatedProcedure
   .input(
     z.object({
       pageId: z.string().min(1),
       userId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
 
     return callHonoApi<ApiResponse<PageWithTags>>(
       `/api/pages/${input.pageId}?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
     );
   });
 
@@ -227,7 +235,7 @@ const memoInputSchema = z.object({
   content: z.string().min(1).max(500),
 });
 
-export const createPageProcedure = publicProcedure
+export const createPageProcedure = authenticatedProcedure
   .input(
     z.object({
       title: z.string(),
@@ -249,14 +257,15 @@ export const createPageProcedure = publicProcedure
         .optional(),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<PageWithTags>>("/api/pages", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "POST",
       body: JSON.stringify(input as CreatePageInput),
     });
   });
 
-export const updatePageProcedure = publicProcedure
+export const updatePageProcedure = authenticatedProcedure
   .input(
     z.object({
       id: z.string().min(1),
@@ -272,14 +281,15 @@ export const updatePageProcedure = publicProcedure
       is_public: z.boolean().optional(),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<PageWithTags>>(`/api/pages/${input.id}`, {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "PUT",
       body: JSON.stringify(input as UpdatePageInput),
     });
   });
 
-export const togglePageVisibilityProcedure = publicProcedure
+export const togglePageVisibilityProcedure = authenticatedProcedure
   .input(
     z.object({
       pageId: z.string().min(1),
@@ -287,10 +297,11 @@ export const togglePageVisibilityProcedure = publicProcedure
       is_public: z.boolean(),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<{ page: Page }>>(
       `/api/pages/${input.pageId}/visibility`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "PATCH",
         body: JSON.stringify({
           user_id: input.user_id,
@@ -332,14 +343,14 @@ export const getPublicPagesFeedProcedure = publicProcedure
     >(`/api/pages/public/feed?${params.toString()}`);
   });
 
-export const deletePageProcedure = publicProcedure
+export const deletePageProcedure = authenticatedProcedure
   .input(
     z.object({
       pageId: z.string().min(1),
       userId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -347,12 +358,13 @@ export const deletePageProcedure = publicProcedure
     return callHonoApi<ApiResponse<never>>(
       `/api/pages/${input.pageId}?${query.toString()}`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "DELETE",
       },
     );
   });
 
-export const getTrainingDatesMonthProcedure = publicProcedure
+export const getTrainingDatesMonthProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -360,7 +372,7 @@ export const getTrainingDatesMonthProcedure = publicProcedure
       month: z.number().int().min(1).max(12),
     }),
   )
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
       year: String(input.year),
@@ -369,10 +381,13 @@ export const getTrainingDatesMonthProcedure = publicProcedure
 
     return callHonoApi<ApiResponse<TrainingDateMonthSummary>>(
       `/api/training-dates?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
     );
   });
 
-export const upsertTrainingDateAttendanceProcedure = publicProcedure
+export const upsertTrainingDateAttendanceProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -381,8 +396,9 @@ export const upsertTrainingDateAttendanceProcedure = publicProcedure
         .regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD形式で指定してください"),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<TrainingDate>>("/api/training-dates", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "PUT",
       body: JSON.stringify({
         user_id: input.userId,
@@ -391,7 +407,7 @@ export const upsertTrainingDateAttendanceProcedure = publicProcedure
     });
   });
 
-export const removeTrainingDateAttendanceProcedure = publicProcedure
+export const removeTrainingDateAttendanceProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -400,7 +416,7 @@ export const removeTrainingDateAttendanceProcedure = publicProcedure
         .regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD形式で指定してください"),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
       training_date: input.trainingDate,
@@ -409,26 +425,32 @@ export const removeTrainingDateAttendanceProcedure = publicProcedure
     return callHonoApi<ApiResponse<never>>(
       `/api/training-dates?${query.toString()}`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "DELETE",
       },
     );
   });
 
-export const getTagsProcedure = publicProcedure
+export const getTagsProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
 
-    return callHonoApi<ApiResponse<UserTag[]>>(`/api/tags?${query.toString()}`);
+    return callHonoApi<ApiResponse<UserTag[]>>(
+      `/api/tags?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
+    );
   });
 
-export const createTagProcedure = publicProcedure
+export const createTagProcedure = authenticatedProcedure
   .input(
     z.object({
       name: z.string().min(1),
@@ -436,21 +458,22 @@ export const createTagProcedure = publicProcedure
       user_id: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<UserTag>>("/api/tags", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "POST",
       body: JSON.stringify(input),
     });
   });
 
-export const deleteTagProcedure = publicProcedure
+export const deleteTagProcedure = authenticatedProcedure
   .input(
     z.object({
       tagId: z.string().min(1),
       userId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -458,12 +481,13 @@ export const deleteTagProcedure = publicProcedure
     return callHonoApi<ApiResponse<UserTag>>(
       `/api/tags/${input.tagId}?${query.toString()}`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "DELETE",
       },
     );
   });
 
-export const updateTagOrderProcedure = publicProcedure
+export const updateTagOrderProcedure = authenticatedProcedure
   .input(
     z.object({
       user_id: z.string().min(1),
@@ -473,8 +497,9 @@ export const updateTagOrderProcedure = publicProcedure
       waza: z.array(z.string()).optional(),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<UserTag[]>>("/api/tags/order", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "PATCH",
       body: JSON.stringify(input),
     });
@@ -666,7 +691,7 @@ export const getTrainingStatsProcedure = authenticatedProcedure
     );
   });
 
-export const initializeUserTagsProcedure = publicProcedure
+export const initializeUserTagsProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
@@ -674,6 +699,11 @@ export const initializeUserTagsProcedure = publicProcedure
     }),
   )
   .mutation(async ({ input }) => {
+    // Service Role で書き込むため、他人の userId を指定した初期化を拒否する
+    const authUser = await getVerifiedAuthUser();
+    if (authUser?.id !== input.userId) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "権限がありません" });
+    }
     const result = await initializeUserTagsIfNeeded(
       input.userId,
       input.language,
@@ -1380,23 +1410,26 @@ export const syncSubscriptionProcedure = authenticatedProcedure.mutation(
 // タイトルテンプレート
 // ============================================================
 
-export const getTitleTemplatesProcedure = publicProcedure
+export const getTitleTemplatesProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
 
     return callHonoApi<ApiResponse<TitleTemplate[]>>(
       `/api/title-templates?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
     );
   });
 
-export const createTitleTemplateProcedure = publicProcedure
+export const createTitleTemplateProcedure = authenticatedProcedure
   .input(
     z.object({
       user_id: z.string().min(1),
@@ -1408,21 +1441,22 @@ export const createTitleTemplateProcedure = publicProcedure
         .default(null),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<TitleTemplate>>("/api/title-templates", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "POST",
       body: JSON.stringify(input),
     });
   });
 
-export const deleteTitleTemplateProcedure = publicProcedure
+export const deleteTitleTemplateProcedure = authenticatedProcedure
   .input(
     z.object({
       templateId: z.string().min(1),
       userId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -1430,6 +1464,7 @@ export const deleteTitleTemplateProcedure = publicProcedure
     return callHonoApi<ApiResponse<TitleTemplate>>(
       `/api/title-templates/${input.templateId}?${query.toString()}`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "DELETE",
       },
     );
@@ -1449,37 +1484,41 @@ type UserCategory = {
   created_at: string;
 };
 
-export const getCategoriesProcedure = publicProcedure
+export const getCategoriesProcedure = authenticatedProcedure
   .input(
     z.object({
       userId: z.string().min(1),
     }),
   )
-  .query(async ({ input }) => {
+  .query(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
 
     return callHonoApi<ApiResponse<UserCategory[]>>(
       `/api/categories?${query.toString()}`,
+      {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
+      },
     );
   });
 
-export const createCategoryProcedure = publicProcedure
+export const createCategoryProcedure = authenticatedProcedure
   .input(
     z.object({
       name: z.string().min(1).max(10),
       user_id: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     return callHonoApi<ApiResponse<UserCategory>>("/api/categories", {
+      headers: { Authorization: `Bearer ${ctx.authToken}` },
       method: "POST",
       body: JSON.stringify(input),
     });
   });
 
-export const updateCategoryProcedure = publicProcedure
+export const updateCategoryProcedure = authenticatedProcedure
   .input(
     z.object({
       categoryId: z.string().min(1),
@@ -1487,7 +1526,7 @@ export const updateCategoryProcedure = publicProcedure
       name: z.string().min(1).max(10),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -1495,20 +1534,21 @@ export const updateCategoryProcedure = publicProcedure
     return callHonoApi<ApiResponse<UserCategory>>(
       `/api/categories/${input.categoryId}?${query.toString()}`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "PUT",
         body: JSON.stringify({ name: input.name }),
       },
     );
   });
 
-export const deleteCategoryProcedure = publicProcedure
+export const deleteCategoryProcedure = authenticatedProcedure
   .input(
     z.object({
       categoryId: z.string().min(1),
       userId: z.string().min(1),
     }),
   )
-  .mutation(async ({ input }) => {
+  .mutation(async ({ input, ctx }) => {
     const query = new URLSearchParams({
       user_id: input.userId,
     });
@@ -1516,6 +1556,7 @@ export const deleteCategoryProcedure = publicProcedure
     return callHonoApi<ApiResponse<null>>(
       `/api/categories/${input.categoryId}?${query.toString()}`,
       {
+        headers: { Authorization: `Bearer ${ctx.authToken}` },
         method: "DELETE",
       },
     );
