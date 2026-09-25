@@ -48,7 +48,7 @@ export function useTrainingStats(options?: UseTrainingStatsOptions) {
       options?.startDate ?? null,
       options?.endDate ?? null,
     ),
-    enabled: !authLoading && !!user?.id,
+    enabled: !!user?.id,
     queryFn: async () => {
       if (!user?.id) throw new Error("ユーザー未ログイン");
       const response = await getTrainingStats({
@@ -67,7 +67,7 @@ export function useTrainingStats(options?: UseTrainingStatsOptions) {
   });
 
   return {
-    loading: authLoading || query.isLoading,
+    loading: (authLoading && !user) || query.isLoading,
     error: query.error?.message ?? null,
     data: query.data ?? null,
     refetch: query.refetch,

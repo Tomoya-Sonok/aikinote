@@ -74,6 +74,14 @@
   justify-content: center;
 }
 
+.avatarPlaceholder {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: var(--background-light);
+}
+
 .profileCard {
   position: absolute;
   top: calc(100% + 8px);

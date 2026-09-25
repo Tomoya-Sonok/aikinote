@@ -9,14 +9,22 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { useToast } from "@/contexts/ToastContext";
 import type { UserSession } from "@/lib/auth";
+import { getQueryClient } from "@/lib/query/query-client";
 import { getClientSupabase } from "@/lib/supabase/client";
 import { getRedirectUrl } from "@/lib/utils/env";
+import {
+  clearProfileSnapshot,
+  readProfileSnapshot,
+  userFromSnapshot,
+  writeProfileSnapshot,
+} from "@/lib/utils/profileSnapshot";
 import {
   clearReturnToCookie,
   getReturnToFromSession,
@@ -83,13 +91,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return getClientSupabase();
   }, []);
 
+  // サインアウト時に端末に残るユーザーデータ（表示用プロフィール・永続化済みクエリキャッシュ）を消す
+  const clearLocalUserData = useCallback(() => {
+    clearProfileSnapshot();
+    getQueryClient().clear();
+  }, []);
+
   // setUser と currentUserIdRef を常に同期させるためのラッパー。
   // ref は onAuthStateChange の同一ユーザー判定と、
   // 裏で走るプロフィール取得の「取得中にユーザーが変わっていないか」判定に使う。
+  const currentUserRef = useRef<UserSession | null>(null);
+  // フルプロフィール取得を済ませたユーザー ID。スナップショット由来のユーザーのまま
+  // セッション確立イベントを取りこぼさないための判定に使う
+  const profileLoadedIdRef = useRef<string | null>(null);
   const applyUser = useCallback((nextUser: UserSession | null) => {
     currentUserIdRef.current = nextUser?.id ?? null;
+    currentUserRef.current = nextUser;
     setUser(nextUser);
+    // 次回起動時に即表示できるよう、確定したプロフィールを保存する
+    if (nextUser && !nextUser.isProvisional) {
+      writeProfileSnapshot(nextUser);
+    }
   }, []);
+
+  // 前回のプロフィールを初回描画の直後（ペイント前）に反映する。
+  // user.id が即座に決まるため、永続化済みのクエリキャッシュと正しいアバターを最初から表示できる。
+  // useState の初期値で読むと SSR との hydration 不一致になるため layout effect で行う。
+  // 認証の根拠にはせず、getSession の結果で上書き・破棄する。
+  useLayoutEffect(() => {
+    const snapshot = readProfileSnapshot();
+    if (snapshot && !currentUserRef.current) {
+      applyUser(userFromSnapshot(snapshot));
+    }
+  }, [applyUser]);
 
   useEffect(() => {
     isInitializingRef.current = isInitializing;
@@ -129,21 +163,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // セッションのユーザー情報から即時利用できる暫定プロフィールを組み立てる。
     // getUserInfo API の往復を待たずに user.id を確定させ、
     // 各画面のデータ取得（enabled: !!user?.id）を先に発火させるための1段階目。
+    // user_metadata の avatar_url / username は Google 等の OAuth プロバイダー由来で
+    // AikiNote のプロフィールとは別物のため使わない（アバターが一瞬 Google の画像になる不具合の原因）。
     const buildProvisionalUser = (
       sessionUser: Session["user"],
     ): UserSession => {
-      const metadata = (sessionUser.user_metadata ?? {}) as {
-        username?: string;
-        avatar_url?: string;
-      };
+      const email = sessionUser.email ?? "";
+      const current = currentUserRef.current;
+      if (current?.id === sessionUser.id) {
+        return { ...current, email: current.email || email };
+      }
+      const snapshot = readProfileSnapshot();
+      if (snapshot?.id === sessionUser.id) {
+        return userFromSnapshot(snapshot, email);
+      }
       return {
         id: sessionUser.id,
-        email: sessionUser.email ?? "",
-        username: metadata.username ?? "",
-        profile_image_url: metadata.avatar_url ?? null,
+        email,
+        username: "",
+        profile_image_url: null,
         dojo_style_name: null,
         aikido_rank: null,
         full_name: null,
+        isProvisional: true,
       };
     };
 
@@ -151,6 +193,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isMounted) return;
 
       if (!session?.user) {
+        clearProfileSnapshot();
         applyUser(null);
         return;
       }
@@ -165,6 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // 取得中にサインアウトやユーザー切替が起きていたら反映しない
           if (currentUserIdRef.current !== sessionUserId) return;
           if (profile) {
+            profileLoadedIdRef.current = sessionUserId;
             applyUser(profile);
           } else {
             // 全リトライ失敗でも暫定ユーザーを維持する。null に戻すと発火済みの
@@ -173,6 +217,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.error(
               "useAuth: プロフィール取得に失敗しました。セッション情報で継続します",
             );
+            // 取得待ちの表示（アバターのスケルトン等）を終わらせる
+            const current = currentUserRef.current;
+            if (current?.isProvisional) {
+              currentUserRef.current = { ...current, isProvisional: false };
+              currentUserIdRef.current = current.id;
+              setUser(currentUserRef.current);
+            }
           }
         })
         .catch((profileError) => {
@@ -215,7 +266,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("セッション初期化中に予期せぬエラー:", error);
-        if (isMounted) {
+        // スナップショット由来のユーザーがいれば表示を維持する（onAuthStateChange が後追いで確定させる）
+        if (isMounted && !currentUserRef.current) {
           applyUser(null);
         }
       } finally {
@@ -238,7 +290,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 同一ユーザーのままのイベント（約50分毎の TOKEN_REFRESHED 等）では
       // 状態を再構築しない。以前は毎回 isInitializing=true → プロフィール再取得が
       // 走り、全画面のクエリ停止と表示のちらつきが発生していた
-      if (session?.user?.id && session.user.id === currentUserIdRef.current) {
+      if (
+        session?.user?.id &&
+        session.user.id === currentUserIdRef.current &&
+        profileLoadedIdRef.current === session.user.id
+      ) {
         return;
       }
 
@@ -286,6 +342,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     if (!win.__AIKINOTE_NATIVE_APP__ || !win.ReactNativeWebView) return;
     if (isInitializing) return;
+    // プロフィール取得待ちの暫定ユーザーはアバターが未確定なので送らない
+    // （ネイティブのヘッダーで画像なし → 画像ありのちらつきを防ぐ）
+    if (user?.isProvisional) return;
 
     win.ReactNativeWebView.postMessage(
       JSON.stringify({
@@ -507,6 +566,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // エラーがあってもなくても、ローカル状態をクリアしてリダイレクト
+      clearLocalUserData();
       applyUser(null);
 
       // PC幅・SP幅に応じて適切に表示されるように Toast にスタイルを渡す
@@ -527,6 +587,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         err,
       );
       // エラーが発生してもユーザー状態をクリアしてリダイレクト
+      clearLocalUserData();
       applyUser(null);
       const isWide = window.matchMedia("(min-width: 431px)").matches;
       const toastStyle: React.CSSProperties = isWide
@@ -548,7 +609,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsProcessing(false);
     }
-  }, [supabase.auth, router, showToast, t, applyUser]);
+  }, [supabase.auth, router, showToast, t, applyUser, clearLocalUserData]);
 
   const forgotPassword = useCallback(async (data: ResetPasswordFormData) => {
     setIsProcessing(true);
@@ -700,7 +761,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      loading: isInitializing || isProcessing,
+      // サインイン/アウト処理中（isProcessing）は含めない。含めると処理中に各画面がスケルトンに戻ってちらつく
+      loading: isInitializing,
       isInitializing,
       isProcessing,
       error,

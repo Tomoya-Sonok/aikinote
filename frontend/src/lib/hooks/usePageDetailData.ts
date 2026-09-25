@@ -80,7 +80,7 @@ export function usePageDetailData(
         attachments: response.data.attachments ?? [],
       };
     },
-    enabled: !authLoading && !!pageId && !!user?.id,
+    enabled: !!pageId && !!user?.id,
   });
 
   const attachmentsQuery = useQuery({
@@ -94,7 +94,7 @@ export function usePageDetailData(
       const attachJson = await getAttachments(pageId);
       return attachJson.success && attachJson.data ? attachJson.data : [];
     },
-    enabled: !authLoading && !!pageId,
+    enabled: !!pageId,
   });
 
   // 楽観的更新のための setter。呼び出し側は TrainingPageData | null を直接渡すか updater 関数を渡せる
@@ -121,7 +121,10 @@ export function usePageDetailData(
   }, [attachmentsQuery]);
 
   return {
-    loading: pageQuery.isLoading || attachmentsQuery.isLoading,
+    loading:
+      (authLoading && !user) ||
+      pageQuery.isLoading ||
+      attachmentsQuery.isLoading,
     pageData: pageQuery.data ?? null,
     setPageData,
     attachments: attachmentsQuery.data ?? [],

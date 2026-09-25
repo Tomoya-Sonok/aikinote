@@ -357,8 +357,24 @@ const initializeSession = async () => {
 };
 ```
 
+### 起動直後の表示を速くする仕組み（2 段階＋スナップショット）
+
+`getSession()` と `getUserInfo` API の往復を待つと、起動のたびにスケルトンが出てしまうため、`user` は次の順で段階的に確定させます。
+
+| 段階 | タイミング | `user` の中身 |
+|---|---|---|
+| 0. スナップショット | 初回描画の直後（`useLayoutEffect`、ペイント前） | 前回保存した表示用プロフィール（`lib/utils/profileSnapshot.ts`、localStorage `aikinote:profile-snapshot`） |
+| 1. 暫定ユーザー | `getSession()` 完了時 | スナップショットの ID がセッションと一致すればそれを使う。無ければ ID とメールだけの暫定ユーザー（`isProvisional: true`） |
+| 2. フルプロフィール | `getUserInfo` 完了時 | API から取得したプロフィール。取得のたびにスナップショットを更新 |
+
+- 段階 0 で `user.id` が決まるので、各データ取得フック（`enabled: !!user?.id`）は永続化済みの TanStack Query キャッシュをすぐ表示できる。
+- 暫定ユーザーに **`user_metadata`（Google / Apple 等の OAuth プロバイダーの名前・画像）は使わない**。以前は Google の画像が一瞬表示されてから AikiNote の画像に差し替わっていた。
+- `isProvisional` のときヘッダーのアバターは中立の丸（プレースホルダー）で表示し、ネイティブアプリへの `USER_INFO` も送らない。
+- スナップショットは表示用で、認証の根拠にはしない。セッションが無ければ破棄し、サインアウト時はスナップショットと TanStack Query のキャッシュ（永続化分を含む）を消す。
+- `loading`（= `isInitializing`）はサインイン／アウト処理中（`isProcessing`）を含まない。
+
 ### 実装上の注意点
-この「初期化中」の数ミリ秒〜数秒間は、`user` が `null` (未ログイン扱い) になります。
+この「初期化中」の数ミリ秒〜数秒間は、スナップショットが無い場合 `user` が `null` (未ログイン扱い) になります。
 そのため、**データ取得時は必ず `!isInitializing` (初期化完了) を待ってから**処理を開始しないと、「データなし（0件）」と誤判定されたり、ログイン画面へ飛ばされたりする不具合の原因になります。
 
 ```typescript
@@ -368,9 +384,11 @@ if (!user) return <Redirect to="/login" />; // 初期化中に勝手に飛ばさ
 
 // 良い例: 初期化完了を待つ
 const { user, loading } = useAuth();
-if (loading) return <Loader />; // 待機中
+if (loading && !user) return <Loader />; // 待機中（スナップショットで user があれば待たない）
 if (!user) return <Redirect to="/login" />; // 確定後に判定
 ```
+
+データ取得フックでは `enabled: !!user?.id` とし、ローディング表示は「`(loading && !user) || query.isLoading`」にします（`useTrainingPagesData` 等）。`!loading` を `enabled` に含めると、キャッシュがあってもセッション確認を待つためスケルトンが出ます。
 
 ---
 

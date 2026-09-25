@@ -142,9 +142,11 @@ shouldDehydrateQuery: (query) =>
 
 ## 7. グローバル fetch インジケータ
 
-`GlobalFetchIndicator` (`components/shared/GlobalFetchIndicator/`) が `useIsFetching()` で全クエリの fetch 数を監視し、上端に薄い 2px プログレスバーを表示する。
+`GlobalFetchIndicator` (`components/shared/GlobalFetchIndicator/`) は、**まだデータが無いクエリの取得（初回ロード）が 300ms 以上続いたとき**だけ、上端に薄い 2px プログレスバーを表示する。
 
-個別画面で大きな Loader を出さなくても、ユーザーは「何か取得中」と認識できる。バックグラウンド refetch も対象。
+- `useIsFetching({ predicate: (q) => q.state.data === undefined })` で対象を絞っている。
+- キャッシュ済みデータの裏での再取得・通知バッジのポーリング・prefetch では表示しない。以前はバックグラウンド refetch も対象にしていたため、2 分ごとのポーリングや画面復帰のたびにバーが出て「一定時間ごとにローディングが入る」と感じられていた。
+- 300ms 未満で終わる取得でも表示しない（点滅が逆に重い印象を与えるため）。
 
 ## 8. DevTools
 

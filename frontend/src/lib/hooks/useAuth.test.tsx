@@ -58,6 +58,11 @@ vi.mock("@/lib/utils/user", () => ({
   createUserProfile: vi.fn(),
 }));
 
+// 表示用プロフィールのスナップショット（localStorage）がテスト間で持ち越されないようにする
+beforeEach(() => {
+  window.localStorage.clear();
+});
+
 describe("useAuth hook - セッション監視機能", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -303,7 +308,10 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
           user: {
             id: "user-123",
             email: "test@example.com",
-            user_metadata: { username: "session-user" },
+            user_metadata: {
+              username: "google-name",
+              avatar_url: "https://lh3.googleusercontent.com/google-avatar",
+            },
           },
         },
       },
@@ -317,11 +325,14 @@ describe("useAuth hook - ユーザー取得ロジック統一", () => {
     // Act
     const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
 
-    // Assert: プロフィール API が未解決でも user.id が確定し、初期化が完了している
+    // Assert: プロフィール API が未解決でも user.id が確定し、初期化が完了している。
+    // OAuth プロバイダー（Google 等）の名前・画像は使わず、暫定ユーザーとして扱う
     await waitFor(() => {
       expect(result.current.isInitializing).toBe(false);
       expect(result.current.user?.id).toBe("user-123");
-      expect(result.current.user?.username).toBe("session-user");
+      expect(result.current.user?.username).toBe("");
+      expect(result.current.user?.profile_image_url).toBeNull();
+      expect(result.current.user?.isProvisional).toBe(true);
     });
 
     // Act: 裏で取得していたフルプロフィールが到着する
@@ -474,5 +485,183 @@ describe("useAuth hook - メール認証", () => {
     } finally {
       globalThis.fetch = originalFetch;
     }
+  });
+});
+
+describe("useAuth hook - 表示用プロフィールのスナップショット", () => {
+  const SNAPSHOT_KEY = "aikinote:profile-snapshot";
+  const aikinoteProfile = {
+    id: "user-123",
+    email: "test@example.com",
+    username: "aikido-taro",
+    profile_image_url: "https://cdn.aikinote.com/avatar.png",
+    dojo_style_name: "合気会",
+    aikido_rank: "初段",
+    full_name: null,
+  };
+  const googleSession = {
+    user: {
+      id: "user-123",
+      email: "test@example.com",
+      user_metadata: {
+        username: "google-name",
+        avatar_url: "https://lh3.googleusercontent.com/google-avatar",
+      },
+    },
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSupabaseClient.auth.onAuthStateChange.mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } },
+    });
+  });
+
+  it("フルプロフィール取得後、次回起動用にスナップショットを保存する", async () => {
+    // Arrange
+    (userApi.fetchUserProfile as Mock).mockResolvedValue(aikinoteProfile);
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session: googleSession },
+      error: null,
+    });
+
+    // Act
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    // Assert
+    await waitFor(() => {
+      expect(result.current.user).toEqual(aikinoteProfile);
+    });
+    const saved = JSON.parse(window.localStorage.getItem(SNAPSHOT_KEY) ?? "{}");
+    expect(saved).toMatchObject({
+      id: "user-123",
+      username: "aikido-taro",
+      profile_image_url: "https://cdn.aikinote.com/avatar.png",
+    });
+    expect(saved).not.toHaveProperty("email");
+  });
+
+  it("スナップショットがあれば、セッション確認前から AikiNote の画像で表示し Google の画像は一度も使わない", async () => {
+    // Arrange: 前回のプロフィールが保存済み。getSession とプロフィール取得は保留
+    window.localStorage.setItem(
+      SNAPSHOT_KEY,
+      JSON.stringify({ ...aikinoteProfile, email: undefined }),
+    );
+    let resolveSession: (value: unknown) => void = () => {};
+    mockSupabaseClient.auth.getSession.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSession = resolve;
+        }),
+    );
+    let resolveProfile: (value: unknown) => void = () => {};
+    (userApi.fetchUserProfile as Mock).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveProfile = resolve;
+        }),
+    );
+    const seenImages = new Set<string | null | undefined>();
+
+    // Act
+    const { result } = renderHook(
+      () => {
+        const auth = useAuth();
+        if (auth.user) seenImages.add(auth.user.profile_image_url);
+        return auth;
+      },
+      { wrapper: Wrapper },
+    );
+
+    // Assert: セッション確認前から user.id とアバターが確定している
+    expect(result.current.user?.id).toBe("user-123");
+    expect(result.current.user?.profile_image_url).toBe(
+      "https://cdn.aikinote.com/avatar.png",
+    );
+    expect(result.current.user?.isProvisional).toBeFalsy();
+
+    // Act: セッション確認とフルプロフィール取得が完了する
+    await act(async () => {
+      resolveSession({ data: { session: googleSession }, error: null });
+    });
+    await act(async () => {
+      resolveProfile(aikinoteProfile);
+    });
+
+    // Assert
+    await waitFor(() => {
+      expect(result.current.user).toEqual(aikinoteProfile);
+    });
+    expect(seenImages).toEqual(
+      new Set(["https://cdn.aikinote.com/avatar.png"]),
+    );
+  });
+
+  it("スナップショットが別ユーザーのものなら使わず、暫定ユーザーとして扱う", async () => {
+    // Arrange
+    window.localStorage.setItem(
+      SNAPSHOT_KEY,
+      JSON.stringify({ ...aikinoteProfile, id: "other-user" }),
+    );
+    (userApi.fetchUserProfile as Mock).mockImplementation(
+      () => new Promise(() => {}),
+    );
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session: googleSession },
+      error: null,
+    });
+
+    // Act
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    // Assert
+    await waitFor(() => {
+      expect(result.current.isInitializing).toBe(false);
+      expect(result.current.user?.id).toBe("user-123");
+    });
+    expect(result.current.user?.isProvisional).toBe(true);
+    expect(result.current.user?.profile_image_url).toBeNull();
+  });
+
+  it("セッションが無い場合はスナップショットを破棄して未ログインにする", async () => {
+    // Arrange
+    window.localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(aikinoteProfile));
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+
+    // Act
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+
+    // Assert
+    await waitFor(() => {
+      expect(result.current.isInitializing).toBe(false);
+      expect(result.current.user).toBeNull();
+    });
+    expect(window.localStorage.getItem(SNAPSHOT_KEY)).toBeNull();
+  });
+
+  it("サインアウトでスナップショットを破棄する", async () => {
+    // Arrange
+    (userApi.fetchUserProfile as Mock).mockResolvedValue(aikinoteProfile);
+    mockSupabaseClient.auth.getSession.mockResolvedValue({
+      data: { session: googleSession },
+      error: null,
+    });
+    mockSupabaseClient.auth.signOut.mockResolvedValue({ error: null });
+    const { result } = renderHook(() => useAuth(), { wrapper: Wrapper });
+    await waitFor(() => {
+      expect(result.current.user).toEqual(aikinoteProfile);
+    });
+
+    // Act
+    await act(async () => {
+      await result.current.signOutUser();
+    });
+
+    // Assert
+    expect(result.current.user).toBeNull();
+    expect(window.localStorage.getItem(SNAPSHOT_KEY)).toBeNull();
   });
 });
