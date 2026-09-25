@@ -41,6 +41,7 @@ import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useDailyLimits } from "@/lib/hooks/useDailyLimits";
+import { invalidateCalendarQueries } from "@/lib/hooks/usePersonalCalendarData";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
@@ -327,6 +328,8 @@ export function SocialPostCreate() {
         // 稽古記録モードは is_public=true でページ + 連動 SocialPost を作成するため、
         // ページ一覧と投稿一覧の両キャッシュを無効化する。
         queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+        // 稽古ページの件数はカレンダーにも表示されるため、月ごとのキャッシュも無効化する
+        void invalidateCalendarQueries(queryClient);
         queryClient.invalidateQueries({ queryKey: ["social-feed"] });
 
         isNavigatingRef.current = true;

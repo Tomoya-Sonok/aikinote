@@ -1,6 +1,7 @@
 "use client";
 
 import { PlusCircle, X } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { MinimalLayout } from "@/components/shared/layouts/MinimalLayout";
@@ -70,6 +71,7 @@ export function PushNotificationSetting({
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
   const [preferences, setPreferences] =
     useState<NotificationPreferences | null>(null);
 
@@ -263,6 +265,8 @@ export function PushNotificationSetting({
         });
       }
 
+      // カレンダーのリマインダー表示（曜日のハイライト）もキャッシュしているので無効化する
+      void queryClient.invalidateQueries({ queryKey: ["reminder-settings"] });
       showToast(t("pushNotification.saved"), "success");
     } catch {
       showToast("保存に失敗しました", "error");

@@ -147,7 +147,7 @@ describe("TagManagement", () => {
       expect(mockGetTags).toHaveBeenCalledTimes(1);
     });
 
-    expect(screen.getByText("立技")).toBeInTheDocument();
+    expect(await screen.findByText("立技")).toBeInTheDocument();
     expect(screen.getByText("座技")).toBeInTheDocument();
     expect(screen.getByText("正面打ち")).toBeInTheDocument();
     expect(screen.getByText("四方投げ")).toBeInTheDocument();

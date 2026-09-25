@@ -1,6 +1,7 @@
 "use client";
 
 import { PencilSimple, Trash, X } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import {
   type DragEvent,
@@ -22,14 +23,18 @@ import {
   createTag,
   deleteCategory,
   deleteTag,
-  getCategories,
-  getTags,
   type UpdateTagOrderPayload,
   updateCategory,
   updateTagOrder,
 } from "@/lib/api/client";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
+import {
+  fetchTrainingCategories,
+  fetchTrainingTags,
+  trainingCategoriesQueryKey,
+  trainingTagsQueryKey,
+} from "@/lib/hooks/useTagManagement";
 import type { UserCategory } from "@/types/category";
 import styles from "./TagManagement.module.css";
 
@@ -112,7 +117,6 @@ export function TagManagement({ locale }: TagManagementProps) {
   const [categories, setCategories] = useState<UserCategory[]>([]);
   const [tagGroups, setTagGroups] = useState<TagGroupMap>({});
   const [initialOrder, setInitialOrder] = useState<OrderMap>({});
-  const [isLoading, setIsLoading] = useState(true);
   const [newTagInputs, setNewTagInputs] = useState<Record<string, string>>({});
   const [submittingCategory, setSubmittingCategory] = useState<string | null>(
     null,
@@ -152,46 +156,65 @@ export function TagManagement({ locale }: TagManagementProps) {
     [categories],
   );
 
-  const fetchData = useCallback(async () => {
-    if (!user?.id) return;
+  // カテゴリ・タグは稽古ページ作成画面等と同じ TanStack Query キャッシュから読む。
+  // 2 回目以降はキャッシュから即表示し、裏で最新化する（開くたびにローダーを出さない）
+  const queryClient = useQueryClient();
+  const categoriesQuery = useQuery({
+    queryKey: trainingCategoriesQueryKey(user?.id),
+    enabled: !!user?.id,
+    queryFn: () => fetchTrainingCategories(user?.id as string),
+  });
+  const tagsQuery = useQuery({
+    queryKey: trainingTagsQueryKey(user?.id),
+    enabled: !!user?.id,
+    queryFn: () => fetchTrainingTags<TagItem>(user?.id as string),
+  });
+  const fetchError = categoriesQuery.error ?? tagsQuery.error;
+  const isLoading = (!categoriesQuery.data || !tagsQuery.data) && !fetchError;
 
-    setIsLoading(true);
-    try {
-      const [categoriesResponse, tagsResponse] = await Promise.all([
-        getCategories(user.id),
-        getTags(user.id),
-      ]);
-
-      let catNames: string[] = [];
-      if (
-        categoriesResponse?.success &&
-        "data" in categoriesResponse &&
-        categoriesResponse.data
-      ) {
-        setCategories(categoriesResponse.data);
-        catNames = categoriesResponse.data.map((c) => c.name);
-      }
-
-      if (
-        tagsResponse.success &&
-        "data" in tagsResponse &&
-        Array.isArray(tagsResponse.data)
-      ) {
-        const groups = buildGroups(tagsResponse.data as TagItem[], catNames);
-        setTagGroups(groups);
-        setInitialOrder(extractOrders(groups));
-      }
-    } catch (error) {
-      console.error("データ取得エラー:", error);
-      showToast(t("tagManagement.fetchFailed"), "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [showToast, t, user?.id]);
+  // 取得データが変わったときだけ編集用の state に反映する
+  useEffect(() => {
+    if (!categoriesQuery.data || !tagsQuery.data) return;
+    const catNames = categoriesQuery.data.map((c) => c.name);
+    const groups = buildGroups(tagsQuery.data as TagItem[], catNames);
+    setCategories(categoriesQuery.data);
+    setTagGroups(groups);
+    setInitialOrder(extractOrders(groups));
+  }, [categoriesQuery.data, tagsQuery.data]);
 
   useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+    if (!fetchError) return;
+    console.error("データ取得エラー:", fetchError);
+    showToast(t("tagManagement.fetchFailed"), "error");
+  }, [fetchError, showToast, t]);
+
+  // カテゴリの名前変更・削除後は、サーバーの状態を取り直して編集用 state を作り直す
+  const refreshFromServer = useCallback(
+    () =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: trainingCategoriesQueryKey(user?.id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: trainingTagsQueryKey(user?.id),
+        }),
+      ]),
+    [queryClient, user?.id],
+  );
+
+  // タグの追加・削除・並べ替え後は、キャッシュを古い扱いにするだけにする。
+  // ここで再取得すると、他カテゴリの保存前の並べ替えが編集用 state ごと上書きされるため。
+  // 稽古ページ作成画面などを次に開いたときに最新化される。
+  const markTagCachesStale = useCallback(() => {
+    void queryClient.invalidateQueries({
+      queryKey: trainingCategoriesQueryKey(user?.id),
+      refetchType: "none",
+    });
+    void queryClient.invalidateQueries({
+      queryKey: trainingTagsQueryKey(user?.id),
+      refetchType: "none",
+    });
+  }, [queryClient, user?.id]);
 
   const hasOrderChanged = useCallback(
     (category: string) => {
@@ -280,6 +303,7 @@ export function TagManagement({ locale }: TagManagementProps) {
           return nextGroups;
         });
         handleResetInput(category);
+        markTagCachesStale();
       } else {
         showToast(
           ("error" in response && response.error) ||
@@ -316,6 +340,7 @@ export function TagManagement({ locale }: TagManagementProps) {
           upsertInitialOrder(nextGroups, category);
           return nextGroups;
         });
+        markTagCachesStale();
       } else {
         showToast(
           ("error" in response && response.error) ||
@@ -543,6 +568,8 @@ export function TagManagement({ locale }: TagManagementProps) {
         const groups = buildGroups(response.data as TagItem[], categoryNames);
         setTagGroups(groups);
         setInitialOrder(extractOrders(groups));
+        // 保存 API は全カテゴリの最新タグを返すので、共有キャッシュもそのまま更新する
+        queryClient.setQueryData(trainingTagsQueryKey(user.id), response.data);
       } else {
         showToast(
           ("error" in response && response.error) ||
@@ -586,6 +613,7 @@ export function TagManagement({ locale }: TagManagementProps) {
           [(response.data as UserCategory).name]: [],
         }));
         setNewCategoryInput("");
+        markTagCachesStale();
         showToast(t("tagManagement.categoryCreateSuccess"), "success");
       } else {
         showToast(
@@ -622,7 +650,7 @@ export function TagManagement({ locale }: TagManagementProps) {
         name: trimmed,
       });
       if (response.success) {
-        await fetchData();
+        await refreshFromServer();
         showToast(t("tagManagement.categoryUpdateSuccess"), "success");
       } else {
         showToast(
@@ -652,7 +680,7 @@ export function TagManagement({ locale }: TagManagementProps) {
     try {
       const response = await deleteCategory(deleteCategoryTarget.id, user.id);
       if (response.success) {
-        await fetchData();
+        await refreshFromServer();
         showToast(t("tagManagement.categoryDeleteSuccess"), "success");
       } else {
         showToast(

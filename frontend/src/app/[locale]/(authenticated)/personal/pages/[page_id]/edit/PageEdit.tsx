@@ -28,6 +28,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { usePageDetailData } from "@/lib/hooks/usePageDetailData";
+import { invalidateCalendarQueries } from "@/lib/hooks/usePersonalCalendarData";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useTrainingTags } from "@/lib/hooks/useTrainingTags";
 import { useRouter } from "@/lib/i18n/routing";
@@ -261,6 +262,8 @@ export function PageEdit() {
           queryKey: ["page-detail", pageId],
         });
         queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+        // 稽古ページの件数はカレンダーにも表示されるため、月ごとのキャッシュも無効化する
+        void invalidateCalendarQueries(queryClient);
         // 公開ページの編集は連動 SocialPost にも反映されるため、投稿一覧も無効化する
         queryClient.invalidateQueries({ queryKey: ["social-feed"] });
 

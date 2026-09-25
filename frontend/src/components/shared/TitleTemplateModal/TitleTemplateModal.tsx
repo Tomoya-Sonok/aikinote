@@ -1,6 +1,7 @@
 "use client";
 
 import { CaretDown, CaretRight, Trash } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import {
   type KeyboardEvent,
@@ -31,6 +32,9 @@ import styles from "./TitleTemplateModal.module.css";
 
 const MAX_TEMPLATES = 5;
 
+export const titleTemplatesQueryKey = (userId: string | undefined) =>
+  ["title-templates", userId] as const;
+
 interface TitleTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -50,9 +54,21 @@ export function TitleTemplateModal({
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // テンプレート一覧
-  const [templates, setTemplates] = useState<TitleTemplate[]>([]);
-  const [loading, setLoading] = useState(false);
+  // テンプレート一覧。キャッシュがあれば開いた瞬間に表示し、開くたびに裏で最新化する
+  const queryClient = useQueryClient();
+  const templatesKey = titleTemplatesQueryKey(user?.id);
+  const templatesQuery = useQuery({
+    queryKey: templatesKey,
+    enabled: isOpen && !!user?.id,
+    refetchOnMount: "always",
+    queryFn: () => getTitleTemplates(user?.id as string),
+  });
+  const templates: TitleTemplate[] = templatesQuery.data ?? [];
+  const loading = templatesQuery.isLoading;
+  const setTemplates = (updater: (prev: TitleTemplate[]) => TitleTemplate[]) =>
+    queryClient.setQueryData<TitleTemplate[]>(templatesKey, (prev) =>
+      updater(prev ?? []),
+    );
 
   const [selectedId, setSelectedId] = useState<string>("default");
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -68,29 +84,15 @@ export function TitleTemplateModal({
     [dateOverride],
   );
 
-  const fetchTemplates = useCallback(async () => {
-    if (!user?.id) return;
-    setLoading(true);
-    try {
-      const data = await getTitleTemplates(user.id);
-      setTemplates(data);
-    } catch {
-      // エラーは静かに無視
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id]);
-
   useEffect(() => {
     if (isOpen && user?.id) {
-      fetchTemplates();
       setSelectedId("default");
       setIsAddOpen(false);
       setNewDateFormat("yyyy-MM-dd");
       setNewTemplateName("");
       setAddError("");
     }
-  }, [isOpen, user?.id, fetchTemplates]);
+  }, [isOpen, user?.id]);
 
   useEffect(() => {
     if (isOpen) {

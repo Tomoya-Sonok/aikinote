@@ -32,6 +32,7 @@ import { useAttachmentManagement } from "@/lib/hooks/useAttachmentManagement";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useBeforeUnload } from "@/lib/hooks/useBeforeUnload";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
+import { invalidateCalendarQueries } from "@/lib/hooks/usePersonalCalendarData";
 import { useTagManagement } from "@/lib/hooks/useTagManagement";
 import { useRouter } from "@/lib/i18n/routing";
 import { formatToLocalDateString } from "@/lib/utils/dateUtils";
@@ -249,6 +250,8 @@ export function PageCreate() {
         // staleTime に関係なく強制 refetch されるため、staleTime 延長による
         // 表示遅延（PR #273）の回帰を防ぐ。
         queryClient.invalidateQueries({ queryKey: ["training-pages"] });
+        // 稽古ページの件数はカレンダーにも表示されるため、月ごとのキャッシュも無効化する
+        void invalidateCalendarQueries(queryClient);
 
         isNavigatingRef.current = true;
         router.replace(returnUrl);
