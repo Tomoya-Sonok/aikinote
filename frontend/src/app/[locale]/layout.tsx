@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, setRequestLocale } from "next-intl/server";
 import { GlobalFetchIndicator } from "@/components/shared/GlobalFetchIndicator/GlobalFetchIndicator";
 import { OfflineBanner } from "@/components/shared/OfflineBanner/OfflineBanner";
 import { FontSizeProvider } from "@/components/shared/providers/FontSizeProvider";
@@ -28,6 +28,11 @@ export default async function LocaleLayout({
   if (!isSupportedLocale) {
     notFound();
   }
+
+  // next-intl がリクエストヘッダーからロケールを読まないようにする。
+  // ヘッダーを読むとこのレイアウト以下が動的レンダリング扱いになり、
+  // 初回表示の静的シェルが全画面ローダーだけになってしまう。
+  setRequestLocale(locale);
 
   const messages = await getMessages({ locale });
 

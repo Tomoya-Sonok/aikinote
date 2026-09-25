@@ -402,7 +402,7 @@ if (!user) return <Redirect to="/login" />; // 確定後に判定
 | `frontend/src/lib/supabase/server.ts` | サーバーサイド用 Supabase クライアント |
 | `frontend/src/lib/utils/returnTo.ts` | 認証後リダイレクト（returnTo）ユーティリティ |
 | `frontend/src/lib/hooks/useAuth.tsx` | 認証フック / Context Provider（ログイン・ログアウト・OAuth・3 秒タイムアウト） |
-| `frontend/src/components/shared/auth/AuthGate.tsx` | 認証必須ページ用ゲート。未認証なら `/login` へリダイレクト |
+| `frontend/src/components/shared/auth/AuthGate.tsx` | 認証必須ページ用ゲート。未認証なら `/login` へリダイレクト。認証チェックは独立した Suspense 内で行い、ページの中身の描画は待たせない（中身は `fallback` 付きの Suspense で包み、ヘッダー・タブを静的シェルに残す） |
 | `frontend/src/components/shared/auth/GuestGate.tsx` | 公開認証ページ用ゲート。認証済みなら `/personal/pages` へリダイレクト。冒頭の `connection()` で PPR の静的シェル化を抑止 |
 | `frontend/src/server/trpc/index.ts` | tRPC `authenticatedProcedure` — `getUser()` 検証 + 自前 JWT 発行 |
 | `frontend/src/app/auth/callback/route.ts` | OAuth コールバック（セッション交換 + returnTo リダイレクト） |

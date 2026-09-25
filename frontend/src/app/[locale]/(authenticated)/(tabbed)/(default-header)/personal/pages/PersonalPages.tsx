@@ -147,6 +147,14 @@ export function PersonalPages() {
     [router],
   );
 
+  // 指がカードに触れた時点（click より 100ms 前後早い）で詳細画面を先読みし、遷移の待ちを短くする
+  const handlePressTraining = useCallback(
+    (id: string) => {
+      router.prefetch(`/personal/pages/${id}`);
+    },
+    [router],
+  );
+
   const SortIcon =
     sortOrder === "newest" ? SortDescendingIcon : SortAscendingIcon;
   const CaretIcon = isSortDropdownOpen ? CaretUpIcon : CaretDownIcon;
@@ -320,6 +328,7 @@ export function PersonalPages() {
                 key={training.id}
                 {...training}
                 onClick={() => handleViewTraining(training.id)}
+                onPressStart={() => handlePressTraining(training.id)}
                 onEdit={() => handleEditTraining(training.id)}
                 onDelete={() => openDeleteDialog(training.id)}
               />

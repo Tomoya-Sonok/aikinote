@@ -580,6 +580,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
 
       showToast(t("logoutSuccess"), "success", 3000, "", toastStyle);
+      // ログイン中に表示したページをルーターキャッシュから破棄する
+      router.refresh();
       router.push("/");
     } catch (err) {
       console.warn(
@@ -598,6 +600,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             boxSizing: "border-box",
           };
       showToast(t("logoutSuccess"), "success", 3000, "", toastStyle);
+      // ログイン中に表示したページをルーターキャッシュから破棄する
+      router.refresh();
       router.push("/");
       if (err instanceof Error && err.message.includes("タイムアウト")) {
         // タイムアウトの場合は特にログ出力しない

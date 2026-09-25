@@ -177,6 +177,9 @@ export const ProfileEdit: FC<ProfileEditProps> = ({
       }
 
       await refreshUser();
+      // マイページ・プロフィール編集はサーバーで描画したプロフィールをルーターキャッシュに持つため、
+      // 保存後はキャッシュを破棄して最新の内容を表示させる（next.config.js の staleTimes 参照）
+      router.refresh();
 
       isNavigatingRef.current = true;
       if (from === "social") {
