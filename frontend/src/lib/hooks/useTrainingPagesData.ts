@@ -83,7 +83,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
     number
   >({
     queryKey: trainingPagesQueryKey(user?.id, normalizedOptions),
-    enabled: !authLoading && !!user?.id,
+    enabled: !!user?.id,
     // 検索ワード・タグ・日付レンジ等の filter 変更で queryKey が変わるたびにスケルトンへ戻るのを防ぐため、
     // 新キー用のデータが取れるまで前のデータを表示（TanStack Query v5 の keepPreviousData 相当）
     placeholderData: keepPreviousData,
@@ -253,7 +253,7 @@ export function useTrainingPagesData(options: FetchOptions = {}) {
   );
 
   return {
-    loading: authLoading || pagesQuery.isLoading,
+    loading: (authLoading && !user) || pagesQuery.isLoading,
     allTrainingPageData,
     totalCount,
     unfilteredTotalCount,

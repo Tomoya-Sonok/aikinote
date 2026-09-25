@@ -73,7 +73,7 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
     number
   >({
     queryKey: socialFeedQueryKey(user?.id, tab),
-    enabled: !authLoading && !!user?.id,
+    enabled: !!user?.id,
     initialPageParam: 0,
     queryFn: async ({ pageParam }) => {
       if (!user?.id) return { posts: [], next_offset: null };
@@ -161,7 +161,7 @@ export function useSocialFeed(tab: SocialTab): UseSocialFeedResult {
 
   return {
     posts,
-    isLoading: authLoading || query.isLoading,
+    isLoading: (authLoading && !user) || query.isLoading,
     isLoadingMore: query.isFetchingNextPage,
     hasMore,
     isRefetchError: query.isError && !!query.data,

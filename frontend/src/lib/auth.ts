@@ -25,6 +25,11 @@ export type UserSession = {
   gender?: string | null;
   bio?: string | null;
   training_start_date?: string | null;
+  /**
+   * フルプロフィール取得前の暫定ユーザー（前回のスナップショットも無い状態）。
+   * アバター・ユーザー名が未確定なので、ヘッダー等はスケルトンで表示する。
+   */
+  isProvisional?: boolean;
 };
 
 export async function signUp(credentials: SignUpCredentials) {

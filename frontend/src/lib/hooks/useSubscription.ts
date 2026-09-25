@@ -28,7 +28,7 @@ export function useSubscription() {
 
   const query = useQuery<SubscriptionStatusResult, Error>({
     queryKey: subscriptionQueryKey(user?.id),
-    enabled: !authLoading && !!user?.id,
+    enabled: !!user?.id,
     queryFn: async () => {
       if (shouldSync()) {
         await syncSubscription();
@@ -38,7 +38,7 @@ export function useSubscription() {
   });
 
   return {
-    loading: authLoading || query.isLoading,
+    loading: (authLoading && !user) || query.isLoading,
     isPremium: query.data?.is_premium ?? false,
     subscription: query.data ?? null,
     refetch: query.refetch,

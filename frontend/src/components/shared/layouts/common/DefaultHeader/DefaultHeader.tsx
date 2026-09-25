@@ -186,7 +186,11 @@ export const DefaultHeader: FC<DefaultHeaderProps> = ({
               aria-label="プロフィールを表示"
               aria-expanded={isProfileCardOpen}
             >
-              {user.profile_image_url ? (
+              {user.isProvisional ? (
+                // プロフィール取得待ち。仮のアイコンや OAuth プロバイダーの画像を出すと
+                // 本来の画像への差し替えがちらつくため、中立の丸だけを出す
+                <span className={styles.avatarPlaceholder} aria-hidden="true" />
+              ) : user.profile_image_url ? (
                 <Image
                   src={user.profile_image_url}
                   alt={`${user.username}のアイコン`}

@@ -10,6 +10,8 @@ interface ProfileImageProps {
   size?: "small" | "medium" | "large";
   className?: string;
   priority?: boolean;
+  /** 画像がまだ確定していない（読み込み中）とき、アイコンも画像も出さず背景の丸だけを表示する */
+  placeholder?: boolean;
 }
 
 const SIZES_MAP = {
@@ -24,13 +26,14 @@ export const ProfileImage: FC<ProfileImageProps> = ({
   size = "medium",
   className = "",
   priority = false,
+  placeholder = false,
 }) => {
   const t = useTranslations();
   const defaultAlt = alt || t("components.profileImage");
 
   return (
     <div className={`${styles.container} ${styles[size]} ${className}`}>
-      {src ? (
+      {placeholder ? null : src ? (
         <Image
           src={src}
           alt={defaultAlt}
