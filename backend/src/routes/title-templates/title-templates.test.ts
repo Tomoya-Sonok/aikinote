@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authenticateTestRequestsAs } from "../../test-utils/auth.js";
 import titleTemplatesRoute from "./index.js";
 
 const mockGetTitleTemplates = vi.fn();
@@ -14,6 +15,7 @@ vi.mock("../../lib/supabase.js", () => ({
 
 const createTestApp = () => {
   const app = new Hono();
+  authenticateTestRequestsAs(app, "user-1");
   app.route("/api/title-templates", titleTemplatesRoute);
   return app;
 };

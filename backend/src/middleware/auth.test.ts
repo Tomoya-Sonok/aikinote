@@ -1,7 +1,13 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { generateToken } from "../lib/jwt.js";
-import { authMiddleware, premiumMiddleware } from "./auth.js";
+import {
+  authMiddleware,
+  ownerAuthMiddleware,
+  premiumMiddleware,
+} from "./auth.js";
 
 // Supabase モック
 const mockSupabase = {
@@ -177,5 +183,115 @@ describe("premiumMiddleware", () => {
     expect(res.status).toBe(403);
     const body = await res.json();
     expect(body.error).toBe("Premium プランが必要です");
+  });
+});
+
+/** 所有者チェック付きルートを持つテスト用アプリ */
+const createOwnerApp = () => {
+  const app = new Hono();
+  app.use("/owned", ownerAuthMiddleware);
+  app.get("/owned", (c) =>
+    c.json({ success: true, userId: c.get("userId" as never) }),
+  );
+  app.post(
+    "/owned",
+    zValidator("json", z.object({ user_id: z.string(), title: z.string() })),
+    (c) => c.json({ success: true, body: c.req.valid("json") }),
+  );
+  return app;
+};
+
+const bearer = async (userId: string) =>
+  `Bearer ${await generateToken({ userId }, TEST_ENV)}`;
+
+describe("ownerAuthMiddleware", () => {
+  it("Authorization ヘッダーが無い場合は401を返す", async () => {
+    // Arrange
+    const app = createOwnerApp();
+
+    // Act
+    const res = await app.request("/owned?user_id=user-1");
+
+    // Assert
+    expect(res.status).toBe(401);
+  });
+
+  it("不正なトークンの場合は401を返す", async () => {
+    // Arrange
+    const app = createOwnerApp();
+
+    // Act
+    const res = await app.request("/owned?user_id=user-1", {
+      headers: { Authorization: "Bearer invalid-token" },
+    });
+
+    // Assert
+    expect(res.status).toBe(401);
+  });
+
+  it("クエリの user_id がトークンのユーザーと異なる場合は403を返す", async () => {
+    // Arrange
+    const app = createOwnerApp();
+
+    // Act
+    const res = await app.request("/owned?user_id=other-user", {
+      headers: { Authorization: await bearer("user-1") },
+    });
+
+    // Assert
+    expect(res.status).toBe(403);
+  });
+
+  it("JSON ボディの user_id がトークンのユーザーと異なる場合は403を返す", async () => {
+    // Arrange
+    const app = createOwnerApp();
+
+    // Act
+    const res = await app.request("/owned", {
+      method: "POST",
+      headers: {
+        Authorization: await bearer("user-1"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_id: "other-user", title: "稽古" }),
+    });
+
+    // Assert
+    expect(res.status).toBe(403);
+  });
+
+  it("クエリの user_id が本人の場合は通し、userId をセットする", async () => {
+    // Arrange
+    const app = createOwnerApp();
+
+    // Act
+    const res = await app.request("/owned?user_id=user-1", {
+      headers: { Authorization: await bearer("user-1") },
+    });
+
+    // Assert
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.userId).toBe("user-1");
+  });
+
+  it("JSON ボディの user_id が本人の場合は通し、後続のバリデーターでボディを読める", async () => {
+    // Arrange
+    const app = createOwnerApp();
+
+    // Act
+    const res = await app.request("/owned", {
+      method: "POST",
+      headers: {
+        Authorization: await bearer("user-1"),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_id: "user-1", title: "稽古" }),
+    });
+
+    // Assert
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.body).toEqual({ user_id: "user-1", title: "稽古" });
   });
 });

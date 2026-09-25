@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as supabaseModule from "../../lib/supabase.js";
+import { authenticateTestRequestsAs } from "../../test-utils/auth.js";
 import trainingDatesRoute from "./index.js";
 
 describe("稽古参加日API", () => {
@@ -8,6 +9,7 @@ describe("稽古参加日API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "user-1");
     app.route("/", trainingDatesRoute);
     vi.clearAllMocks();
   });

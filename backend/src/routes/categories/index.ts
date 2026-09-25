@@ -9,8 +9,13 @@ import {
   updateUserCategory,
 } from "../../lib/supabase.js";
 import { type ApiResponse } from "../../lib/validation.js";
+import { ownerAuthMiddleware } from "../../middleware/auth.js";
 
 const app = new Hono();
+
+// 所有者本人のトークンでのみ操作できるようにする（user_id とトークンの一致を検証）
+app.use("/", ownerAuthMiddleware);
+app.use("/:id", ownerAuthMiddleware);
 
 // カテゴリの型定義
 export const categorySchema = z.object({

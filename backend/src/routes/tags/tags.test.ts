@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as supabaseModule from "../../lib/supabase.js";
+import { authenticateTestRequestsAs } from "../../test-utils/auth.js";
 import tagsRoute from "./index.js";
 
 describe("タグ一覧取得API", () => {
@@ -8,6 +9,7 @@ describe("タグ一覧取得API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "test-user-id");
     app.route("/", tagsRoute);
     vi.clearAllMocks();
   });
@@ -153,6 +155,7 @@ describe("タグ作成API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "test-user-id");
     app.route("/", tagsRoute);
     vi.clearAllMocks();
     vi.spyOn(supabaseModule, "getUserCategories").mockResolvedValue(
@@ -369,6 +372,7 @@ describe("タグ削除API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "user-id");
     app.route("/", tagsRoute);
     vi.clearAllMocks();
   });
@@ -460,6 +464,7 @@ describe("タグ並び順更新API", () => {
 
   beforeEach(() => {
     app = new Hono();
+    authenticateTestRequestsAs(app, "user-id");
     app.route("/", tagsRoute);
     vi.clearAllMocks();
   });
