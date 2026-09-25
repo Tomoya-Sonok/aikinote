@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/shared/Button/Button";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog/ConfirmDialog";
 import { Loader } from "@/components/shared/Loader/Loader";
@@ -13,7 +14,11 @@ import {
   getBlockedUsers,
   unblockUser,
 } from "@/lib/api/client";
+import { useAuth } from "@/lib/hooks/useAuth";
 import styles from "./BlockedUsersSetting.module.css";
+
+export const blockedUsersQueryKey = (userId: string | undefined) =>
+  ["blocked-users", userId] as const;
 
 interface BlockedUsersSettingProps {
   locale: string;
@@ -22,40 +27,44 @@ interface BlockedUsersSettingProps {
 export function BlockedUsersSetting({ locale }: BlockedUsersSettingProps) {
   const t = useTranslations();
   const { showToast } = useToast();
-  const [items, setItems] = useState<BlockedUserListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const listKey = blockedUsersQueryKey(user?.id);
+  // キャッシュがあれば即表示し、他の画面でのブロックも反映できるよう開くたびに裏で取り直す
+  const listQuery = useQuery({
+    queryKey: listKey,
+    enabled: !!user?.id,
+    refetchOnMount: "always",
+    queryFn: getBlockedUsers,
+  });
+  const items: BlockedUserListItem[] = listQuery.data ?? [];
+  const isLoading = !listQuery.data && !listQuery.error;
   const [pendingUnblock, setPendingUnblock] =
     useState<BlockedUserListItem | null>(null);
   const [isUnblocking, setIsUnblocking] = useState(false);
 
-  const fetchList = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const data = await getBlockedUsers();
-      setItems(data);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchList();
-  }, [fetchList]);
-
   const handleUnblockConfirm = useCallback(async () => {
     if (!pendingUnblock) return;
     setIsUnblocking(true);
+    const previous = queryClient.getQueryData<BlockedUserListItem[]>(listKey);
+    // API の完了を待たずに一覧から外す（失敗したら元に戻す）
+    queryClient.setQueryData<BlockedUserListItem[]>(listKey, (prev) =>
+      (prev ?? []).filter((item) => item.id !== pendingUnblock.id),
+    );
     try {
       await unblockUser(pendingUnblock.blocked_user_id);
+      // 解除したユーザーの投稿がフィード・プロフィールに再び出るよう、キャッシュを無効化する
+      void queryClient.invalidateQueries({ queryKey: ["social-feed"] });
+      void queryClient.invalidateQueries({ queryKey: ["social-profile"] });
       showToast(t("socialPosts.unblockSuccess"), "success");
       setPendingUnblock(null);
-      await fetchList();
     } catch {
+      if (previous) queryClient.setQueryData(listKey, previous);
       showToast(t("socialPosts.unblockFailed"), "error");
     } finally {
       setIsUnblocking(false);
     }
-  }, [pendingUnblock, fetchList, showToast, t]);
+  }, [pendingUnblock, queryClient, listKey, showToast, t]);
 
   return (
     <MinimalLayout

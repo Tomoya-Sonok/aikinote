@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "@phosphor-icons/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useId, useState } from "react";
@@ -30,6 +31,50 @@ interface DojoEntry {
   dojo_name: string;
 }
 
+type PublicitySettingData = {
+  value: PublicityValue;
+  userDojo: DojoEntry | null;
+  selectedDojos: DojoEntry[];
+};
+
+export const publicitySettingQueryKey = (userId: string | undefined) =>
+  ["publicity-setting", userId] as const;
+
+const fetchPublicitySetting = async (
+  userId: string,
+): Promise<PublicitySettingData> => {
+  const [userResult, dojosResult] = await Promise.all([
+    getUserInfo(userId),
+    getPublicityDojos(userId),
+  ]);
+  const setting = userResult.success
+    ? userResult.data?.publicity_setting
+    : null;
+  const hasDojo =
+    userResult.success &&
+    userResult.data?.dojo_style_id &&
+    userResult.data?.dojo_style_name;
+  return {
+    value:
+      setting === "public" || setting === "closed" || setting === "private"
+        ? setting
+        : "public",
+    userDojo: hasDojo
+      ? {
+          id: userResult.data?.dojo_style_id as string,
+          dojo_name: userResult.data?.dojo_style_name as string,
+        }
+      : null,
+    selectedDojos:
+      dojosResult.success && dojosResult.data
+        ? dojosResult.data.map((d) => ({
+            id: d.dojo_style_id,
+            dojo_name: d.dojo_name,
+          }))
+        : [],
+  };
+};
+
 interface PublicitySettingProps {
   locale: string;
 }
@@ -42,7 +87,6 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
   const groupId = useId();
 
   const [value, setValue] = useState<PublicityValue>("public");
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   // ユーザーの所属道場
@@ -53,51 +97,29 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
   const [dojoSearchValue, setDojoSearchValue] = useState("");
   const [dojoSearchId, setDojoSearchId] = useState<string | null>(null);
 
+  // 設定はキャッシュし、2 回目以降は開いた瞬間にフォームを出す（裏で最新化）
+  const queryClient = useQueryClient();
+  const settingQuery = useQuery({
+    queryKey: publicitySettingQueryKey(user?.id),
+    enabled: !!user?.id,
+    queryFn: () => fetchPublicitySetting(user?.id as string),
+  });
+  const isLoading = !settingQuery.data && !settingQuery.error;
+
+  // 取得データが変わったときだけフォームに反映する
   useEffect(() => {
-    if (!user?.id) return;
-    const fetchData = async () => {
-      try {
-        const [userResult, dojosResult] = await Promise.all([
-          getUserInfo(user.id),
-          getPublicityDojos(user.id),
-        ]);
+    const data = settingQuery.data;
+    if (!data) return;
+    setValue(data.value);
+    setUserDojo(data.userDojo);
+    setSelectedDojos(data.selectedDojos);
+  }, [settingQuery.data]);
 
-        if (userResult.success && userResult.data) {
-          const setting = userResult.data.publicity_setting;
-          if (
-            setting === "public" ||
-            setting === "closed" ||
-            setting === "private"
-          ) {
-            setValue(setting);
-          }
-          if (
-            userResult.data.dojo_style_id &&
-            userResult.data.dojo_style_name
-          ) {
-            setUserDojo({
-              id: userResult.data.dojo_style_id,
-              dojo_name: userResult.data.dojo_style_name,
-            });
-          }
-        }
-
-        if (dojosResult.success && dojosResult.data) {
-          setSelectedDojos(
-            dojosResult.data.map((d) => ({
-              id: d.dojo_style_id,
-              dojo_name: d.dojo_name,
-            })),
-          );
-        }
-      } catch (error) {
-        console.error("公開範囲設定取得エラー:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [user?.id]);
+  useEffect(() => {
+    if (settingQuery.error) {
+      console.error("公開範囲設定取得エラー:", settingQuery.error);
+    }
+  }, [settingQuery.error]);
 
   // "closed" に切り替え時、所属道場がまだ含まれていなければ追加
   const handleValueChange = (newValue: PublicityValue) => {
@@ -143,7 +165,17 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
       if (!result.success) {
         throw new Error(t("publicitySetting.saveFailed"));
       }
+      queryClient.setQueryData<PublicitySettingData>(
+        publicitySettingQueryKey(user.id),
+        {
+          value,
+          userDojo,
+          selectedDojos: value === "closed" ? selectedDojos : [],
+        },
+      );
       showToast(t("publicitySetting.saved"), "success");
+      // マイページはサーバーで描画したプロフィールをルーターキャッシュに持つため破棄してから戻る
+      router.refresh();
       router.push(`/${locale}/mypage`);
     } catch (error) {
       console.error("公開範囲設定更新エラー:", error);
@@ -151,7 +183,18 @@ export function PublicitySetting({ locale }: PublicitySettingProps) {
     } finally {
       setIsSaving(false);
     }
-  }, [user?.id, value, selectedDojos, isSaving, showToast, t, router, locale]);
+  }, [
+    user?.id,
+    value,
+    userDojo,
+    selectedDojos,
+    isSaving,
+    showToast,
+    t,
+    router,
+    locale,
+    queryClient,
+  ]);
 
   return (
     <MinimalLayout
