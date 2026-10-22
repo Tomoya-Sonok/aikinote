@@ -83,7 +83,7 @@
 
 ### 0. Prerequisites
 
-- **Node.js** 22.22.0
+- **Node.js** 22.23.4
 - **pnpm** 8.15.4
 - **Docker** and **Docker Compose**
 - **Supabase account**
