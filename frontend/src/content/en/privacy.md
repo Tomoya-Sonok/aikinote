@@ -1,6 +1,6 @@
 # AikiNote Privacy Policy
 
-Last updated: April 2, 2026
+Last updated: November 17, 2026
 
 AikiNote ("the Service") values the protection of users' personal information. This Privacy Policy sets forth how we handle personal information in the Service.
 
@@ -17,8 +17,9 @@ The Service collects the following information.
 ### 1.2 Automatically Collected Information
 
 - **Access logs**: IP address, browser type, access date and time
-- **Cookie information**: used for session management and authentication
+- **Cookie information**: used for session management and authentication, and for usage measurement (Microsoft Clarity)
 - **Usage data**: page views, feature usage frequency, search keywords used within the service, etc. (collected as non-personally-identifiable statistical data through the analytics tool "Umami". Search keywords are used solely for trend analysis to improve our service and are not used to identify individuals)
+- **Interaction data**: clicks and taps, scrolling, page transitions and other interactions, as well as recordings that reproduce on-screen activity (session replay). Collected through the measurement tool "Microsoft Clarity" to improve the user experience (see "7. Use of Microsoft Clarity" for details)
 
 ## 2. Purpose of Use
 
@@ -30,6 +31,7 @@ The collected information is used for the following purposes:
 4. Sending notices regarding the Service
 5. Preventing unauthorized activities and ensuring security
 6. Creation of statistical data and analysis of search trends and usage patterns (in a non-personally-identifiable manner, for the purpose of service improvement)
+7. Evaluating the usability of screens and identifying points where users have difficulty (for the purpose of improving the user experience)
 
 ## 3. Sharing and Disclosure
 
@@ -49,7 +51,7 @@ The Service will not provide users' personal information to third parties except
 
 ## 5. Use of Cookies
 
-The Service uses cookies for session management and authentication. You may disable cookies through your browser settings, but some features of the Service may become unavailable.
+The Service uses cookies for session management and authentication. In addition, Microsoft Clarity sets first-party and third-party cookies for usage measurement. You may disable cookies through your browser settings, but some features of the Service may become unavailable.
 
 ## 6. External Services
 
@@ -60,6 +62,7 @@ The Service uses the following external services for its provision and operation
 | **Supabase** | Supabase, Inc. | User authentication and database management |
 | **AWS S3 / CloudFront** | Amazon Web Services, Inc. | Storage and delivery of image and video data |
 | **Umami** | Umami Software, Inc. | Analytics (privacy-focused usage analysis without cookies) |
+| **Microsoft Clarity** | Microsoft Corporation | Usage measurement to improve the user experience (behavioral metrics, heatmaps, and session replay; uses cookies) |
 | **YouTube API** | Google LLC | Retrieving and displaying preview information (OGP) for YouTube video URLs entered by users |
 | **Google Authentication** | Google LLC | Social login functionality |
 | **Resend** | Resend, Inc. | Sending transactional emails (verification emails, password resets, etc.) |
@@ -67,7 +70,17 @@ The Service uses the following external services for its provision and operation
 
 Only the minimum information necessary for the operation of the Service is provided to these external services, and they are managed under appropriate contracts and configurations.
 
-## 7. User Rights
+## 7. Use of Microsoft Clarity
+
+To improve the user experience, the Service uses "Microsoft Clarity", a measurement tool provided by Microsoft Corporation.
+
+1. **What is collected**: Microsoft Clarity captures how you use and interact with the Service through behavioral metrics, heatmaps, and session replay. Recordings may include content that was displayed on screen at the time. Content entered into input fields is recorded in masked form.
+2. **How you are identified**: Usage data is captured using first-party and third-party cookies and similar technologies, and is associated with a pseudonymous identifier rather than your name or email address.
+3. **Purpose of use**: The Operator uses the collected data solely to improve the screens and features of the Service.
+4. **Handling of data by Microsoft**: The collected data is sent to Microsoft Corporation and may be used by Microsoft, in accordance with its privacy statement, for purposes such as site optimization, fraud prevention and security, and advertising. For details, please see the [Microsoft Privacy Statement](https://www.microsoft.com/privacy/privacystatement).
+5. **How to opt out**: You can stop Microsoft Clarity from setting cookies by disabling cookies in your browser settings.
+
+## 8. User Rights
 
 Users may exercise the following rights:
 
@@ -78,15 +91,15 @@ Users may exercise the following rights:
 
 To exercise these rights, please contact us through the Help & Contact form within the Service.
 
-## 8. Use by Minors
+## 9. Use by Minors
 
 The Service does not impose specific age restrictions, but we recommend that minors obtain parental consent before using the Service.
 
-## 9. Changes to This Policy
+## 10. Changes to This Policy
 
 This Privacy Policy may be changed as necessary. In case of significant changes, we will notify you within the Service or by email. The revised Privacy Policy shall take effect from the time it is posted on this page.
 
-## 10. Contact
+## 11. Contact
 
 For inquiries regarding this Privacy Policy, please use the Help & Contact form within the Service.
 
